@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Math test</h2>
+
+<p id="answers"></p>
+<p id="display"></p>
+<input id="inputvalue" type="number">
+<p id = "result"></p>
+<button id="ok" onclick="checkResult()">OK</button>
+<button id="next" onclick="generate()">Next</button>
+
+<script>
+let correctResult;
+let correct = 0
+let incorrect = 0
+let questions = 0
+
+
+function generate(){
+    questions += 1
+    document.getElementById("result").innerHTML=""
+    document.getElementById("inputvalue").value=""
+	let v1 = Math.round(Math.random()*100)
+    let v2 = Math.round(Math.random()*100)
+    correctResult = v1 + v2
+    document.getElementById("display").innerHTML = v1 +  "+" + v2 + "= ?"
+    document.getElementById("answers").innerHTML = "<h5>questions: " + questions + "</h5><h5>correct: " + correct + "</h5><h5>incorrect: " + incorrect + "</h5>"
+}
+
+function checkResult() {
+	let inputValue = document.getElementById("inputvalue").value
+    if (inputValue == correctResult) {
+    	document.getElementById("result").innerHTML = "<h3>Pravilno</h3>"
+        correct += 1
+        generate()
+    } else {
+    	document.getElementById("result").innerHTML = "<h3>Ne Pravilno</h3>"
+        incorrect += 1
+    }
+    document.getElementById("answers").innerHTML = "<h5>questions: " + questions + "</h5><h5>correct: " + correct + "</h5><h5>incorrect: " + incorrect + "</h5>"
+    }
+
+generate()
+</script>
+
+</body>
+</html>
+
+

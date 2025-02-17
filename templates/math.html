@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Math test</h2>
+
+<p id="scores">scores</p>
+<p id="question">question</p>
+<input id="answer" type="number">
+<p id = "check">check</p>
+<button id="ok" onclick="checkResult()">OK</button>
+<button id="next" onclick="generate()">Next</button>
+
+<script>
+
+function generate(){
+    fetch("https://able-folio-392303.uc.r.appspot.com/get_question")
+    .then(nookat => nookat.json())
+    .then(naryn => document.getElementById("question").innerHTML = naryn.question)
+    .catch(error => console.log("narmalno ishtebeysin bi, bilbesen chatGPT koldon"))
+}
+
+function checkResult() {
+    let answer = document.getElementById("answer").value
+	fetch(`https://able-folio-392303.uc.r.appspot.com/check_result?answer=${answer}`)
+    .then(response => response.json())
+    .then(data => {
+        let correct = data.correct
+        let incorrect = data.incorrect
+        let attempt = data.attempt
+        let question_count = data.question_count
+
+        document.getElementById("scores").innerHTML = `correct: ${correct}<br>incorrect: ${incorrect}<br>attempt:${attempt}<br>question_count: ${question_count}`
+    })
+  }
+
+generate()
+</script>
+
+</body>
+</html>
+
+
