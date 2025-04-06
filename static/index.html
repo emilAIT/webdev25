@@ -6,6 +6,10 @@
     <title>TalkFlowChat</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="styles.css" rel="stylesheet" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css"
+    />
   </head>
   <body class="bg-gray-100 font-sans">
     <!-- Sign Up Section -->
@@ -93,7 +97,7 @@
     <!-- Chat Section -->
     <div id="chat" class="hidden flex h-screen">
       <!-- Sidebar -->
-      <div class="w-1/4 bg-blue-900 text-white p-4 flex flex-col">
+      <div class="w-1/4 bg-[#4A4039] text-white p-4 flex flex-col">
         <div class="flex justify-between items-center mb-6">
           <h2 class="text-xl font-bold">Chats</h2>
           <button id="menu-btn" class="text-white hover:text-gray-300">
@@ -116,7 +120,8 @@
         <input
           type="text"
           placeholder="Search"
-          class="w-full p-2 mb-6 bg-blue-800 rounded-lg text-white placeholder-gray-300 focus:outline-none"
+          id="chat-search"
+          class="w-full p-2 mb-6 bg-[#5A4A40] rounded-lg text-white placeholder-gray-300 focus:outline-none"
         />
         <div id="chat-list" class="flex-1 overflow-y-auto space-y-4"></div>
         <div class="mt-4 flex space-x-4">
@@ -129,10 +134,10 @@
         </div>
       </div>
       <!-- Conversation -->
-      <div class="w-3/4 bg-gray-200 p-6 flex flex-col">
+      <div class="w-3/4 bg-[#E6E6FA] p-6 flex flex-col">
         <div id="conversation-header" class="flex items-center mb-6">
           <img
-            src="images/avatar1.jpg"
+            src="https://picsum.photos/40"
             alt="Profile"
             class="w-10 h-10 rounded-full mr-3"
           />
@@ -171,7 +176,75 @@
       </div>
     </div>
 
+    <!-- New Chat Modal -->
+    <div
+      id="new-chat-modal"
+      class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+    >
+      <div class="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
+        <h3 class="text-lg font-bold mb-4">New Chat</h3>
+        <input
+          type="text"
+          id="new-chat-username"
+          placeholder="Enter username"
+          class="w-full p-3 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <div id="user-suggestions" class="mb-4 max-h-40 overflow-y-auto"></div>
+        <div class="flex justify-end space-x-3">
+          <button
+            id="new-chat-cancel"
+            class="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400"
+          >
+            Cancel
+          </button>
+          <button
+            id="new-chat-create"
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Create
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- New Group Modal -->
+    <div
+      id="new-group-modal"
+      class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+    >
+      <div class="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
+        <h3 class="text-lg font-bold mb-4">New Group</h3>
+        <input
+          type="text"
+          id="new-group-name"
+          placeholder="Group name"
+          class="w-full p-3 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <input
+          type="text"
+          id="new-group-usernames"
+          placeholder="Enter usernames (comma-separated)"
+          class="w-full p-3 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <div class="flex justify-end space-x-3">
+          <button
+            id="new-group-cancel"
+            class="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400"
+          >
+            Cancel
+          </button>
+          <button
+            id="new-group-create"
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Create
+          </button>
+        </div>
+      </div>
+    </div>
+
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script src="auth.js"></script>
     <script src="chat.js"></script>
     <script src="socket.js"></script>

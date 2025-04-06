@@ -3,29 +3,12 @@ from sqlalchemy.orm import Session
 from .database import get_db
 from .models import Conversation, ConversationParticipant, Message, User
 from .schemas import ConversationCreate, MessageResponse
-from jose import jwt
 from fastapi.security import OAuth2PasswordBearer
-from .auth import SECRET_KEY, ALGORITHM
+from .auth import get_current_user
 
 router = APIRouter(prefix="/chat")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/signin")
-
-
-def get_current_user(
-    token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
-):
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        if not username:
-            raise HTTPException(status_code=401, detail="Invalid token")
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid token")
-    user = db.query(User).filter(User.username == username).first()
-    if not user:
-        raise HTTPException(status_code=401, detail="User not found")
-    return user
 
 
 @router.post("/conversations", response_model=dict)

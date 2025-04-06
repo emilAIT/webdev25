@@ -3,13 +3,34 @@
 @tailwind utilities;
 
 .bg-brownish {
-  background-color: #4a4039;
+    background-color: #4A4039;
 }
 
 .bg-light-purple {
-  background-color: #e6e6fa;
+    background-color: #E6E6FA;
 }
 
 .text-dark-gray {
-  color: #333333;
+    color: #333333;
+}
+
+#new-chat-modal, #new-group-modal {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    opacity: 0;
+    transform: scale(0.95);
+}
+
+#new-chat-modal:not(.hidden), #new-group-modal:not(.hidden) {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.user-suggestion {
+    padding: 8px;
+    cursor: pointer;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.user-suggestion:hover {
+    background-color: #f3f4f6;
 }
