@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TalkFlowChat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="styles.css" rel="stylesheet" />
+  </head>
+  <body class="bg-gray-100 font-sans">
+    <!-- Sign Up Section -->
+    <div
+      id="signup"
+      class="hidden flex items-center justify-center min-h-screen"
+    >
+      <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+        <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">
+          Sign Up
+        </h2>
+        <form id="signup-form">
+          <input
+            type="text"
+            id="signup-username"
+            placeholder="Username"
+            class="w-full p-3 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <input
+            type="password"
+            id="signup-password"
+            placeholder="Password"
+            class="w-full p-3 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <input
+            type="password"
+            id="signup-confirm-password"
+            placeholder="Confirm Password"
+            class="w-full p-3 mb-6 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <button
+            type="submit"
+            class="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition"
+          >
+            Continue
+          </button>
+        </form>
+        <p class="text-center mt-4 text-gray-600">
+          Already have an account?
+          <a href="#" id="show-signin" class="text-blue-600 hover:underline"
+            >Sign In</a
+          >
+        </p>
+      </div>
+    </div>
+
+    <!-- Sign In Section -->
+    <div id="signin" class="flex items-center justify-center min-h-screen">
+      <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+        <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">
+          Sign In
+        </h2>
+        <form id="signin-form">
+          <input
+            type="text"
+            id="signin-username"
+            placeholder="Username"
+            class="w-full p-3 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <input
+            type="password"
+            id="signin-password"
+            placeholder="Password"
+            class="w-full p-3 mb-6 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <button
+            type="submit"
+            class="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition"
+          >
+            Continue
+          </button>
+        </form>
+        <p class="text-center mt-4 text-gray-600">
+          <a href="#" class="text-blue-600 hover:underline">Forgot password?</a>
+        </p>
+        <p class="text-center mt-2 text-gray-600">
+          Don't have an account?
+          <a href="#" id="show-signup" class="text-blue-600 hover:underline"
+            >Sign Up</a
+          >
+        </p>
+      </div>
+    </div>
+
+    <!-- Chat Section -->
+    <div id="chat" class="hidden flex h-screen">
+      <!-- Sidebar -->
+      <div class="w-1/4 bg-blue-900 text-white p-4 flex flex-col">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-xl font-bold">Chats</h2>
+          <button id="menu-btn" class="text-white hover:text-gray-300">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              class="w-6 h-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+          </button>
+        </div>
+        <input
+          type="text"
+          placeholder="Search"
+          class="w-full p-2 mb-6 bg-blue-800 rounded-lg text-white placeholder-gray-300 focus:outline-none"
+        />
+        <div id="chat-list" class="flex-1 overflow-y-auto space-y-4"></div>
+        <div class="mt-4 flex space-x-4">
+          <button id="new-chat-btn" class="text-blue-300 hover:text-white">
+            New Chat
+          </button>
+          <button id="new-group-btn" class="text-blue-300 hover:text-white">
+            New Group
+          </button>
+        </div>
+      </div>
+      <!-- Conversation -->
+      <div class="w-3/4 bg-gray-200 p-6 flex flex-col">
+        <div id="conversation-header" class="flex items-center mb-6">
+          <img
+            src="images/avatar1.jpg"
+            alt="Profile"
+            class="w-10 h-10 rounded-full mr-3"
+          />
+          <h3 id="conversation-name" class="text-lg font-bold text-gray-800">
+            Chat Name
+          </h3>
+        </div>
+        <div id="message-list" class="flex-1 overflow-y-auto space-y-4"></div>
+        <div class="mt-6 flex">
+          <input
+            type="text"
+            id="message-input"
+            placeholder="Type a message"
+            class="flex-1 p-3 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <button
+            id="send-btn"
+            class="bg-blue-600 text-white p-3 rounded-r-lg hover:bg-blue-700 transition"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              class="w-6 h-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script src="auth.js"></script>
+    <script src="chat.js"></script>
+    <script src="socket.js"></script>
+  </body>
+</html>
