@@ -45,3 +45,78 @@
     max-height: 200px;
     overflow-y: auto;
 }
+
+/* Message selection and reply styles */
+.selectable {
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.selectable::before {
+    content: '';
+    position: absolute;
+    left: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+}
+
+.selectable.selected::before {
+    background-color: #4299e1;
+    border-color: #4299e1;
+    content: '✓';
+    color: white;
+    font-size: 10px;
+    text-align: center;
+    line-height: 14px;
+}
+
+.message-actions {
+    transition: opacity 0.2s;
+}
+
+.message-container:hover .message-actions {
+    opacity: 1;
+}
+
+.deleted {
+    font-style: italic;
+    opacity: 0.7;
+}
+
+.reply-preview {
+    border-left: 3px solid rgba(255,255,255,0.5);
+    padding-left: 6px;
+}
+
+#reply-container {
+    background-color: #f0f0f0;
+    border-top: 1px solid #e0e0e0;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+}
+
+#reply-preview {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-right: 10px;
+    font-size: 0.9em;
+    color: #666;
+}
+
+#cancel-reply {
+    color: #999;
+    cursor: pointer;
+}
+
+#cancel-reply:hover {
+    color: #d32f2f;
+}

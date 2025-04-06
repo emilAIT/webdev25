@@ -224,7 +224,7 @@ function setupSocketEvents() {
         }).showToast();
     });
 
-    // Message handling remains the same
+    // Message handling with reply support
     socket.on('message', (data) => {
         console.log('Received message:', data);
 
@@ -241,19 +241,7 @@ function setupSocketEvents() {
             });
 
             if (!messageExists) {
-                const messageDiv = document.createElement('div');
-                messageDiv.classList.add('p-3', 'mb-2', 'rounded-lg',
-                    data.sender_id === currentUserId ? 'bg-blue-500' : 'bg-gray-300',
-                    data.sender_id === currentUserId ? 'text-white' : 'text-gray-800',
-                    data.sender_id === currentUserId ? 'self-end' : 'self-start');
-                messageDiv.textContent = data.content;
-                messageDiv.dataset.senderId = data.sender_id;
-
-                // Store message ID if available
-                if (data.id) {
-                    messageDiv.dataset.messageId = data.id;
-                }
-
+                const messageDiv = createMessageElement(data);
                 messageList.appendChild(messageDiv);
                 messageList.scrollTop = messageList.scrollHeight;
             }
@@ -261,6 +249,19 @@ function setupSocketEvents() {
             // For messages in other conversations, update the conversation list
             // to show there are new messages
             loadConversations();
+        }
+    });
+
+    socket.on('message_deleted', (data) => {
+        console.log('Received message_deleted event:', data);
+
+        // Update UI for deleted message
+        if (data.conversation_id === currentConversationId) {
+            const messageElement = document.querySelector(`[data-message-id="${data.message_id}"]`);
+            if (messageElement) {
+                messageElement.classList.add('deleted');
+                messageElement.innerHTML = '<div>[Message deleted]</div>';
+            }
         }
     });
 
@@ -376,3 +377,20 @@ document.getElementById('message-input').addEventListener('keypress', (e) => {
         document.getElementById('send-btn').click();
     }
 });
+
+function createMessageElement(data) {
+    const messageDiv = document.createElement('div');
+    messageDiv.classList.add('p-3', 'mb-2', 'rounded-lg',
+        data.sender_id === currentUserId ? 'bg-blue-500' : 'bg-gray-300',
+        data.sender_id === currentUserId ? 'text-white' : 'text-gray-800',
+        data.sender_id === currentUserId ? 'self-end' : 'self-start');
+    messageDiv.textContent = data.content;
+    messageDiv.dataset.senderId = data.sender_id;
+
+    // Store message ID if available
+    if (data.id) {
+        messageDiv.dataset.messageId = data.id;
+    }
+
+    return messageDiv;
+}
