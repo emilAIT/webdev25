@@ -18,7 +18,26 @@ app.include_router(chat_router)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-sio = socketio.AsyncServer(async_mode="asgi", cors_allowed_origins="*")
+sio = socketio.AsyncServer(
+    async_mode="asgi",
+    cors_allowed_origins=["http://localhost:8000", "http://127.0.0.1:8000"],
+    async_handlers=True,
+    ping_timeout=35000,
+    logger=True,
+    engineio_logger=True,
+)
+
+# Add CORS middleware
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 socket_app = socketio.ASGIApp(sio, app)
 
 # Store user socket mappings
@@ -26,59 +45,77 @@ connected_users = {}
 
 
 @sio.event
-async def connect(sid, environ):
-    token = environ.get("HTTP_AUTHORIZATION", "").replace("Bearer ", "")
-    if not token:
-        # Try to get token from auth parameter
-        auth = environ.get("QUERY_STRING", "").split("&")
-        for param in auth:
-            if param.startswith("token="):
-                token = param.split("=")[1]
-                break
-
-    if not token:
-        await sio.disconnect(sid)
-        return
-
+async def connect(sid, environ, auth=None):
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username = payload.get("sub")
-        if not username:
+        token = None
+
+        # Try to get token from auth data first
+        if auth and isinstance(auth, dict):
+            token = auth.get("token")
+
+        # Try to get token from query string
+        if not token:
+            query = environ.get("QUERY_STRING", "")
+            for param in query.split("&"):
+                if param.startswith("token="):
+                    token = param.split("=")[1]
+                    break
+
+        # Try to get token from headers
+        if not token:
+            headers = environ.get("HTTP_AUTHORIZATION", "")
+            if headers.startswith("Bearer "):
+                token = headers.split(" ")[1]
+
+        if not token:
+            print("No token found in connection request")
             await sio.disconnect(sid)
-            return
+            return False
 
-        # Get user from database
-        db = SessionLocal()
         try:
-            user = db.query(User).filter(User.username == username).first()
-            if not user:
-                await sio.disconnect(sid)
-                return
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            username = payload.get("sub")
+            if not username:
+                raise JWTError("Invalid token payload")
 
-            # Store user connection
-            connected_users[sid] = user.id
-            print(
-                f"User {user.username} (ID: {user.id}) connected with socket ID: {sid}"
-            )
+            db = SessionLocal()
+            try:
+                user = db.query(User).filter(User.username == username).first()
+                if not user:
+                    raise JWTError("User not found")
 
-            # Join user to their conversations
-            conversations = (
-                db.query(Message.conversation_id)
-                .filter(Message.sender_id == user.id)
-                .distinct()
-                .all()
-            )
+                # Store user connection
+                connected_users[sid] = user.id
+                print(
+                    f"User {user.username} (ID: {user.id}) connected with socket ID: {sid}"
+                )
 
-            for conv in conversations:
-                await sio.enter_room(sid, str(conv.conversation_id))
-                print(f"User {user.username} joined room {conv.conversation_id}")
+                # Join user's conversations
+                conversations = (
+                    db.query(Message.conversation_id)
+                    .filter(Message.sender_id == user.id)
+                    .distinct()
+                    .all()
+                )
 
-        finally:
-            db.close()
+                for conv in conversations:
+                    await sio.enter_room(sid, str(conv.conversation_id))
+                    print(f"User {user.username} joined room {conv.conversation_id}")
 
-    except JWTError:
+                return True
+
+            finally:
+                db.close()
+
+        except JWTError as e:
+            print(f"Token validation failed: {str(e)}")
+            await sio.disconnect(sid)
+            return False
+
+    except Exception as e:
+        print(f"Connection error: {str(e)}")
         await sio.disconnect(sid)
-        return
+        return False
 
     print(f"Client authenticated and connected: {sid}")
 
@@ -166,6 +203,19 @@ async def join_conversation(sid, data):
     await sio.enter_room(sid, str(conversation_id))
     print(
         f"Client {sid} (User ID {connected_users[sid]}) joined conversation {conversation_id}"
+    )
+
+
+@sio.event
+async def leave_room(sid, data):
+    if sid not in connected_users:
+        print(f"Unauthorized leave attempt from {sid}")
+        return
+
+    conversation_id = data["conversation_id"]
+    await sio.leave_room(sid, str(conversation_id))
+    print(
+        f"Client {sid} (User ID {connected_users[sid]}) left conversation {conversation_id}"
     )
 
 

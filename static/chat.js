@@ -27,6 +27,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('signup').classList.add('hidden');
         document.getElementById('chat').classList.remove('hidden');
 
+        // Initialize socket connection
+        if (typeof initializeSocket === 'function') {
+            initializeSocket();
+        }
+
         // Load conversations
         await loadConversations();
     } catch (error) {
@@ -361,6 +366,13 @@ function renderChatList(convList) {
 async function loadConversation(conversationId) {
     try {
         currentConversationId = conversationId;
+
+        // Initialize socket if needed before joining
+        if (typeof initializeSocket === 'function') {
+            initializeSocket();
+        }
+
+        // Join the conversation (this will check if socket is connected)
         joinConversation(conversationId);
 
         const token = localStorage.getItem('token');
