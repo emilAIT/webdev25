@@ -54,12 +54,49 @@
     -ms-user-select: none;
     position: relative;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
+    max-width: 80%;
 }
 
 .message.selected {
     transform: scale(1.02);
     box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.message.highlight {
+    animation: pulse-highlight 2s ease;
+    z-index: 10;
+}
+
+@keyframes highlight {
+    0%, 100% {
+        background-color: inherit;
+    }
+    50% {
+        background-color: rgba(66, 153, 225, 0.3);
+    }
+}
+
+@keyframes highlight-pulse {
+    0% { transform: scale(1); }
+    25% { transform: scale(1.05); background-color: rgba(59, 130, 246, 0.2); }
+    75% { transform: scale(1.05); background-color: rgba(59, 130, 246, 0.2); }
+    100% { transform: scale(1); }
+}
+
+@keyframes pulse-highlight {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+    }
+    30% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+    }
 }
 
 .message-actions {
@@ -189,47 +226,92 @@
 
 /* Message selection styles */
 .selecting-messages .message {
-    position: relative;
-    padding-left: 40px;
+    /* Remove this style */
 }
 
 .message-checkbox {
-    position: absolute;
-    left: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 20px;
-    height: 20px;
-    border: 2px solid #cbd5e0;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
+    /* Remove this style */
 }
 
 .message.selected .message-checkbox {
-    background-color: #4299e1;
-    border-color: #4299e1;
+    /* Remove this style */
 }
 
-.message.selected .message-checkbox:after {
-    content: '✓';
-    color: white;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 12px;
+/* Keep and improve reply box styling */
+.reply-box {
+    position: relative;
+    opacity: 0.9;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-left: 3px solid rgba(255, 255, 255, 0.5);
+    margin-bottom: 8px;
+}
+
+.reply-box:hover {
+    opacity: 1;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.reply-info {
+    margin-bottom: 4px;
+    opacity: 0.8;
+    cursor: pointer;
+}
+
+.reply-line {
+    width: 2px;
+    height: 16px;
+    background-color: currentColor;
+    margin-left: 8px;
+    margin-bottom: 2px;
+}
+
+.reply-content {
+    font-size: 0.85em;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background-color: rgba(0, 0, 0, 0.1);
+    margin-bottom: 4px;
+}
+
+.reply-to {
+    font-weight: 500;
+    margin-right: 4px;
+}
+
+.reply-text {
+    opacity: 0.8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+    display: inline-block;
+    vertical-align: bottom;
+}
+
+.reply-box {
+    position: relative;
+    opacity: 0.8;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.reply-box:hover {
+    opacity: 1;
+    transform: translateX(2px);
 }
 
 .floating-actions-menu {
     position: fixed;
-    bottom: 80px;
-    right: 20px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
     z-index: 1000;
-    animation: fadeIn 0.2s ease-out;
+    background-color: white;
+    padding: 8px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    animation: fadeIn 0.2s ease;
 }
 
 .floating-actions-menu.hidden {
@@ -237,14 +319,15 @@
 }
 
 .action-button {
-    width: 50px;
-    height: 50px;
-    border-radius: 25px;
+    width: 40px;
+    height: 40px;
+    padding: 8px;
+    border-radius: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    transition: all 0.3s ease;
+    transition: transform 0.2s ease;
+    cursor: pointer;
 }
 
 .action-button:hover {
@@ -264,4 +347,29 @@
 .action-button svg {
     width: 24px;
     height: 24px;
+}
+
+#message-list {
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 10px;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e0 transparent;
+}
+
+#message-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+#message-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#message-list::-webkit-scrollbar-thumb {
+    background-color: #cbd5e0;
+    border-radius: 3px;
+}
+
+.message-content {
+    word-break: break-word;
 }

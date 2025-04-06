@@ -484,14 +484,62 @@ function createMessageElement(msg) {
     messageDiv.dataset.senderId = msg.sender_id;
     messageDiv.dataset.messageId = msg.id;
 
-    // Add message content
+    // Add reply preview if this is a reply - improved version with clearer indication
+    if (msg.replied_to_id && msg.replied_to_content) {
+        // Create a distinct reply container with better styling
+        const replyBox = document.createElement('div');
+        replyBox.className = 'reply-box mb-2 p-2 rounded text-sm';
+        replyBox.classList.add(isOwnMessage ? 'bg-blue-600' : 'bg-gray-400');
+
+        // Get sender username if available or use generic text
+        let repliedToUserText = 'Someone';
+        if (msg.replied_to_sender === currentUserId) {
+            repliedToUserText = 'your message';
+        } else if (msg.replied_to_username) {
+            repliedToUserText = msg.replied_to_username;
+        }
+
+        // Create a clearer reply indicator with quote styling
+        replyBox.innerHTML = `
+            <div class="flex items-center gap-1 mb-1">
+                <svg class="w-3 h-3 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
+                </svg>
+                <span class="font-bold">Replying to ${repliedToUserText}:</span>
+            </div>
+            <div class="pl-3 border-l-2 border-white border-opacity-70">
+                "${msg.replied_to_content || '[deleted message]'}"
+            </div>
+        `;
+
+        // Make the reply clickable - scroll to original message
+        replyBox.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const originalMsg = document.querySelector(`[data-message-id="${msg.replied_to_id}"]`);
+            if (originalMsg) {
+                // Add highlight effect
+                originalMsg.classList.add('highlight');
+                setTimeout(() => originalMsg.classList.remove('highlight'), 2000);
+
+                // Scroll to the original message
+                originalMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+
+        messageDiv.appendChild(replyBox);
+    }
+
+    // Add actual message content
     const contentDiv = document.createElement('div');
+    contentDiv.className = 'message-content';
     contentDiv.textContent = msg.is_deleted ? "[Message deleted]" : msg.content;
     messageDiv.appendChild(contentDiv);
 
     if (!msg.is_deleted) {
-        // Add click handler for floating menu
-        messageDiv.addEventListener('click', (e) => handleMessageClick(e, messageDiv));
+        messageDiv.addEventListener('click', (e) => {
+            e.stopPropagation();
+            handleMessageClick(e, messageDiv);
+        });
     }
 
     return messageDiv;

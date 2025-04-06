@@ -120,6 +120,7 @@ def get_messages(
             "is_deleted": msg.is_deleted,
             "replied_to_content": None,
             "replied_to_sender": None,
+            "replied_to_username": None,
         }
 
         # If this is a reply, add the parent message content
@@ -134,6 +135,8 @@ def get_messages(
                     else "[Message deleted]"
                 )
                 message_dict["replied_to_sender"] = replied_msg.sender_id
+                # Include username for better display
+                message_dict["replied_to_username"] = replied_msg.sender.username
 
         result.append(message_dict)
 

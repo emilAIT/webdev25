@@ -90,6 +90,19 @@ def get_user_by_username(
     return {"id": user.id, "username": user.username}
 
 
+# Add new endpoint to get user by ID
+@router.get("/user/id/{user_id}")
+def get_user_by_id(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"id": user.id, "username": user.username}
+
+
 @router.get("/users/search")
 def search_users(
     query: str,
