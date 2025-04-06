@@ -19,18 +19,29 @@ socket.on('message', (data) => {
     console.log('Received message:', data);
     if (data.conversation_id === currentConversationId) {
         const messageList = document.getElementById('message-list');
-        const messageDiv = document.createElement('div');
-        messageDiv.classList.add('p-3', 'mb-2', 'rounded-lg',
-            data.sender_id === currentUserId ? 'bg-blue-500' : 'bg-gray-300',
-            data.sender_id === currentUserId ? 'text-white' : 'text-gray-800',
-            data.sender_id === currentUserId ? 'self-end' : 'self-start');
-        messageDiv.textContent = data.content;
-        messageList.appendChild(messageDiv);
-        messageList.scrollTop = messageList.scrollHeight;
+        const existingMessages = Array.from(messageList.children);
+        const messageExists = existingMessages.some(msg => msg.textContent === data.content && msg.dataset.senderId === data.sender_id.toString());
+        if (!messageExists) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('p-3', 'mb-2', 'rounded-lg',
+                data.sender_id === currentUserId ? 'bg-blue-500' : 'bg-gray-300',
+                data.sender_id === currentUserId ? 'text-white' : 'text-gray-800',
+                data.sender_id === currentUserId ? 'self-end' : 'self-start');
+            messageDiv.textContent = data.content;
+            messageDiv.dataset.senderId = data.sender_id;
+            messageList.appendChild(messageDiv);
+            messageList.scrollTop = messageList.scrollHeight;
+        }
     }
 });
 
-// Send message
+socket.on('update_chat_list', (data) => {
+    console.log('Received update_chat_list event:', data);
+    if (data.conversation_id) {
+        loadConversations(); // Refresh the chat list
+    }
+});
+
 document.getElementById('send-btn').addEventListener('click', () => {
     const messageInput = document.getElementById('message-input');
     const content = messageInput.value.trim();
@@ -41,7 +52,20 @@ document.getElementById('send-btn').addEventListener('click', () => {
             content: content
         };
         console.log('Sending message:', messageData);
+
+        // Optimistic UI update
+        const messageList = document.getElementById('message-list');
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('p-3', 'mb-2', 'rounded-lg', 'bg-blue-500', 'text-white', 'self-end');
+        messageDiv.textContent = content;
+        messageDiv.dataset.senderId = currentUserId;
+        messageList.appendChild(messageDiv);
+        messageList.scrollTop = messageList.scrollHeight;
+
+        // Emit the message to the server
         socket.emit('message', messageData);
         messageInput.value = '';
+    } else {
+        console.log('Message not sent: content or conversationId missing', { content, currentConversationId });
     }
 });

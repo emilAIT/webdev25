@@ -9,6 +9,7 @@ from datetime import datetime
 
 app = FastAPI()
 
+# Create database tables
 Base.metadata.create_all(bind=engine)
 
 app.include_router(auth_router)
@@ -35,22 +36,48 @@ async def message(sid, data):
     print(f"Received message from {sid}: {data}")
     db = SessionLocal()
     try:
+        # Validate required fields
+        if not all(key in data for key in ["conversation_id", "sender_id", "content"]):
+            print(f"Error: Missing required fields in message data: {data}")
+            return
+
         new_message = Message(
-            conversation_id=data["conversation_id"],
-            sender_id=data["sender_id"],
+            conversation_id=int(data["conversation_id"]),
+            sender_id=int(data["sender_id"]),
             content=data["content"],
             timestamp=datetime.utcnow(),
         )
         db.add(new_message)
         db.commit()
-        print(f"Message saved to database: {new_message.id}")
+        db.refresh(new_message)
+        print(
+            f"Message saved to database: ID={new_message.id}, Content={new_message.content}, ConversationID={new_message.conversation_id}"
+        )
+
+        # Prepare the message data to broadcast
+        message_data = {
+            "conversation_id": new_message.conversation_id,
+            "sender_id": new_message.sender_id,
+            "content": new_message.content,
+            "timestamp": new_message.timestamp.isoformat(),
+        }
+        await sio.emit("message", message_data, room=str(data["conversation_id"]))
+        print(f"Message broadcasted to room {data['conversation_id']}: {message_data}")
+
+        # Emit an event to update the chat list
+        await sio.emit(
+            "update_chat_list",
+            {"conversation_id": new_message.conversation_id},
+            room=str(data["conversation_id"]),
+        )
+        print(
+            f"Emitted update_chat_list event for conversation {new_message.conversation_id}"
+        )
     except Exception as e:
-        print(f"Error saving message: {e}")
+        print(f"Error saving message to database: {e}")
         db.rollback()
     finally:
         db.close()
-    await sio.emit("message", data, room=str(data["conversation_id"]))
-    print(f"Message broadcasted to room {data['conversation_id']}")
 
 
 @sio.event
