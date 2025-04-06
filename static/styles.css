@@ -54,7 +54,12 @@
     -ms-user-select: none;
     position: relative;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: all 0.2s;
+}
+
+.message.selected {
+    transform: scale(1.02);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
 .message-actions {
@@ -214,4 +219,49 @@
     left: 50%;
     transform: translate(-50%, -50%);
     font-size: 12px;
+}
+
+.floating-actions-menu {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.floating-actions-menu.hidden {
+    display: none;
+}
+
+.action-button {
+    width: 50px;
+    height: 50px;
+    border-radius: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
+
+.action-button:hover {
+    transform: scale(1.1);
+}
+
+.action-button.reply {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.action-button.delete {
+    background-color: #F44336;
+    color: white;
+}
+
+.action-button svg {
+    width: 24px;
+    height: 24px;
 }

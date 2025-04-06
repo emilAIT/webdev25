@@ -372,4 +372,4 @@ document.getElementById('message-input').addEventListener('keypress', (e) => {
     }
 });
 
-export { socket, initializeSocket, joinConversation };
+export { socket, initializeSocket, joinConversation, isSocketConnected };

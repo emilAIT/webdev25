@@ -1,16 +1,15 @@
-import { setupMessageHandlers, setupReplyUI, hideReplyUI, replyingToMessage, selectedMessages } from './messageHandlers.js';
+import { setupMessageHandlers, setupReplyUI, hideReplyUI, getReplyingToMessage, handleMessageClick, clearMessageSelection } from './messageHandlers.js';
+import { initializeSocket, joinConversation } from './socket.js';
 
 let currentConversationId = null;
 let currentUserId = null;
 let conversations = [];
-let replyingToMessage = null;
 
 // Export these variables so other modules can use them
 export {
     currentConversationId,
     currentUserId,
     conversations,
-    replyingToMessage,
     loadConversations,
     loadConversation,
     createMessageElement
@@ -402,8 +401,10 @@ async function loadConversation(conversationId) {
             initializeSocket();
         }
 
-        // Join the conversation (this will check if socket is connected)
-        joinConversation(conversationId);
+        // Join the conversation 
+        if (typeof joinConversation === 'function') {
+            joinConversation(conversationId);
+        }
 
         const token = localStorage.getItem('token');
         if (!token) {
@@ -476,7 +477,6 @@ function createMessageElement(msg) {
         classes.push('deleted');
     }
 
-    // Add classes individually to avoid empty token error
     classes.forEach(className => {
         if (className) messageDiv.classList.add(className);
     });
@@ -484,133 +484,23 @@ function createMessageElement(msg) {
     messageDiv.dataset.senderId = msg.sender_id;
     messageDiv.dataset.messageId = msg.id;
 
-    // Add reply content if this is a reply
-    if (msg.replied_to_id) {
-        const replyDiv = document.createElement('div');
-        replyDiv.classList.add('reply-preview', 'text-xs', 'mb-1', 'p-1',
-            isOwnMessage ? 'bg-blue-600' : 'bg-gray-400',
-            'rounded');
-        replyDiv.textContent = `↩ ${msg.replied_to_content || "[Message unavailable]"}`;
-        messageDiv.appendChild(replyDiv);
-    }
-
     // Add message content
     const contentDiv = document.createElement('div');
     contentDiv.textContent = msg.is_deleted ? "[Message deleted]" : msg.content;
     messageDiv.appendChild(contentDiv);
 
     if (!msg.is_deleted) {
-        // Handle right click (context menu)
-        messageDiv.addEventListener('contextmenu', handleContextMenu);
-
-        // Handle double click
-        messageDiv.addEventListener('dblclick', handleContextMenu);
-
-        // Handle long press for mobile
-        let longPressTimer;
-        let moved = false;
-
-        messageDiv.addEventListener('touchstart', (e) => {
-            moved = false;
-            longPressTimer = setTimeout(() => {
-                if (!moved) {
-                    const touch = e.touches[0];
-                    handleContextMenu(e);
-                }
-            }, 500);
-        });
-
-        messageDiv.addEventListener('touchmove', () => {
-            moved = true;
-            clearTimeout(longPressTimer);
-        });
-
-        messageDiv.addEventListener('touchend', () => {
-            clearTimeout(longPressTimer);
-        });
+        // Add click handler for floating menu
+        messageDiv.addEventListener('click', (e) => handleMessageClick(e, messageDiv));
     }
-
-    messageDiv.addEventListener('click', (e) => {
-        if (e.currentTarget.closest('.selecting-messages')) {
-            e.currentTarget.classList.toggle('selected');
-            const messageId = parseInt(e.currentTarget.dataset.messageId);
-            if (e.currentTarget.classList.contains('selected')) {
-                selectedMessages.push(messageId);
-            } else {
-                selectedMessages = selectedMessages.filter(id => id !== messageId);
-            }
-        }
-    });
 
     return messageDiv;
 }
 
-function handleContextMenu(e) {
-    e.preventDefault();
-    const messageElement = e.currentTarget;
-    const isOwnMessage = parseInt(messageElement.dataset.senderId) === currentUserId;
-
-    // Remove any existing context menus
-    removeContextMenu();
-
-    // Create context menu
-    const contextMenu = document.createElement('div');
-    contextMenu.className = 'message-context-menu';
-
-    const replyButton = document.createElement('button');
-    replyButton.textContent = 'Reply';
-    replyButton.onclick = () => {
-        const content = messageElement.querySelector('div:not(.reply-preview)').textContent;
-        const messageId = parseInt(messageElement.dataset.messageId);
-        const senderId = parseInt(messageElement.dataset.senderId);
-        setupReplyUI(messageId, content, senderId);
-        removeContextMenu();
-    };
-    contextMenu.appendChild(replyButton);
-
-    if (isOwnMessage) {
-        const deleteButton = document.createElement('button');
-        deleteButton.textContent = 'Delete';
-        deleteButton.className = 'text-red-600';
-        deleteButton.onclick = async () => {
-            if (confirm('Delete this message?')) {
-                await deleteMessage(parseInt(messageElement.dataset.messageId));
-            }
-            removeContextMenu();
-        };
-        contextMenu.appendChild(deleteButton);
-    }
-
-    // Position the menu
-    const x = e.type.includes('touch') ? e.touches[0].pageX : e.pageX;
-    const y = e.type.includes('touch') ? e.touches[0].pageY : e.pageY;
-
-    contextMenu.style.left = `${x}px`;
-    contextMenu.style.top = `${y}px`;
-
-    // Ensure menu stays within viewport
-    document.body.appendChild(contextMenu);
-    const menuRect = contextMenu.getBoundingClientRect();
-
-    if (menuRect.right > window.innerWidth) {
-        contextMenu.style.left = `${x - menuRect.width}px`;
-    }
-    if (menuRect.bottom > window.innerHeight) {
-        contextMenu.style.top = `${y - menuRect.height}px`;
-    }
-}
-
-function removeContextMenu() {
-    const existingMenu = document.querySelector('.message-context-menu');
-    if (existingMenu) {
-        existingMenu.remove();
-    }
-}
-
-// Close context menu when clicking outside
+// Add click handler to close floating menu when clicking outside
 document.addEventListener('click', (e) => {
-    if (!e.target.closest('.message-context-menu')) {
-        removeContextMenu();
+    if (!e.target.closest('.message') && !e.target.closest('.floating-actions-menu')) {
+        clearMessageSelection();
     }
 });
 
@@ -639,13 +529,28 @@ async function deleteMessage(messageId) {
     }
 }
 
+function createMessageData(content) {
+    const messageData = {
+        conversation_id: currentConversationId,
+        sender_id: currentUserId,
+        content: content
+    };
+
+    const replyingTo = getReplyingToMessage();
+    if (replyingTo) {
+        messageData.replied_to_id = replyingTo.id;
+    }
+
+    return messageData;
+}
+
 document.getElementById('send-btn').addEventListener('click', () => {
     const messageInput = document.getElementById('message-input');
     const content = messageInput.value.trim();
 
-    if (!content) {
-        return;
-    }
+    if (!content) return;
+
+    const messageData = createMessageData(content);
 
     if (!currentConversationId) {
         Toastify({
@@ -684,7 +589,7 @@ document.getElementById('send-btn').addEventListener('click', () => {
         socket.pendingMessages.push({
             conversation_id: currentConversationId,
             content: content,
-            replied_to_id: replyingToMessage?.id
+            replied_to_id: getReplyingToMessage()?.id
         });
 
         Toastify({
@@ -705,10 +610,10 @@ document.getElementById('send-btn').addEventListener('click', () => {
         messageDiv.classList.add('p-3', 'mb-2', 'rounded-lg', 'bg-blue-500', 'text-white', 'self-end', 'opacity-50');
 
         // Add reply preview if replying
-        if (replyingToMessage) {
+        if (getReplyingToMessage()) {
             const replyDiv = document.createElement('div');
             replyDiv.classList.add('reply-preview', 'text-xs', 'mb-1', 'p-1', 'bg-blue-600', 'rounded');
-            replyDiv.textContent = `↩ ${replyingToMessage.content.substring(0, 50)}...`;
+            replyDiv.textContent = `↩ ${getReplyingToMessage().content.substring(0, 50)}...`;
             messageDiv.appendChild(replyDiv);
         }
 
@@ -728,17 +633,6 @@ document.getElementById('send-btn').addEventListener('click', () => {
         return;
     }
 
-    const messageData = {
-        conversation_id: currentConversationId,
-        sender_id: currentUserId,
-        content: content
-    };
-
-    // Add reply information if replying
-    if (replyingToMessage) {
-        messageData.replied_to_id = replyingToMessage.id;
-    }
-
     console.log('Sending message:', messageData);
 
     // Optimistic UI update
@@ -747,10 +641,10 @@ document.getElementById('send-btn').addEventListener('click', () => {
     messageDiv.classList.add('p-3', 'mb-2', 'rounded-lg', 'bg-blue-500', 'text-white', 'self-end');
 
     // Add reply preview if replying
-    if (replyingToMessage) {
+    if (getReplyingToMessage()) {
         const replyDiv = document.createElement('div');
         replyDiv.classList.add('reply-preview', 'text-xs', 'mb-1', 'p-1', 'bg-blue-600', 'rounded');
-        replyDiv.textContent = `↩ ${replyingToMessage.content.substring(0, 50)}${replyingToMessage.content.length > 50 ? '...' : ''}`;
+        replyDiv.textContent = `↩ ${getReplyingToMessage().content.substring(0, 50)}${getReplyingToMessage().content.length > 50 ? '...' : ''}`;
         messageDiv.appendChild(replyDiv);
     }
 
