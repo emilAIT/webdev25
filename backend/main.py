@@ -11,7 +11,6 @@ app = FastAPI()
 
 Base.metadata.create_all(bind=engine)
 
-# Include routers
 app.include_router(auth_router)
 app.include_router(chat_router)
 
@@ -33,7 +32,7 @@ async def disconnect(sid):
 
 @sio.event
 async def message(sid, data):
-    print(f"Received message: {data}")
+    print(f"Received message from {sid}: {data}")
     db = SessionLocal()
     try:
         new_message = Message(
@@ -45,6 +44,9 @@ async def message(sid, data):
         db.add(new_message)
         db.commit()
         print(f"Message saved to database: {new_message.id}")
+    except Exception as e:
+        print(f"Error saving message: {e}")
+        db.rollback()
     finally:
         db.close()
     await sio.emit("message", data, room=str(data["conversation_id"]))

@@ -4,6 +4,7 @@ const socket = io('http://localhost:8000', {
 
 function joinConversation(conversationId) {
     socket.emit('join_conversation', { conversation_id: conversationId });
+    console.log(`Joined conversation ${conversationId}`);
 }
 
 socket.on('connect', () => {
@@ -26,5 +27,21 @@ socket.on('message', (data) => {
         messageDiv.textContent = data.content;
         messageList.appendChild(messageDiv);
         messageList.scrollTop = messageList.scrollHeight;
+    }
+});
+
+// Send message
+document.getElementById('send-btn').addEventListener('click', () => {
+    const messageInput = document.getElementById('message-input');
+    const content = messageInput.value.trim();
+    if (content && currentConversationId) {
+        const messageData = {
+            conversation_id: currentConversationId,
+            sender_id: currentUserId,
+            content: content
+        };
+        console.log('Sending message:', messageData);
+        socket.emit('message', messageData);
+        messageInput.value = '';
     }
 });

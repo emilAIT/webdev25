@@ -3,12 +3,9 @@ from sqlalchemy.orm import Session
 from .database import get_db
 from .models import Conversation, ConversationParticipant, Message, User
 from .schemas import ConversationCreate, MessageResponse
-from fastapi.security import OAuth2PasswordBearer
 from .auth import get_current_user
 
 router = APIRouter(prefix="/chat")
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/signin")
 
 
 @router.post("/conversations", response_model=dict)
@@ -40,7 +37,29 @@ def get_conversations(
         .filter(ConversationParticipant.user_id == user.id)
         .all()
     )
-    return [{"id": conv.id, "name": conv.name} for conv in conversations]
+    result = []
+    for conv in conversations:
+        participants = (
+            db.query(User)
+            .join(ConversationParticipant)
+            .filter(ConversationParticipant.conversation_id == conv.id)
+            .all()
+        )
+        participant_usernames = [p.username for p in participants if p.id != user.id]
+        if len(participants) == 2:
+            display_name = (
+                participant_usernames[0] if participant_usernames else "Direct Chat"
+            )
+        else:
+            display_name = conv.name or "Group Chat"
+        result.append(
+            {
+                "id": conv.id,
+                "name": display_name,
+                "participants": [p.username for p in participants],
+            }
+        )
+    return result
 
 
 @router.get("/messages/{conversation_id}", response_model=list[MessageResponse])
