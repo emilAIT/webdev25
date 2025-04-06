@@ -26,11 +26,22 @@
 }
 
 .user-suggestion {
-    padding: 8px;
+    padding: 10px;
     cursor: pointer;
     border-bottom: 1px solid #e5e7eb;
+    background-color: #ffffff;
+    transition: background-color 0.2s ease;
 }
 
 .user-suggestion:hover {
     background-color: #f3f4f6;
+}
+
+#user-suggestions {
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    max-height: 200px;
+    overflow-y: auto;
 }

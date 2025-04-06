@@ -88,3 +88,17 @@ def get_user_by_username(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return {"id": user.id, "username": user.username}
+
+
+@router.get("/users/search")
+def search_users(
+    query: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    if not query:
+        raise HTTPException(status_code=400, detail="Query parameter is required")
+    users = db.query(User).filter(User.username.ilike(f"{query}%")).all()
+    if not users:
+        return []  # Return empty list instead of raising an error
+    return [{"id": user.id, "username": user.username} for user in users]

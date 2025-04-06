@@ -18,6 +18,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         localStorage.removeItem('token');
         document.getElementById('chat').classList.add('hidden');
         document.getElementById('signin').classList.remove('hidden');
+        Toastify({
+            text: "Session expired. Please sign in again.",
+            duration: 3000,
+            close: true,
+            gravity: "top",
+            position: "right",
+            backgroundColor: "#F44336",
+        }).showToast();
         return;
     }
     const userData = await userResponse.json();
@@ -34,6 +42,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             (conv.name || 'Chat').toLowerCase().includes(query)
         );
         renderChatList(filteredConversations);
+        if (filteredConversations.length === 0 && query) {
+            Toastify({
+                text: "No chats found matching your search.",
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#F44336",
+            }).showToast();
+        }
     });
 
     async function loadConversations() {
@@ -41,6 +59,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         const response = await fetch('/chat/conversations', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
+        if (!response.ok) {
+            Toastify({
+                text: "Failed to load conversations.",
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#F44336",
+            }).showToast();
+            return;
+        }
         conversations = await response.json();
         renderChatList(conversations);
     }
@@ -69,6 +98,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         const response = await fetch(`/chat/messages/${conversationId}`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
+        if (!response.ok) {
+            Toastify({
+                text: "Failed to load messages.",
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#F44336",
+            }).showToast();
+            return;
+        }
         const messages = await response.json();
         const messageList = document.getElementById('message-list');
         messageList.innerHTML = '';
@@ -104,15 +144,34 @@ document.addEventListener('DOMContentLoaded', async () => {
         newChatModal.classList.add('hidden');
     });
 
+    let searchTimeout;
     newChatUsernameInput.addEventListener('input', async () => {
+        clearTimeout(searchTimeout);
         const query = newChatUsernameInput.value.trim();
-        if (query.length > 1) {
-            const response = await fetch(`/auth/users/search?query=${query}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (response.ok) {
+        userSuggestions.innerHTML = '<div class="p-2 text-gray-500">Searching...</div>';
+        searchTimeout = setTimeout(async () => {
+            if (query.length > 1) {
+                const response = await fetch(`/auth/users/search?query=${query}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!response.ok) {
+                    userSuggestions.innerHTML = '';
+                    Toastify({
+                        text: "Failed to search users.",
+                        duration: 3000,
+                        close: true,
+                        gravity: "top",
+                        position: "right",
+                        backgroundColor: "#F44336",
+                    }).showToast();
+                    return;
+                }
                 const users = await response.json();
                 userSuggestions.innerHTML = '';
+                if (users.length === 0) {
+                    userSuggestions.innerHTML = '<div class="p-2 text-gray-500">No users found.</div>';
+                    return;
+                }
                 users.forEach(user => {
                     const suggestionDiv = document.createElement('div');
                     suggestionDiv.classList.add('user-suggestion');
@@ -124,16 +183,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                     });
                     userSuggestions.appendChild(suggestionDiv);
                 });
+            } else {
+                userSuggestions.innerHTML = '';
             }
-        } else {
-            userSuggestions.innerHTML = '';
-        }
+        }, 300);
     });
 
     newChatCreate.addEventListener('click', async () => {
         if (!selectedUserId) {
             Toastify({
-                text: "Please select a user",
+                text: "Please select a user to start a chat.",
                 duration: 3000,
                 close: true,
                 gravity: "top",
@@ -158,7 +217,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             newChatModal.classList.add('hidden');
             await loadConversations();
             Toastify({
-                text: "Chat created successfully",
+                text: "Chat created successfully!",
                 duration: 3000,
                 close: true,
                 gravity: "top",
@@ -167,7 +226,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }).showToast();
         } else {
             Toastify({
-                text: "Failed to create chat",
+                text: "Failed to create chat. Please try again.",
                 duration: 3000,
                 close: true,
                 gravity: "top",
@@ -196,7 +255,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const usernames = document.getElementById('new-group-usernames').value.split(',').map(u => u.trim()).filter(u => u);
         if (!groupName || usernames.length < 1) {
             Toastify({
-                text: "Please enter a group name and at least one username",
+                text: "Please enter a group name and at least one username.",
                 duration: 3000,
                 close: true,
                 gravity: "top",
@@ -213,7 +272,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
             if (!userResponse.ok) {
                 Toastify({
-                    text: `User ${username} not found`,
+                    text: `User "${username}" not found.`,
                     duration: 3000,
                     close: true,
                     gravity: "top",
@@ -242,7 +301,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             newGroupModal.classList.add('hidden');
             await loadConversations();
             Toastify({
-                text: "Group created successfully",
+                text: "Group created successfully!",
                 duration: 3000,
                 close: true,
                 gravity: "top",
@@ -251,7 +310,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }).showToast();
         } else {
             Toastify({
-                text: "Failed to create group",
+                text: "Failed to create group. Please try again.",
                 duration: 3000,
                 close: true,
                 gravity: "top",

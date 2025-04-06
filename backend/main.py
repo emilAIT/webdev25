@@ -11,6 +11,7 @@ app = FastAPI()
 
 Base.metadata.create_all(bind=engine)
 
+# Include routers
 app.include_router(auth_router)
 app.include_router(chat_router)
 
