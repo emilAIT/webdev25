@@ -3,12 +3,9 @@ from sqlalchemy.orm import Session
 from .database import get_db
 from .models import Conversation, ConversationParticipant, Message, User
 from .schemas import ConversationCreate, MessageResponse
-from fastapi.security import OAuth2PasswordBearer
 from .auth import get_current_user
 
 router = APIRouter(prefix="/chat")
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/signin")
 
 
 @router.post("/conversations", response_model=dict)
@@ -40,7 +37,43 @@ def get_conversations(
         .filter(ConversationParticipant.user_id == user.id)
         .all()
     )
-    return [{"id": conv.id, "name": conv.name} for conv in conversations]
+    result = []
+    for conv in conversations:
+        participants = (
+            db.query(User)
+            .join(ConversationParticipant)
+            .filter(ConversationParticipant.conversation_id == conv.id)
+            .all()
+        )
+        participant_usernames = [p.username for p in participants if p.id != user.id]
+        display_name = (
+            participant_usernames[0]
+            if len(participants) == 2
+            else conv.name or "Group Chat"
+        )
+
+        last_message = (
+            db.query(Message)
+            .filter(Message.conversation_id == conv.id)
+            .order_by(Message.timestamp.desc())
+            .first()
+        )
+        last_message_content = (
+            last_message.content if last_message else "No messages yet"
+        )
+
+        result.append(
+            {
+                "id": conv.id,
+                "name": display_name,
+                "last_message": last_message_content,
+                "participants": [p.username for p in participants],
+            }
+        )
+    print(
+        f"Fetched {len(result)} conversations for user {user.id}: {[conv['name'] for conv in result]}"
+    )
+    return result
 
 
 @router.get("/messages/{conversation_id}", response_model=list[MessageResponse])
@@ -54,5 +87,8 @@ def get_messages(
         .filter(Message.conversation_id == conversation_id)
         .order_by(Message.timestamp)
         .all()
+    )
+    print(
+        f"Fetched {len(messages)} messages for conversation {conversation_id}: {[msg.content for msg in messages]}"
     )
     return messages

@@ -22,21 +22,44 @@ document.addEventListener('DOMContentLoaded', () => {
         const password = document.getElementById('signup-password').value;
         const confirmPassword = document.getElementById('signup-confirm-password').value;
         if (password !== confirmPassword) {
-            alert('Passwords do not match');
+            Toastify({
+                text: "Passwords do not match",
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#F44336",
+            }).showToast();
             return;
         }
-        const response = await fetch('/auth/signup', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
-        });
-        if (response.ok) {
-            const data = await response.json();
-            localStorage.setItem('token', data.access_token);
-            document.getElementById('signup').classList.add('hidden');
-            document.getElementById('chat').classList.remove('hidden');
-        } else {
-            alert('Signup failed');
+        try {
+            const response = await fetch('/auth/signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                localStorage.setItem('token', data.access_token);
+                document.getElementById('signup').classList.add('hidden');
+                document.getElementById('chat').classList.remove('hidden');
+
+                // Reload page to ensure everything is initialized properly
+                window.location.reload();
+            } else {
+                const error = await response.json();
+                throw new Error(error.detail || "Signup failed");
+            }
+        } catch (error) {
+            Toastify({
+                text: error.message || "Signup failed",
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#F44336",
+            }).showToast();
         }
     });
 
@@ -44,18 +67,35 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const username = document.getElementById('signin-username').value;
         const password = document.getElementById('signin-password').value;
-        const response = await fetch('/auth/signin', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
-        });
-        if (response.ok) {
-            const data = await response.json();
-            localStorage.setItem('token', data.access_token);
-            document.getElementById('signin').classList.add('hidden');
-            document.getElementById('chat').classList.remove('hidden');
-        } else {
-            alert('Signin failed');
+
+        try {
+            const response = await fetch('/auth/signin', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                localStorage.setItem('token', data.access_token);
+                document.getElementById('signin').classList.add('hidden');
+                document.getElementById('chat').classList.remove('hidden');
+
+                // Reload page to ensure everything is initialized properly
+                window.location.reload();
+            } else {
+                const error = await response.json();
+                throw new Error(error.detail || "Signin failed");
+            }
+        } catch (error) {
+            Toastify({
+                text: error.message || "Signin failed",
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#F44336",
+            }).showToast();
         }
     });
 });

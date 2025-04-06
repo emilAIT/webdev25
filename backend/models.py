@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from .database import Base
-import datetime
+from datetime import datetime
 
 
 class User(Base):
@@ -14,7 +14,11 @@ class User(Base):
 class Conversation(Base):
     __tablename__ = "conversations"
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, nullable=True)  # For group chats
+    name = Column(String, nullable=True)
+    participants = relationship(
+        "ConversationParticipant", back_populates="conversation"
+    )
+    messages = relationship("Message", back_populates="conversation")
 
 
 class ConversationParticipant(Base):
@@ -22,6 +26,8 @@ class ConversationParticipant(Base):
     id = Column(Integer, primary_key=True, index=True)
     conversation_id = Column(Integer, ForeignKey("conversations.id"))
     user_id = Column(Integer, ForeignKey("users.id"))
+    conversation = relationship("Conversation", back_populates="participants")
+    user = relationship("User")
 
 
 class Message(Base):
@@ -30,4 +36,6 @@ class Message(Base):
     conversation_id = Column(Integer, ForeignKey("conversations.id"))
     sender_id = Column(Integer, ForeignKey("users.id"))
     content = Column(String)
-    timestamp = Column(DateTime, default=datetime.datetime.utcnow)
+    timestamp = Column(DateTime, default=datetime.utcnow)
+    conversation = relationship("Conversation", back_populates="messages")
+    sender = relationship("User")
