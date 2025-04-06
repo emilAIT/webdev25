@@ -135,10 +135,7 @@
       </div>
       <!-- Conversation -->
       <div class="w-3/4 bg-[#E6E6FA] p-6 flex flex-col">
-        <div
-          id="conversation-header"
-          class="flex items-center justify-between mb-6"
-        >
+        <div id="conversation-header" class="flex items-center mb-6">
           <div class="flex items-center">
             <img
               src="https://picsum.photos/40"
@@ -148,15 +145,6 @@
             <h3 id="conversation-name" class="text-lg font-bold text-gray-800">
               Chat Name
             </h3>
-          </div>
-          <!-- Message Action Buttons -->
-          <div>
-            <button
-              id="select-mode-btn"
-              class="text-blue-600 hover:text-blue-800 mr-2"
-            >
-              Select
-            </button>
           </div>
         </div>
 
@@ -216,20 +204,6 @@
                   d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
                 />
               </svg>
-            </button>
-          </div>
-        </div>
-
-        <!-- Selection mode controls -->
-        <div id="selection-message-controls" class="mt-6 hidden">
-          <div
-            class="flex justify-between items-center p-3 bg-white rounded-lg"
-          >
-            <button id="cancel-selection-btn" class="text-gray-600">
-              Cancel
-            </button>
-            <button id="delete-selected-btn" class="text-red-500" disabled>
-              Delete Selected
             </button>
           </div>
         </div>
@@ -303,10 +277,31 @@
       </div>
     </div>
 
+    <!-- Message Actions Modal -->
+    <div
+      id="message-actions-modal"
+      class="hidden fixed bg-white rounded-lg shadow-lg p-2 z-50"
+    >
+      <div class="flex flex-col w-32">
+        <button
+          id="modal-reply-btn"
+          class="p-2 text-left hover:bg-gray-100 rounded"
+        >
+          Reply
+        </button>
+        <button
+          id="modal-delete-btn"
+          class="p-2 text-left hover:bg-gray-100 rounded text-red-600"
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-    <script src="auth.js"></script>
-    <script src="chat.js"></script>
-    <script src="socket.js"></script>
+    <script src="auth.js" type="module"></script>
+    <script src="chat.js" type="module"></script>
+    <script src="socket.js" type="module"></script>
   </body>
 </html>

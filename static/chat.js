@@ -1,8 +1,20 @@
+import { setupMessageHandlers, setupReplyUI, hideReplyUI, replyingToMessage, selectedMessages } from './messageHandlers.js';
+
 let currentConversationId = null;
 let currentUserId = null;
 let conversations = [];
-let selectedMessages = []; // To keep track of selected messages
-let replyingToMessage = null; // To keep track of message being replied to
+let replyingToMessage = null;
+
+// Export these variables so other modules can use them
+export {
+    currentConversationId,
+    currentUserId,
+    conversations,
+    replyingToMessage,
+    loadConversations,
+    loadConversation,
+    createMessageElement
+};
 
 document.addEventListener('DOMContentLoaded', async () => {
     const token = localStorage.getItem('token');
@@ -67,10 +79,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // Add message selection mode handling
+    // Remove select mode event listeners since we're using context menu
+    /*
+    // Remove these lines
     document.getElementById('select-mode-btn').addEventListener('click', toggleSelectionMode);
     document.getElementById('cancel-selection-btn').addEventListener('click', cancelSelectionMode);
     document.getElementById('delete-selected-btn').addEventListener('click', deleteSelectedMessages);
+    */
 
     // New Chat Modal
     const newChatModal = document.getElementById('new-chat-modal');
@@ -79,18 +94,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     const newChatCreate = document.getElementById('new-chat-create');
     const newChatUsernameInput = document.getElementById('new-chat-username');
     const userSuggestions = document.getElementById('user-suggestions');
+    const replyContainer = document.getElementById('reply-container');
+    const cancelReplyBtn = document.getElementById('cancel-reply');
     let selectedUserId = null;
 
-    newChatBtn.addEventListener('click', () => {
-        newChatModal.classList.remove('hidden');
-        newChatUsernameInput.value = '';
-        userSuggestions.innerHTML = '';
-        selectedUserId = null;
-    });
+    if (newChatBtn && newChatModal) {
+        newChatBtn.addEventListener('click', () => {
+            newChatModal.classList.remove('hidden');
+            if (newChatUsernameInput) {
+                newChatUsernameInput.value = '';
+            }
+            if (userSuggestions) {
+                userSuggestions.innerHTML = '';
+            }
+            selectedUserId = null;
+        });
+    }
 
-    newChatCancel.addEventListener('click', () => {
-        newChatModal.classList.add('hidden');
-    });
+    if (newChatCancel) {
+        newChatCancel.addEventListener('click', () => {
+            newChatModal.classList.add('hidden');
+        });
+    }
 
     let searchTimeout;
     newChatUsernameInput.addEventListener('input', async () => {
@@ -286,114 +311,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // Add reply UI handling
-    document.getElementById('cancel-reply').addEventListener('click', () => {
-        hideReplyUI();
-    });
+    if (cancelReplyBtn) {
+        cancelReplyBtn.addEventListener('click', () => {
+            hideReplyUI();
+        });
+    }
+
+    // Setup message handlers
+    setupMessageHandlers();
 });
-
-// Add this new function to toggle message selection mode
-function toggleSelectionMode() {
-    document.getElementById('normal-message-controls').classList.add('hidden');
-    document.getElementById('selection-message-controls').classList.remove('hidden');
-
-    // Enable selection on all messages
-    const messageElements = document.querySelectorAll('#message-list > div:not(.system-message)');
-    messageElements.forEach(msg => {
-        msg.classList.add('selectable');
-        msg.addEventListener('click', toggleMessageSelection);
-    });
-}
-
-function cancelSelectionMode() {
-    document.getElementById('selection-message-controls').classList.add('hidden');
-    document.getElementById('normal-message-controls').classList.remove('hidden');
-
-    // Disable selection and clear selections
-    const messageElements = document.querySelectorAll('#message-list > div');
-    messageElements.forEach(msg => {
-        msg.classList.remove('selectable', 'selected');
-    });
-    selectedMessages = [];
-}
-
-function toggleMessageSelection(event) {
-    const messageElement = event.currentTarget;
-    const messageId = parseInt(messageElement.dataset.messageId);
-
-    if (messageElement.classList.contains('selected')) {
-        messageElement.classList.remove('selected');
-        selectedMessages = selectedMessages.filter(id => id !== messageId);
-    } else {
-        messageElement.classList.add('selected');
-        selectedMessages.push(messageId);
-    }
-
-    // Update delete button based on selection
-    document.getElementById('delete-selected-btn').disabled = selectedMessages.length === 0;
-}
-
-async function deleteSelectedMessages() {
-    if (selectedMessages.length === 0) return;
-
-    if (!confirm(`Delete ${selectedMessages.length} selected message(s)?`)) {
-        return;
-    }
-
-    const token = localStorage.getItem('token');
-    if (!token) return;
-
-    // Delete all selected messages
-    for (const messageId of selectedMessages) {
-        try {
-            const response = await fetch(`/chat/messages/${messageId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            if (!response.ok) {
-                console.error(`Failed to delete message ${messageId}`);
-                continue;
-            }
-
-            // Update UI for deleted message
-            const messageEl = document.querySelector(`[data-message-id="${messageId}"]`);
-            if (messageEl) {
-                messageEl.classList.add('deleted');
-                messageEl.textContent = "[Message deleted]";
-            }
-
-            // If using socket, notify about deletion
-            if (socket && socket.connected) {
-                socket.emit('delete_message', { message_id: messageId });
-            }
-        } catch (error) {
-            console.error(`Error deleting message ${messageId}:`, error);
-        }
-    }
-
-    // Exit selection mode
-    cancelSelectionMode();
-}
-
-function setupReplyUI(messageId, content, senderId) {
-    replyingToMessage = {
-        id: messageId,
-        content: content,
-        sender_id: senderId
-    };
-
-    const replyPreview = document.getElementById('reply-preview');
-    replyPreview.textContent = content.substring(0, 50) + (content.length > 50 ? '...' : '');
-    document.getElementById('reply-container').classList.remove('hidden');
-    document.getElementById('message-input').focus();
-}
-
-function hideReplyUI() {
-    replyingToMessage = null;
-    document.getElementById('reply-container').classList.add('hidden');
-}
 
 async function loadConversations() {
     try {
@@ -527,17 +453,33 @@ async function loadConversation(conversationId) {
     }
 }
 
+let longPressTimer;
+let targetMessageElement = null;
+
 function createMessageElement(msg) {
+    if (!msg) return null;
+
     const messageDiv = document.createElement('div');
     const isOwnMessage = msg.sender_id === currentUserId;
 
-    messageDiv.classList.add(
-        'p-3', 'mb-2', 'rounded-lg',
+    const classes = [
+        'message',
+        'p-3',
+        'mb-2',
+        'rounded-lg',
         isOwnMessage ? 'bg-blue-500' : 'bg-gray-300',
         isOwnMessage ? 'text-white' : 'text-gray-800',
-        isOwnMessage ? 'self-end' : 'self-start',
-        msg.is_deleted ? 'deleted' : ''
-    );
+        isOwnMessage ? 'self-end' : 'self-start'
+    ];
+
+    if (msg.is_deleted) {
+        classes.push('deleted');
+    }
+
+    // Add classes individually to avoid empty token error
+    classes.forEach(className => {
+        if (className) messageDiv.classList.add(className);
+    });
 
     messageDiv.dataset.senderId = msg.sender_id;
     messageDiv.dataset.messageId = msg.id;
@@ -548,7 +490,6 @@ function createMessageElement(msg) {
         replyDiv.classList.add('reply-preview', 'text-xs', 'mb-1', 'p-1',
             isOwnMessage ? 'bg-blue-600' : 'bg-gray-400',
             'rounded');
-
         replyDiv.textContent = `↩ ${msg.replied_to_content || "[Message unavailable]"}`;
         messageDiv.appendChild(replyDiv);
     }
@@ -558,61 +499,144 @@ function createMessageElement(msg) {
     contentDiv.textContent = msg.is_deleted ? "[Message deleted]" : msg.content;
     messageDiv.appendChild(contentDiv);
 
-    // Add message actions
     if (!msg.is_deleted) {
-        const actionsDiv = document.createElement('div');
-        actionsDiv.classList.add('message-actions', 'text-xs', 'mt-1', 'opacity-0', 'hover:opacity-100');
+        // Handle right click (context menu)
+        messageDiv.addEventListener('contextmenu', handleContextMenu);
 
-        // Add reply button
-        const replyButton = document.createElement('button');
-        replyButton.classList.add('mr-2', isOwnMessage ? 'text-white' : 'text-gray-700');
-        replyButton.textContent = "Reply";
-        replyButton.addEventListener('click', (e) => {
-            e.stopPropagation(); // Prevent triggering message selection
-            setupReplyUI(msg.id, msg.content, msg.sender_id);
-        });
-        actionsDiv.appendChild(replyButton);
+        // Handle double click
+        messageDiv.addEventListener('dblclick', handleContextMenu);
 
-        // Add delete button (only for own messages)
-        if (isOwnMessage) {
-            const deleteButton = document.createElement('button');
-            deleteButton.classList.add('text-white');
-            deleteButton.textContent = "Delete";
-            deleteButton.addEventListener('click', async (e) => {
-                e.stopPropagation(); // Prevent triggering message selection
+        // Handle long press for mobile
+        let longPressTimer;
+        let moved = false;
 
-                if (confirm("Delete this message?")) {
-                    try {
-                        const token = localStorage.getItem('token');
-                        const response = await fetch(`/chat/messages/${msg.id}`, {
-                            method: 'DELETE',
-                            headers: {
-                                'Authorization': `Bearer ${token}`
-                            }
-                        });
-
-                        if (response.ok) {
-                            messageDiv.classList.add('deleted');
-                            contentDiv.textContent = "[Message deleted]";
-                            actionsDiv.remove();
-
-                            // If using socket, notify about deletion
-                            if (socket && socket.connected) {
-                                socket.emit('delete_message', { message_id: msg.id });
-                            }
-                        }
-                    } catch (error) {
-                        console.error("Error deleting message:", error);
-                    }
+        messageDiv.addEventListener('touchstart', (e) => {
+            moved = false;
+            longPressTimer = setTimeout(() => {
+                if (!moved) {
+                    const touch = e.touches[0];
+                    handleContextMenu(e);
                 }
-            });
-            actionsDiv.appendChild(deleteButton);
-        }
+            }, 500);
+        });
 
-        messageDiv.appendChild(actionsDiv);
+        messageDiv.addEventListener('touchmove', () => {
+            moved = true;
+            clearTimeout(longPressTimer);
+        });
+
+        messageDiv.addEventListener('touchend', () => {
+            clearTimeout(longPressTimer);
+        });
     }
 
+    messageDiv.addEventListener('click', (e) => {
+        if (e.currentTarget.closest('.selecting-messages')) {
+            e.currentTarget.classList.toggle('selected');
+            const messageId = parseInt(e.currentTarget.dataset.messageId);
+            if (e.currentTarget.classList.contains('selected')) {
+                selectedMessages.push(messageId);
+            } else {
+                selectedMessages = selectedMessages.filter(id => id !== messageId);
+            }
+        }
+    });
+
     return messageDiv;
+}
+
+function handleContextMenu(e) {
+    e.preventDefault();
+    const messageElement = e.currentTarget;
+    const isOwnMessage = parseInt(messageElement.dataset.senderId) === currentUserId;
+
+    // Remove any existing context menus
+    removeContextMenu();
+
+    // Create context menu
+    const contextMenu = document.createElement('div');
+    contextMenu.className = 'message-context-menu';
+
+    const replyButton = document.createElement('button');
+    replyButton.textContent = 'Reply';
+    replyButton.onclick = () => {
+        const content = messageElement.querySelector('div:not(.reply-preview)').textContent;
+        const messageId = parseInt(messageElement.dataset.messageId);
+        const senderId = parseInt(messageElement.dataset.senderId);
+        setupReplyUI(messageId, content, senderId);
+        removeContextMenu();
+    };
+    contextMenu.appendChild(replyButton);
+
+    if (isOwnMessage) {
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.className = 'text-red-600';
+        deleteButton.onclick = async () => {
+            if (confirm('Delete this message?')) {
+                await deleteMessage(parseInt(messageElement.dataset.messageId));
+            }
+            removeContextMenu();
+        };
+        contextMenu.appendChild(deleteButton);
+    }
+
+    // Position the menu
+    const x = e.type.includes('touch') ? e.touches[0].pageX : e.pageX;
+    const y = e.type.includes('touch') ? e.touches[0].pageY : e.pageY;
+
+    contextMenu.style.left = `${x}px`;
+    contextMenu.style.top = `${y}px`;
+
+    // Ensure menu stays within viewport
+    document.body.appendChild(contextMenu);
+    const menuRect = contextMenu.getBoundingClientRect();
+
+    if (menuRect.right > window.innerWidth) {
+        contextMenu.style.left = `${x - menuRect.width}px`;
+    }
+    if (menuRect.bottom > window.innerHeight) {
+        contextMenu.style.top = `${y - menuRect.height}px`;
+    }
+}
+
+function removeContextMenu() {
+    const existingMenu = document.querySelector('.message-context-menu');
+    if (existingMenu) {
+        existingMenu.remove();
+    }
+}
+
+// Close context menu when clicking outside
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.message-context-menu')) {
+        removeContextMenu();
+    }
+});
+
+async function deleteMessage(messageId) {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`/chat/messages/${messageId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (response.ok) {
+            const messageEl = document.querySelector(`[data-message-id="${messageId}"]`);
+            if (messageEl) {
+                messageEl.classList.add('deleted');
+                messageEl.textContent = "[Message deleted]";
+            }
+            if (socket && socket.connected) {
+                socket.emit('delete_message', { message_id: messageId });
+            }
+        }
+    } catch (error) {
+        console.error("Error deleting message:", error);
+    }
 }
 
 document.getElementById('send-btn').addEventListener('click', () => {
@@ -744,4 +768,5 @@ document.getElementById('send-btn').addEventListener('click', () => {
 
     // Hide reply UI after sending
     hideReplyUI();
-}
+
+});

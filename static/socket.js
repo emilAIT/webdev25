@@ -1,3 +1,5 @@
+import { currentConversationId, loadConversations, currentUserId, createMessageElement } from './chat.js';
+
 // Create socket connection with proper authentication
 function createSocketConnection() {
     const token = localStorage.getItem('token');
@@ -231,23 +233,15 @@ function setupSocketEvents() {
         // Only show messages for the current conversation
         if (data.conversation_id === currentConversationId) {
             const messageList = document.getElementById('message-list');
-            const existingMessages = Array.from(messageList.children);
+            if (!messageList) return;
 
-            // Check if message already exists to prevent duplicates
-            const messageExists = existingMessages.some(msg => {
-                return msg.dataset.messageId === data.id?.toString() ||
-                    (msg.textContent === data.content &&
-                        msg.dataset.senderId === data.sender_id.toString());
-            });
-
-            if (!messageExists) {
-                const messageDiv = createMessageElement(data);
+            const messageDiv = createMessageElement(data);
+            if (messageDiv) {
                 messageList.appendChild(messageDiv);
                 messageList.scrollTop = messageList.scrollHeight;
             }
         } else {
             // For messages in other conversations, update the conversation list
-            // to show there are new messages
             loadConversations();
         }
     });
@@ -378,19 +372,4 @@ document.getElementById('message-input').addEventListener('keypress', (e) => {
     }
 });
 
-function createMessageElement(data) {
-    const messageDiv = document.createElement('div');
-    messageDiv.classList.add('p-3', 'mb-2', 'rounded-lg',
-        data.sender_id === currentUserId ? 'bg-blue-500' : 'bg-gray-300',
-        data.sender_id === currentUserId ? 'text-white' : 'text-gray-800',
-        data.sender_id === currentUserId ? 'self-end' : 'self-start');
-    messageDiv.textContent = data.content;
-    messageDiv.dataset.senderId = data.sender_id;
-
-    // Store message ID if available
-    if (data.id) {
-        messageDiv.dataset.messageId = data.id;
-    }
-
-    return messageDiv;
-}
+export { socket, initializeSocket, joinConversation };
