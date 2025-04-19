@@ -136,42 +136,76 @@
       <!-- Conversation -->
       <div class="w-3/4 bg-[#E6E6FA] p-6 flex flex-col">
         <div id="conversation-header" class="flex items-center mb-6">
-          <img
-            src="https://picsum.photos/40"
-            alt="Profile"
-            class="w-10 h-10 rounded-full mr-3"
-          />
-          <h3 id="conversation-name" class="text-lg font-bold text-gray-800">
-            Chat Name
-          </h3>
+          <div class="flex items-center">
+            <img
+              src="https://picsum.photos/40"
+              alt="Profile"
+              class="w-10 h-10 rounded-full mr-3"
+            />
+            <h3 id="conversation-name" class="text-lg font-bold text-gray-800">
+              Chat Name
+            </h3>
+          </div>
         </div>
-        <div id="message-list" class="flex-1 overflow-y-auto space-y-4"></div>
-        <div class="mt-6 flex">
-          <input
-            type="text"
-            id="message-input"
-            placeholder="Type a message"
-            class="flex-1 p-3 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <button
-            id="send-btn"
-            class="bg-blue-600 text-white p-3 rounded-r-lg hover:bg-blue-700 transition"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              class="w-6 h-6"
-            >
-              <path
+
+        <div
+          id="message-list"
+          class="flex-1 overflow-y-auto space-y-4 flex flex-col"
+        ></div>
+
+        <!-- Normal message input area -->
+        <div id="normal-message-controls" class="mt-6">
+          <!-- Reply Container -->
+          <div id="reply-container" class="hidden mb-2 rounded-t-lg">
+            <div class="flex-1">
+              <div class="text-sm text-gray-500">Replying to:</div>
+              <div id="reply-preview" class="font-medium"></div>
+            </div>
+            <button id="cancel-reply" class="text-gray-500 hover:text-red-500">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
                 stroke-linecap="round"
                 stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-              />
-            </svg>
-          </button>
+              >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+
+          <div class="flex">
+            <input
+              type="text"
+              id="message-input"
+              placeholder="Type a message"
+              class="flex-1 p-3 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button
+              id="send-btn"
+              class="bg-blue-600 text-white p-3 rounded-r-lg hover:bg-blue-700 transition"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                class="w-6 h-6"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -243,10 +277,65 @@
       </div>
     </div>
 
+    <!-- Message Actions Modal -->
+    <div
+      id="message-actions-modal"
+      class="hidden fixed bg-white rounded-lg shadow-lg p-2 z-50"
+    >
+      <div class="flex flex-col w-32">
+        <button
+          id="modal-reply-btn"
+          class="p-2 text-left hover:bg-gray-100 rounded"
+        >
+          Reply
+        </button>
+        <button
+          id="modal-delete-btn"
+          class="p-2 text-left hover:bg-gray-100 rounded text-red-600"
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+
+    <!-- Floating Action Menu -->
+    <div class="floating-actions-menu hidden">
+      <button class="action-button reply" title="Reply to selected message">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"
+          />
+        </svg>
+      </button>
+      <button class="action-button delete" title="Delete selected message">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+          />
+        </svg>
+      </button>
+    </div>
+
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-    <script src="auth.js"></script>
-    <script src="chat.js"></script>
-    <script src="socket.js"></script>
+    <script src="auth.js" type="module"></script>
+    <script src="chat.js" type="module"></script>
+    <script src="socket.js" type="module"></script>
   </body>
 </html>

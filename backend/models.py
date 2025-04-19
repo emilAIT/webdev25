@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean
 from sqlalchemy.orm import relationship
 from .database import Base
 from datetime import datetime
@@ -37,5 +37,10 @@ class Message(Base):
     sender_id = Column(Integer, ForeignKey("users.id"))
     content = Column(String)
     timestamp = Column(DateTime, default=datetime.utcnow)
+    # Add reply functionality
+    replied_to_id = Column(Integer, ForeignKey("messages.id"), nullable=True)
+    is_deleted = Column(Boolean, default=False)
+
     conversation = relationship("Conversation", back_populates="messages")
     sender = relationship("User")
+    replied_to = relationship("Message", remote_side=[id], backref="replies")

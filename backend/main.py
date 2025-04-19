@@ -152,18 +152,18 @@ async def message(sid, data):
             )
             return
 
+        # Create the new message with optional reply_to reference
         new_message = Message(
             conversation_id=int(data["conversation_id"]),
             sender_id=int(data["sender_id"]),
             content=data["content"],
             timestamp=datetime.utcnow(),
+            replied_to_id=data.get("replied_to_id"),
         )
+
         db.add(new_message)
         db.commit()
         db.refresh(new_message)
-        print(
-            f"Message saved to database: ID={new_message.id}, Content={new_message.content}, ConversationID={new_message.conversation_id}"
-        )
 
         # Prepare the message data to broadcast
         message_data = {
@@ -172,22 +172,78 @@ async def message(sid, data):
             "sender_id": new_message.sender_id,
             "content": new_message.content,
             "timestamp": new_message.timestamp.isoformat(),
+            "replied_to_id": new_message.replied_to_id,
+            "is_deleted": False,
         }
+
+        # Add reply info if this is a reply
+        if new_message.replied_to_id:
+            replied_msg = (
+                db.query(Message)
+                .filter(Message.id == new_message.replied_to_id)
+                .first()
+            )
+            if replied_msg:
+                message_data["replied_to_content"] = (
+                    replied_msg.content
+                    if not replied_msg.is_deleted
+                    else "[Message deleted]"
+                )
+                message_data["replied_to_sender"] = replied_msg.sender_id
 
         # Broadcast to everyone in the conversation room
         await sio.emit("message", message_data, room=str(data["conversation_id"]))
-        print(f"Message broadcasted to room {data['conversation_id']}: {message_data}")
 
         # Emit an event to update the chat list for everyone
         await sio.emit(
             "update_chat_list",
             {"conversation_id": new_message.conversation_id},
         )
-        print(
-            f"Emitted update_chat_list event for conversation {new_message.conversation_id}"
-        )
     except Exception as e:
         print(f"Error saving message to database: {e}")
+        db.rollback()
+    finally:
+        db.close()
+
+
+# Add message deletion handler for WebSocket
+@sio.event
+async def delete_message(sid, data):
+    if sid not in connected_users:
+        print(f"Unauthorized delete attempt from {sid}")
+        return
+
+    user_id = connected_users[sid]
+    message_id = data.get("message_id")
+
+    if not message_id:
+        print("No message_id provided")
+        return
+
+    db = SessionLocal()
+    try:
+        message = db.query(Message).filter(Message.id == message_id).first()
+
+        if not message:
+            print(f"Message {message_id} not found")
+            return
+
+        if message.sender_id != user_id:
+            print(f"User {user_id} not authorized to delete message {message_id}")
+            return
+
+        message.is_deleted = True
+        db.commit()
+
+        # Notify clients about deleted message
+        await sio.emit(
+            "message_deleted",
+            {"message_id": message_id, "conversation_id": message.conversation_id},
+            room=str(message.conversation_id),
+        )
+
+    except Exception as e:
+        print(f"Error deleting message: {e}")
         db.rollback()
     finally:
         db.close()

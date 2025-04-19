@@ -1,3 +1,5 @@
+import { currentConversationId, loadConversations, currentUserId, createMessageElement } from './chat.js';
+
 // Create socket connection with proper authentication
 function createSocketConnection() {
     const token = localStorage.getItem('token');
@@ -224,43 +226,36 @@ function setupSocketEvents() {
         }).showToast();
     });
 
-    // Message handling remains the same
+    // Message handling with reply support
     socket.on('message', (data) => {
         console.log('Received message:', data);
 
         // Only show messages for the current conversation
         if (data.conversation_id === currentConversationId) {
             const messageList = document.getElementById('message-list');
-            const existingMessages = Array.from(messageList.children);
+            if (!messageList) return;
 
-            // Check if message already exists to prevent duplicates
-            const messageExists = existingMessages.some(msg => {
-                return msg.dataset.messageId === data.id?.toString() ||
-                    (msg.textContent === data.content &&
-                        msg.dataset.senderId === data.sender_id.toString());
-            });
-
-            if (!messageExists) {
-                const messageDiv = document.createElement('div');
-                messageDiv.classList.add('p-3', 'mb-2', 'rounded-lg',
-                    data.sender_id === currentUserId ? 'bg-blue-500' : 'bg-gray-300',
-                    data.sender_id === currentUserId ? 'text-white' : 'text-gray-800',
-                    data.sender_id === currentUserId ? 'self-end' : 'self-start');
-                messageDiv.textContent = data.content;
-                messageDiv.dataset.senderId = data.sender_id;
-
-                // Store message ID if available
-                if (data.id) {
-                    messageDiv.dataset.messageId = data.id;
-                }
-
+            const messageDiv = createMessageElement(data);
+            if (messageDiv) {
                 messageList.appendChild(messageDiv);
                 messageList.scrollTop = messageList.scrollHeight;
             }
         } else {
             // For messages in other conversations, update the conversation list
-            // to show there are new messages
             loadConversations();
+        }
+    });
+
+    socket.on('message_deleted', (data) => {
+        console.log('Received message_deleted event:', data);
+
+        // Update UI for deleted message
+        if (data.conversation_id === currentConversationId) {
+            const messageElement = document.querySelector(`[data-message-id="${data.message_id}"]`);
+            if (messageElement) {
+                messageElement.classList.add('deleted');
+                messageElement.innerHTML = '<div>[Message deleted]</div>';
+            }
         }
     });
 
@@ -376,3 +371,5 @@ document.getElementById('message-input').addEventListener('keypress', (e) => {
         document.getElementById('send-btn').click();
     }
 });
+
+export { socket, initializeSocket, joinConversation, isSocketConnected };

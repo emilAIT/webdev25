@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 from datetime import datetime
 
 
@@ -14,9 +14,19 @@ class MessageResponse(BaseModel):
     sender_id: int
     content: str
     timestamp: datetime
+    replied_to_id: Optional[int] = None
+    is_deleted: bool = False
+    # For displaying reply preview
+    replied_to_content: Optional[str] = None
+    replied_to_sender: Optional[int] = None
 
     class Config:
         orm_mode = True
+
+
+class MessageCreate(BaseModel):
+    content: str
+    replied_to_id: Optional[int] = None
 
 
 class UserCreate(BaseModel):

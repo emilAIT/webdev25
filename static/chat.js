@@ -1,6 +1,19 @@
+import { setupMessageHandlers, setupReplyUI, hideReplyUI, getReplyingToMessage, handleMessageClick, clearMessageSelection } from './messageHandlers.js';
+import { initializeSocket, joinConversation } from './socket.js';
+
 let currentConversationId = null;
 let currentUserId = null;
 let conversations = [];
+
+// Export these variables so other modules can use them
+export {
+    currentConversationId,
+    currentUserId,
+    conversations,
+    loadConversations,
+    loadConversation,
+    createMessageElement
+};
 
 document.addEventListener('DOMContentLoaded', async () => {
     const token = localStorage.getItem('token');
@@ -50,7 +63,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    // Add search functionality
+    // Add search functionality with reduced toasts
     const searchInput = document.getElementById('chat-search');
     searchInput.addEventListener('input', () => {
         const query = searchInput.value.toLowerCase();
@@ -58,17 +71,20 @@ document.addEventListener('DOMContentLoaded', async () => {
             (conv.name || 'Chat').toLowerCase().includes(query)
         );
         renderChatList(filteredConversations);
-        if (filteredConversations.length === 0 && query) {
-            Toastify({
-                text: "No chats found matching your search.",
-                duration: 3000,
-                close: true,
-                gravity: "top",
-                position: "right",
-                backgroundColor: "#F44336",
-            }).showToast();
+        // Only show toast if there's no result after typing at least 3 characters
+        if (filteredConversations.length === 0 && query.length >= 3) {
+            console.log("No chats found matching search criteria");
+            // Don't show toast here to reduce notifications
         }
     });
+
+    // Remove select mode event listeners since we're using context menu
+    /*
+    // Remove these lines
+    document.getElementById('select-mode-btn').addEventListener('click', toggleSelectionMode);
+    document.getElementById('cancel-selection-btn').addEventListener('click', cancelSelectionMode);
+    document.getElementById('delete-selected-btn').addEventListener('click', deleteSelectedMessages);
+    */
 
     // New Chat Modal
     const newChatModal = document.getElementById('new-chat-modal');
@@ -77,18 +93,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     const newChatCreate = document.getElementById('new-chat-create');
     const newChatUsernameInput = document.getElementById('new-chat-username');
     const userSuggestions = document.getElementById('user-suggestions');
+    const replyContainer = document.getElementById('reply-container');
+    const cancelReplyBtn = document.getElementById('cancel-reply');
     let selectedUserId = null;
 
-    newChatBtn.addEventListener('click', () => {
-        newChatModal.classList.remove('hidden');
-        newChatUsernameInput.value = '';
-        userSuggestions.innerHTML = '';
-        selectedUserId = null;
-    });
+    if (newChatBtn && newChatModal) {
+        newChatBtn.addEventListener('click', () => {
+            newChatModal.classList.remove('hidden');
+            if (newChatUsernameInput) {
+                newChatUsernameInput.value = '';
+            }
+            if (userSuggestions) {
+                userSuggestions.innerHTML = '';
+            }
+            selectedUserId = null;
+        });
+    }
 
-    newChatCancel.addEventListener('click', () => {
-        newChatModal.classList.add('hidden');
-    });
+    if (newChatCancel) {
+        newChatCancel.addEventListener('click', () => {
+            newChatModal.classList.add('hidden');
+        });
+    }
 
     let searchTimeout;
     newChatUsernameInput.addEventListener('input', async () => {
@@ -282,6 +308,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             }).showToast();
         }
     });
+
+    // Add reply UI handling
+    if (cancelReplyBtn) {
+        cancelReplyBtn.addEventListener('click', () => {
+            hideReplyUI();
+        });
+    }
+
+    // Setup message handlers
+    setupMessageHandlers();
 });
 
 async function loadConversations() {
@@ -319,14 +355,7 @@ async function loadConversations() {
         }
     } catch (error) {
         console.error('Error loading conversations:', error);
-        Toastify({
-            text: "Failed to load conversations.",
-            duration: 3000,
-            close: true,
-            gravity: "top",
-            position: "right",
-            backgroundColor: "#F44336",
-        }).showToast();
+        // Removed toast notification here to reduce spam
     }
 }
 
@@ -372,8 +401,10 @@ async function loadConversation(conversationId) {
             initializeSocket();
         }
 
-        // Join the conversation (this will check if socket is connected)
-        joinConversation(conversationId);
+        // Join the conversation 
+        if (typeof joinConversation === 'function') {
+            joinConversation(conversationId);
+        }
 
         const token = localStorage.getItem('token');
         if (!token) {
@@ -396,19 +427,12 @@ async function loadConversation(conversationId) {
 
         if (messages.length === 0) {
             const emptyMessage = document.createElement('div');
-            emptyMessage.classList.add('p-3', 'text-gray-500', 'text-center', 'w-full');
+            emptyMessage.classList.add('p-3', 'text-gray-500', 'text-center', 'w-full', 'system-message');
             emptyMessage.textContent = 'No messages yet. Start a conversation!';
             messageList.appendChild(emptyMessage);
         } else {
             messages.forEach(msg => {
-                const messageDiv = document.createElement('div');
-                messageDiv.classList.add('p-3', 'mb-2', 'rounded-lg',
-                    msg.sender_id === currentUserId ? 'bg-blue-500' : 'bg-gray-300',
-                    msg.sender_id === currentUserId ? 'text-white' : 'text-gray-800',
-                    msg.sender_id === currentUserId ? 'self-end' : 'self-start');
-                messageDiv.textContent = msg.content;
-                messageDiv.dataset.senderId = msg.sender_id;
-                messageDiv.dataset.messageId = msg.id;
+                const messageDiv = createMessageElement(msg);
                 messageList.appendChild(messageDiv);
             });
         }
@@ -426,13 +450,265 @@ async function loadConversation(conversationId) {
         document.getElementById('message-input').focus();
     } catch (error) {
         console.error('Error loading conversation:', error);
+        // Removed toast notification here to reduce spam
+    }
+}
+
+let longPressTimer;
+let targetMessageElement = null;
+
+function createMessageElement(msg) {
+    if (!msg) return null;
+
+    const messageDiv = document.createElement('div');
+    const isOwnMessage = msg.sender_id === currentUserId;
+
+    const classes = [
+        'message',
+        'p-3',
+        'mb-2',
+        'rounded-lg',
+        isOwnMessage ? 'bg-blue-500' : 'bg-gray-300',
+        isOwnMessage ? 'text-white' : 'text-gray-800',
+        isOwnMessage ? 'self-end' : 'self-start'
+    ];
+
+    if (msg.is_deleted) {
+        classes.push('deleted');
+    }
+
+    classes.forEach(className => {
+        if (className) messageDiv.classList.add(className);
+    });
+
+    messageDiv.dataset.senderId = msg.sender_id;
+    messageDiv.dataset.messageId = msg.id;
+
+    // Add reply preview if this is a reply - improved version with clearer indication
+    if (msg.replied_to_id && msg.replied_to_content) {
+        // Create a distinct reply container with better styling
+        const replyBox = document.createElement('div');
+        replyBox.className = 'reply-box mb-2 p-2 rounded text-sm';
+        replyBox.classList.add(isOwnMessage ? 'bg-blue-600' : 'bg-gray-400');
+
+        // Get sender username if available or use generic text
+        let repliedToUserText = 'Someone';
+        if (msg.replied_to_sender === currentUserId) {
+            repliedToUserText = 'your message';
+        } else if (msg.replied_to_username) {
+            repliedToUserText = msg.replied_to_username;
+        }
+
+        // Create a clearer reply indicator with quote styling
+        replyBox.innerHTML = `
+            <div class="flex items-center gap-1 mb-1">
+                <svg class="w-3 h-3 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
+                </svg>
+                <span class="font-bold">Replying to ${repliedToUserText}:</span>
+            </div>
+            <div class="pl-3 border-l-2 border-white border-opacity-70">
+                "${msg.replied_to_content || '[deleted message]'}"
+            </div>
+        `;
+
+        // Make the reply clickable - scroll to original message
+        replyBox.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const originalMsg = document.querySelector(`[data-message-id="${msg.replied_to_id}"]`);
+            if (originalMsg) {
+                // Add highlight effect
+                originalMsg.classList.add('highlight');
+                setTimeout(() => originalMsg.classList.remove('highlight'), 2000);
+
+                // Scroll to the original message
+                originalMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+
+        messageDiv.appendChild(replyBox);
+    }
+
+    // Add actual message content
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'message-content';
+    contentDiv.textContent = msg.is_deleted ? "[Message deleted]" : msg.content;
+    messageDiv.appendChild(contentDiv);
+
+    if (!msg.is_deleted) {
+        messageDiv.addEventListener('click', (e) => {
+            e.stopPropagation();
+            handleMessageClick(e, messageDiv);
+        });
+    }
+
+    return messageDiv;
+}
+
+// Add click handler to close floating menu when clicking outside
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.message') && !e.target.closest('.floating-actions-menu')) {
+        clearMessageSelection();
+    }
+});
+
+async function deleteMessage(messageId) {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`/chat/messages/${messageId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (response.ok) {
+            const messageEl = document.querySelector(`[data-message-id="${messageId}"]`);
+            if (messageEl) {
+                messageEl.classList.add('deleted');
+                messageEl.textContent = "[Message deleted]";
+            }
+            if (socket && socket.connected) {
+                socket.emit('delete_message', { message_id: messageId });
+            }
+        }
+    } catch (error) {
+        console.error("Error deleting message:", error);
+    }
+}
+
+function createMessageData(content) {
+    const messageData = {
+        conversation_id: currentConversationId,
+        sender_id: currentUserId,
+        content: content
+    };
+
+    const replyingTo = getReplyingToMessage();
+    if (replyingTo) {
+        messageData.replied_to_id = replyingTo.id;
+    }
+
+    return messageData;
+}
+
+document.getElementById('send-btn').addEventListener('click', () => {
+    const messageInput = document.getElementById('message-input');
+    const content = messageInput.value.trim();
+
+    if (!content) return;
+
+    const messageData = createMessageData(content);
+
+    if (!currentConversationId) {
         Toastify({
-            text: "Failed to load messages.",
+            text: "Please select a conversation first",
             duration: 3000,
             close: true,
             gravity: "top",
             position: "right",
             backgroundColor: "#F44336",
         }).showToast();
+        return;
     }
-}
+
+    // Initialize socket if needed
+    if (!initializeSocket()) {
+        Toastify({
+            text: "Cannot connect to server. Please check your connection.",
+            duration: 3000,
+            close: true,
+            gravity: "top",
+            position: "right",
+            backgroundColor: "#F44336",
+        }).showToast();
+        return;
+    }
+
+    // Check if socket is connected
+    if (!socket.connected) {
+        console.log('Socket not connected. Waiting to connect...');
+
+        // Store message to send after connection
+        if (!socket.pendingMessages) {
+            socket.pendingMessages = [];
+        }
+
+        socket.pendingMessages.push({
+            conversation_id: currentConversationId,
+            content: content,
+            replied_to_id: getReplyingToMessage()?.id
+        });
+
+        Toastify({
+            text: "Connecting to server...",
+            duration: 2000,
+            close: true,
+            gravity: "top",
+            position: "right",
+            backgroundColor: "#FFA500",
+        }).showToast();
+
+        // Try to reconnect
+        socket.connect();
+
+        // Show message in UI anyway (will be sent when connected)
+        const messageList = document.getElementById('message-list');
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('p-3', 'mb-2', 'rounded-lg', 'bg-blue-500', 'text-white', 'self-end', 'opacity-50');
+
+        // Add reply preview if replying
+        if (getReplyingToMessage()) {
+            const replyDiv = document.createElement('div');
+            replyDiv.classList.add('reply-preview', 'text-xs', 'mb-1', 'p-1', 'bg-blue-600', 'rounded');
+            replyDiv.textContent = `↩ ${getReplyingToMessage().content.substring(0, 50)}...`;
+            messageDiv.appendChild(replyDiv);
+        }
+
+        const contentDiv = document.createElement('div');
+        contentDiv.textContent = content + " (sending...)";
+        messageDiv.appendChild(contentDiv);
+
+        messageDiv.dataset.senderId = currentUserId;
+        messageDiv.dataset.pending = true;
+        messageList.appendChild(messageDiv);
+        messageList.scrollTop = messageList.scrollHeight;
+        messageInput.value = '';
+
+        // Hide reply UI if active
+        hideReplyUI();
+
+        return;
+    }
+
+    console.log('Sending message:', messageData);
+
+    // Optimistic UI update
+    const messageList = document.getElementById('message-list');
+    const messageDiv = document.createElement('div');
+    messageDiv.classList.add('p-3', 'mb-2', 'rounded-lg', 'bg-blue-500', 'text-white', 'self-end');
+
+    // Add reply preview if replying
+    if (getReplyingToMessage()) {
+        const replyDiv = document.createElement('div');
+        replyDiv.classList.add('reply-preview', 'text-xs', 'mb-1', 'p-1', 'bg-blue-600', 'rounded');
+        replyDiv.textContent = `↩ ${getReplyingToMessage().content.substring(0, 50)}${getReplyingToMessage().content.length > 50 ? '...' : ''}`;
+        messageDiv.appendChild(replyDiv);
+    }
+
+    const contentDiv = document.createElement('div');
+    contentDiv.textContent = content;
+    messageDiv.appendChild(contentDiv);
+
+    messageDiv.dataset.senderId = currentUserId;
+    messageList.appendChild(messageDiv);
+    messageList.scrollTop = messageList.scrollHeight;
+
+    // Emit the message to the server
+    socket.emit('message', messageData);
+    messageInput.value = '';
+
+    // Hide reply UI after sending
+    hideReplyUI();
+
+});
