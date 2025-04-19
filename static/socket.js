@@ -8,10 +8,12 @@ function createSocketConnection() {
         return null;
     }
 
-    console.log('Creating socket connection with token:', token);
+    console.log('Creating socket connection with token');
 
-    // Create socket with reconnection options
+    // Create socket with reconnection options and query parameter for token
+    // This makes the token more reliably available on the server side
     const socketInstance = io('http://localhost:8000', {
+        query: { token: token },
         auth: {
             token: token
         },
@@ -37,6 +39,30 @@ function createSocketConnection() {
     // Setup basic event handlers before connecting
     socketInstance.on('connect_error', (error) => {
         console.error('Connection error:', error);
+
+        if (error.message && error.message.includes('auth')) {
+            console.error('Authentication error. Token may be invalid.');
+            // Clear token and redirect to login
+            localStorage.removeItem('token');
+
+            Toastify({
+                text: "Authentication failed. Please sign in again.",
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#F44336",
+            }).showToast();
+
+            // Show login screen
+            setTimeout(() => {
+                document.getElementById('chat').classList.add('hidden');
+                document.getElementById('signin').classList.remove('hidden');
+            }, 1000);
+
+            return;
+        }
+
         Toastify({
             text: "Connection error. Retrying...",
             duration: 3000,

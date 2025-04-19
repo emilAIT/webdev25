@@ -20,13 +20,49 @@ function setupMessageHandlers() {
         cancelReplyBtn.addEventListener('click', hideReplyUI);
     }
 
-    // Remove all selection-related code
+    // Setup double-click functionality for replying
+    setupDoubleClickForReply();
 
     // Close floating menu when clicking outside
     document.addEventListener('click', (e) => {
         if (!e.target.closest('.message') && !e.target.closest('.floating-actions-menu')) {
             clearMessageSelection();
         }
+    });
+
+    // Also clear reply UI when pressing Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !replyContainer?.classList.contains('hidden')) {
+            hideReplyUI();
+        }
+    });
+}
+
+function setupDoubleClickForReply() {
+    // Use event delegation for double-click handling
+    document.getElementById('message-list').addEventListener('dblclick', (e) => {
+        // Find the closest message element to where the click occurred
+        const messageElement = e.target.closest('.message');
+        if (!messageElement) return;
+
+        // Prevent text selection on double click
+        e.preventDefault();
+
+        // Get message details
+        const messageId = parseInt(messageElement.dataset.messageId);
+        const content = messageElement.querySelector('.message-content')?.textContent;
+        const senderId = parseInt(messageElement.dataset.senderId);
+
+        if (!messageId || !content) return;
+
+        // Set up the reply UI
+        setupReplyUI(messageId, content, senderId);
+
+        // Clear any selected message to prevent UI conflicts
+        clearMessageSelection();
+
+        // Focus the input field after setting up the reply
+        document.getElementById('message-input')?.focus();
     });
 }
 
@@ -36,6 +72,7 @@ function setupReplyUI(messageId, content, senderId) {
     const replyContainer = document.getElementById('reply-container');
     const replyPreview = document.getElementById('reply-preview');
 
+    // Store the message we're replying to
     state.replyingToMessage = {
         id: messageId,
         content: content,
@@ -43,22 +80,44 @@ function setupReplyUI(messageId, content, senderId) {
     };
 
     if (replyPreview && replyContainer) {
+        // Highlight the original message
+        const originalMessage = document.querySelector(`[data-message-id="${messageId}"]`);
+        if (originalMessage) {
+            // First remove highlight from any other messages
+            document.querySelectorAll('.message-being-replied-to').forEach(msg =>
+                msg.classList.remove('message-being-replied-to'));
+
+            // Add highlight to the message being replied to
+            originalMessage.classList.add('message-being-replied-to');
+        }
+
+        // Format the preview content
         const previewContent = `${senderId === currentUserId ? 'You' : 'Someone'}: ${content}`;
         replyPreview.textContent = previewContent.length > 50
             ? previewContent.substring(0, 47) + '...'
             : previewContent;
+
+        // Show the reply container with animation
         replyContainer.classList.remove('hidden');
+
+        // Focus the message input
         document.getElementById('message-input')?.focus();
     }
 }
 
 function hideReplyUI() {
     const replyContainer = document.getElementById('reply-container');
-    state.replyingToMessage = null;
-    replyContainer?.classList.add('hidden');
-}
 
-// Remove toggleSelectionMode function and deleteSelectedMessages function
+    // Clear the replying state
+    state.replyingToMessage = null;
+
+    // Hide the reply container
+    replyContainer?.classList.add('hidden');
+
+    // Remove highlight from any message being replied to
+    document.querySelectorAll('.message-being-replied-to').forEach(msg =>
+        msg.classList.remove('message-being-replied-to'));
+}
 
 function handleMessageClick(e, messageElement) {
     e.stopPropagation();
@@ -92,7 +151,11 @@ function handleMessageClick(e, messageElement) {
 
     // Setup button handlers
     actionsMenu.querySelector('.reply').onclick = () => {
-        setupReplyUI(state.selectedMessage.id, state.selectedMessage.content, state.selectedMessage.senderId);
+        setupReplyUI(
+            state.selectedMessage.id,
+            state.selectedMessage.content,
+            state.selectedMessage.senderId
+        );
         clearMessageSelection();
     };
 
