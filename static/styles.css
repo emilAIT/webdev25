@@ -373,3 +373,18 @@
 .message-content {
     word-break: break-word;
 }
+
+/* Timestamp styling */
+.message-timestamp {
+    position: absolute;
+    bottom: 4px; /* Adjust as needed */
+    right: 8px; /* Adjust as needed */
+    font-size: 0.75rem; /* 12px */
+    color: rgba(0, 0, 0, 0.4); /* Semi-transparent black */
+    opacity: 0.8;
+}
+
+/* Adjust timestamp color for own messages */
+.message.self-end .message-timestamp {
+    color: rgba(255, 255, 255, 0.7); /* Semi-transparent white */
+}

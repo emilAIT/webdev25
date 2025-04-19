@@ -470,7 +470,8 @@ function createMessageElement(msg) {
         'rounded-lg',
         isOwnMessage ? 'bg-blue-500' : 'bg-gray-300',
         isOwnMessage ? 'text-white' : 'text-gray-800',
-        isOwnMessage ? 'self-end' : 'self-start'
+        isOwnMessage ? 'self-end' : 'self-start',
+        'relative' // Add relative positioning for the timestamp
     ];
 
     if (msg.is_deleted) {
@@ -531,9 +532,19 @@ function createMessageElement(msg) {
 
     // Add actual message content
     const contentDiv = document.createElement('div');
-    contentDiv.className = 'message-content';
+    contentDiv.className = 'message-content mr-10'; // Add margin for timestamp
     contentDiv.textContent = msg.is_deleted ? "[Message deleted]" : msg.content;
     messageDiv.appendChild(contentDiv);
+
+    // Add timestamp
+    if (msg.timestamp) {
+        const timeSpan = document.createElement('span');
+        timeSpan.className = 'message-timestamp';
+        const date = new Date(msg.timestamp);
+        // Format time as HH:MM
+        timeSpan.textContent = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+        messageDiv.appendChild(timeSpan);
+    }
 
     if (!msg.is_deleted) {
         messageDiv.addEventListener('click', (e) => {
