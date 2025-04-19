@@ -13,6 +13,7 @@ TalkFlowChat replicates the design from provided Figma mockups, offering:
 - **Real-Time Communication**: Leveraging Socket.IO, users can send and receive messages instantly.
 - **Responsive Design**: Uses Tailwind CSS to match Figma designs and support responsive layouts.
 - **Optional Enhancements**: Incorporates Hero UI elements to improve iconography and overall design consistency.
+- Command to run : uvicorn backend.main:socket_app --reload
 
 ---
 
