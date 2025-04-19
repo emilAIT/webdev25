@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from .database import get_db
-from .models import User
+from .models import User, ConversationParticipant, Message
 from .schemas import UserCreate, UserLogin, Token
 from passlib.context import CryptContext
 from jose import JWTError, jwt
@@ -115,3 +115,49 @@ def search_users(
     if not users:
         return []  # Return empty list instead of raising an error
     return [{"id": user.id, "username": user.username} for user in users]
+
+
+@router.get("/profile/{user_id}")
+def get_user_profile(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    # Find user by ID
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Check if viewing own profile or someone else's
+    is_own_profile = current_user.id == user_id
+
+    # Build profile data
+    profile_data = {
+        "id": user.id,
+        "username": user.username,
+        "is_own_profile": is_own_profile,
+    }
+
+    # Add additional data only visible to own user
+    if is_own_profile:
+        # Get count of conversations the user is part of
+        conversation_count = (
+            db.query(ConversationParticipant)
+            .filter(ConversationParticipant.user_id == user.id)
+            .count()
+        )
+
+        # Get message count sent by user
+        message_count = db.query(Message).filter(Message.sender_id == user.id).count()
+
+        profile_data.update(
+            {
+                "conversation_count": conversation_count,
+                "message_count": message_count,
+                "account_created": (
+                    user.created_at.isoformat() if hasattr(user, "created_at") else None
+                ),
+            }
+        )
+
+    return profile_data
