@@ -16,21 +16,45 @@ export {
 };
 
 document.addEventListener('DOMContentLoaded', async () => {
+    // Check for token in localStorage
     const token = localStorage.getItem('token');
+
+    // Debug token value
+    console.log('Token found in localStorage:', token ? 'Yes' : 'No');
+
     if (!token) {
         document.getElementById('chat').classList.add('hidden');
         document.getElementById('signin').classList.remove('hidden');
+        console.log('No token found, showing signin page');
         return;
     }
 
-    // Fetch current user ID
+    // Validate token with a test request to the backend
     try {
+        console.log('Validating token...');
         const userResponse = await fetch('/auth/me', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
+
         if (!userResponse.ok) {
-            throw new Error('Failed to fetch user data');
+            console.error('Token validation failed:', userResponse.status, userResponse.statusText);
+            // Token is invalid, clear it and show login
+            localStorage.removeItem('token');
+            document.getElementById('chat').classList.add('hidden');
+            document.getElementById('signin').classList.remove('hidden');
+
+            Toastify({
+                text: "Session expired. Please sign in again.",
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#F44336",
+            }).showToast();
+            return;
         }
+
+        // Token is valid, continue with app initialization
         const userData = await userResponse.json();
         currentUserId = userData.id;
         console.log('Current user:', userData);
@@ -324,14 +348,32 @@ async function loadConversations() {
     try {
         const token = localStorage.getItem('token');
         if (!token) {
+            console.error('No token available for loading conversations');
             throw new Error('No authentication token');
         }
 
+        console.log('Fetching conversations with token...');
         const response = await fetch('/chat/conversations', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
 
         if (!response.ok) {
+            console.error('Failed to load conversations:', response.status, response.statusText);
+            // If the token is invalid (401), clear it and show login
+            if (response.status === 401) {
+                localStorage.removeItem('token');
+                document.getElementById('chat').classList.add('hidden');
+                document.getElementById('signin').classList.remove('hidden');
+
+                Toastify({
+                    text: "Session expired. Please sign in again.",
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "#F44336",
+                }).showToast();
+            }
             throw new Error('Failed to load conversations');
         }
 
@@ -355,7 +397,17 @@ async function loadConversations() {
         }
     } catch (error) {
         console.error('Error loading conversations:', error);
-        // Removed toast notification here to reduce spam
+        // Show a toast notification for non-auth errors
+        if (!error.message.includes('authentication token') && !error.message.includes('expired')) {
+            Toastify({
+                text: "Failed to load conversations. Please try refreshing the page.",
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#F44336",
+            }).showToast();
+        }
     }
 }
 
@@ -470,7 +522,8 @@ function createMessageElement(msg) {
         'rounded-lg',
         isOwnMessage ? 'bg-blue-500' : 'bg-gray-300',
         isOwnMessage ? 'text-white' : 'text-gray-800',
-        isOwnMessage ? 'self-end' : 'self-start'
+        isOwnMessage ? 'self-end' : 'self-start',
+        'relative' // Add relative positioning for the timestamp
     ];
 
     if (msg.is_deleted) {
@@ -531,11 +584,22 @@ function createMessageElement(msg) {
 
     // Add actual message content
     const contentDiv = document.createElement('div');
-    contentDiv.className = 'message-content';
+    contentDiv.className = 'message-content mr-10'; // Add margin for timestamp
     contentDiv.textContent = msg.is_deleted ? "[Message deleted]" : msg.content;
     messageDiv.appendChild(contentDiv);
 
+    // Add timestamp
+    if (msg.timestamp) {
+        const timeSpan = document.createElement('span');
+        timeSpan.className = 'message-timestamp';
+        const date = new Date(msg.timestamp);
+        // Format time as HH:MM
+        timeSpan.textContent = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+        messageDiv.appendChild(timeSpan);
+    }
+
     if (!msg.is_deleted) {
+        // Add click handler for message actions
         messageDiv.addEventListener('click', (e) => {
             e.stopPropagation();
             handleMessageClick(e, messageDiv);
