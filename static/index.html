@@ -12,24 +12,6 @@
     />
   </head>
   <body class="bg-gray-100 font-sans">
-    <!-- Welcome Section -->
-    <div id="welcome" class="flex items-center justify-center min-h-screen">
-      <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md text-center">
-        <img src="/static/Images/Illustration.png" alt="Welcome Illustration" class="mx-auto mb-6 w-48 h-48" />
-        <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">
-          Welcome to TalkFlow
-        </h2>
-        <div class="flex flex-col space-y-4">
-          <button id="show-signin-btn" class="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition">
-            Sign in
-          </button>
-          <button id="show-signup-btn" class="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition">
-            Sign up
-          </button>
-        </div>
-      </div>
-    </div>
-
     <!-- Sign Up Section -->
     <div
       id="signup"
@@ -115,10 +97,10 @@
     <!-- Chat Section -->
     <div id="chat" class="hidden flex h-screen">
       <!-- Sidebar -->
-      <div class="w-1/4 bg-white text-[#000000] p-4 flex flex-col">
+      <div class="w-1/4 bg-[#4A4039] text-white p-4 flex flex-col">
         <div class="flex justify-between items-center mb-6">
-          <h2 class="text-xl font-bold text-[#000000]">TalkFlow</h2>
-          <button id="menu-btn" class="text-[#000000] hover:text-[#666666]">
+          <h2 class="text-xl font-bold">Chats</h2>
+          <button id="menu-btn" class="text-white hover:text-gray-300">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -135,33 +117,23 @@
             </svg>
           </button>
         </div>
-        <div class="relative">
-          <input
-            type="text"
-            placeholder="Search"
-            id="chat-search"
-            class="w-full p-2 pl-8 mb-6 bg-white rounded-lg text-[#666666] placeholder-[#666666] focus:outline-none"
-          />
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            class="absolute left-2 top-2.5 w-5 h-5 text-[#666666]"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
-        </div>
-        <div id="chat-list" class="flex-1 overflow-y-auto space-y-2"></div>
+        <input
+          type="text"
+          placeholder="Search"
+          id="chat-search"
+          class="w-full p-2 mb-6 bg-[#5A4A40] rounded-lg text-white placeholder-gray-300 focus:outline-none"
+        />
+        <div id="chat-list" class="flex-1 overflow-y-auto space-y-4"></div>
         <div class="mt-4 flex space-x-4">
-          <button id="new-chat-btn" class="text-[#666666] hover:text-[#000000]">New Chat</button>
-          <button id="new-group-btn" class="text-[#666666] hover:text-[#000000]">New Group</button>
-          <button id="logout-btn" class="text-[#666666] hover:text-[#000000]">Logout</button>
+          <button id="new-chat-btn" class="text-blue-300 hover:text-white">
+            New Chat
+          </button>
+          <button id="new-group-btn" class="text-blue-300 hover:text-white">
+            New Group
+          </button>
+          <button id="my-profile-btn" class="text-blue-300 hover:text-white">
+            Profile
+          </button>
         </div>
       </div>
       <!-- Conversation -->
@@ -169,7 +141,6 @@
         <div id="conversation-header" class="flex items-center mb-6">
           <div class="flex items-center">
             <img
-              id="conversation-avatar"
               src="https://picsum.photos/40"
               alt="Profile"
               class="w-10 h-10 rounded-full mr-3"
@@ -216,7 +187,7 @@
               type="text"
               id="message-input"
               placeholder="Type a message"
-              class="flex-1 p-3 bg-white text-[#333333] border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="flex-1 p-3 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <button
               id="send-btn"
@@ -237,6 +208,127 @@
                 />
               </svg>
             </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Section -->
+    <div id="profile" class="hidden flex h-screen">
+      <!-- Sidebar (keep the same sidebar as chat) -->
+      <div class="w-1/4 bg-[#4A4039] text-white p-4 flex flex-col">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-xl font-bold">Chats</h2>
+          <button id="menu-btn-profile" class="text-white hover:text-gray-300">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              class="w-6 h-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+          </button>
+        </div>
+        <input
+          type="text"
+          placeholder="Search"
+          id="chat-search-profile"
+          class="w-full p-2 mb-6 bg-[#5A4A40] rounded-lg text-white placeholder-gray-300 focus:outline-none"
+        />
+        <div
+          id="chat-list-profile"
+          class="flex-1 overflow-y-auto space-y-4"
+        ></div>
+        <div class="mt-4 flex space-x-4">
+          <button
+            id="new-chat-btn-profile"
+            class="text-blue-300 hover:text-white"
+          >
+            New Chat
+          </button>
+          <button
+            id="new-group-btn-profile"
+            class="text-blue-300 hover:text-white"
+          >
+            New Group
+          </button>
+          <button id="back-to-chat-btn" class="text-blue-300 hover:text-white">
+            Back to Chat
+          </button>
+        </div>
+      </div>
+
+      <!-- Profile Content -->
+      <div class="w-3/4 bg-[#E6E6FA] p-6 flex flex-col">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-2xl font-bold text-gray-800">User Profile</h2>
+          <button id="back-btn" class="text-blue-600 hover:text-blue-800">
+            Back to Chat
+          </button>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6 max-w-2xl mx-auto w-full">
+          <!-- Profile Header -->
+          <div class="flex items-center mb-6">
+            <div
+              class="w-24 h-24 rounded-full bg-blue-500 flex items-center justify-center text-white text-3xl mr-6"
+              id="profile-avatar"
+            >
+              <!-- First letter of username displayed here -->
+            </div>
+            <div>
+              <h3 class="text-2xl font-bold" id="profile-username">Username</h3>
+              <p class="text-gray-500" id="profile-user-id">User ID:</p>
+            </div>
+          </div>
+
+          <!-- Profile Stats (only visible for own profile) -->
+          <div id="own-profile-stats" class="hidden border-t pt-4 mt-4">
+            <h4 class="text-lg font-semibold mb-3">Your Account Stats</h4>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="bg-blue-50 p-4 rounded-lg">
+                <div
+                  class="text-xl font-bold text-blue-600"
+                  id="profile-message-count"
+                >
+                  0
+                </div>
+                <div class="text-sm text-gray-600">Messages Sent</div>
+              </div>
+              <div class="bg-green-50 p-4 rounded-lg">
+                <div
+                  class="text-xl font-bold text-green-600"
+                  id="profile-conversation-count"
+                >
+                  0
+                </div>
+                <div class="text-sm text-gray-600">Active Conversations</div>
+              </div>
+            </div>
+            <div class="mt-4 text-sm text-gray-500">
+              <p>
+                Account created: <span id="profile-created-at">Unknown</span>
+              </p>
+            </div>
+          </div>
+
+          <!-- Other User Profile View -->
+          <div id="other-profile-view" class="hidden border-t pt-4 mt-4">
+            <div class="flex justify-center mt-4">
+              <button
+                id="start-chat-btn"
+                class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+              >
+                Start Conversation
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -366,8 +458,9 @@
 
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-    <script src="/static/auth.js" type="module"></script>
-    <script src="/static/chat.js" type="module"></script>
+    <script src="auth.js" type="module"></script>
+    <script src="chat.js" type="module"></script>
     <script src="socket.js" type="module"></script>
-  <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'934da5b1681eef8d',t:'MTc0NTQxNDMxMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+    <script src="profile.js" type="module"></script>
+  </body>
 </html>

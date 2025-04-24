@@ -1,13 +1,8 @@
 import { setupMessageHandlers, setupReplyUI, hideReplyUI, getReplyingToMessage, handleMessageClick, clearMessageSelection } from './messageHandlers.js';
 import { initializeSocket, joinConversation } from './socket.js';
 
-/** @type {number | null} */
 let currentConversationId = null;
-
-/** @type {number | null} */
 let currentUserId = null;
-
-/** @type {Array<{id: number, name: string, last_message: string, participants: string[]}>} */
 let conversations = [];
 
 // Export these variables so other modules can use them
@@ -21,38 +16,33 @@ export {
 };
 
 document.addEventListener('DOMContentLoaded', async () => {
+    // Check for token in localStorage
     const token = localStorage.getItem('token');
-    if (token) {
-        // If token exists, try to load the chat interface directly
-        try {
-            const userResponse = await fetch('/auth/me', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (!userResponse.ok) {
-                throw new Error('Failed to fetch user data');
-            }
-            const userData = await userResponse.json();
-            currentUserId = userData.id;
-            console.log('Current user:', userData);
 
-            // Show chat interface
-            document.getElementById('welcome').classList.add('hidden');
-            document.getElementById('signin').classList.add('hidden');
-            document.getElementById('signup').classList.add('hidden');
-            document.getElementById('chat').classList.remove('hidden');
+    // Debug token value
+    console.log('Token found in localStorage:', token ? 'Yes' : 'No');
 
-            // Initialize socket connection
-            if (typeof initializeSocket === 'function') {
-                initializeSocket();
-            }
+    if (!token) {
+        document.getElementById('chat').classList.add('hidden');
+        document.getElementById('signin').classList.remove('hidden');
+        console.log('No token found, showing signin page');
+        return;
+    }
 
-            // Load conversations
-            await loadConversations();
-        } catch (error) {
-            console.error('Authentication error:', error);
+    // Validate token with a test request to the backend
+    try {
+        console.log('Validating token...');
+        const userResponse = await fetch('/auth/me', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!userResponse.ok) {
+            console.error('Token validation failed:', userResponse.status, userResponse.statusText);
+            // Token is invalid, clear it and show login
             localStorage.removeItem('token');
             document.getElementById('chat').classList.add('hidden');
-            document.getElementById('welcome').classList.remove('hidden');
+            document.getElementById('signin').classList.remove('hidden');
+
             Toastify({
                 text: "Session expired. Please sign in again.",
                 duration: 3000,
@@ -61,13 +51,40 @@ document.addEventListener('DOMContentLoaded', async () => {
                 position: "right",
                 backgroundColor: "#F44336",
             }).showToast();
+            return;
         }
-    } else {
-        // Show welcome screen by default
-        document.getElementById('welcome').classList.remove('hidden');
-        document.getElementById('chat').classList.add('hidden');
+
+        // Token is valid, continue with app initialization
+        const userData = await userResponse.json();
+        currentUserId = userData.id;
+        console.log('Current user:', userData);
+
+        // Show chat interface
         document.getElementById('signin').classList.add('hidden');
         document.getElementById('signup').classList.add('hidden');
+        document.getElementById('chat').classList.remove('hidden');
+
+        // Initialize socket connection
+        if (typeof initializeSocket === 'function') {
+            initializeSocket();
+        }
+
+        // Load conversations
+        await loadConversations();
+    } catch (error) {
+        console.error('Authentication error:', error);
+        localStorage.removeItem('token');
+        document.getElementById('chat').classList.add('hidden');
+        document.getElementById('signin').classList.remove('hidden');
+        Toastify({
+            text: "Session expired. Please sign in again.",
+            duration: 3000,
+            close: true,
+            gravity: "top",
+            position: "right",
+            backgroundColor: "#F44336",
+        }).showToast();
+        return;
     }
 
     // Add search functionality with reduced toasts
@@ -85,58 +102,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // Handle welcome screen buttons
-    const showSignInBtn = document.getElementById('show-signin-btn');
-    const showSignUpBtn = document.getElementById('show-signup-btn');
-
-    showSignInBtn.addEventListener('click', () => {
-        document.getElementById('welcome').classList.add('hidden');
-        document.getElementById('signin').classList.remove('hidden');
-        document.getElementById('signup').classList.add('hidden');
-    });
-
-    showSignUpBtn.addEventListener('click', () => {
-        document.getElementById('welcome').classList.add('hidden');
-        document.getElementById('signup').classList.remove('hidden');
-        document.getElementById('signin').classList.add('hidden');
-    });
-
-    // Handle logout button
-    const logoutBtn = document.getElementById('logout-btn');
-    logoutBtn.addEventListener('click', () => {
-        console.log("Кнопка выхода нажата");
-        // Clear token from localStorage
-        localStorage.removeItem('token');
-
-        // Disconnect socket if connected
-        if (typeof socket !== 'undefined' && socket.connected) {
-            socket.disconnect();
-        } else {
-            console.warn('Socket is not defined or not connected.');
-        }
-
-        // Reset global variables
-        currentConversationId = null;
-        currentUserId = null;
-        conversations = [];
-
-        // Clear chat list and message list
-        document.getElementById('chat-list').innerHTML = '';
-        document.getElementById('message-list').innerHTML = '';
-
-        // Show welcome screen and hide chat
-        document.getElementById('chat').classList.add('hidden');
-        document.getElementById('welcome').classList.remove('hidden');
-
-        Toastify({
-            text: "You have been logged out.",
-            duration: 3000,
-            close: true,
-            gravity: "top",
-            position: "right",
-            backgroundColor: "#4CAF50",
-        }).showToast();
-    });
+    // Remove select mode event listeners since we're using context menu
+    /*
+    // Remove these lines
+    document.getElementById('select-mode-btn').addEventListener('click', toggleSelectionMode);
+    document.getElementById('cancel-selection-btn').addEventListener('click', cancelSelectionMode);
+    document.getElementById('delete-selected-btn').addEventListener('click', deleteSelectedMessages);
+    */
 
     // New Chat Modal
     const newChatModal = document.getElementById('new-chat-modal');
@@ -376,14 +348,32 @@ async function loadConversations() {
     try {
         const token = localStorage.getItem('token');
         if (!token) {
+            console.error('No token available for loading conversations');
             throw new Error('No authentication token');
         }
 
+        console.log('Fetching conversations with token...');
         const response = await fetch('/chat/conversations', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
 
         if (!response.ok) {
+            console.error('Failed to load conversations:', response.status, response.statusText);
+            // If the token is invalid (401), clear it and show login
+            if (response.status === 401) {
+                localStorage.removeItem('token');
+                document.getElementById('chat').classList.add('hidden');
+                document.getElementById('signin').classList.remove('hidden');
+
+                Toastify({
+                    text: "Session expired. Please sign in again.",
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "#F44336",
+                }).showToast();
+            }
             throw new Error('Failed to load conversations');
         }
 
@@ -407,21 +397,27 @@ async function loadConversations() {
         }
     } catch (error) {
         console.error('Error loading conversations:', error);
-        // Removed toast notification here to reduce spam
+        // Show a toast notification for non-auth errors
+        if (!error.message.includes('authentication token') && !error.message.includes('expired')) {
+            Toastify({
+                text: "Failed to load conversations. Please try refreshing the page.",
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#F44336",
+            }).showToast();
+        }
     }
 }
 
 function renderChatList(convList) {
     const chatList = document.getElementById('chat-list');
-    if (!chatList) {
-        console.error('Chat list element not found in DOM');
-        return;
-    }
     chatList.innerHTML = '';
 
     if (convList.length === 0) {
         const emptyMessage = document.createElement('div');
-        emptyMessage.classList.add('p-3', 'text-[#666666]', 'text-center');
+        emptyMessage.classList.add('p-3', 'text-gray-300', 'text-center');
         emptyMessage.textContent = 'No conversations yet. Start a new chat!';
         chatList.appendChild(emptyMessage);
         return;
@@ -429,24 +425,18 @@ function renderChatList(convList) {
 
     convList.forEach(conv => {
         const chatItem = document.createElement('div');
-        chatItem.classList.add('flex', 'items-center', 'p-3', 'cursor-pointer', 'rounded-lg');
-        if (conv.id === currentConversationId) {
-            chatItem.classList.add('active');
-        }
+        chatItem.classList.add('flex', 'items-center', 'p-3', 'hover:bg-[#5A4A40]', 'cursor-pointer', 'rounded-lg');
 
-        const unreadCount = conv.unread_count || 0;
+        // Highlight current conversation
+        if (conv.id === currentConversationId) {
+            chatItem.classList.add('bg-[#5A4A40]');
+        }
 
         chatItem.innerHTML = `
             <img src="https://picsum.photos/seed/${conv.id}/40" alt="Profile" class="w-10 h-10 rounded-full mr-3">
-            <div class="flex-1">
-                <div class="flex justify-between items-center">
-                    <h4 class="chat-name font-semibold">${conv.name || 'Chat'}</h4>
-                    <span class="time-stamp text-xs">${conv.last_message_time || 'Today'}</span>
-                </div>
-                <div class="flex justify-between items-center">
-                    <p class="last-message text-sm truncate">${conv.last_message || 'No messages yet'}</p>
-                    ${unreadCount > 0 ? `<span class="unread-indicator ml-2 text-xs rounded-full px-2 py-1">${unreadCount}</span>` : ''}
-                </div>
+            <div>
+                <h4 class="font-bold text-white">${conv.name || 'Chat'}</h4>
+                <p class="text-sm text-gray-300">${conv.last_message || 'No messages yet'}</p>
             </div>
         `;
         chatItem.addEventListener('click', () => loadConversation(conv.id));
@@ -521,7 +511,6 @@ let targetMessageElement = null;
 
 function createMessageElement(msg) {
     if (!msg) return null;
-    console.log('Message data:', msg);
 
     const messageDiv = document.createElement('div');
     const isOwnMessage = msg.sender_id === currentUserId;
@@ -533,7 +522,8 @@ function createMessageElement(msg) {
         'rounded-lg',
         isOwnMessage ? 'bg-blue-500' : 'bg-gray-300',
         isOwnMessage ? 'text-white' : 'text-gray-800',
-        isOwnMessage ? 'self-end' : 'self-start'
+        isOwnMessage ? 'self-end' : 'self-start',
+        'relative' // Add relative positioning for the timestamp
     ];
 
     if (msg.is_deleted) {
@@ -549,23 +539,32 @@ function createMessageElement(msg) {
 
     // Add reply preview if this is a reply - improved version with clearer indication
     if (msg.replied_to_id && msg.replied_to_content) {
+        // Create a distinct reply container with better styling
         const replyBox = document.createElement('div');
-        replyBox.className = 'reply-box mb-2 cursor-pointer';
-    
+        replyBox.className = 'reply-box mb-2 p-2 rounded text-sm';
+        replyBox.classList.add(isOwnMessage ? 'bg-blue-600' : 'bg-gray-400');
+
         // Get sender username if available or use generic text
         let repliedToUserText = 'Someone';
         if (msg.replied_to_sender === currentUserId) {
-            repliedToUserText = 'You';
+            repliedToUserText = 'your message';
         } else if (msg.replied_to_username) {
             repliedToUserText = msg.replied_to_username;
         }
-    
-        // Create reply preview
+
+        // Create a clearer reply indicator with quote styling
         replyBox.innerHTML = `
-            <div class="reply-info text-xs text-gray-500">${repliedToUserText}</div>
-            <div class="reply-content text-sm text-gray-600 truncate">${msg.replied_to_content || '[deleted message]'}</div>
+            <div class="flex items-center gap-1 mb-1">
+                <svg class="w-3 h-3 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
+                </svg>
+                <span class="font-bold">Replying to ${repliedToUserText}:</span>
+            </div>
+            <div class="pl-3 border-l-2 border-white border-opacity-70">
+                "${msg.replied_to_content || '[deleted message]'}"
+            </div>
         `;
-    
+
         // Make the reply clickable - scroll to original message
         replyBox.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -574,22 +573,33 @@ function createMessageElement(msg) {
                 // Add highlight effect
                 originalMsg.classList.add('highlight');
                 setTimeout(() => originalMsg.classList.remove('highlight'), 2000);
-    
+
                 // Scroll to the original message
                 originalMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         });
-    
+
         messageDiv.appendChild(replyBox);
     }
 
     // Add actual message content
     const contentDiv = document.createElement('div');
-    contentDiv.className = 'message-content';
+    contentDiv.className = 'message-content mr-10'; // Add margin for timestamp
     contentDiv.textContent = msg.is_deleted ? "[Message deleted]" : msg.content;
     messageDiv.appendChild(contentDiv);
 
+    // Add timestamp
+    if (msg.timestamp) {
+        const timeSpan = document.createElement('span');
+        timeSpan.className = 'message-timestamp';
+        const date = new Date(msg.timestamp);
+        // Format time as HH:MM
+        timeSpan.textContent = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+        messageDiv.appendChild(timeSpan);
+    }
+
     if (!msg.is_deleted) {
+        // Add click handler for message actions
         messageDiv.addEventListener('click', (e) => {
             e.stopPropagation();
             handleMessageClick(e, messageDiv);
@@ -764,4 +774,5 @@ document.getElementById('send-btn').addEventListener('click', () => {
 
     // Hide reply UI after sending
     hideReplyUI();
+
 });

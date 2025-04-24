@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 .bg-brownish {
-    background-color: #002DE3;
+    background-color: #4A4039;
 }
 
 .bg-light-purple {
@@ -44,11 +44,6 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     max-height: 200px;
     overflow-y: auto;
-}
-
-#welcome img {
-    max-width: 100%;
-    height: auto;
 }
 
 /* Message selection and reply styles */
@@ -229,48 +224,77 @@
     background-color: rgba(0,0,0,0.05);
 }
 
+/* Message selection styles */
+.selecting-messages .message {
+    /* Remove this style */
+}
+
+.message-checkbox {
+    /* Remove this style */
+}
+
+.message.selected .message-checkbox {
+    /* Remove this style */
+}
+
 /* Keep and improve reply box styling */
 .reply-box {
     position: relative;
+    opacity: 0.9;
     cursor: pointer;
     transition: all 0.2s ease;
-    border-left: 3px solid #3B82F6; /* Синяя линия слева */
-    padding-left: 8px;
+    border-left: 3px solid rgba(255, 255, 255, 0.5);
     margin-bottom: 8px;
 }
 
 .reply-box:hover {
-    background-color: rgba(0, 0, 0, 0.05);
+    opacity: 1;
+    background-color: rgba(0, 0, 0, 0.1);
 }
 
 .reply-info {
-    font-size: 0.75rem; /* Меньший размер текста */
-    color: #666666;
+    margin-bottom: 4px;
+    opacity: 0.8;
+    cursor: pointer;
+}
+
+.reply-line {
+    width: 2px;
+    height: 16px;
+    background-color: currentColor;
+    margin-left: 8px;
     margin-bottom: 2px;
 }
 
 .reply-content {
-    font-size: 0.85rem;
-    color: #666666;
+    font-size: 0.85em;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background-color: rgba(0, 0, 0, 0.1);
+    margin-bottom: 4px;
+}
+
+.reply-to {
+    font-weight: 500;
+    margin-right: 4px;
+}
+
+.reply-text {
+    opacity: 0.8;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 100%;
+    max-width: 200px;
+    display: inline-block;
+    vertical-align: bottom;
 }
 
-/* Удаляем неиспользуемые стили */
-.reply-line,
-.reply-to,
-.reply-text {
-    display: none;
-}
-
-/* .reply-box {
+.reply-box {
     position: relative;
     opacity: 0.8;
     cursor: pointer;
     transition: all 0.2s ease;
-} */
+}
 
 .reply-box:hover {
     opacity: 1;
@@ -350,161 +374,17 @@
     word-break: break-word;
 }
 
-/* Новые стили для соответствия дизайну на скриншоте */
-#chat-list > div:hover {
-    background-color: #002DE3;
+/* Timestamp styling */
+.message-timestamp {
+    position: absolute;
+    bottom: 4px; /* Adjust as needed */
+    right: 8px; /* Adjust as needed */
+    font-size: 0.75rem; /* 12px */
+    color: rgba(0, 0, 0, 0.4); /* Semi-transparent black */
+    opacity: 0.8;
 }
 
-#message-list .deleted {
-    opacity: 0.5;
-    font-style: italic;
-}
-
-#message-list .max-w-xs {
-    max-width: 16rem;
-}
-
-#reply-container {
-    background-color: #f1f1f1;
-    padding: 0.5rem 1rem;
-    border-left: 4px solid #3b82f6;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-#message-list .system-message {
-    font-style: italic;
-}
-
-/* Анимация появления сообщений */
-#message-list > div {
-    animation: fadeIn 0.3s ease-in;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* Стили для аватаров в сообщениях */
-.message-avatar {
-    flex-shrink: 0;
-    margin-right: 8px;
-}
-
-/* Стили для временных меток и индикатора "Read" */
-.message-time {
-    font-size: 0.75rem;
-    margin-top: 4px;
-}
-
-.message-time .read-indicator {
-    margin-left: 8px;
-}
-
-/* Улучшение стилей сообщений */
-.message-content {
-    padding: 8px 12px;
-    border-radius: 12px;
-    line-height: 1.4;
-}
-
-/* Стили для списка чатов */
-#chat-list > div {
-    transition: background-color 0.2s ease;
-}
-
-#chat-list .truncate {
-    max-width: 150px;
-}
-
-/* Сглаживание текста */
-.text-white {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
-
-/* Улучшение стилей заголовка чата */
-#conversation-header {
-    border-bottom: 1px solid #e5e7eb;
-    padding-bottom: 12px;
-}
-
-/* Стили для списка чатов */
-#chat-list .chat-name {
-    color: #000000;
-}
-
-#chat-list .last-message {
-    color: #666666;
-}
-
-#chat-list .time-stamp {
-    color: #666666;
-}
-
-/* Фон при наведении или выборе */
-#chat-list > div:hover {
-    background-color: #002DE3;
-}
-
-#chat-list > div.active {
-    background-color: #002DE3;
-}
-
-/* Изменение цветов текста при выборе */
-#chat-list > div.active .chat-name,
-#chat-list > div:hover .chat-name {
-    color: #FFFFFF;
-}
-
-#chat-list > div.active .last-message,
-#chat-list > div:hover .last-message {
-    color: #D1D5DB;
-}
-
-#chat-list > div.active .time-stamp,
-#chat-list > div:hover .time-stamp {
-    color: #D1D5DB;
-}
-
-/* Индикатор непрочитанных сообщений */
-#chat-list .unread-indicator {
-    background-color: #002DE3;
-    color: #FFFFFF;
-}
-
-#chat-list > div.active .unread-indicator,
-#chat-list > div:hover .unread-indicator {
-    background-color: #FFFFFF;
-    color: #000000;
-}
-
-/* Стили для сообщений */
-.message-content.bg-gray-200 {
-    background-color: #E5E7EB;
-    color: #333333;
-}
-
-.message-content.bg-blue-600 {
-    background-color: #3B82F6;
-}
-
-.message-time.text-gray-500 {
-    color: #666666;
-}
-
-.message-time.text-blue-200 {
-    color: #A3BFFA;
-}
-
-.read-indicator {
-    color: #A3BFFA;
-}
-
-.message-content {
-    font-size: 1rem;
-    line-height: 1.4;
-    padding: 8px 12px;
+/* Adjust timestamp color for own messages */
+.message.self-end .message-timestamp {
+    color: rgba(255, 255, 255, 0.7); /* Semi-transparent white */
 }
