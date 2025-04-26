@@ -14,13 +14,13 @@
     color: #333333;
 }
 
-#new-chat-modal, #new-group-modal {
+#new-chat-modal, #new-group-modal, #new-conversation-modal {
     transition: opacity 0.3s ease, transform 0.3s ease;
     opacity: 0;
     transform: scale(0.95);
 }
 
-#new-chat-modal:not(.hidden), #new-group-modal:not(.hidden) {
+#new-chat-modal:not(.hidden), #new-group-modal:not(.hidden), #new-conversation-modal:not(.hidden) {
     opacity: 1;
     transform: scale(1);
 }
@@ -46,7 +46,7 @@
     overflow-y: auto;
 }
 
-/* Message selection and reply styles */
+/* Message styles */
 .message {
     user-select: none;
     -webkit-user-select: none;
@@ -55,7 +55,20 @@
     position: relative;
     cursor: pointer;
     transition: all 0.2s ease;
-    max-width: 80%;
+    max-width: 60%;
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+}
+
+.message.self-end {
+    background-color: #2563eb;
+    color: white;
+}
+
+.message.self-start {
+    background-color: #e5e7eb;
+    color: #1f2937;
 }
 
 .message.selected {
@@ -75,13 +88,6 @@
     50% {
         background-color: rgba(66, 153, 225, 0.3);
     }
-}
-
-@keyframes highlight-pulse {
-    0% { transform: scale(1); }
-    25% { transform: scale(1.05); background-color: rgba(59, 130, 246, 0.2); }
-    75% { transform: scale(1.05); background-color: rgba(59, 130, 246, 0.2); }
-    100% { transform: scale(1); }
 }
 
 @keyframes pulse-highlight {
@@ -224,20 +230,6 @@
     background-color: rgba(0,0,0,0.05);
 }
 
-/* Message selection styles */
-.selecting-messages .message {
-    /* Remove this style */
-}
-
-.message-checkbox {
-    /* Remove this style */
-}
-
-.message.selected .message-checkbox {
-    /* Remove this style */
-}
-
-/* Keep and improve reply box styling */
 .reply-box {
     position: relative;
     opacity: 0.9;
@@ -287,18 +279,6 @@
     max-width: 200px;
     display: inline-block;
     vertical-align: bottom;
-}
-
-.reply-box {
-    position: relative;
-    opacity: 0.8;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.reply-box:hover {
-    opacity: 1;
-    transform: translateX(2px);
 }
 
 .floating-actions-menu {
@@ -374,17 +354,114 @@
     word-break: break-word;
 }
 
-/* Timestamp styling */
 .message-timestamp {
     position: absolute;
-    bottom: 4px; /* Adjust as needed */
-    right: 8px; /* Adjust as needed */
-    font-size: 0.75rem; /* 12px */
-    color: rgba(0, 0, 0, 0.4); /* Semi-transparent black */
+    bottom: 4px;
+    right: 8px;
+    font-size: 0.65rem;
+    color: rgba(0, 0, 0, 0.4);
     opacity: 0.8;
 }
 
-/* Adjust timestamp color for own messages */
 .message.self-end .message-timestamp {
-    color: rgba(255, 255, 255, 0.7); /* Semi-transparent white */
+    color: rgba(255, 255, 255, 0.7);
 }
+
+/* Chat list items */
+#chat-list > div, #chat-list-profile > div {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+}
+
+#chat-list > div:hover, #chat-list-profile > div:hover {
+    background-color: #f3f4f6;
+}
+
+#chat-list > div.bg-brownish, #chat-list-profile > div.bg-brownish {
+    background-color: #e5e7eb !important;
+}
+
+#chat-list img, #chat-list-profile img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 12px;
+}
+
+#chat-list h4, #chat-list-profile h4 {
+    color: #1f2937;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+#chat-list p, #chat-list-profile p {
+    color: #6b7280;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Unread count */
+#chat-list .unread-count, #chat-list-profile .unread-count {
+    margin-left: auto;
+    background-color: #2563eb;
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 9999px;
+}
+
+#new-conversation-modal .bg-white {
+    background-color: #f0f0ff;
+    border-radius: 12px;
+    padding: 8px;
+  }
+  
+  #new-conversation-modal button {
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+
+  #chat-list > div.bg-blue-600, #chat-list-profile > div.bg-blue-600 {
+    background-color: #2563eb !important;
+}
+
+#chat-list > div.bg-blue-600 h4,
+#chat-list-profile > div.bg-blue-600 h4,
+#chat-list > div.bg-blue-600 p,
+#chat-list-profile > div.bg-blue-600 p {
+    color: #ffffff !important;
+}
+
+/* Увеличиваем специфичность для выбранного чата */
+#chat-list > div.bg-blue-600 *,
+#chat-list-profile > div.bg-blue-600 * {
+    color: #ffffff !important;
+}
+
+#menu-modal {
+    top: 50px;
+    left: 230px;
+    background-color: #f0f0ff;
+    border-radius: 12px;
+    padding: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    width: 150px;
+  }
+  
+  #menu-modal button {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #1e40af;
+    background-color: transparent;
+    transition: background-color 0.2s ease;
+  }
+  
+  #menu-modal button:hover {
+    background-color: #e0e7ff;
+  }
