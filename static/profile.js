@@ -1,4 +1,3 @@
-// profile.js
 import { currentUserId, conversations, loadConversations } from './chat.js';
 
 let currentProfileUserId = null;
@@ -19,12 +18,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 showProfile(currentUserId);
             } else {
                 Toastify({
-                    text: "You need to be logged in to view your profile",
+                    text: "Вы должны войти в систему, чтобы просмотреть свой профиль",
                     duration: 3000,
                     close: true,
                     gravity: "top",
                     position: "right",
-                    backgroundColor: "#F44336",
+                    style: { background: "#F44336" },
                 }).showToast();
             }
         });
@@ -63,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const token = localStorage.getItem('token');
                 if (!token) {
-                    throw new Error('No authentication token');
+                    throw new Error('Нет токена авторизации');
                 }
 
                 // Create a new conversation with this user
@@ -80,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 if (!response.ok) {
-                    throw new Error('Failed to create conversation');
+                    throw new Error('Не удалось создать беседу');
                 }
 
                 const data = await response.json();
@@ -91,12 +90,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Notify the user
                 Toastify({
-                    text: "Conversation created successfully!",
+                    text: "Беседа успешно создана!",
                     duration: 3000,
                     close: true,
                     gravity: "top",
                     position: "right",
-                    backgroundColor: "#4CAF50",
+                    style: { background: "#4CAF50" },
                 }).showToast();
 
                 // Navigate to the new conversation
@@ -108,14 +107,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
             } catch (error) {
-                console.error('Error creating conversation:', error);
+                console.error('Ошибка создания беседы:', error);
                 Toastify({
-                    text: "Failed to create conversation. Please try again.",
+                    text: "Не удалось создать беседу. Попробуйте снова.",
                     duration: 3000,
                     close: true,
                     gravity: "top",
                     position: "right",
-                    backgroundColor: "#F44336",
+                    style: { background: "#F44336" },
                 }).showToast();
             }
         });
@@ -140,7 +139,7 @@ async function showProfile(userId) {
     try {
         const token = localStorage.getItem('token');
         if (!token) {
-            throw new Error('No authentication token');
+            throw new Error('Нет токена авторизации');
         }
 
         // Fetch user profile data
@@ -149,7 +148,7 @@ async function showProfile(userId) {
         });
 
         if (!response.ok) {
-            throw new Error('Failed to load profile');
+            throw new Error('Не удалось загрузить профиль');
         }
 
         const profileData = await response.json();
@@ -192,7 +191,7 @@ async function showProfile(userId) {
             if (profileData.account_created) {
                 const createdDate = new Date(profileData.account_created);
                 document.getElementById('profile-created-at').textContent =
-                    createdDate.toLocaleDateString('en-US', {
+                    createdDate.toLocaleDateString('ru-RU', {
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric',
@@ -200,7 +199,7 @@ async function showProfile(userId) {
                         minute: '2-digit'
                     });
             } else {
-                document.getElementById('profile-created-at').textContent = 'Not available';
+                document.getElementById('profile-created-at').textContent = 'Недоступно';
             }
         } else {
             ownProfileStats.classList.add('hidden');
@@ -220,7 +219,7 @@ async function showProfile(userId) {
                 // Add a different button to open existing conversation
                 const existingChatBtn = document.createElement('button');
                 existingChatBtn.className = 'bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition';
-                existingChatBtn.textContent = 'Open Existing Conversation';
+                existingChatBtn.textContent = 'Открыть существующую беседу';
                 existingChatBtn.addEventListener('click', () => {
                     hideProfile();
 
@@ -255,14 +254,14 @@ async function showProfile(userId) {
         });
 
     } catch (error) {
-        console.error('Error loading profile:', error);
+        console.error('Ошибка загрузки профиля:', error);
         Toastify({
-            text: "Failed to load profile. Please try again.",
+            text: "Не удалось загрузить профиль. Попробуйте снова.",
             duration: 3000,
             close: true,
             gravity: "top",
             position: "right",
-            backgroundColor: "#F44336",
+            style: { background: "#F44336" },
         }).showToast();
 
         // Fall back to chat view

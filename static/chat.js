@@ -1,5 +1,6 @@
 import { setupMessageHandlers, setupReplyUI, hideReplyUI, getReplyingToMessage, handleMessageClick, clearMessageSelection } from './messageHandlers.js';
 import { initializeSocket, joinConversation } from './socket.js';
+import { showProfile } from './profile.js'; // Импортируем showProfile
 
 let currentConversationId = null;
 let currentUserId = null;
@@ -18,10 +19,38 @@ document.addEventListener('DOMContentLoaded', async () => {
     const token = localStorage.getItem('token');
     console.log('Token found in localStorage:', token ? 'Yes' : 'No');
 
+    // Объявляем все секции один раз в начале
+    const welcomeSection = document.getElementById('welcome');
+    const signinSection = document.getElementById('signin');
+    const signupSection = document.getElementById('signup');
+    const chatSection = document.getElementById('chat');
+    const profileSection = document.getElementById('profile');
+
+    // Welcome screen button handlers
+    const welcomeSigninBtn = document.getElementById('welcome-signin-btn');
+    const welcomeSignupBtn = document.getElementById('welcome-signup-btn');
+
+    if (welcomeSigninBtn) {
+        welcomeSigninBtn.addEventListener('click', () => {
+            welcomeSection.classList.add('hidden');
+            signinSection.classList.remove('hidden');
+        });
+    }
+
+    if (welcomeSignupBtn) {
+        welcomeSignupBtn.addEventListener('click', () => {
+            welcomeSection.classList.add('hidden');
+            signupSection.classList.remove('hidden');
+        });
+    }
+
     if (!token) {
-        document.getElementById('chat').classList.add('hidden');
-        document.getElementById('signin').classList.remove('hidden');
-        console.log('No token found, showing signin page');
+        // Show welcome screen, hide others
+        welcomeSection.classList.remove('hidden');
+        signinSection.classList.add('hidden');
+        signupSection.classList.add('hidden');
+        chatSection.classList.add('hidden');
+        console.log('No token found, showing welcome page');
         return;
     }
 
@@ -34,15 +63,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!userResponse.ok) {
             console.error('Token validation failed:', userResponse.status, userResponse.statusText);
             localStorage.removeItem('token');
-            document.getElementById('chat').classList.add('hidden');
-            document.getElementById('signin').classList.remove('hidden');
+            welcomeSection.classList.remove('hidden');
+            signinSection.classList.add('hidden');
+            signupSection.classList.add('hidden');
+            chatSection.classList.add('hidden');
             Toastify({
-                text: "Session expired. Please sign in again.",
+                text: "Сессия истекла. Пожалуйста, войдите снова.",
                 duration: 3000,
                 close: true,
                 gravity: "top",
                 position: "right",
-                backgroundColor: "#F44336",
+                style: { background: "#F44336" },
             }).showToast();
             return;
         }
@@ -51,9 +82,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         currentUserId = userData.id;
         console.log('Current user:', userData);
 
-        document.getElementById('signin').classList.add('hidden');
-        document.getElementById('signup').classList.add('hidden');
-        document.getElementById('chat').classList.remove('hidden');
+        welcomeSection.classList.add('hidden');
+        signinSection.classList.add('hidden');
+        signupSection.classList.add('hidden');
+        chatSection.classList.remove('hidden');
 
         if (typeof initializeSocket === 'function') {
             initializeSocket();
@@ -61,17 +93,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         await loadConversations();
     } catch (error) {
-        console.error('Authentication error:', error);
+        console.error('Ошибка авторизации:', error);
         localStorage.removeItem('token');
-        document.getElementById('chat').classList.add('hidden');
-        document.getElementById('signin').classList.remove('hidden');
+        welcomeSection.classList.remove('hidden');
+        signinSection.classList.add('hidden');
+        signupSection.classList.add('hidden');
+        chatSection.classList.add('hidden');
         Toastify({
-            text: "Session expired. Please sign in again.",
+            text: "Сессия истекла. Пожалуйста, войдите снова.",
             duration: 3000,
             close: true,
             gravity: "top",
             position: "right",
-            backgroundColor: "#F44336",
+            style: { background: "#F44336" },
         }).showToast();
         return;
     }
@@ -84,7 +118,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         );
         renderChatList(filteredConversations);
         if (filteredConversations.length === 0 && query.length >= 3) {
-            console.log("No chats found matching search criteria");
+            console.log("Чаты по запросу не найдены");
         }
     });
 
@@ -97,239 +131,197 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Закрытие модальных окон при клике вне их
     document.addEventListener('click', (e) => {
-    if (
-        newConversationModal &&
-        !newConversationModal.classList.contains('hidden') &&
-        !newConversationModal.contains(e.target) &&
-        e.target !== newConversationBtn
-    ) {
-        newConversationModal.classList.add('hidden');
-    }
-    // Определение всех модальных окон и кнопок
-    const newConversationModal = document.getElementById('new-conversation-modal');
-    const newConversationBtn = document.getElementById('new-conversation-btn');
-    const newConversationModalClose = document.getElementById('new-conversation-modal-close');
-    const newChatModal = document.getElementById('new-chat-modal');
-    const newChatBtn = document.getElementById('new-chat-btn');
-    const newChatCancel = document.getElementById('new-chat-cancel');
-    const newGroupModal = document.getElementById('new-group-modal');
-    const newGroupBtn = document.getElementById('new-group-btn');
-    const newGroupCancel = document.getElementById('new-group-cancel');
-    const menuModal = document.getElementById('menu-modal');
-    const menuBtn = document.getElementById('menu-btn');
-    const menuModalClose = document.getElementById('menu-modal-close');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const myProfileBtn = document.getElementById('my-profile-btn');
+        if (
+            newConversationModal &&
+            !newConversationModal.classList.contains('hidden') &&
+            !newConversationModal.contains(e.target) &&
+            e.target !== newConversationBtn
+        ) {
+            newConversationModal.classList.add('hidden');
+        }
 
-    // Закрытие модальных окон при клике вне их
-    document.addEventListener('click', (e) => {
-    if (
-        newConversationModal &&
-        !newConversationModal.classList.contains('hidden') &&
-        !newConversationModal.contains(e.target) &&
-        e.target !== newConversationBtn &&
-        e.target !== newChatBtn &&
-        e.target !== newGroupBtn
-    ) {
-        newConversationModal.classList.add('hidden');
-    }
-
-    if (
-        newChatModal &&
-        !newChatModal.classList.contains('hidden') &&
-        !newChatModal.contains(e.target) &&
-        e.target !== newChatBtn
-    ) {
-        newChatModal.classList.add('hidden');
-    }
-
-    if (
-        newGroupModal &&
-        !newGroupModal.classList.contains('hidden') &&
-        !newGroupModal.contains(e.target) &&
-        e.target !== newGroupBtn
-    ) {
-        newGroupModal.classList.add('hidden');
-    }
-
-    if (
-        menuModal &&
-        !menuModal.classList.contains('hidden') &&
-        !menuModal.contains(e.target) &&
-        e.target !== menuBtn
-    ) {
-        menuModal.classList.add('hidden');
-    }
+        if (
+            menuModal &&
+            !menuModal.classList.contains('hidden') &&
+            !menuModal.contains(e.target) &&
+            e.target !== menuBtn
+        ) {
+            menuModal.classList.add('hidden');
+        }
     });
 
-    // Открытие модального окна New Conversation
     if (newConversationBtn && newConversationModal) {
-    newConversationBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        newConversationModal.classList.remove('hidden');
-    });
+        newConversationBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            newConversationModal.classList.remove('hidden');
+        });
     }
 
-    // Закрытие модального окна New Conversation по кнопке крестика
-    if (newConversationModalClose) {
-    newConversationModalClose.addEventListener('click', (e) => {
-        e.stopPropagation();
-        newConversationModal.classList.add('hidden');
-    });
-    }
-
-    // Открытие модального окна Menu
     if (menuBtn && menuModal) {
-    menuBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        console.log('Menu button clicked, toggling menu-modal. Current state:', menuModal.classList.contains('hidden'));
-        menuModal.classList.toggle('hidden');
-        console.log('New state:', menuModal.classList.contains('hidden'));
-    });
+        menuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            console.log('Кнопка меню нажата, переключение menu-modal. Текущее состояние:', menuModal.classList.contains('hidden'));
+            menuModal.classList.toggle('hidden');
+            console.log('Новое состояние:', menuModal.classList.contains('hidden'));
+        });
     }
-
-    // Закрытие модального окна Menu по кнопке крестика
-    if (menuModalClose) {
-    menuModalClose.addEventListener('click', (e) => {
-        e.stopPropagation();
-        menuModal.classList.add('hidden');
-    });
-    }
-
-    // Обработчик для кнопки Log out
-    if (logoutBtn) {
-    logoutBtn.addEventListener('click', () => {
-        localStorage.removeItem('token');
-        document.getElementById('chat').classList.add('hidden');
-        document.getElementById('signin').classList.remove('hidden');
-        menuModal.classList.add('hidden'); // Закрываем модальное окно
-        Toastify({
-        text: "Logged out successfully.",
-        duration: 3000,
-        close: true,
-        gravity: "top",
-        position: "right",
-        backgroundColor: "#4CAF50",
-        }).showToast();
-    });
-    }
-
-    // Закрытие модального окна Menu после клика на Profile
-    if (myProfileBtn && menuModal) {
-    myProfileBtn.addEventListener('click', () => {
-        menuModal.classList.add('hidden');
-    });
-    }
-
-    // New Chat Modal
-    if (newChatBtn && newChatModal) {
-    newChatBtn.addEventListener('click', () => {
-        newConversationModal.classList.add('hidden');
-        newChatModal.classList.remove('hidden');
-        if (newChatUsernameInput) {
-        newChatUsernameInput.value = '';
-        }
-        if (userSuggestions) {
-        userSuggestions.innerHTML = '';
-        }
-        selectedUserId = null;
-    });
-    }
-
-    if (newChatCancel) {
-    newChatCancel.addEventListener('click', () => {
-        newChatModal.classList.add('hidden');
-    });
-    }
-
-    // New Group Modal
-    if (newGroupBtn && newGroupModal) {
-    newGroupBtn.addEventListener('click', () => {
-        newConversationModal.classList.add('hidden');
-        newGroupModal.classList.remove('hidden');
-    });
-    }
-
-    if (newGroupCancel) {
-    newGroupCancel.addEventListener('click', () => {
-        newGroupModal.classList.add('hidden');
-    });
-    }
-    if (
-        menuModal &&
-        !menuModal.classList.contains('hidden') &&
-        !menuModal.contains(e.target) &&
-        e.target !== menuBtn
-    ) {
-        menuModal.classList.add('hidden');
-    }
-    });
-
-    if (newConversationBtn && newConversationModal) {
-    newConversationBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        newConversationModal.classList.remove('hidden');
-    });
-    }
-
-    const myProfileBtn = document.getElementById('my-profile-btn');
-
-if (myProfileBtn && menuModal) {
-  myProfileBtn.addEventListener('click', () => {
-    menuModal.classList.add('hidden');
-  });
-}
-if (menuBtn && menuModal) {
-    menuBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      console.log('Menu button clicked, toggling menu-modal. Current state:', menuModal.classList.contains('hidden'));
-      menuModal.classList.toggle('hidden');
-      console.log('New state:', menuModal.classList.contains('hidden'));
-    });
-  }
 
     // Обработчик для кнопки Log out
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
-        localStorage.removeItem('token');
-        document.getElementById('chat').classList.add('hidden');
-        document.getElementById('signin').classList.remove('hidden');
-        Toastify({
-            text: "Logged out successfully.",
-            duration: 3000,
-            close: true,
-            gravity: "top",
-            position: "right",
-            backgroundColor: "#4CAF50",
-        }).showToast();
+            localStorage.removeItem('token');
+            chatSection.classList.add('hidden');
+            welcomeSection.classList.remove('hidden');
+            menuModal.classList.add('hidden'); // Закрываем модальное окно
+            Toastify({
+                text: "Вы успешно вышли.",
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                style: { background: "#4CAF50" },
+            }).showToast();
         });
     }
 
     // Обработчик для кнопки Profile
-    const profileBtn = document.getElementById('profile-btn');
-    const chatSection = document.getElementById('chat');
-    const profileSection = document.getElementById('profile');
-
-    if (profileBtn) {
-        profileBtn.addEventListener('click', () => {
-          console.log('Profile button clicked, currentUserId:', currentUserId);
-          menuModal.classList.add('hidden');
-          
-          if (chatSection && profileSection) {
+    const myProfileBtn = document.getElementById('my-profile-btn');
+    if (myProfileBtn && menuModal) {
+        myProfileBtn.addEventListener('click', () => {
+            menuModal.classList.add('hidden');
             chatSection.classList.add('hidden');
             profileSection.classList.remove('hidden');
-            
-            if (typeof loadProfile === 'function') {
-              console.log('Calling loadProfile with userId:', currentUserId);
-              loadProfile(currentUserId);
+
+            if (typeof showProfile === 'function') {
+                console.log('Вызов showProfile с userId:', currentUserId);
+                showProfile(currentUserId);
             } else {
-              console.warn('loadProfile function not found. Make sure profile.js is loaded and defines this function.');
+                console.warn('Функция showProfile не найдена. Убедитесь, что profile.js загружен и определяет эту функцию.');
             }
-          } else {
-            console.error('Chat or profile section not found');
-          }
         });
-      }
+    }
+
+    // Обработчик клика на conversation-header для отображения профиля собеседника
+    const conversationHeader = document.getElementById('conversation-header');
+    if (conversationHeader) {
+        console.log('Заголовок беседы найден, добавляем обработчик клика');
+        conversationHeader.addEventListener('click', async () => {
+            console.log('Клик по заголовку беседы, currentConversationId:', currentConversationId);
+
+            if (!currentConversationId) {
+                console.log('Беседа не выбрана');
+                Toastify({
+                    text: "Беседа не выбрана.",
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    style: { background: "#F44336" },
+                }).showToast();
+                return;
+            }
+
+            const conversation = conversations.find(conv => conv.id === currentConversationId);
+            if (!conversation) {
+                console.log('Беседа не найдена в списке conversations:', conversations);
+                Toastify({
+                    text: "Беседа не найдена.",
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    style: { background: "#F44336" },
+                }).showToast();
+                return;
+            }
+
+            console.log('Найдена беседа:', conversation);
+
+            // Определяем, является ли это личным чатом (ровно 2 участника)
+            let otherParticipantId = null;
+            const participants = conversation.participants || [];
+            console.log('Участники беседы:', participants);
+            console.log('Текущий пользователь ID:', currentUserId);
+
+            // Получаем имя текущего пользователя (например, 'isma2')
+            let currentUsername = null;
+            try {
+                const userResponse = await fetch('/auth/me', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const userData = await userResponse.json();
+                currentUsername = userData.username;
+                console.log('Текущий пользователь:', currentUsername);
+            } catch (error) {
+                console.error('Ошибка получения имени текущего пользователя:', error);
+                return;
+            }
+
+            // Проверяем, является ли это личным чатом (2 участника)
+            if (participants.length === 2) {
+                const otherParticipantUsername = participants.find(username => username !== currentUsername);
+                console.log('Имя другого участника:', otherParticipantUsername);
+
+                // Запрашиваем ID другого участника по имени
+                try {
+                    const response = await fetch(`/auth/user/${otherParticipantUsername}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (!response.ok) {
+                        throw new Error('Не удалось получить ID пользователя');
+                    }
+                    const userData = await response.json();
+                    otherParticipantId = userData.id;
+                    console.log('ID другого участника:', otherParticipantId);
+                } catch (error) {
+                    console.error('Ошибка получения ID другого участника:', error);
+                    Toastify({
+                        text: "Не удалось загрузить профиль пользователя.",
+                        duration: 3000,
+                        close: true,
+                        gravity: "top",
+                        position: "right",
+                        style: { background: "#F44336" },
+                    }).showToast();
+                    return;
+                }
+            }
+
+            if (!otherParticipantId) {
+                console.log('Не удалось определить другого участника, возможно, это групповой чат');
+                Toastify({
+                    text: "Пока нельзя отобразить профиль для групповых чатов.",
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    style: { background: "#F44336" },
+                }).showToast();
+                return;
+            }
+
+            console.log('Скрываем секцию чата и показываем секцию профиля');
+            chatSection.classList.add('hidden');
+            profileSection.classList.remove('hidden');
+
+            if (typeof showProfile === 'function') {
+                console.log('Загрузка профиля для пользователя:', otherParticipantId);
+                showProfile(otherParticipantId);
+            } else {
+                console.warn('Функция showProfile не найдена. Убедитесь, что profile.js загружен и определяет эту функцию.');
+                Toastify({
+                    text: "Функция загрузки профиля не найдена.",
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    style: { background: "#F44336" },
+                }).showToast();
+            }
+        });
+    } else {
+        console.error('Заголовок беседы не найден в DOM');
+    }
 
     // New Chat Modal
     const newChatModal = document.getElementById('new-chat-modal');
@@ -366,7 +358,7 @@ if (menuBtn && menuModal) {
     newChatUsernameInput.addEventListener('input', async () => {
         clearTimeout(searchTimeout);
         const query = newChatUsernameInput.value.trim();
-        userSuggestions.innerHTML = '<div class="p-2 text-gray-500">Searching...</div>';
+        userSuggestions.innerHTML = '<div class="p-2 text-gray-500">Поиск...</div>';
         searchTimeout = setTimeout(async () => {
             if (query.length > 1) {
                 try {
@@ -374,12 +366,12 @@ if (menuBtn && menuModal) {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
                     if (!response.ok) {
-                        throw new Error('Failed to search users');
+                        throw new Error('Не удалось найти пользователей');
                     }
                     const users = await response.json();
                     userSuggestions.innerHTML = '';
                     if (users.length === 0) {
-                        userSuggestions.innerHTML = '<div class="p-2 text-gray-500">No users found.</div>';
+                        userSuggestions.innerHTML = '<div class="p-2 text-gray-500">Пользователи не найдены.</div>';
                         return;
                     }
                     users.forEach(user => {
@@ -394,15 +386,15 @@ if (menuBtn && menuModal) {
                         userSuggestions.appendChild(suggestionDiv);
                     });
                 } catch (error) {
-                    console.error('Error searching users:', error);
+                    console.error('Ошибка поиска пользователей:', error);
                     userSuggestions.innerHTML = '';
                     Toastify({
-                        text: "Failed to search users.",
+                        text: "Не удалось найти пользователей.",
                         duration: 3000,
                         close: true,
                         gravity: "top",
                         position: "right",
-                        backgroundColor: "#F44336",
+                        style: { background: "#F44336" },
                     }).showToast();
                 }
             } else {
@@ -414,12 +406,12 @@ if (menuBtn && menuModal) {
     newChatCreate.addEventListener('click', async () => {
         if (!selectedUserId) {
             Toastify({
-                text: "Please select a user to start a chat.",
+                text: "Пожалуйста, выберите пользователя для начала чата.",
                 duration: 3000,
                 close: true,
                 gravity: "top",
                 position: "right",
-                backgroundColor: "#F44336",
+                style: { background: "#F44336" },
             }).showToast();
             return;
         }
@@ -438,7 +430,7 @@ if (menuBtn && menuModal) {
             });
 
             if (!response.ok) {
-                throw new Error('Failed to create chat');
+                throw new Error('Не удалось создать чат');
             }
 
             const data = await response.json();
@@ -450,22 +442,22 @@ if (menuBtn && menuModal) {
             }
 
             Toastify({
-                text: "Chat created successfully!",
+                text: "Чат успешно создан!",
                 duration: 3000,
                 close: true,
                 gravity: "top",
                 position: "right",
-                backgroundColor: "#4CAF50",
+                style: { background: "#4CAF50" },
             }).showToast();
         } catch (error) {
-            console.error('Error creating chat:', error);
+            console.error('Ошибка создания чата:', error);
             Toastify({
-                text: "Failed to create chat. Please try again.",
+                text: "Не удалось создать чат. Попробуйте снова.",
                 duration: 3000,
                 close: true,
                 gravity: "top",
                 position: "right",
-                backgroundColor: "#F44336",
+                style: { background: "#F44336" },
             }).showToast();
         }
     });
@@ -494,12 +486,12 @@ if (menuBtn && menuModal) {
         const usernames = document.getElementById('new-group-usernames').value.split(',').map(u => u.trim()).filter(u => u);
         if (!groupName || usernames.length < 1) {
             Toastify({
-                text: "Please enter a group name and at least one username.",
+                text: "Введите название группы и хотя бы одно имя пользователя.",
                 duration: 3000,
                 close: true,
                 gravity: "top",
                 position: "right",
-                backgroundColor: "#F44336",
+                style: { background: "#F44336" },
             }).showToast();
             return;
         }
@@ -511,12 +503,12 @@ if (menuBtn && menuModal) {
             });
             if (!userResponse.ok) {
                 Toastify({
-                    text: `User "${username}" not found.`,
+                    text: `Пользователь "${username}" не найден.`,
                     duration: 3000,
                     close: true,
                     gravity: "top",
                     position: "right",
-                    backgroundColor: "#F44336",
+                    style: { background: "#F44336" },
                 }).showToast();
                 return;
             }
@@ -540,21 +532,21 @@ if (menuBtn && menuModal) {
             newGroupModal.classList.add('hidden');
             await loadConversations();
             Toastify({
-                text: "Group created successfully!",
+                text: "Группа успешно создана!",
                 duration: 3000,
                 close: true,
                 gravity: "top",
                 position: "right",
-                backgroundColor: "#4CAF50",
+                style: { background: "#4CAF50" },
             }).showToast();
         } else {
             Toastify({
-                text: "Failed to create group. Please try again.",
+                text: "Не удалось создать группу. Попробуйте снова.",
                 duration: 3000,
                 close: true,
                 gravity: "top",
                 position: "right",
-                backgroundColor: "#F44336",
+                style: { background: "#F44336" },
             }).showToast();
         }
     });
@@ -572,35 +564,35 @@ async function loadConversations() {
     try {
         const token = localStorage.getItem('token');
         if (!token) {
-            console.error('No token available for loading conversations');
-            throw new Error('No authentication token');
+            console.error('Токен для загрузки бесед отсутствует');
+            throw new Error('Нет токена авторизации');
         }
 
-        console.log('Fetching conversations with token...');
+        console.log('Получение бесед с токеном...');
         const response = await fetch('/chat/conversations', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
 
         if (!response.ok) {
-            console.error('Failed to load conversations:', response.status, response.statusText);
+            console.error('Не удалось загрузить беседы:', response.status, response.statusText);
             if (response.status === 401) {
                 localStorage.removeItem('token');
                 document.getElementById('chat').classList.add('hidden');
-                document.getElementById('signin').classList.remove('hidden');
+                document.getElementById('welcome').classList.remove('hidden');
                 Toastify({
-                    text: "Session expired. Please sign in again.",
+                    text: "Сессия истекла. Пожалуйста, войдите снова.",
                     duration: 3000,
                     close: true,
                     gravity: "top",
                     position: "right",
-                    backgroundColor: "#F44336",
+                    style: { background: "#F44336" },
                 }).showToast();
             }
-            throw new Error('Failed to load conversations');
+            throw new Error('Не удалось загрузить беседы');
         }
 
         conversations = await response.json();
-        console.log('Loaded conversations:', conversations);
+        console.log('Загруженные беседы:', conversations);
         renderChatList(conversations);
 
         if (currentConversationId) {
@@ -614,15 +606,15 @@ async function loadConversations() {
             loadConversation(conversations[0].id);
         }
     } catch (error) {
-        console.error('Error loading conversations:', error);
+        console.error('Ошибка загрузки бесед:', error);
         if (!error.message.includes('authentication token') && !error.message.includes('expired')) {
             Toastify({
-                text: "Failed to load conversations. Please try refreshing the page.",
+                text: "Не удалось загрузить беседы. Попробуйте обновить страницу.",
                 duration: 3000,
                 close: true,
                 gravity: "top",
                 position: "right",
-                backgroundColor: "#F44336",
+                style: { background: "#F44336" },
             }).showToast();
         }
     }
@@ -635,7 +627,7 @@ function renderChatList(convList) {
     if (convList.length === 0) {
         const emptyMessage = document.createElement('div');
         emptyMessage.classList.add('p-3', 'text-gray-300', 'text-center');
-        emptyMessage.textContent = 'No conversations yet. Start a new chat!';
+        emptyMessage.textContent = 'Пока нет бесед. Начните новый чат!';
         chatList.appendChild(emptyMessage);
         return;
     }
@@ -652,7 +644,7 @@ function renderChatList(convList) {
             <img src="https://picsum.photos/seed/${conv.id}/40" alt="Profile" class="w-10 h-10 rounded-full mr-3">
             <div class="flex-1">
                 <h4 class="font-bold text-gray-800">${conv.name || 'Chat'}</h4>
-                <p class="text-sm text-gray-500">${conv.last_message || 'No messages yet'}</p>
+                <p class="text-sm text-gray-500">${conv.last_message || 'Сообщений пока нет'}</p>
             </div>
             <span class="unread-count">1</span>
         `;
@@ -660,7 +652,7 @@ function renderChatList(convList) {
         chatList.appendChild(chatItem);
     });
 
-    console.log('Selected chat ID:', currentConversationId, 'Applied class:', chatItem.classList);
+    console.log('Выбранный ID чата:', currentConversationId, 'Применённый класс:', chatItem.classList);
 }
 
 async function loadConversation(conversationId) {
@@ -677,7 +669,7 @@ async function loadConversation(conversationId) {
 
         const token = localStorage.getItem('token');
         if (!token) {
-            throw new Error('No authentication token');
+            throw new Error('Нет токена авторизации');
         }
 
         const response = await fetch(`/chat/messages/${conversationId}`, {
@@ -685,11 +677,11 @@ async function loadConversation(conversationId) {
         });
 
         if (!response.ok) {
-            throw new Error('Failed to load messages');
+            throw new Error('Не удалось загрузить сообщения');
         }
 
         const messages = await response.json();
-        console.log('Fetched messages for conversation', conversationId, messages);
+        console.log('Получены сообщения для беседы', conversationId, messages);
 
         const messageList = document.getElementById('message-list');
         messageList.innerHTML = '';
@@ -697,7 +689,7 @@ async function loadConversation(conversationId) {
         if (messages.length === 0) {
             const emptyMessage = document.createElement('div');
             emptyMessage.classList.add('p-3', 'text-gray-500', 'text-center', 'w-full', 'system-message');
-            emptyMessage.textContent = 'No messages yet. Start a conversation!';
+            emptyMessage.textContent = 'Сообщений пока нет. Начните общение!';
             messageList.appendChild(emptyMessage);
         } else {
             messages.forEach(msg => {
@@ -715,7 +707,7 @@ async function loadConversation(conversationId) {
 
         document.getElementById('message-input').focus();
     } catch (error) {
-        console.error('Error loading conversation:', error);
+        console.error('Ошибка загрузки беседы:', error);
     }
 }
 
@@ -750,9 +742,9 @@ function createMessageElement(msg) {
         replyBox.className = 'reply-box mb-2 p-2 rounded text-sm';
         replyBox.classList.add(isOwnMessage ? 'bg-blue-600' : 'bg-gray-400');
 
-        let repliedToUserText = 'Someone';
+        let repliedToUserText = 'Кто-то';
         if (msg.replied_to_sender === currentUserId) {
-            repliedToUserText = 'your message';
+            repliedToUserText = 'ваше сообщение';
         } else if (msg.replied_to_username) {
             repliedToUserText = msg.replied_to_username;
         }
@@ -762,10 +754,10 @@ function createMessageElement(msg) {
                 <svg class="w-3 h-3 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
                 </svg>
-                <span class="font-bold">Replying to ${repliedToUserText}:</span>
+                <span class="font-bold">Ответ на ${repliedToUserText}:</span>
             </div>
             <div class="pl-3 border-l-2 border-white border-opacity-70">
-                "${msg.replied_to_content || '[deleted message]'}"
+                "${msg.replied_to_content || '[удалённое сообщение]'}"
             </div>
         `;
 
@@ -784,7 +776,7 @@ function createMessageElement(msg) {
 
     const contentDiv = document.createElement('div');
     contentDiv.className = 'message-content mr-10';
-    contentDiv.textContent = msg.is_deleted ? "[Message deleted]" : msg.content;
+    contentDiv.textContent = msg.is_deleted ? "[Сообщение удалено]" : msg.content;
     messageDiv.appendChild(contentDiv);
 
     if (msg.timestamp) {
@@ -825,14 +817,14 @@ async function deleteMessage(messageId) {
             const messageEl = document.querySelector(`[data-message-id="${messageId}"]`);
             if (messageEl) {
                 messageEl.classList.add('deleted');
-                messageEl.textContent = "[Message deleted]";
+                messageEl.textContent = "[Сообщение удалено]";
             }
             if (socket && socket.connected) {
                 socket.emit('delete_message', { message_id: messageId });
             }
         }
     } catch (error) {
-        console.error("Error deleting message:", error);
+        console.error("Ошибка удаления сообщения:", error);
     }
 }
 
@@ -861,30 +853,30 @@ document.getElementById('send-btn').addEventListener('click', () => {
 
     if (!currentConversationId) {
         Toastify({
-            text: "Please select a conversation first",
+            text: "Сначала выберите беседу",
             duration: 3000,
             close: true,
             gravity: "top",
             position: "right",
-            backgroundColor: "#F44336",
+            style: { background: "#F44336" },
         }).showToast();
         return;
     }
 
     if (!initializeSocket()) {
         Toastify({
-            text: "Cannot connect to server. Please check your connection.",
+            text: "Не удалось подключиться к серверу. Проверьте соединение.",
             duration: 3000,
             close: true,
             gravity: "top",
             position: "right",
-            backgroundColor: "#F44336",
+            style: { background: "#F44336" },
         }).showToast();
         return;
     }
 
     if (!socket.connected) {
-        console.log('Socket not connected. Waiting to connect...');
+        console.log('Сокет не подключён. Ожидаем подключения...');
 
         if (!socket.pendingMessages) {
             socket.pendingMessages = [];
@@ -897,12 +889,12 @@ document.getElementById('send-btn').addEventListener('click', () => {
         });
 
         Toastify({
-            text: "Connecting to server...",
+            text: "Подключение к серверу...",
             duration: 2000,
             close: true,
             gravity: "top",
             position: "right",
-            backgroundColor: "#FFA500",
+            style: { background: "#FFA500" },
         }).showToast();
 
         socket.connect();
@@ -919,7 +911,7 @@ document.getElementById('send-btn').addEventListener('click', () => {
         }
 
         const contentDiv = document.createElement('div');
-        contentDiv.textContent = content + " (sending...)";
+        contentDiv.textContent = content + " (отправка...)";
         messageDiv.appendChild(contentDiv);
 
         messageDiv.dataset.senderId = currentUserId;
@@ -932,7 +924,7 @@ document.getElementById('send-btn').addEventListener('click', () => {
         return;
     }
 
-    console.log('Sending message:', messageData);
+    console.log('Отправка сообщения:', messageData);
 
     const messageList = document.getElementById('message-list');
     const messageDiv = document.createElement('div');

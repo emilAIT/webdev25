@@ -12,6 +12,28 @@
     />
   </head>
   <body class="bg-gray-100 font-sans">
+    <!-- Welcome Section -->
+    <div id="welcome" class="flex items-center justify-center min-h-screen">
+      <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md text-center">
+        <div class="mb-8">
+          <img src="https://via.placeholder.com/150" alt="Chat Illustration" class="mx-auto mb-4" />
+          <h1 class="text-3xl font-bold text-gray-800">Welcome to TalkFlow</h1>
+        </div>
+        <button
+          id="welcome-signin-btn"
+          class="w-full bg-blue-600 text-white p-3 rounded-lg mb-4 hover:bg-blue-700 transition"
+        >
+          Sign in
+        </button>
+        <button
+          id="welcome-signup-btn"
+          class="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition"
+        >
+          Sign up
+        </button>
+      </div>
+    </div>
+
     <!-- Sign Up Section -->
     <div id="signup" class="hidden flex items-center justify-center min-h-screen">
       <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
@@ -50,7 +72,7 @@
     </div>
 
     <!-- Sign In Section -->
-    <div id="signin" class="flex items-center justify-center min-h-screen">
+    <div id="signin" class="hidden flex items-center justify-center min-h-screen">
       <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
         <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">Sign In</h2>
         <form id="signin-form">
@@ -482,6 +504,7 @@
       </div>
     </div>
 
+    <!-- Подключение внешних скриптов -->
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script src="auth.js" type="module"></script>
