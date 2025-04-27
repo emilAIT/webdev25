@@ -22,14 +22,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const password = document.getElementById('signup-password').value;
         const confirmPassword = document.getElementById('signup-confirm-password').value;
         if (password !== confirmPassword) {
-            Toastify({
-                text: "Passwords do not match",
-                duration: 3000,
-                close: true,
-                gravity: "top",
-                position: "right",
-                backgroundColor: "#F44336",
-            }).showToast();
+            // Toastify({
+            //     text: "Passwords do not match",
+            //     duration: 3000,
+            //     close: true,
+            //     gravity: "top",
+            //     position: "right",
+            //     backgroundColor: "#F44336",
+            // }).showToast();
+            console.error("Passwords do not match"); // Keep console log for debugging
             return;
         }
         try {
@@ -49,17 +50,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.location.reload();
             } else {
                 const error = await response.json();
-                throw new Error(error.detail || "Signup failed");
+                // Toastify({
+                //     text: error.detail || "Signup failed",
+                //     duration: 3000,
+                //     close: true,
+                //     gravity: "top",
+                //     position: "right",
+                //     backgroundColor: "#F44336",
+                // }).showToast();
+                console.error("Signup failed:", error.detail);
             }
         } catch (error) {
-            Toastify({
-                text: error.message || "Signup failed",
-                duration: 3000,
-                close: true,
-                gravity: "top",
-                position: "right",
-                backgroundColor: "#F44336",
-            }).showToast();
+            // Toastify({
+            //     text: error.message || "Signup failed",
+            //     duration: 3000,
+            //     close: true,
+            //     gravity: "top",
+            //     position: "right",
+            //     backgroundColor: "#F44336",
+            // }).showToast();
+            console.error("Signup error:", error.message);
         }
     });
 
@@ -85,17 +95,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.location.reload();
             } else {
                 const error = await response.json();
-                throw new Error(error.detail || "Signin failed");
+                // Toastify({
+                //     text: error.detail || "Signin failed",
+                //     duration: 3000,
+                //     close: true,
+                //     gravity: "top",
+                //     position: "right",
+                //     backgroundColor: "#F44336",
+                // }).showToast();
+                console.error("Signin failed:", error.detail);
             }
         } catch (error) {
-            Toastify({
-                text: error.message || "Signin failed",
-                duration: 3000,
-                close: true,
-                gravity: "top",
-                position: "right",
-                backgroundColor: "#F44336",
-            }).showToast();
+            // Toastify({
+            //     text: error.message || "Signin failed",
+            //     duration: 3000,
+            //     close: true,
+            //     gravity: "top",
+            //     position: "right",
+            //     backgroundColor: "#F44336",
+            // }).showToast();
+            console.error("Signin error:", error.message);
         }
     });
 });

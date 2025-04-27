@@ -465,7 +465,7 @@
   #menu-modal button:hover {
     background-color: #e0e7ff;
   }
-
+           
 /* New Group Modal - User Chips */
 #new-group-added-users .inline-flex {
     transition: background-color 0.2s ease;

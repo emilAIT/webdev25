@@ -17,14 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (currentUserId) {
                 showProfile(currentUserId);
             } else {
-                Toastify({
-                    text: "Вы должны войти в систему, чтобы просмотреть свой профиль",
-                    duration: 3000,
-                    close: true,
-                    gravity: "top",
-                    position: "right",
-                    style: { background: "#F44336" },
-                }).showToast();
+
+                console.error("User must be logged in to view profile.");
             }
         });
     }
@@ -88,17 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 hideProfile();
                 await loadConversations();
 
-                // Notify the user
-                Toastify({
-                    text: "Беседа успешно создана!",
-                    duration: 3000,
-                    close: true,
-                    gravity: "top",
-                    position: "right",
-                    style: { background: "#4CAF50" },
-                }).showToast();
 
-                // Navigate to the new conversation
                 if (data.conversation_id) {
                     const loadConversationEvent = new CustomEvent('load-conversation', {
                         detail: { conversationId: data.conversation_id }
@@ -108,14 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             } catch (error) {
                 console.error('Ошибка создания беседы:', error);
-                Toastify({
-                    text: "Не удалось создать беседу. Попробуйте снова.",
-                    duration: 3000,
-                    close: true,
-                    gravity: "top",
-                    position: "right",
-                    style: { background: "#F44336" },
-                }).showToast();
+
             }
         });
     }
@@ -255,14 +232,14 @@ async function showProfile(userId) {
 
     } catch (error) {
         console.error('Ошибка загрузки профиля:', error);
-        Toastify({
-            text: "Не удалось загрузить профиль. Попробуйте снова.",
-            duration: 3000,
-            close: true,
-            gravity: "top",
-            position: "right",
-            style: { background: "#F44336" },
-        }).showToast();
+        // Toastify({
+        //     text: "Не удалось загрузить профиль. Попробуйте снова.",
+        //     duration: 3000,
+        //     close: true,
+        //     gravity: "top",
+        //     position: "right",
+        //     style: { background: "#F44336" },
+        // }).showToast();
 
         // Fall back to chat view
         hideProfile();

@@ -68,14 +68,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             signinSection.classList.add('hidden');
             signupSection.classList.add('hidden');
             chatSection.classList.add('hidden');
-            Toastify({
-                text: "Сессия истекла. Пожалуйста, войдите снова.",
-                duration: 3000,
-                close: true,
-                gravity: "top",
-                position: "right",
-                style: { background: "#F44336" },
-            }).showToast();
+
             return;
         }
 
@@ -100,14 +93,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         signinSection.classList.add('hidden');
         signupSection.classList.add('hidden');
         chatSection.classList.add('hidden');
-        Toastify({
-            text: "Сессия истекла. Пожалуйста, войдите снова.",
-            duration: 3000,
-            close: true,
-            gravity: "top",
-            position: "right",
-            style: { background: "#F44336" },
-        }).showToast();
+
         return;
     }
 
@@ -182,6 +168,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 position: "right",
                 style: { background: "#4CAF50" },
             }).showToast();
+            console.log("Logged out successfully."); // Keep log
         });
     }
 
@@ -211,28 +198,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             if (!currentConversationId) {
                 console.log('Беседа не выбрана');
-                Toastify({
-                    text: "Беседа не выбрана.",
-                    duration: 3000,
-                    close: true,
-                    gravity: "top",
-                    position: "right",
-                    style: { background: "#F44336" },
-                }).showToast();
                 return;
             }
 
             const conversation = conversations.find(conv => conv.id === currentConversationId);
             if (!conversation) {
                 console.log('Беседа не найдена в списке conversations:', conversations);
-                Toastify({
-                    text: "Беседа не найдена.",
-                    duration: 3000,
-                    close: true,
-                    gravity: "top",
-                    position: "right",
-                    style: { background: "#F44336" },
-                }).showToast();
                 return;
             }
 
@@ -276,28 +247,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                     console.log('ID другого участника:', otherParticipantId);
                 } catch (error) {
                     console.error('Ошибка получения ID другого участника:', error);
-                    Toastify({
-                        text: "Не удалось загрузить профиль пользователя.",
-                        duration: 3000,
-                        close: true,
-                        gravity: "top",
-                        position: "right",
-                        style: { background: "#F44336" },
-                    }).showToast();
                     return;
                 }
             }
 
             if (!otherParticipantId) {
                 console.log('Не удалось определить другого участника, возможно, это групповой чат');
-                Toastify({
-                    text: "Пока нельзя отобразить профиль для групповых чатов.",
-                    duration: 3000,
-                    close: true,
-                    gravity: "top",
-                    position: "right",
-                    style: { background: "#F44336" },
-                }).showToast();
                 return;
             }
 
@@ -310,14 +265,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 showProfile(otherParticipantId);
             } else {
                 console.warn('Функция showProfile не найдена. Убедитесь, что profile.js загружен и определяет эту функцию.');
-                Toastify({
-                    text: "Функция загрузки профиля не найдена.",
-                    duration: 3000,
-                    close: true,
-                    gravity: "top",
-                    position: "right",
-                    style: { background: "#F44336" },
-                }).showToast();
             }
         });
     } else {
@@ -389,14 +336,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 } catch (error) {
                     console.error('Ошибка поиска пользователей:', error);
                     userSuggestions.innerHTML = '';
-                    Toastify({
-                        text: "Не удалось найти пользователей.",
-                        duration: 3000,
-                        close: true,
-                        gravity: "top",
-                        position: "right",
-                        style: { background: "#F44336" },
-                    }).showToast();
                 }
             } else {
                 userSuggestions.innerHTML = '';
@@ -406,14 +345,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     newChatCreate.addEventListener('click', async () => {
         if (!selectedUserId) {
-            Toastify({
-                text: "Пожалуйста, выберите пользователя для начала чата.",
-                duration: 3000,
-                close: true,
-                gravity: "top",
-                position: "right",
-                style: { background: "#F44336" },
-            }).showToast();
+            console.error("Please select a user to start a chat.");
             return;
         }
 
@@ -465,14 +397,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             }).showToast();
         } catch (error) {
             console.error('Ошибка создания чата:', error);
-            Toastify({
-                text: "Не удалось создать чат. Попробуйте снова.",
-                duration: 3000,
-                close: true,
-                gravity: "top",
-                position: "right",
-                style: { background: "#F44336" },
-            }).showToast();
         }
     });
 
@@ -619,22 +543,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         const participantIds = newGroupSelectedUsers.map(u => u.id); // Get IDs from chips
 
         if (!groupName) {
-            Toastify({
-                text: "Please enter a group name.",
-                duration: 3000,
-                // ... toast styles ...
-                style: { background: "#F44336" },
-            }).showToast();
+            console.error("Please enter a group name.");
             return;
         }
 
         if (participantIds.length < 1) { // Need at least one other member besides self
-            Toastify({
-                text: "Please add at least one other member to the group.",
-                duration: 3000,
-                // ... toast styles ...
-                style: { background: "#F44336" },
-            }).showToast();
+            console.error("Please add at least one other member to the group.");
             return;
         }
 
@@ -668,27 +582,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                 Toastify({
                     text: "Group created successfully!",
                     duration: 3000,
-                    // ... toast styles ...
+                    close: true,
+                    gravity: "top",
+                    position: "right",
                     style: { background: "#4CAF50" },
                 }).showToast();
             } else {
                 const errorData = await response.json(); // Get error details
                 console.error("Failed to create group:", errorData);
-                Toastify({
-                    text: `Failed to create group: ${errorData.detail || 'Please try again.'}`, // Show specific error if available
-                    duration: 3000,
-                    // ... toast styles ...
-                    style: { background: "#F44336" },
-                }).showToast();
             }
         } catch (error) { // Catch network or other errors
             console.error("Error creating group:", error);
-            Toastify({
-                text: "An error occurred while creating the group.",
-                duration: 3000,
-                // ... toast styles ...
-                style: { background: "#F44336" },
-            }).showToast();
         }
     });
 
@@ -720,14 +624,7 @@ async function loadConversations() {
                 localStorage.removeItem('token');
                 document.getElementById('chat').classList.add('hidden');
                 document.getElementById('welcome').classList.remove('hidden');
-                Toastify({
-                    text: "Сессия истекла. Пожалуйста, войдите снова.",
-                    duration: 3000,
-                    close: true,
-                    gravity: "top",
-                    position: "right",
-                    style: { background: "#F44336" },
-                }).showToast();
+                console.error("Session expired during conversation load.");
             }
             throw new Error('Не удалось загрузить беседы');
         }
@@ -749,14 +646,7 @@ async function loadConversations() {
     } catch (error) {
         console.error('Ошибка загрузки бесед:', error);
         if (!error.message.includes('authentication token') && !error.message.includes('expired')) {
-            Toastify({
-                text: "Не удалось загрузить беседы. Попробуйте обновить страницу.",
-                duration: 3000,
-                close: true,
-                gravity: "top",
-                position: "right",
-                style: { background: "#F44336" },
-            }).showToast();
+            console.error("Не удалось загрузить беседы. Попробуйте обновить страницу.");
         }
     }
 }
@@ -1054,26 +944,12 @@ document.getElementById('send-btn').addEventListener('click', () => {
     const messageData = createMessageData(content);
 
     if (!currentConversationId) {
-        Toastify({
-            text: "Сначала выберите беседу",
-            duration: 3000,
-            close: true,
-            gravity: "top",
-            position: "right",
-            style: { background: "#F44336" },
-        }).showToast();
+        console.error("Please select a conversation first.");
         return;
     }
 
     if (!initializeSocket()) {
-        Toastify({
-            text: "Не удалось подключиться к серверу. Проверьте соединение.",
-            duration: 3000,
-            close: true,
-            gravity: "top",
-            position: "right",
-            style: { background: "#F44336" },
-        }).showToast();
+        console.error("Cannot connect to server. Please check your connection.");
         return;
     }
 
@@ -1090,14 +966,7 @@ document.getElementById('send-btn').addEventListener('click', () => {
             replied_to_id: getReplyingToMessage()?.id
         });
 
-        Toastify({
-            text: "Подключение к серверу...",
-            duration: 2000,
-            close: true,
-            gravity: "top",
-            position: "right",
-            style: { background: "#FFA500" },
-        }).showToast();
+        console.log("Socket not connected. Queuing message.");
 
         const messageList = document.getElementById('message-list');
         const messageDiv = document.createElement('div');

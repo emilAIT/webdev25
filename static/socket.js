@@ -10,8 +10,7 @@ function createSocketConnection() {
 
     console.log('Creating socket connection with token');
 
-    // Create socket with reconnection options and query parameter for token
-    // This makes the token more reliably available on the server side
+
     const socketInstance = io('http://localhost:8000', {
         query: { token: token },
         auth: {
@@ -38,21 +37,13 @@ function createSocketConnection() {
 
     // Setup basic event handlers before connecting
     socketInstance.on('connect_error', (error) => {
-        console.error('Connection error:', error);
 
         if (error.message && error.message.includes('auth')) {
             console.error('Authentication error. Token may be invalid.');
             // Clear token and redirect to login
             localStorage.removeItem('token');
 
-            Toastify({
-                text: "Authentication failed. Please sign in again.",
-                duration: 3000,
-                close: true,
-                gravity: "top",
-                position: "right",
-                backgroundColor: "#F44336",
-            }).showToast();
+            console.error("Authentication failed. Redirecting to signin.");
 
             // Show login screen
             setTimeout(() => {
@@ -63,14 +54,7 @@ function createSocketConnection() {
             return;
         }
 
-        Toastify({
-            text: "Connection error. Retrying...",
-            duration: 3000,
-            close: true,
-            gravity: "top",
-            position: "right",
-            backgroundColor: "#F44336",
-        }).showToast();
+        console.error("Connection error. Retrying...");
     });
 
     // Attempt connection
@@ -109,15 +93,8 @@ function joinConversation(conversationId) {
     if (!initializeSocket()) {
         console.error('Could not initialize socket. Cannot join conversation.');
 
-        // Show a user-friendly error message
-        Toastify({
-            text: "Connection issue. Please refresh the page.",
-            duration: 3000,
-            close: true,
-            gravity: "top",
-            position: "right",
-            backgroundColor: "#F44336",
-        }).showToast();
+
+        console.error("Connection issue. Please refresh the page.");
         return;
     }
 
@@ -128,15 +105,8 @@ function joinConversation(conversationId) {
         // Store the conversation ID to join when connected
         socket.conversationToJoin = conversationId;
 
-        // Show connecting message
-        Toastify({
-            text: "Connecting...",
-            duration: 2000,
-            close: true,
-            gravity: "top",
-            position: "right",
-            backgroundColor: "#FFA500",
-        }).showToast();
+
+        console.log("Connecting...");
         return;
     }
 
@@ -178,15 +148,6 @@ function setupSocketEvents() {
             joinConversation(currentConversationId);
         }
 
-        // Show connected message
-        Toastify({
-            text: "Connected to chat server",
-            duration: 2000,
-            close: true,
-            gravity: "top",
-            position: "right",
-            backgroundColor: "#4CAF50",
-        }).showToast();
 
         // Handle pending messages when connected
         if (socket.pendingMessages && socket.pendingMessages.length > 0) {
@@ -241,15 +202,8 @@ function setupSocketEvents() {
             socket.connect();
         }
 
-        // Show disconnected message
-        Toastify({
-            text: "Disconnected from chat server",
-            duration: 3000,
-            close: true,
-            gravity: "top",
-            position: "right",
-            backgroundColor: "#F44336",
-        }).showToast();
+
+        console.log("Disconnected from chat server");
     });
 
     // Message handling with reply support
@@ -316,27 +270,15 @@ document.getElementById('send-btn').addEventListener('click', () => {
     }
 
     if (!currentConversationId) {
-        Toastify({
-            text: "Please select a conversation first",
-            duration: 3000,
-            close: true,
-            gravity: "top",
-            position: "right",
-            backgroundColor: "#F44336",
-        }).showToast();
+
+        console.error("Please select a conversation first");
         return;
     }
 
     // Initialize socket if needed
     if (!initializeSocket()) {
-        Toastify({
-            text: "Cannot connect to server. Please check your connection.",
-            duration: 3000,
-            close: true,
-            gravity: "top",
-            position: "right",
-            backgroundColor: "#F44336",
-        }).showToast();
+
+        console.error("Cannot connect to server. Please check your connection.");
         return;
     }
 
@@ -354,14 +296,15 @@ document.getElementById('send-btn').addEventListener('click', () => {
             content: content
         });
 
-        Toastify({
-            text: "Connecting to server...",
-            duration: 2000,
-            close: true,
-            gravity: "top",
-            position: "right",
-            backgroundColor: "#FFA500",
-        }).showToast();
+        // Toastify({
+        //     text: "Connecting to server...",
+        //     duration: 2000,
+        //     close: true,
+        //     gravity: "top",
+        //     position: "right",
+        //     backgroundColor: "#FFA500",
+        // }).showToast();
+        console.log("Connecting to server...");
 
         // Try to reconnect
         socket.connect();
