@@ -1,0 +1,62 @@
+/* Styles for forms, inputs and form-related components */
+
+.popup-form {
+    margin-top: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #aaaaaa;
+    font-size: 14px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #333333;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: #2a2a2a;
+    color: #e0e0e0;
+}
+
+.form-group textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #4CAF50;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+/* Phone input container */
+.phone-input-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.phone-input-container select {
+    width: 130px;
+    padding: 10px;
+    border: 1px solid #333333;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: #2a2a2a;
+    color: #e0e0e0;
+}
+
+.phone-input-container input {
+    flex: 1;
+}

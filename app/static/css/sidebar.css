@@ -1,0 +1,652 @@
+/* Sidebar with contacts list */
+
+/* Sidebar */
+.sidebar {
+    width: 30%; /* Sidebar takes 30% of the width */
+    height: 100%;
+    background-color: #18222D; /* Updated color */
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #18222D; /* Right border matches background color */
+    border-left: 1px solid #18222D; /* Added left border to match background color */
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+/* Sidebar Header */
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: #18222D;
+    border-bottom: 1px solid #212F40;
+    position: relative; /* Enable positioning for child elements */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+    justify-content: space-between;
+}
+
+/* Center the "Chats" text */
+.sidebar-header h2 {
+    position: absolute; /* Position the text independently */
+    left: 50%; /* Move to the center horizontally */
+    transform: translateX(-50%); /* Adjust to center properly */
+    margin: 0; /* Remove default margins */
+    font-size: 1.2em; /* Adjust font size if needed */
+    color: #f5f5f5; /* Ensure the text color matches the design */
+}
+
+/* Profile button in sidebar header */
+.profile-btn {
+    display: flex;
+    align-items: center;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    text-align: left;
+    flex: 1;
+}
+
+.profile-picture {
+    position: relative;
+}
+
+.profile-picture img {
+    width: 32px; /* Reduced size */
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.profile-name {
+    flex-grow: 1;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #e0e0e0;
+    text-align: center;
+    padding: 0 10px;
+}
+
+.plus-button-container {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.plus-icon {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+}
+
+.status-indicator {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid #18222D;
+}
+
+.status-indicator.online {
+    background-color: #4CAF50;
+}
+
+.status-indicator.offline {
+    background-color: #9e9e9e;
+}
+
+/* Sidebar actions (menu dropdown) */
+.sidebar-actions {
+    position: relative;
+}
+
+.sidebar-actions button {
+    background: none;
+    border: none;
+    color: #6a7480;
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+
+.sidebar-actions button:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.dropdown-menu {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    width: 200px;
+    background-color: #213040;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    z-index: 100;
+    display: none;
+    overflow: hidden;
+}
+
+.dropdown-menu.active {
+    display: block;
+    animation: fadeInMenu 0.2s ease;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.dropdown-item:hover {
+    background-color: #2a3c4d;
+}
+
+.dropdown-item i {
+    margin-right: 12px;
+    font-size: 1.1rem;
+    width: 20px;
+    text-align: center;
+    color: #aaaaaa;
+}
+
+.dropdown-item span {
+    font-size: 0.95rem;
+    color: #e0e0e0;
+}
+
+.dropdown-divider {
+    height: 1px;
+    background-color: #364b5f;
+    margin: 8px 0;
+}
+
+.burger-menu {
+    font-size: 1.2rem;
+    margin-right: 15px;
+    cursor: pointer;
+    color: #5b6b7b;
+    padding: 8px;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+
+.burger-menu:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.searcher-header {
+    display: flex;
+    align-items: center;       
+    padding: 0px 10px;     
+  }
+
+  
+
+.sidebar-menu-icon {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+}
+
+/* Search Bar */
+.search-bar {
+    padding: 10px; /* Add padding inside the search bar */
+    background-color: #18222D;
+    
+}
+
+.search-bar input {
+    width: 275%;
+    padding: 8px;
+    border: none;
+    border-radius: 5px;
+    background-color: #2e3b4e;
+    color: #f5f5f5;
+    outline: none;
+}
+
+.search-bar2 {
+    padding: 10px; /* Add padding inside the search bar */
+    background-color: #18222D;   
+}
+.search-bar2 input {
+    width: calc(100% - 20px);
+    padding: 8px;
+    border: none;
+    border-radius: 5px;
+    background-color: #2e3b4e;
+    color: #f5f5f5;
+    outline: none;
+}
+.contacts-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 0;
+    background-color: #18222D;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    padding: 15px 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    position: relative;
+    border-bottom: 1px solid #364b5f;
+    border-top: 1px solid #364b5f;
+}
+
+.contact-item:hover {
+    background-color: #2a3c4d;
+}
+
+.contact-item.active {
+    background-color: #2a3c4d;
+}
+
+.contact-avatar {
+    position: relative;
+    margin-right: 12px;
+}
+
+.contact-avatar img {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.contact-info {
+    flex: 1;
+    overflow: hidden;
+}
+
+.contact-name-time {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.contact-name-time h4 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #e0e0e0;
+}
+
+.message-time {
+    font-size: 0.75rem;
+    color: #aaaaaa;
+    white-space: nowrap;
+}
+
+.last-message {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #aaaaaa;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+}
+
+.unread-count {
+    min-width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    background-color: #4CAF50;
+    color: white;
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 6px;
+    margin-left: 8px;
+}
+
+.add-contact-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 16px;
+    margin: 10px 16px;
+    background-color: #2b5278;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    font-weight: 500;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.add-contact-button:hover {
+    background-color: #3a5b81;
+}
+
+.add-contact-button i {
+    margin-right: 8px;
+    font-size: 0.9rem;
+}
+
+.no-contacts-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    color: #aaaaaa;
+    text-align: center;
+}
+
+.no-contacts-message p {
+    font-size: 0.9rem;
+    margin-top: 10px;
+}
+
+/* Tabs (if needed) */
+.tabs {
+    display: flex;
+    background-color: #213040;
+    border-bottom: 1px solid #364b5f;
+}
+
+.tab {
+    flex: 1;
+    padding: 12px 0;
+    text-align: center;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #6a7480;
+    background: none;
+    border: none;
+    outline: none;
+    transition: color 0.2s, border-bottom 0.2s;
+    position: relative;
+}
+
+.tab:hover {
+    color: #4a76a8;
+}
+
+.tab.active {
+    color: #4a76a8;
+}
+
+.tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: #6FCF97;
+}
+
+.tab i {
+    margin-right: 6px;
+}
+
+/* Animations */
+@keyframes slideIn {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
+}
+
+.sidebar.active {
+    transform: translateX(0);
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes fadeInMenu {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Search results */
+.search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    max-height: 300px;
+    background-color: #213040;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    z-index: 1000;
+    overflow-y: auto;
+    display: none;
+}
+
+.search-results.active {
+    display: block;
+}
+
+.search-result-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.search-result-item:hover {
+    background-color: #2a3c4d;
+}
+
+.search-result-avatar {
+    margin-right: 12px;
+}
+
+.search-result-avatar img {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.search-result-info {
+    flex: 1;
+}
+
+.search-result-name {
+    font-weight: 500;
+    font-size: 0.95rem;
+    color: #e0e0e0;
+}
+
+.search-result-username {
+    font-size: 0.8rem;
+    color: #aaaaaa;
+}
+
+.no-results, .error {
+    padding: 20px;
+    text-align: center;
+    color: #aaaaaa;
+}
+
+.context-menu {
+    display: none;
+    position: absolute;
+    top: 50px; /* Adjust based on your layout */
+    left: 10px; /* Adjust based on your layout */
+    background-color: #2c2c2c;
+    border: 1px solid #444;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+.context-menu-item {
+    padding: 10px 15px;
+    color: #f5f5f5;
+    cursor: pointer;
+}
+
+.context-menu-item:hover {
+    background-color: #444;
+}
+.friends-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.friends-modal-content {
+    background-color: #1f2a38; /* Consistent dark background */
+    padding: 20px;
+    border-radius: 10px;
+    width: 400px;
+    color: #f5f5f5;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+    position: relative;
+}
+.close-btn {
+    background: none;
+    border: none;
+    color: #f5f5f5;
+    font-size: 20px;
+    cursor: pointer;
+    position: absolute;
+    top: 15px;
+    right: 15px;
+}
+.friends-list {
+    background-color: #1f2a38; /* Match the modal's background */
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.friends-list li {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #3a4a5e; /* Match the border color */
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.friends-list li:hover {
+    background-color: #3a4a5e; /* Slightly lighter background on hover */
+}
+
+.friends-list img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.friends-list span {
+    color: #f5f5f5; /* Text color */
+}
+.friends-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.friends-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 15px;
+    border-bottom: 1px solid #2c3a4a;
+    cursor: pointer;
+}
+
+.friends-list li:hover {
+    background-color: #263447;
+}
+
+/* Contact Context Menu Styles */
+.user-context-menu {
+    position: absolute;
+    background: #353C46;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    overflow: hidden;
+    width: 132px;
+}
+
+.user-context-menu .menu-button {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    background: #353C46;
+    font-family: Inter, sans-serif;
+    font-weight: 400;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+.user-context-menu .menu-button:hover {
+    background: #414a56;
+}
+
+.user-context-menu .menu-button img {
+    width: 20px;
+    height: 20px;
+    margin-right: 5px;
+}
+
+.user-context-menu .delete-chat {
+    color: #CF5656;
+    border-bottom: 1px solid #444;
+}
+
+.user-context-menu .friend-action {
+    color: #FFFFFF;
+    white-space: nowrap;
+}
+
+/* Styling for different friend action states */
+.user-context-menu .remove-friend {
+    color: #FF4747; /* Red color for Remove Friend button */
+    font-weight: 500;
+}
+
+.user-context-menu .remove-friend:hover {
+    background: rgba(255, 71, 71, 0.2); /* Subtle red background on hover */
+}
+
+.user-context-menu .accept-request {
+    color: #4CAF50; /* Green color for Accept Request button */
+    font-weight: 500;
+}
+
+.user-context-menu .accept-request:hover {
+    background: rgba(76, 175, 80, 0.2); /* Subtle green background on hover */
+}
+
+.user-context-menu .cancel-request {
+    color: #FFA500; /* Orange color for Cancel Request button */
+}
+
+.user-context-menu .add-friend {
+    color: #2196F3; /* Blue color for Add as Friend button */
+}

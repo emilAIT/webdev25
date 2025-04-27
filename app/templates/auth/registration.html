@@ -1,0 +1,41 @@
+{% block css %}
+    <link rel="stylesheet" href="/static/css/auth.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="logo">
+        <img src="/static/images/messenger.png" alt="Blink Logo">
+        <h1>Blink</h1>
+        <p>Create your account by filling out the form below.</p>
+    </div>
+    <form class="registration-form" id="registrationForm" method="POST" action="/register">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" required>
+
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required>
+
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required>
+
+        <label for="confirmPassword">Confirm Password</label>
+        <input type="password" id="confirmPassword" name="confirm_password" required>
+        
+        <div class="error-message" id="errorMessage" style="display: none;">
+            {% if error %}{{ error }}{% endif %}
+        </div>
+        
+        <button type="submit" id="signUpButton">Sign up</button>
+        <p class="signin-text">Already in Blink? <a href="/login">Sign in</a></p>
+        <p class="version">Version 1.0.0</p>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<script src="/static/js/toast.js"></script>
+<script src="/static/js/validation.js"></script>
+{% endblock %}

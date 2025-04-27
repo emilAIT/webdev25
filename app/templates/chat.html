@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blink</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Work+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/layout.css">
+    <link rel="stylesheet" href="/static/css/sidebar.css">
+    <link rel="stylesheet" href="/static/css/chat-area.css">
+    <link rel="stylesheet" href="/static/css/profile-sidebar.css">
+    <link rel="stylesheet" href="/static/css/popups.css">
+    <link rel="stylesheet" href="/static/css/responsive.css">
+    <link rel="stylesheet" href="/static/css/dark-theme.css">
+    <link rel="stylesheet" href="/static/css/group-chat.css">
+    <link rel="stylesheet" href="/static/css/base.css">
+</head>
+<body>
+    <div class="app-container">
+        
+        <!-- Left Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="profile-picture">
+                </div>
+                <div class="profile-name">Chat</div>
+                <div class="plus-button-container">
+                    <img src="static/images/plus.png" alt="Add Chat" class="plus-icon" id="plusButton">
+                </div>
+            </div>
+            <div class="searcher-header">
+                <div class="sidebar-menu-container">
+                  <img src="static/images/menu.png" alt="Menu" id="menuButton" class="sidebar-menu-icon">
+                </div>
+                <div class="search-bar">
+                  <input type="text" id="searchInput" placeholder="🔎Search">
+                </div>
+              </div>
+              <div class="context-menu" id="contextMenu">
+                <div class="context-menu-item" id="editProfileMenuItem">{{ username }}</div>
+                <div class="context-menu-item" id="friendsDisplay">Friends</div>
+                <div class="context-menu-item" id="logoutButton" style="color: #E95D5D;">Log Out</div>
+            </div>
+
+              
+            <div id="contactsList" class="contacts-list">
+                {% for room in rooms %}
+                <div class="contact-item" data-room-id="{{ room.id }}" {% if room.is_group %}data-is-group="true"{% else %}data-user-id="{{ room.user_id }}"{% endif %}>
+                    <div class="contact-avatar">
+                        <img src="{{ room.avatar }}" alt="{{ room.name }} Avatar">
+                        {% if not room.is_group %}
+                        <span class="status-indicator {{ room.status }}"></span>
+                        {% endif %}
+                    </div>
+                    <div class="contact-info">
+                        <div class="contact-name-time">
+                            <h4>{{ room.name }}</h4>
+                            <span class="message-time">{{ room.last_message_time }}</span>
+                        </div>
+                        <p class="last-message">{{ room.last_message }}</p>
+                        {% if not room.is_group %}
+                        <p class="contact-email">{{ room.email }}</p>
+                        {% endif %}
+                    </div>
+                    {% if room.unread_count > 0 %}
+                    <div class="unread-count">{{ room.unread_count }}</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Main Chat Area -->
+        <div class="chat-area">
+            <!-- Welcome message when no chat is selected -->
+            <div id="welcomeContainer" class="welcome-container">
+            </div>
+            
+            <!-- Active chat content -->
+            <div id="chatContent" class="chat-content" style="display: none;">
+                <!-- Chat Header -->
+                <div id="chatHeader" class="chat-header">
+                    <button class="back-btn">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    
+                    <div class="chat-contact-info">
+                        <div class="chat-contact-avatar">
+                            <img id="chatContactAvatar" src="/static/images/profile_photo.jpg" alt="Contact Avatar">
+                        </div>
+                        <div class="chat-contact-details">
+                            <h3 id="chatContactName" style="color: white">Contact Name</h3>
+                            <p id="chatContactPresence">Offline</p>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-actions">
+                        <div class="dropdown">
+                            <button class="dropdown-toggle">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <div class="dropdown-menu">
+                                <div id="viewContactInfo" class="dropdown-item">
+                                    <i class="fas fa-info-circle"></i>
+                                    <span>Contact info</span>
+                                </div>
+                                <div id="clearChat" class="dropdown-item">
+                                    <i class="fas fa-trash"></i>
+                                    <span>Clear chat</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Chat Messages -->
+                <div id="chatMessages" class="chat-messages">
+                    <!-- Messages will be dynamically added here -->
+                </div>
+                
+                <!-- Message Input Area -->
+                <div class="message-input-container">
+                    <button class="attachment-btn">
+                        <img src="/static/images/paper_clip.png" alt="Attachment">
+                        <i class="fas fa-paperclip"></i>
+                    </button>
+                    
+                    <div class="message-input">
+                        <input type="text" id="messageInput" placeholder="Type a message...">
+                    </div>
+                    
+                    <button id="sendMessageBtn" class="send-btn">
+                        <img src="/static/images/send.png" alt="Send">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+       
+        
+        <!-- Overlay for popups -->
+        <div id="overlay" class="overlay"></div>
+        
+        <!-- Contact Info Popup -->
+        <div id="contactInfoPopup" class="popup contact-info-popup">
+            
+            <div class="popup-content">
+                <div class="contact-info-avatar">
+                    <img id="contactInfoAvatar" src="/static/images/profile_photo.jpg" alt="Contact Avatar">
+                </div>
+                
+                <div class="contact-info-details">
+                    <h2 id="contactInfoName">Contact Name</h2>
+
+
+                    <div class="info-section email-section">
+                        <div class="username-container">
+                          <div class="info-icon"><img src="static/images/Mail.png"></div>
+                          <div class="username-text">
+                            <div id="contactInfoEmail" class="info-value" style="margin-top: 15px; font-style: Inter;">contact</div>
+                            <div class="info-label username-label" style="margin-left: 8px; margin-top: 10px; font-style: Inter;">Email</div>
+                          </div>
+                        </div>
+                    </div>
+
+                    <div class="info-section username-section">
+                        <div class="username-container">
+                          <div class="info-icon"><img src="static/images/at_sign.png"></div>
+                          <div class="username-text">
+                            <div id="contactInfoUsername" class="info-value" style="margin-top: 15px; font-style: Inter;"></div>
+                            <div class="info-label username-label" style="margin-left: 8px; margin-top: 10px; font-style: Inter;">Username</div>
+                          </div>
+                        </div>
+                      </div>
+                    
+                      
+                </div>
+                
+            </div>
+        </div>
+        
+        <!-- Edit Profile Popup -->
+        <div id="editProfilePopup" class="popup">            
+            <div class="popup-header">
+                <div class="profile-avatar-circle">
+                    <img src="/static/images/profile_photo.jpg" alt="User Avatar">
+                </div>
+                <h3>Edit Profile</h3>
+                <button id="closeEditProfilePopup" class="popup-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form id="editProfileForm" class="edit-profile-form">
+                <div class="form-group">
+                    <label for="profileNickname">Nickname</label>
+                    <input type="text" id="profileNickname" name="username" placeholder="Your display name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="profileEmail">Email</label>
+                    <input type="email" id="profileEmail" name="email" placeholder="Your email address">
+                </div>
+                
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn-success">Save Changes</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Group Creation Popup -->
+        <div id="createGroupPopup" class="popup">
+            <div class="popup-header">
+                <h3>Create Group</h3>
+                <button id="closeCreateGroupPopup" class="popup-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="popup-content">
+                <div class="search-container">
+                    <div class="search-input-wrapper">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="groupMemberSearch" placeholder="Search contacts...">
+                    </div>
+                </div>
+                
+                <div id="selectableContacts" class="selectable-contacts-list">
+                    <!-- Contacts will be dynamically loaded here -->
+                </div>
+                
+                <div class="popup-actions">
+                    <button id="cancelGroupCreation" class="btn-secondary">Cancel</button>
+                    <button id="proceedToGroupDetails" class="btn-primary" disabled>Next</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Group Details Popup -->
+        <div id="groupDetailsPopup" class="popup">
+            <div class="popup-header">
+                <h3>Group Details</h3>
+                <button id="closeGroupDetailsPopup" class="popup-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="popup-content">
+                <div class="group-avatar-container">
+                    <div class="group-avatar">
+                        <img id="groupAvatarPreview" src="/static/images/profile_photo.jpg" alt="Group Avatar">
+                        <div class="avatar-upload-overlay">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                    </div>
+                    <input type="file" id="groupAvatarInput" accept="image/*" style="display: none;">
+                </div>
+                
+                <div class="form-group">
+                    <label for="groupNameInput">Group Name</label>
+                    <input type="text" id="groupNameInput" placeholder="Enter group name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="groupDescriptionInput">Group Description (Optional)</label>
+                    <textarea id="groupDescriptionInput" placeholder="Enter group description"></textarea>
+                </div>
+                
+                <div class="selected-members">
+                    <h4>Selected Members (<span id="selectedMembersCount">0</span>)</h4>
+                    <div id="selectedMembersAvatars" class="selected-members-avatars">
+                        <!-- Selected members avatars will appear here -->
+                    </div>
+                </div>
+                
+                <div class="popup-actions">
+                    <button id="backToMemberSelection" class="btn-secondary">Back</button>
+                    <button id="createGroupButton" class="btn-primary">Create</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Group Management Popup -->
+        <div id="groupManagementPopup" class="popup">
+            <div class="popup-header">
+                <h3>Group Info</h3>
+                <button id="closeGroupManagementPopup" class="popup-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="popup-content">
+                <div class="group-info">
+                    <div class="group-avatar">
+                        <img id="groupManagementAvatar" src="/static/images/profile_photo.jpg" alt="Group Avatar">
+                    </div>
+                    <h2 id="groupManagementName">Group Name</h2>
+                    <p id="groupManagementDescription" class="group-description">Group Description</p>
+                </div>
+                
+                <div class="group-members-section">
+                    <div class="members-header">
+                        <h4>Members <span id="groupMembersCount">(0)</span></h4>
+                        <a id="addGroupMemberLink" class="add-member-link">
+                            <i class="fas fa-user-plus"></i>
+                            <span>Add Member</span>
+                        </a>
+                    </div>
+                    
+                    <div id="groupMembersList" class="group-members-list">
+                        <!-- Group members will be dynamically loaded here -->
+                    </div>
+                </div>
+                
+                <div class="popup-actions">
+                    <button id="backToGroupChat" class="btn-secondary">Back</button>
+                    <button id="editGroupButton" class="btn-primary">Edit</button>
+                    <button id="leaveGroupButton" class="btn-danger">Leave Group</button>
+                    <button id="deleteGroupButton" class="btn-danger">Delete Group</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Group Member Popup -->
+        <div id="addGroupMemberPopup" class="popup">
+            <div class="popup-header">
+                <h3>Add Members</h3>
+                <button id="closeAddGroupMemberPopup" class="popup-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="popup-content">
+                <div class="search-container">
+                    <div class="search-input-wrapper">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="addMemberSearch" placeholder="Search contacts...">
+                    </div>
+                </div>
+                
+                <div id="addMemberContacts" class="selectable-contacts-list">
+                    <!-- Contacts will be dynamically loaded here -->
+                </div>
+                
+                <div class="popup-actions">
+                    <button id="cancelAddMember" class="btn-secondary">Cancel</button>
+                    <button id="confirmAddMember" class="btn-primary">Add</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Friend Popup -->
+        <div id="addFriendPopup" class="popup">
+            <div class="popup-header">
+                <h3>Добавить друга</h3>
+                <button id="closeAddFriendPopup" class="popup-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="popup-content">
+                <div class="form-group">
+                    <label for="addFriedInput">Имя пользователя</label>
+                    <input type="text" id="addFriendIput" placeholder="Введите имя пользователя...">
+                </div>
+                
+                <div id="searchResults" class="search-results">
+                    <!-- Search results will appear here -->
+                </div>
+                
+                <div class="popup-actions">
+                    <button id="addFriendButton" class="btn-primary">Добавить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Templates -->
+    <!-- Individual Message Template -->
+    <template id="messageTemplate">
+        <div class="message">
+            <div class="message-content" style="color: white;">
+            </div>
+            <div class="message-info">
+                <span class="message-time">12:34</span>
+                <div class="message-status">
+                    <i class="fas fa-check message-status-single">✓</i>
+                    <i class="fas fa-check-double message-status-double">✓✓</i>
+                </div>                
+            </div>
+        </div>
+    </template>
+
+    <!-- Group Message Template -->
+    <template id="groupMessageTemplate">
+        <div class="message">
+            <div class="message-sender"></div>
+            <div class="message-content"></div>
+            <div class="message-info">
+                <span class="message-time">12:34</span>
+            </div>
+        </div>
+    </template>
+
+    <!-- Group Contact Item Template -->
+    <template id="groupContactItemTemplate">
+        <div class="contact-item group-contact">
+            <div class="contact-avatar group-avatar">
+                <img src="/static/images/profile_photo.jpg" alt="Group">
+            </div>
+            <div class="contact-info">
+                <div class="contact-name-time">
+                    <h4>Group Name</h4>
+                    <span class="message-time">Now</span>
+                </div>
+                <p class="last-message">Click to start chatting!</p>
+            </div>
+        </div>
+    </template>
+
+    <!-- Selectable Contact Template -->
+    <template id="selectableContactTemplate">
+        <div class="selectable-contact">
+            <div class="contact-avatar">
+                <img src="/static/images/profile_photo.jpg" alt="Contact">
+            </div>
+            <div class="contact-name">Contact Name</div>
+            <input type="checkbox" class="contact-select">
+        </div>
+    </template>
+
+    <!-- Selected Member Avatar Template -->
+    <template id="selectedMemberAvatarTemplate">
+        <div class="member-avatar-preview">
+            <img src="/static/images/profile_photo.jpg" alt="Member">
+        </div>
+    </template>
+
+    <!-- Group Member Template -->
+    <template id="groupMemberTemplate">
+        <div class="group-member">
+            <div class="member-avatar">
+                <img src="/static/images/profile_photo.jpg" alt="Member">
+            </div>
+            <div class="member-info">
+                <div class="member-name">Member Name</div>
+                <div class="member-role">Participant</div>
+            </div>
+            <div class="member-actions">
+                <button class="member-actions-toggle">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <div class="dropdown-menu">
+                    <div class="dropdown-item make-admin">
+                        <i class="fas fa-user-shield"></i>
+                        <span>Make Admin</span>
+                    </div>
+                    <div class="dropdown-item remove-member">
+                        <i class="fas fa-user-minus"></i>
+                        <span>Remove from Group</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- Alert Popup Structure -->
+    <div id="alertOverlay" class="alert-overlay"></div>
+    <div id="alertPopup" class="alert-popup">
+        <div class="alert-header">
+            <h3 id="alertTitle">Alert</h3>
+            <button id="alertClose" class="alert-close">&times;</button>
+        </div>
+        <div class="alert-body">
+            <p id="alertMessage">This is an alert message.</p>
+        </div>
+        <div class="alert-actions">
+            <button id="alertConfirm" class="alert-confirm">OK</button>
+        </div>
+    </div>
+        <div class="friends-modal" id="friendsModal">
+        <div class="friends-modal-content">
+            <button class="close-btn" id="closeFriendsModal">×</button>
+            <h2>👤 List of friends</h2>
+            <div class="search-bar2">
+                <input type="text" id="addFriendInput" placeholder="🔍 Search user">
+            </div>
+            <ul class="friends-list" id="friendsList">
+                <!-- Friends will be dynamically added here -->
+            </ul>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/static/js/utils.js"></script>
+    <script src="/static/js/websocket.js"></script>
+    <script src="/static/js/theme.js"></script>
+    <script src="/static/js/sidebar.js"></script>
+    <script src="/static/js/chat.js"></script>
+    <script src="/static/js/chatFunc.js"></script>
+    <script src="/static/js/groupChat.js"></script>
+    <script src="/static/js/validation.js"></script>
+    <script type="module" src="/static/js/addFriend.js"></script>
+    <script type="module" src="/static/js/alertPopups.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,157 @@
+/* Responsive design styles for various screen sizes */
+
+/* Responsive adjustments for chat */
+@media (max-width: 900px) {
+    .sidebar {
+        width: 280px;
+    }
+}
+
+@media (max-width: 768px) {
+    .chat-container {
+        flex-direction: column;
+    }
+    
+    .sidebar {
+        width: 100%;
+        height: 100vh;
+        position: absolute;
+        left: 0;
+        top: 0;
+        z-index: 10;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+    
+    .sidebar.open {
+        transform: translateX(0);
+    }
+    
+    .chat-header {
+        position: relative;
+    }
+    
+    .toggle-sidebar {
+        display: block;
+        position: absolute;
+        left: 15px;
+        font-size: 20px;
+    }
+    
+    .chat-contact-info {
+        margin-left: 30px;
+    }
+    
+    .message {
+        max-width: 85%;
+    }
+    
+    /* Profile sidebar responsive */
+    .profile-sidebar {
+        width: 100%;
+        left: -100%;
+    }
+}
+
+/* Responsive Styles for Mobile and Tablet Devices */
+
+@media screen and (max-width: 1200px) {
+    .sidebar {
+        min-width: 260px;
+    }
+    
+    .profile-sidebar {
+        width: 280px;
+    }
+}
+
+@media screen and (max-width: 992px) {
+    .profile-sidebar {
+        position: absolute;
+        right: 0;
+        top: 0;
+        height: 100%;
+        width: 280px;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+        z-index: 100;
+    }
+    
+    .profile-sidebar.active {
+        transform: translateX(0);
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .chat-container {
+        position: relative;
+    }
+    
+    .sidebar {
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 280px;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        z-index: 100;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .sidebar.active {
+        transform: translateX(0);
+    }
+    
+    .chat-area {
+        width: 100%;
+    }
+    
+    .back-btn {
+        display: flex;
+    }
+    
+    .profile-sidebar {
+        width: 100%;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .chat-header {
+        padding: 10px 15px;
+    }
+    
+    .message-input-container {
+        padding: 10px 15px;
+    }
+    
+    .chat-actions button, 
+    .sidebar-actions button {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .profile-content {
+        padding: 15px;
+    }
+    
+    .media-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Make sure the chat area can fit on small screens */
+@media screen and (max-height: 600px) {
+    .chat-messages {
+        max-height: calc(100vh - 130px);
+    }
+    
+    .profile-avatar img {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .profile-content h2 {
+        font-size: 20px;
+    }
+}

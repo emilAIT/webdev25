@@ -1,0 +1,1207 @@
+/* Styles for all popup components */
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    z-index: 100;
+}
+
+.overlay.active {
+    display: block;
+}
+
+.popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    background-color: #213040;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.popup.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, -50%) scale(1);
+    animation: fadeInScale 0.3s forwards;
+}
+
+.popup-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    border-bottom: 1px solid #364b5f;
+    position: relative;
+    background-color: #213040;
+}
+
+.popup-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: #e0e0e0;
+}
+
+.popup-close {
+    font-size: 1rem;
+    color: #aaaaaa;
+    cursor: pointer;
+    padding: 8px;
+    border: none;
+    background: none;
+    transition: background-color 0.2s;
+}
+
+.popup-close:hover {
+    background-color: #2a3c4d;
+}
+
+.popup-content {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+    color: #e0e0e0;
+    transition: color 0.3s ease, background-color 0.3s ease;
+    background-color: #213040;
+}
+
+/* Ensure all text in popup-content adapts to theme */
+.popup-content, .popup-content h2, .popup-content p {
+    color: #e0e0e0;
+    transition: color 0.3s ease;
+}
+
+.popup-form {
+    width: 100%;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    color: #aaaaaa;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #333333;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+    background-color: #2a2a2a;
+    color: #e0e0e0;
+}
+
+.form-group textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #4a76a8;
+}
+
+.phone-input-container {
+    display: flex;
+    align-items: center;
+}
+
+.phone-input-container select {
+    width: 30%;
+    margin-right: 10px;
+}
+
+.phone-input-container input {
+    flex: 1;
+}
+
+.btn-green {
+    background-color: #4a76a8;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+    display: block;
+    width: 100%;
+    font-size: 0.95rem;
+}
+
+.btn-green:hover {
+    background-color: #3a5b81;
+}
+
+.btn-green.btn-outline {
+    background-color: transparent;
+    border: 1px solid #4a76a8;
+    color: #4a76a8;
+}
+
+.btn-green.btn-outline:hover {
+    background-color: rgba(74, 118, 168, 0.2);
+}
+
+.btn-red {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+    font-size: 0.95rem;
+}
+
+.btn-red:hover {
+    background-color: #c0392b;
+}
+
+.profile-edit-avatar {
+    width: 100px;
+    height: 100px;
+    position: relative;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.profile-edit-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.edit-avatar-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    cursor: pointer;
+}
+
+.profile-edit-avatar:hover .edit-avatar-overlay {
+    opacity: 1;
+}
+
+.edit-avatar-overlay i {
+    color: white;
+    font-size: 1.5rem;
+}
+
+.search-results {
+    margin-top: 10px;
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #364b5f;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    background-color: #213040;
+}
+
+.search-result-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #364b5f;
+    transition: background-color 0.2s;
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
+
+.search-result-item:hover {
+    background-color: #2a3c4d;
+}
+
+.search-result-avatar {
+    margin-right: 12px;
+}
+
+.search-result-avatar img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.search-result-info {
+    flex: 1;
+}
+
+.search-result-name {
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin-bottom: 2px;
+    color: #e0e0e0;
+}
+
+.search-result-username {
+    font-size: 0.85rem;
+    color: #aaaaaa;
+}
+
+.already-friend {
+    margin-top: 5px;
+    display: inline-block;
+    font-size: 0.75rem;
+    background-color: #e8f5e9;
+    color: #4CAF50;
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+
+.no-results {
+    padding: 15px;
+    text-align: center;
+    color: #aaaaaa;
+}
+
+.search-results .error {
+    padding: 15px;
+    text-align: center;
+    color: #e74c3c;
+}
+
+.popup-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.popup-actions button {
+    flex: 1;
+}
+
+.popup-actions button:not(:last-child) {
+    margin-right: 10px;
+}
+
+/* Profile View in Contact Info Popup */
+.profile-view {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    background-color: #213040;
+    padding: 30px 15px;
+    border-radius: 12px;
+    position: relative;
+}
+
+.profile-view-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-bottom: 15px;
+}
+
+.profile-view-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-view h3 {
+    margin: 0 0 5px 0;
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: #e0e0e0;
+    transition: color 0.3s ease;
+    margin-top: 10px;
+}
+
+.profile-view-info {
+    width: 100%;
+    margin: 20px 0;
+    text-align: left;
+}
+
+.info-item {
+    padding: 10px 0;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #364b5f;
+}
+
+.info-label {
+    min-width: 100px;
+    font-weight: 500;
+    color: #5b6b7b;
+}
+
+.info-value {
+    flex: 1;
+    color: #e0e0e0;
+    transition: color 0.3s ease;
+}
+
+/* Ensure username and email have proper color */
+.profile-view .info-label, .profile-view .info-value {
+    color: #e0e0e0;
+    transition: color 0.3s ease;
+}
+
+/* Animation for popups */
+@keyframes fadeInScale {
+    from { 
+        opacity: 0; 
+        transform: translate(-50%, -50%) scale(0.9);
+    }
+    to { 
+        opacity: 1; 
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+/* Group chat specific styles */
+.contacts-selection-area {
+    margin-bottom: 20px;
+}
+
+.search-group-members {
+    position: relative;
+    margin-bottom: 15px;
+}
+
+.search-group-members i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6a7480;
+}
+
+.search-group-members input {
+    width: 100%;
+    padding: 10px 10px 10px 35px;
+    border: 1px solid #dde2e7;
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+.selectable-contacts {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #eaeaea;
+    border-radius: 8px;
+}
+
+.selectable-contact {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid #f1f3f4;
+    transition: background-color 0.2s;
+    cursor: pointer;
+    position: relative;
+}
+
+.selectable-contact:last-child {
+    border-bottom: none;
+}
+
+.selectable-contact:hover {
+    background-color: #f8f9fa;
+}
+
+.contact-checkbox {
+    position: relative;
+    width: 20px;
+    height: 20px;
+    margin-right: 15px;
+    display: inline-block;
+}
+
+.contact-select {
+    position: absolute;
+    cursor: pointer;
+    height: 20px;
+    width: 20px;
+    opacity: 1;
+    z-index: 2;
+}
+
+.checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 20px;
+    width: 20px;
+    background-color: #fff;
+    border: 2px solid #dde2e7;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.selectable-contact:hover .checkmark {
+    border-color: #4a76a8;
+}
+
+.contact-select:checked ~ .checkmark {
+    background-color: #4a76a8;
+    border-color: #4a76a8;
+}
+
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+.contact-select:checked ~ .checkmark:after {
+    display: block;
+    left: 6px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.contact-avatar {
+    margin-right: 15px;
+    flex: 0 0 auto;
+}
+
+.contact-avatar img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.contact-name {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #202020;
+    flex: 1;
+    margin-right: auto;
+}
+
+/* Group creation styles */
+.group-avatar-upload {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.group-avatar-preview {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    overflow: hidden;
+    position: relative;
+    border: 2px solid #eaeaea;
+}
+
+.group-avatar-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-upload-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+    cursor: pointer;
+}
+
+.avatar-upload-overlay i {
+    color: white;
+    font-size: 1.5rem;
+}
+
+.group-avatar-preview:hover .avatar-upload-overlay {
+    opacity: 1;
+}
+
+.selected-members-preview {
+    margin: 20px 0;
+}
+
+.selected-members-avatars {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.member-avatar-preview {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+.member-avatar-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Group management styles */
+.group-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #364b5f;
+    background-color: #18222D;
+}
+
+.group-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-bottom: 15px;
+}
+
+.group-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.group-info h3 {
+    margin: 0 0 5px;
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+
+.group-description {
+    color: #6a7480;
+    text-align: center;
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.group-members-section {
+    margin-bottom: 20px;
+}
+
+.group-members-section h4 {
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 15px;
+    color: #5b6b7b;
+}
+
+.add-member-link {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    margin-bottom: 15px;
+    cursor: pointer;
+    color: #4a76a8;
+}
+
+.add-member-link i {
+    margin-right: 10px;
+}
+
+.group-members-list {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #364b5f;
+    border-radius: 8px;
+    background-color: #18222D;
+}
+
+.group-member {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    border-bottom: 1px solid #364b5f;
+    background-color: #18222D;
+}
+
+.group-member:last-child {
+    border-bottom: none;
+}
+
+.member-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 15px;
+}
+
+.member-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.member-info {
+    flex: 1;
+}
+
+.member-name {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #202020;
+}
+
+.member-role {
+    font-size: 0.85rem;
+    color: #909fab;
+}
+
+.member-actions {
+    position: relative;
+}
+
+.member-actions-toggle {
+    background: none;
+    border: none;
+    color: #6a7480;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 8px;
+    border-radius: 50%;
+}
+
+.member-actions-toggle:hover {
+    background-color: #f1f3f4;
+}
+
+.leave-group-button {
+    margin-top: 20px;
+    text-align: center;
+}
+
+/* Group message styles */
+.message.group-message .message-sender {
+    font-size: 0.8rem;
+    font-weight: 500;
+    margin-bottom: 2px;
+    color: #415878;
+}
+
+.profile-avatar-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 15px;
+    border: 2px solid #4CAF50;
+}
+
+.profile-avatar-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.edit-profile-form {
+    padding: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #555;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+    border-color: #4CAF50;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+.form-actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn-success {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-success:hover {
+    background-color: #3e8e41;
+}
+
+/* Alert Popups Styles */
+.alert-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    z-index: 1000;
+    width: 90%;
+    max-width: 400px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.alert-popup.info {
+    border-left: 5px solid #4CAF50;
+}
+
+.alert-popup.error {
+    border-left: 5px solid #f44336;
+}
+
+.alert-popup.open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.alert-popup .alert-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.alert-popup .alert-header h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.alert-popup .alert-header .alert-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #666;
+    cursor: pointer;
+}
+
+.alert-popup .alert-body {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.alert-popup .alert-body p {
+    margin: 0;
+    font-size: 1rem;
+    color: #666;
+}
+
+.alert-popup .alert-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.alert-popup .alert-confirm {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.alert-popup .alert-confirm:hover {
+    background-color: #45a049;
+}
+
+.alert-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.alert-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Custom styles for SweetAlert popups */
+.swal2-popup {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.swal2-title {
+    color: #1b5e20;
+}
+
+.swal2-confirm {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.swal2-confirm:hover {
+    background-color: #388e3c;
+}
+
+/* Add fixed color variables instead of theme variables */
+:root {
+    --profile-text-color: #e0e0e0;
+}
+
+/* Styles for Contact Info Popup */
+.contact-info-avatar {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.contact-info-avatar img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #ff5252;
+}
+
+.contact-info-details {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.contact-info-details h2 {
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: #e0e0e0;
+    margin: 0 0 5px 0;
+}
+
+.info-list {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.info-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 12px 0;
+    border-bottom: 1px solid #364b5f;
+    position: relative;
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.info-icon {
+    width: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.info-icon i {
+    font-size: 1.5rem;
+    color: #aaaaaa;
+}
+
+.info-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.info-label {
+    font-size: 0.8rem;
+    color: #aaaaaa;
+    margin-bottom: 3px;
+}
+
+.info-value {
+    font-size: 2rem;
+    color: #e0e0e0;
+}
+
+.friend-list-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: transparent;
+    border: 1px solid #e0e0e0;
+    color: #e0e0e0;
+    padding: 5px 10px;
+    font-size: 0.8rem;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.friend-list-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Specific styles for the profile view in popups to match the dark theme */
+.profile-view h3 {
+    color: #e0e0e0;
+}
+
+.profile-view .info-value {
+    color: #e0e0e0;
+}
+
+.contact-info-popup {
+    max-width: 600px;
+    max-height: 180vh;
+}
+
+.contact-info-popup .popup-content {
+    text-align: left;
+}
+
+.contact-info-popup .contact-info-details {
+    text-align: left;
+}
+
+.contact-info-popup .contact-info-avatar {
+    margin-left: 0;
+    justify-content: flex-start;
+}
+
+.contact-info-popup .popup-actions {
+    justify-content: flex-start;
+}
+
+/* Edit Profile Popup - dark and minimalistic */
+#editProfilePopup {
+    max-width: 500px;
+    border-radius: 4px;
+    background: #121212;
+    border: 1px solid #333;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+}
+
+#editProfilePopup .popup-header {
+    background-color: #1a1a1a;
+    padding: 16px;
+    border-bottom: 1px solid #333;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+#editProfilePopup .profile-avatar-circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-right: 16px;
+    flex-shrink: 0;
+}
+
+#editProfilePopup .profile-avatar-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.3s ease;
+}
+
+#editProfilePopup .profile-avatar-circle img:hover {
+    opacity: 0.9;
+}
+
+#editProfilePopup .popup-header h3 {
+    font-size: 1.1rem;
+    color: #e0e0e0;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    margin: 0;
+}
+
+#editProfilePopup .popup-close {
+    background: transparent;
+    color: #999;
+    border-radius: 0;
+    width: auto;
+    height: auto;
+    padding: 6px;
+    position: absolute;
+    right: 16px;
+    top: 16px;
+    cursor: pointer;
+    border: none;
+}
+
+#editProfilePopup .popup-close:hover {
+    background: #333;
+    transform: none;
+    color: #e0e0e0;
+}
+
+#editProfilePopup .popup-content {
+    background-color: #121212;
+    padding: 16px;
+    color: #aaa;
+}
+
+#editProfilePopup .edit-profile-form {
+    padding: 16px;
+}
+
+#editProfilePopup .form-group {
+    margin-bottom: 16px;
+}
+
+#editProfilePopup .form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #888;
+    font-weight: 400;
+    font-size: 0.9rem;
+}
+
+#editProfilePopup .form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #333;
+    background-color: #1a1a1a;
+    color: #e0e0e0;
+    border-radius: 2px;
+    font-size: 0.9rem;
+}
+
+#editProfilePopup .form-group input:focus {
+    outline: none;
+    border-color: #444;
+}
+
+#editProfilePopup .form-group input::placeholder {
+    color: #666;
+}
+
+#editProfilePopup .form-actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+#editProfilePopup .btn-success {
+    border-radius: 2px;
+    padding: 8px 16px;
+    font-weight: 400;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+    border: none;
+    min-width: 80px;
+    background-color: #404040;
+    color: #e0e0e0;
+    cursor: pointer;
+}
+
+#editProfilePopup .btn-success:hover {
+    background-color: #555;
+    box-shadow: none;
+}
+
+/* Responsive adjustments for Edit Profile Popup */
+@media (max-width: 576px) {
+    #editProfilePopup .profile-avatar-circle {
+        width: 40px;
+        height: 40px;
+    }
+    
+    #editProfilePopup .form-actions {
+        justify-content: center;
+    }
+    
+    #editProfilePopup .btn-success {
+        width: 100%;
+    }
+}

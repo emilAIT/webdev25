@@ -1,0 +1,223 @@
+/* Main layout styles for the chat interface */
+
+/* App Container - Main wrapper for the entire chat interface */
+.app-container {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+    background-color: #18222D;
+}
+
+/* Chat Interface Styling */
+.chat-container {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    background-color: #18222D;
+}
+
+/* Sidebar positioning - fixed width, full height */
+.sidebar {
+    width: 320px;
+    height: 100%;
+    flex-shrink: 0;
+    z-index: 5;
+    border-right: 1px solid #18222D;
+    position: relative;
+    background-color: #18222D;
+}
+
+/* Main chat area positioning - takes remaining width */
+.chat-area {
+    flex: 1;
+    height: 100%;
+    z-index: 1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background-color: #213040;
+}
+
+/* Welcome Container Styling */
+.welcome-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    height: 100%;
+    background: #213040;
+    background-size: cover;
+    background-position: center;
+}
+
+.welcome-container img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    margin-bottom: 20px;
+    border: 3px solid #4CAF50;
+    background-color: #18222D;
+}
+
+.welcome-container h2 {
+    font-size: 28px;
+    margin-bottom: 15px;
+    color: #e0e0e0;
+}
+
+.welcome-container p {
+    font-size: 18px;
+    opacity: 0.9;
+    color: #aaaaaa;
+}
+
+.chat-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    background-color: #213040;
+}
+
+/* Profile sidebars positioning */
+.profile-sidebar {
+    width: 320px;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    z-index: 10;
+    transition: transform 0.3s ease;
+    background-color: #18222D;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Left sidebar positioning */
+.left-sidebar {
+    left: 0;
+    transform: translateX(-100%);
+    border-right: 1px solid #333333;
+}
+
+.left-sidebar.active {
+    transform: translateX(0);
+}
+
+/* Right sidebar positioning */
+.right-sidebar {
+    right: 0;
+    transform: translateX(100%);
+    border-left: 1px solid #333333;
+}
+
+.right-sidebar.active {
+    transform: translateX(0);
+}
+
+/* Popup positioning */
+.popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    background-color: #18222D;
+    border-radius: 8px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    max-width: 90%;
+    width: 480px;
+    max-height: 90vh;
+    display: none;
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    overflow: hidden;
+}
+
+.popup.active {
+    display: flex;
+    flex-direction: column;
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+/* Chat body */
+.chat-body {
+    background-color: #18222D;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+/* Overlay for modals and sidebars */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 100;
+    display: none;
+}
+
+.overlay.active {
+    display: block;
+}
+
+/* Responsive layout adjustments */
+@media screen and (max-width: 768px) {
+    .app-container {
+        position: relative;
+    }
+    
+    .sidebar {
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 280px;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        z-index: 10;
+        background-color: #18222D;
+    }
+    
+    .sidebar.active {
+        transform: translateX(0);
+    }
+    
+    .chat-area {
+        width: 100%;
+        background-color: #18222D;
+    }
+    
+    .back-btn {
+        display: flex !important;
+    }
+    
+    .profile-sidebar {
+        position: absolute;
+        right: 0;
+        top: 0;
+        height: 100%;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+        z-index: 10;
+        background-color: #18222D;
+    }
+    
+    .profile-sidebar.active {
+        transform: translateX(0);
+    }
+}
+
+@media screen and (min-width: 769px) {
+    .back-btn {
+        display: none !important;
+    }
+}

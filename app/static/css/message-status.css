@@ -1,0 +1,40 @@
+.message-status {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 5px;
+}
+
+.message-status-single,
+.message-status-double {
+    font-size: 12px;
+    color: white; /* Default white color for all status marks */
+    margin-left: 2px;
+}
+
+/* For read messages */
+.message-status-double.read {
+    color: #3498db; /* Blue color for read messages */
+}
+
+/* Hide the appropriate check mark based on message status */
+.message-sent .message-status-double {
+    display: none;
+}
+
+.message-delivered .message-status-single {
+    display: none;
+}
+
+.message-read .message-status-single {
+    display: none;
+}
+
+/* For outgoing messages only */
+.message.outgoing .message-status {
+    display: inline-flex;
+}
+
+/* For incoming messages, hide status */
+.message.incoming .message-status {
+    display: none;
+}

@@ -1,0 +1,189 @@
+/* General Reset */
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #1f1f1f; /* Dark gray background */
+    color: #f5f5f5; /* Light text color for contrast */
+    height: 100%; /* Ensure the body and html take full height */
+    width: 100%; /* Ensure the body and html take full width */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Center the login form on the page */
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full height of the viewport */
+    flex-direction: column; /* Stack elements vertically */
+}
+
+/* Adjust the logo alignment */
+.logo {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.logo img {
+    width: 120px;
+    height: 120px;
+}
+
+.logo h1 {
+    font-size: 2em;
+    margin: 0.5em 0;
+    color: #f5f5f5;
+}
+
+.logo p {
+    margin-bottom: 20px;
+    color: #a0a0a0;
+}
+
+.registration-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 300px;
+    background-color: #1f1f1f;
+    padding: 25px;
+    border-radius: 10px;
+}
+
+.registration-form label {
+    text-align: left;
+    margin-bottom: 1px;
+    font-size: 0.9em;
+    color: #cccccc;
+    padding-left: 5px;
+}
+
+.registration-form input {
+    padding: 12px;
+    border: 1px solid #605C5C;
+    background-color: #1f1f1f;
+    color: #e0e0e0;
+    border-radius: 12px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.registration-form input:last-of-type {
+    margin-bottom: 25px;
+}
+
+.registration-form input:focus {
+    border-color: #007bff;
+}
+
+.registration-form button {
+    padding: 12px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.registration-form button:hover {
+    background-color: #0056b3;
+}
+
+/* Adjust the "New to Blink?" text */
+.signin-text {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 0.9em;
+    color: #a0a0a0;
+}
+
+.signin-text a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.signin-text a:hover {
+    text-decoration: underline;
+}
+
+.version {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    font-size: 0.8em;
+    color: #555;
+}
+
+/* Ensure the login form is properly aligned */
+.Login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 300px;
+    background-color: #1f1f1f; /* Add a background color for contrast */
+    padding: 25px; /* Add padding inside the form */
+    border-radius: 10px; /* Rounded corners */
+    /* Add a subtle shadow */
+
+}
+
+.Login-form label {
+    text-align: left;
+    margin-bottom: 1px; /* Reduce this value to bring the label closer to the input */
+    font-size: 0.9em;
+    color: #cccccc;
+    padding-left: 5px; /* Optional: Adjust padding if needed */
+}
+
+/* Adjust the input fields */
+.Login-form input {
+    padding: 12px;
+    border: 1px solid #605C5C;
+    background-color: #1f1f1f;
+    color: #e0e0e0;
+    border-radius: 12px;/*закругление углов*/
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+/* Add spacing between the last input and the button Yntymak The distance between inputs and login button*/
+.Login-form input:last-of-type {
+    margin-bottom: 25px; /* Adjust the value as needed */
+}
+
+/* Add hover and focus effects */
+.Login-form input:focus {
+    border-color: #007bff;
+}
+
+/* Style the submit button */
+.Login-form button {
+    padding: 12px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.Login-form button:hover {
+    background-color: #007bff;
+}
+
+/* Custom toast styling */
+.blink-toast {
+    font-family: Arial, sans-serif;
+    font-size: 14px !important;
+    padding: 12px 20px !important;
+    border-radius: 8px !important;
+}
+
+/* Hide the error messages since we're using toasts */
+.error-message {
+    display: none;
+}

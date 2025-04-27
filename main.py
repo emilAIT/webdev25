@@ -1,56 +1,57 @@
+from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
+from starlette.middleware.sessions import SessionMiddleware
+import uvicorn
+import os
+from dotenv import load_dotenv
 
-from flask import Flask, request, render_template, jsonify
-from flask_cors import CORS
-from random import randint
-from collections import defaultdict
-app = Flask(__name__)
-CORS(app)
+# Load environment variables
+load_dotenv()
+
+# Direct imports from new router files in app/routers/
+from app.routers.auth import router as auth_router
+from app.routers.views import router as views_router
+from app.routers.direct_messages import router as direct_messages_router
+from app.routers.groups import router as groups_router
+from app.routers.websockets import router as websockets_router
+from app.routers.session import router as session_router
+from app.routers.friends import router as friends_router
+
+app = FastAPI(title="Blink")
+
+# Mount static files
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
+
+# Configure Jinja2 templates
+templates = Jinja2Templates(directory="app/templates")
+
+# Get secret key from environment or use default for development
+SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-here")
+SESSION_MAX_AGE = int(os.getenv("SESSION_MAX_AGE", "3600"))  # 1 hour default
+
+# Add session middleware
+app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY, max_age=SESSION_MAX_AGE)
+
+# Include routers directly
+app.include_router(auth_router)
+app.include_router(views_router)
+app.include_router(direct_messages_router)
+app.include_router(groups_router)
+app.include_router(websockets_router)
+app.include_router(session_router)
+app.include_router(friends_router)
 
 
-d = {
-    "correct": 0, 
-    "attempt": 0, 
-    "question": "", 
-    "incorrect": 0,
-    "question_count": 0
-}
-
-ops = "+-"
-
-@app.route("/")
-def enterance():
-    return render_template("math.html")
-
-@app.route("/get_question")
-def generate_question():
-    try:
-        first = randint(0, 100)
-        second = randint(0, 100)
-        first, second = max(first, second), min(first, second)
-        op = ops[randint(0, 1)]
-        d["question"] = f'{first}{op}{second}'
-        d["question_count"] += 1
-        return jsonify({"question": d["question"]})
-    except:
-        return "ERROR IN THE SERVER"
-
-@app.route('/check_result')
-def check_result():
-    try:
-        answer = int(request.args.get("answer"))
-        d["attempt"] += 1
-        if answer == eval(d["question"]):
-            d["correct"] += 1
-        else:
-            d["incorrect"] += 1
-        return jsonify(d)   
-    except:
-        return "error in the server"
+# Root route redirects to login
+@app.get("/", response_class=HTMLResponse)
+async def root(request: Request):
+    return RedirectResponse(url="/login")
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080)
-
-
-
-    
+    # Get host and port from environment or use defaults
+    host = os.getenv("HOST", "127.0.0.1")
+    port = int(os.getenv("PORT", "8000"))
+    uvicorn.run("main:app", host=host, port=port, reload=True)

@@ -1,0 +1,50 @@
+steps:
+  # Build the container image
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "build",
+        "-t",
+        "europe-north2-docker.pkg.dev/vivid-gantry-458115-v3/blink/blink:$COMMIT_SHA",
+        ".",
+      ]
+
+  # Push the container image to Artifact Registry
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "push",
+        "europe-north2-docker.pkg.dev/vivid-gantry-458115-v3/blink/blink:$COMMIT_SHA",
+      ]
+
+  # Deploy container image to Cloud Run
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: gcloud
+    args:
+      - "run"
+      - "deploy"
+      - "blink"
+      - "--image"
+      - "europe-north2-docker.pkg.dev/vivid-gantry-458115-v3/blink/blink:$COMMIT_SHA"
+      - "--region"
+      - "europe-north2"
+      - "--platform"
+      - "managed"
+      - "--allow-unauthenticated"
+      - "--memory"
+      - "512Mi"
+      - "--min-instances"
+      - "0"
+      - "--max-instances"
+      - "10"
+      - "--cpu"
+      - "1"
+      - "--port"
+      - "8080"
+
+# Store images in Artifact Registry
+images:
+  - "europe-north2-docker.pkg.dev/vivid-gantry-458115-v3/blink/blink:$COMMIT_SHA"
+
+options:
+  logging: CLOUD_LOGGING_ONLY
