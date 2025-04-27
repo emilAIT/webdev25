@@ -1,0 +1,135 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #002147;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.login-container {
+    background-color: #003366;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    width: 320px;
+}
+
+.login-container img {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 20px;
+}
+
+.login-container input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 5px;
+    background-color: #004080;
+    color: white;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.login-container input::placeholder {
+    color: #aad4ff;
+}
+
+.login-container button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    background-color: #FFD700;
+    color: #002147;
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+    margin-top: 5px;
+}
+
+.login-container button:hover {
+    background-color: #ffea80;
+}
+
+.login-container a {
+    display: block;
+    margin-top: 15px;
+    color: #FFD700;
+    text-decoration: none;
+}
+
+.login-container a:hover {
+    text-decoration: underline;
+}
+
+.error-message {
+    color: #ff6b6b;
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Стили для многошаговой регистрации */
+.register-step {
+    transition: opacity 0.3s ease;
+}
+
+.register-step h3 {
+    color: #FFD700;
+    margin-bottom: 15px;
+}
+
+.profile-photo-container {
+    margin: 15px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#profilePhotoPreview {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 15px;
+    border: 3px solid #FFD700;
+}
+
+#profilePhotoInput {
+    display: none;
+}
+
+.secondary-button {
+    background-color: #004080;
+    color: white;
+    border: 1px solid #aad4ff;
+}
+
+.secondary-button:hover {
+    background-color: #004d99;
+}
+
+.step-navigation {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+}
+
+.back-button {
+    background-color: transparent;
+    border: 1px solid #FFD700;
+    color: #FFD700;
+}
+
+.back-button:hover {
+    background-color: rgba(255, 215, 0, 0.1);
+}

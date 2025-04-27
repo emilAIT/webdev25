@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp AIT - Профиль</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <div class="profile-container">
+        <a href="/chat" class="back-button">
+            <span class="material-icons">arrow_back</span>
+        </a>
+        
+        <div class="profile-header">
+            <h1>Ваш профиль</h1>
+        </div>
+        
+        <div class="profile-photo-container">
+            <div class="profile-photo">
+                <img id="profilePhotoPreview" src="{{ url_for('get_user_photo_route') }}" alt="Ваше фото">
+                <div class="photo-overlay">
+                    <span class="material-icons">photo_camera</span>
+                    <span class="overlay-text">Изменить фото</span>
+                </div>
+            </div>
+            <input type="file" id="profilePhotoInput" accept="image/*">
+        </div>
+        
+        <div class="profile-info">
+            <div class="info-group">
+                <label for="nickname">Никнейм</label>
+                <input type="text" id="nickname" value="{{ session['nickname'] }}" readonly>
+            </div>
+            
+            <div class="password-group">
+                <label for="current-password">Текущий пароль</label>
+                <div class="password-input-container">
+                    <input type="password" id="current-password" placeholder="Введите текущий пароль">
+                    <span class="material-icons toggle-password">visibility_off</span>
+                </div>
+                
+                <label for="new-password">Новый пароль</label>
+                <div class="password-input-container">
+                    <input type="password" id="new-password" placeholder="Введите новый пароль">
+                    <span class="material-icons toggle-password">visibility_off</span>
+                </div>
+                
+                <label for="confirm-password">Подтвердите пароль</label>
+                <div class="password-input-container">
+                    <input type="password" id="confirm-password" placeholder="Подтвердите новый пароль">
+                    <span class="material-icons toggle-password">visibility_off</span>
+                </div>
+            </div>
+            
+            <div class="error-message hidden" id="profileError"></div>
+            <div class="success-message hidden" id="profileSuccess"></div>
+            
+            <div class="button-group">
+                <button id="savePasswordBtn" class="primary-button">Сохранить пароль</button>
+                <button id="savePhotoBtn" class="primary-button hidden">Сохранить фото</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/profile.js') }}"></script>
+</body>
+</html>

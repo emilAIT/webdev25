@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp AIT - Вход</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="login-container" id="loginForm">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo">
+        <h2>Вход</h2>
+        <input type="text" id="loginNickname" placeholder="Логин" required>
+        <input type="password" id="loginPassword" placeholder="Пароль" required>
+        <button id="loginButton">Войти</button>
+        <a href="#" id="showRegisterLink">Нет аккаунта? Зарегистрироваться</a>
+        <p id="loginError" class="error-message hidden"></p>
+    </div>
+
+    <div class="login-container hidden" id="registerForm">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo">
+        <h2>Регистрация</h2>
+        <div id="registerStep1" class="register-step active-step">
+            <h3>Шаг 1: Выберите никнейм</h3>
+            <input type="text" id="registerNickname" placeholder="Введите никнейм" required>
+            <button id="goToStep2Button">Далее</button>
+            <p id="nicknameError" class="error-message hidden"></p>
+        </div>
+        <div id="registerStep2" class="register-step hidden">
+            <h3>Шаг 2: Загрузите фото профиля</h3>
+            <div class="profile-photo-container">
+                <img id="profilePhotoPreview" src="{{ url_for('static', filename='images/default-profile.png') }}" alt="Фото профиля">
+                <input type="file" id="profilePhotoInput" accept="image/*">
+                <button id="selectPhotoButton" class="secondary-button">Выбрать фото</button>
+            </div>
+            <div class="step-navigation">
+                <button id="backToStep1Button" class="back-button">Назад</button>
+                <button id="goToStep3Button">Далее</button>
+            </div>
+        </div>
+        <div id="registerStep3" class="register-step hidden">
+            <h3>Шаг 3: Создайте пароль</h3>
+            <input type="password" id="registerPassword" placeholder="Введите пароль" required>
+            <input type="password" id="registerConfirmPassword" placeholder="Подтвердите пароль" required>
+            <div class="step-navigation">
+                <button id="backToStep2Button" class="back-button">Назад</button>
+                <button id="registerButton">Зарегистрироваться</button>
+            </div>
+            <p id="registerError" class="error-message hidden"></p>
+        </div>
+        <a href="#" id="showLoginLink">Есть аккаунт? Войти</a>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+</body>
+</html>

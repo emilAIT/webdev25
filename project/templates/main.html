@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp AIT - Чат</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="user-profile-info">
+                <div class="avatar user-profile-avatar">
+                    <img src="{{ url_for('get_user_photo_route') }}" alt="Ваше фото">
+                    <div class="profile-hover-overlay">
+                        <span class="material-icons">account_circle</span>
+                    </div>
+                </div>
+                <div class="current-user-name" id="currentUserName">
+                    {{ username }}
+                </div>
+            </div>
+            <div class="menu-button" id="menuButton">
+                <span class="material-icons">more_vert</span>
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <a href="/profile" class="menu-item">
+                        <span class="material-icons">person</span> Профиль
+                    </a>
+                    <a href="/logout" class="menu-item">
+                        <span class="material-icons">logout</span> Выйти
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="search-container">
+            <span class="search-icon material-icons">search</span>
+            <input type="text" placeholder="Поиск или новый чат" id="chatSearchInput">
+            <button id="newChatBtn" class="new-chat-btn">
+                <span class="material-icons">add</span>
+            </button>
+        </div>
+        <ul class="user-list" id="chatsList">
+            <!-- Список чатов будет заполнен динамически -->
+        </ul>
+    </div>
+    
+    <div class="chat-window">
+        <div class="chat-header">
+            <div class="avatar chat-avatar" id="chatProfilePhoto">
+                <img src="{{ url_for('static', filename='images/default-profile.png') }}" alt="Фото профиля">
+            </div>
+            <div class="user-details">
+                <div class="username" id="chatUsername">Выберите чат</div>
+                <div class="status" id="chatStatus"></div>
+            </div>
+        </div>
+        
+        <div class="messages" id="messagesContainer">
+            <!-- Сообщения будут загружаться динамически -->
+            <div class="empty-chat-message" id="emptyChatMessage">
+                Выберите чат, чтобы начать общение
+            </div>
+        </div>
+        
+        <div class="input-area" id="messageInputArea" style="display: none;">
+            <input type="text" placeholder="Введите сообщение..." id="messageInput">
+            <button id="sendMessageBtn">
+                <span class="material-icons">send</span>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Модальное окно для поиска пользователей -->
+    <div class="modal" id="searchUserModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Найти пользователя</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-search">
+                <input type="text" id="userSearchInput" placeholder="Введите имя пользователя">
+                <button id="searchUsersBtn">
+                    <span class="material-icons">search</span>
+                </button>
+            </div>
+            <div class="search-results" id="searchResults">
+                <!-- Результаты поиска будут здесь -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Модальное окно для просмотра профиля -->
+    <div class="modal" id="profileModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Профиль</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="profile-details">
+                <div class="profile-photo">
+                    <img id="profilePhotoLarge" src="{{ url_for('static', filename='images/default-profile.png') }}" alt="Фото профиля">
+                </div>
+                <div class="profile-info">
+                    <h2 id="profileName">Имя пользователя</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Добавляем контекстное меню для чатов -->
+    <div class="context-menu" id="chatContextMenu">
+        <div class="context-menu-item" id="deleteChatMenuItem">
+            <span class="material-icons">delete</span> Удалить чат
+        </div>
+    </div>
+    
+    <!-- Добавляем контекстное меню для сообщений -->
+    <div class="context-menu" id="messageContextMenu">
+        <div class="context-menu-item" id="editMessageMenuItem">
+            <span class="material-icons">edit</span> Редактировать
+        </div>
+        <div class="context-menu-divider"></div>
+        <div class="context-menu-item" id="deleteMessageMenuItem">
+            <span class="material-icons">delete</span> Удалить
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+    <script>
+        // Добавляем данные пользователя в JavaScript
+        const currentUsername = "{{ username }}";
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Добавляем обработчик клика на аватар пользователя для перехода на страницу профиля
+            document.querySelector('.user-profile-avatar').addEventListener('click', function() {
+                window.location.href = '/profile';
+            });
+            
+            // Обработчик для выпадающего меню
+            const menuButton = document.getElementById('menuButton');
+            const dropdownMenu = document.getElementById('dropdownMenu');
+            
+            menuButton.addEventListener('click', function(e) {
+                e.stopPropagation();
+                dropdownMenu.classList.toggle('active');
+            });
+            
+            document.addEventListener('click', function() {
+                dropdownMenu.classList.remove('active');
+            });
+            
+            // Если текущее имя доступно и элемент существует, обновляем его
+            if (currentUsername && document.getElementById('currentUserName')) {
+                document.getElementById('currentUserName').textContent = currentUsername;
+            }
+        });
+    </script>
+</body>
+</html>
