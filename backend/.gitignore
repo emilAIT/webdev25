@@ -26,3 +26,4 @@ Thumbs.db
 
 # Ignore node modules (if you later use npm for frontend)
 node_modules/
+talkflowchat.db
