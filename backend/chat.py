@@ -6,6 +6,10 @@ from .schemas import ConversationCreate, MessageResponse, MessageCreate
 from .auth import get_current_user
 from sqlalchemy import and_
 from datetime import datetime  # Import datetime
+from .ws_manager import (
+    sio,
+    connected_users,
+)  # Import WebSocket components from ws_manager
 
 router = APIRouter(prefix="/chat")
 
@@ -172,6 +176,9 @@ def get_messages(
             "replied_to_content": None,  # Initialize reply fields
             "replied_to_sender": None,
             "replied_to_username": None,
+            "read_at": (
+                msg.read_at.isoformat() if msg.read_at else None
+            ),  # Include read_at timestamp
         }
 
         # Fetch replied message details if it exists
@@ -195,7 +202,7 @@ def get_messages(
 
 
 @router.post("/conversations/{conversation_id}/mark_read")
-def mark_conversation_as_read(
+async def mark_conversation_as_read(  # Make the function async
     conversation_id: int,
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
@@ -214,11 +221,59 @@ def mark_conversation_as_read(
             status_code=404, detail="Participant not found in this conversation"
         )
 
-    participant.last_read_timestamp = datetime.utcnow()
+    now = datetime.utcnow()
+    participant.last_read_timestamp = now
+
+    # Find messages sent by others in this conversation that haven't been marked as read
+    messages_to_update = (
+        db.query(Message)
+        .filter(
+            Message.conversation_id == conversation_id,
+            Message.sender_id != user.id,  # Messages sent by others
+            Message.read_at == None,  # That are not yet marked as read
+        )
+        .all()
+    )
+
+    updated_message_ids_by_sender = {}
+    if messages_to_update:
+        for msg in messages_to_update:
+            msg.read_at = now
+            if msg.sender_id not in updated_message_ids_by_sender:
+                updated_message_ids_by_sender[msg.sender_id] = []
+            updated_message_ids_by_sender[msg.sender_id].append(msg.id)
+
     db.commit()
     print(
-        f"User {user.id} marked conversation {conversation_id} as read at {participant.last_read_timestamp}"
+        f"User {user.id} marked conversation {conversation_id} as read at {now}. Updated {len(messages_to_update)} messages."
     )
+
+    # Notify senders via WebSocket
+    if updated_message_ids_by_sender:
+        # Find socket IDs for each sender
+        sender_ids = list(updated_message_ids_by_sender.keys())
+        # Invert connected_users for easier lookup (user_id -> list of sids)
+        user_sockets = {}
+        for sid, uid in connected_users.items():
+            if uid not in user_sockets:
+                user_sockets[uid] = []
+            user_sockets[uid].append(sid)
+
+        for sender_id, message_ids in updated_message_ids_by_sender.items():
+            if sender_id in user_sockets:
+                for sid in user_sockets[sender_id]:
+                    await sio.emit(
+                        "messages_read",
+                        {
+                            "conversation_id": conversation_id,
+                            "message_ids": message_ids,
+                        },
+                        room=sid,  # Send directly to the sender's socket
+                    )
+                    print(
+                        f"Notified user {sender_id} (sid: {sid}) about read messages: {message_ids}"
+                    )
+
     return {"status": "success", "message": "Conversation marked as read"}
 
 

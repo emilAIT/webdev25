@@ -1,10 +1,11 @@
 from fastapi import FastAPI, Depends
 from fastapi.staticfiles import StaticFiles
 from .auth import router as auth_router, SECRET_KEY, ALGORITHM
-from .chat import router as chat_router, get_current_user
+from .chat import router as chat_router
 from .database import engine, Base, SessionLocal
-from .models import Message, User
-import socketio
+from .models import Message, User, ConversationParticipant
+from .ws_manager import sio, connected_users  # Import from ws_manager
+import socketio  # Re-add socketio import
 from datetime import datetime
 from jose import JWTError, jwt
 
@@ -18,15 +19,6 @@ app.include_router(chat_router)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-sio = socketio.AsyncServer(
-    async_mode="asgi",
-    cors_allowed_origins=["http://localhost:8000", "http://127.0.0.1:8000"],
-    async_handlers=True,
-    ping_timeout=35000,
-    logger=True,
-    engineio_logger=True,
-)
-
 # Add CORS middleware
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -39,9 +31,6 @@ app.add_middleware(
 )
 
 socket_app = socketio.ASGIApp(sio, app)
-
-# Store user socket mappings
-connected_users = {}
 
 
 @sio.event
@@ -92,15 +81,16 @@ async def connect(sid, environ, auth=None):
 
                 # Join user's conversations
                 conversations = (
-                    db.query(Message.conversation_id)
-                    .filter(Message.sender_id == user.id)
-                    .distinct()
+                    db.query(ConversationParticipant)
+                    .filter(ConversationParticipant.user_id == user.id)
                     .all()
                 )
 
-                for conv in conversations:
-                    await sio.enter_room(sid, str(conv.conversation_id))
-                    print(f"User {user.username} joined room {conv.conversation_id}")
+                for conv_participant in conversations:
+                    await sio.enter_room(sid, str(conv_participant.conversation_id))
+                    print(
+                        f"User {user.username} joined room {conv_participant.conversation_id}"
+                    )
 
                 return True
 

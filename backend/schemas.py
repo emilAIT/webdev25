@@ -19,6 +19,7 @@ class MessageResponse(BaseModel):
     # For displaying reply preview
     replied_to_content: Optional[str] = None
     replied_to_sender: Optional[int] = None
+    read_at: Optional[datetime] = None  # Add read_at field
 
     class Config:
         orm_mode = True
