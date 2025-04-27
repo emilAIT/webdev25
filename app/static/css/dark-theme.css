@@ -1,0 +1,418 @@
+/* Dark Theme Styles */
+
+/* Base dark theme colors */
+:root {
+    --dark-background: #121212;
+    --dark-surface: #1e1e1e;
+    --dark-primary: #6FCF97;
+    --dark-text-primary: #e0e0e0;
+    --dark-text-secondary: #aaaaaa;
+    --dark-border: #333333;
+    --dark-input-bg: #2a2a2a;
+    --dark-hover: #2c2c2c;
+    --dark-active: #333333;
+    --dark-message-outgoing: #7BAE37; /* Changed from #2b5278 to Shrek green */
+    --dark-message-incoming: #2a2a2a;
+    --dark-scrollbar: #444444;
+    --dark-scrollbar-thumb: #666666;
+}
+
+/* Apply dark theme styles */
+body.dark-theme {
+    background-color: var(--dark-background);
+    color: var(--dark-text-primary);
+}
+
+/* General layout elements */
+body.dark-theme .app-container {
+    background-color: var(--dark-background);
+}
+
+/* Sidebar */
+body.dark-theme .sidebar {
+    background-color: var(--dark-surface);
+    border-color: var(--dark-border);
+}
+
+body.dark-theme .sidebar-header {
+    background-color: var(--dark-surface);
+}
+
+body.dark-theme .search-container {
+    background-color: var(--dark-surface);
+}
+
+body.dark-theme .search-input-wrapper {
+    background-color: var(--dark-input-bg);
+}
+
+body.dark-theme .search-input-wrapper input {
+    background-color: var(--dark-input-bg);
+    color: var(--dark-text-primary);
+}
+
+body.dark-theme .profile-name {
+    color: var(--dark-text-primary);
+}
+
+body.dark-theme .contacts-list {
+    background-color: var(--dark-surface);
+}
+
+body.dark-theme .contact-item {
+    border-bottom-color: var(--dark-border);
+}
+
+body.dark-theme .contact-item:hover {
+    background-color: var(--dark-hover);
+}
+
+body.dark-theme .contact-item.active {
+    background-color: var(--dark-active);
+}
+
+body.dark-theme .contact-name-time h4 {
+    color: var(--dark-text-primary);
+}
+
+body.dark-theme .last-message,
+body.dark-theme .message-time {
+    color: var(--dark-text-secondary);
+}
+
+/* Chat Area */
+body.dark-theme .chat-area {
+    background-color: var(--dark-background);
+}
+
+body.dark-theme .welcome-container {
+    background-color: var(--dark-surface);
+}
+
+body.dark-theme .welcome-container h2,
+body.dark-theme .welcome-container p {
+    color: var(--dark-text-primary);
+}
+
+body.dark-theme .chat-header {
+    background-color: var(--dark-surface);
+    border-color: var(--dark-border);
+}
+
+body.dark-theme .chat-messages {
+    background-color: var(--dark-background);
+}
+
+body.dark-theme .message-input-container {
+    background-color: var(--dark-surface);
+    border-color: var(--dark-border);
+}
+
+body.dark-theme .message-input {
+    background-color: var(--dark-input-bg);
+}
+
+body.dark-theme .message-input input {
+    background-color: var(--dark-input-bg);
+    color: var(--dark-text-primary);
+}
+
+body.dark-theme .attachment-btn,
+body.dark-theme .emoji-btn,
+body.dark-theme .send-btn {
+    color: var(--dark-text-secondary);
+}
+
+body.dark-theme .send-btn {
+    background-color: var(--dark-primary);
+    color: #fff;
+}
+
+/* Messages */
+body.dark-theme .message.outgoing .message-content {
+    background-color: var(--dark-message-outgoing);
+    color: #ffffff; /* Ensuring text is white for better contrast */
+}
+
+body.dark-theme .message.incoming .message-content {
+    background-color: var(--dark-message-incoming);
+    color: #ffffff; /* Changing to white text for better visibility */
+}
+
+body.dark-theme .message-time {
+    color: #b0b0b0; /* Lighter color for better visibility in dark mode */
+}
+
+body.dark-theme .system-message.info {
+    background-color: rgba(50, 50, 50, 0.7); /* Slightly lighter background */
+    color: #ffffff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-theme .date-separator-inner {
+    background-color: #333333;
+    color: #e0e0e0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Message status indicators in dark mode */
+body.dark-theme .message-status i {
+    color: #b0b0b0; /* Lighter color for better visibility */
+}
+
+body.dark-theme .message.outgoing .message-status-double.read {
+    color: var(--dark-primary); /* Using the theme's primary color for read status */
+}
+
+/* Chat background */
+body.dark-theme .chat-messages {
+    background: linear-gradient(rgba(18, 18, 18, 0.8), rgba(18, 18, 18, 0.8)),
+                url('../images/forest-background.jpg') center/cover fixed;
+}
+
+/* Profile sidebar */
+body.dark-theme .profile-sidebar {
+    background-color: var(--dark-surface);
+    border-color: var(--dark-border);
+}
+
+body.dark-theme .profile-header {
+    background-color: var(--dark-surface);
+    border-color: var(--dark-border);
+}
+
+body.dark-theme .profile-header h2,
+body.dark-theme .profile-header h3 {
+    color: var(--dark-text-primary);
+}
+
+body.dark-theme .profile-info-section h4 {
+    color: var(--dark-text-primary);
+}
+
+body.dark-theme .profile-about {
+    color: var(--dark-text-secondary);
+}
+
+body.dark-theme .profile-action-btn {
+    background-color: var(--dark-input-bg);
+    color: var(--dark-text-primary);
+}
+
+body.dark-theme .profile-menu-item {
+    border-color: var(--dark-border);
+    color: var(--dark-text-primary);
+}
+
+body.dark-theme .profile-menu-item:hover {
+    background-color: var(--dark-hover);
+}
+
+/* Popups */
+body.dark-theme .popup {
+    background-color: var(--dark-surface);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-theme .popup-header {
+    background-color: var(--dark-surface);
+    border-color: var(--dark-border);
+}
+
+body.dark-theme .popup-header h3 {
+    color: var(--dark-text-primary);
+}
+
+body.dark-theme .popup-content {
+    background-color: var(--dark-surface);
+}
+
+body.dark-theme .form-group label {
+    color: var(--dark-text-primary);
+}
+
+body.dark-theme .form-group input,
+body.dark-theme .form-group textarea {
+    background-color: var(--dark-input-bg);
+    border-color: var(--dark-border);
+    color: var(--dark-text-primary);
+}
+
+body.dark-theme .selectable-contacts-list {
+    background-color: var(--dark-surface);
+}
+
+body.dark-theme .selectable-contact {
+    background-color: var(--dark-input-bg);
+    border-color: var(--dark-border);
+}
+
+body.dark-theme .selectable-contact:hover {
+    background-color: var(--dark-hover);
+}
+
+/* Buttons */
+body.dark-theme .btn-primary {
+    background-color: var(--dark-primary);
+}
+
+body.dark-theme .btn-secondary {
+    background-color: var(--dark-input-bg);
+    color: var(--dark-text-primary);
+}
+
+/* Status indicators */
+body.dark-theme .status-indicator {
+    border-color: var(--dark-surface);
+}
+
+/* Group Members */
+body.dark-theme .group-member {
+    background-color: var(--dark-input-bg);
+    border-color: var(--dark-border);
+}
+
+body.dark-theme .member-name {
+    color: var(--dark-text-primary);
+}
+
+body.dark-theme .member-role {
+    color: var(--dark-text-secondary);
+}
+
+/* Search Results */
+body.dark-theme .search-results {
+    background-color: var(--dark-surface);
+    border-color: var(--dark-border);
+}
+
+body.dark-theme .search-result-item {
+    border-color: var(--dark-border);
+}
+
+body.dark-theme .search-result-item:hover {
+    background-color: var(--dark-hover);
+}
+
+/* Dropdown menus */
+body.dark-theme .dropdown-menu {
+    background-color: var(--dark-surface);
+    border-color: var(--dark-border);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+body.dark-theme .dropdown-item {
+    color: var(--dark-text-primary);
+}
+
+body.dark-theme .dropdown-item span,
+body.dark-theme .dropdown-item i {
+    color: var(--dark-text-primary);
+}
+
+body.dark-theme .dropdown-item:hover {
+    background-color: var(--dark-hover);
+}
+
+/* Scrollbars */
+body.dark-theme ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+    background-color: var(--dark-scrollbar);
+}
+
+body.dark-theme ::-webkit-scrollbar-thumb {
+    background-color: var(--dark-scrollbar-thumb);
+    border-radius: 4px;
+}
+
+/* Status text */
+body.dark-theme .status-text {
+    color: var(--dark-text-secondary);
+}
+
+/* Fix auth pages specific elements */
+body.dark-theme .right-panel {
+    background-color: var(--dark-surface);
+}
+
+body.dark-theme .form-container h2 {
+    color: var(--dark-text-primary);
+}
+
+body.dark-theme .input-group i {
+    color: var(--dark-text-secondary);
+}
+
+body.dark-theme .input-group input {
+    background-color: var(--dark-input-bg);
+    border-color: var(--dark-border);
+    color: var(--dark-text-primary);
+}
+
+body.dark-theme .input-group input::placeholder {
+    color: var(--dark-text-secondary);
+}
+
+body.dark-theme .forgot-password a, 
+body.dark-theme .register-link a, 
+body.dark-theme .login-link a {
+    color: var(--dark-primary);
+}
+
+body.dark-theme .register-link, 
+body.dark-theme .login-link {
+    color: var(--dark-text-secondary);
+}
+
+body.dark-theme .error-message {
+    color: #f77;
+}
+
+/* Chat contact info */
+body.dark-theme .chat-contact-info {
+    color: var(--dark-text-primary);
+}
+
+body.dark-theme .chat-contact-details h4 {
+    color: var(--dark-text-primary);
+}
+
+body.dark-theme .chat-contact-details p {
+    color: var(--dark-text-secondary);
+}
+
+/* Contact info toggle buttons and text */
+body.dark-theme .view-contact-info,
+body.dark-theme .chat-actions button {
+    color: var(--dark-text-primary);
+}
+
+body.dark-theme .dropdown-item {
+    color: var(--dark-text-primary);
+}
+
+body.dark-theme .chat-dropdown-menu button {
+    color: var(--dark-text-primary);
+}
+
+/* Make sure all action buttons in chat interface have good contrast */
+body.dark-theme .chat-header button,
+body.dark-theme .chat-header .dropdown-toggle {
+    color: var(--dark-text-primary);
+}
+
+/* Fix borders and shadows */
+body.dark-theme .chat-area, 
+body.dark-theme .sidebar, 
+body.dark-theme .profile-sidebar {
+    box-shadow: none;
+}
+
+body.dark-theme .sidebar-actions button {
+    color: var(--dark-text-secondary);
+}
+
+body.dark-theme .sidebar-actions button:hover {
+    background-color: var(--dark-hover);
+}

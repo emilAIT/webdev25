@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Регистрация - ShrekChat{% endblock %}
+
+{% block css %}
+    {{ super() }}
+    <link rel="stylesheet" href="/static/css/auth.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="left-panel">
+        <div class="logo">
+            <img src="/static/images/shrek-logo.png" alt="Shrek Logo">
+        </div>
+        <div class="welcome-text">
+            <h1>Добро Пожаловать в Shrek Chat!</h1>
+            <p>Зарегистрируйтесь, чтобы присоединиться к нашему болоту</p>
+        </div>
+    </div>
+    <div class="right-panel">
+        <div class="form-container">
+            <h2>РЕГИСТРАЦИЯ</h2>
+            <form id="registrationForm" method="POST" action="/register">
+                <div class="input-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="username" name="username" placeholder="ИМЯ ПОЛЬЗОВАТЕЛЯ" required>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="email" name="email" placeholder="E-MAIL" required>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" name="password" placeholder="СОЗДАЙТЕ ПАРОЛЬ" required>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="confirmPassword" name="confirm_password" placeholder="ПОДТВЕРДИТЕ ПАРОЛЬ" required>
+                </div>
+                <div class="error-message" id="errorMessage">
+                    {% if error %}{{ error }}{% endif %}
+                </div>
+                <button type="submit" class="btn-submit">Регистрация</button>
+                <div class="login-link">
+                    <p>Уже есть аккаунт? <a href="/login">Войти</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/validation.js"></script>
+{% endblock %}

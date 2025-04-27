@@ -1,0 +1,579 @@
+/* Video Call Styles */
+
+/* Call overlay - modified to be more compact */
+.call-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 32px 0; /* Reduced padding */
+    color: #fff;
+    transition: all 0.3s ease;
+    opacity: 0;
+    visibility: hidden; /* Use visibility instead of display */
+}
+
+/* Call overlay visible */
+.call-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Call notification overlay - more compact popup style */
+.call-notification-overlay {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 280px;
+    max-width: 90vw;
+    background: #2d2d2d;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+    color: #fff;
+    z-index: 1000;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    max-height: 400px;
+}
+
+.call-notification-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Video container - more compact */
+.video-container {
+    position: relative;
+    width: 100%;
+    height: 60vh; /* Reduced height */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+/* Remote video (full size) */
+.remote-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Local video - smaller overlay */
+.local-video-container {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 140px; /* Reduced width */
+    height: 180px; /* Reduced height */
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    z-index: 10;
+    transition: all 0.3s ease;
+    border: 2px solid #fff;
+}
+
+.local-video-container:hover {
+    transform: scale(1.05);
+    cursor: move;
+}
+
+.local-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Call controls - more compact */
+.call-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    gap: 12px; /* Reduced gap */
+}
+
+.call-button {
+    width: 48px; /* Reduced size */
+    height: 48px; /* Reduced size */
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.call-button:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+.call-button i {
+    font-size: 18px; /* Smaller icons */
+    color: white;
+}
+
+.call-button.end-call {
+    background-color: #ff3b30;
+}
+
+.call-button.end-call:hover {
+    background-color: #ff1a0e;
+}
+
+.call-button.toggle-audio.muted i {
+    color: #ff3b30;
+}
+
+.call-button.toggle-video.disabled i {
+    color: #ff3b30;
+}
+
+.call-button.flip-camera {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Call info - more compact */
+.call-info {
+    text-align: center;
+    padding: 16px; /* Reduced padding */
+}
+
+.call-status {
+    font-size: 16px; /* Smaller font */
+    margin-bottom: 6px;
+}
+
+.call-duration {
+    font-size: 14px; /* Smaller font */
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.caller-name {
+    font-size: 20px; /* Smaller font */
+    font-weight: 600;
+    margin-bottom: 8px; /* Reduced margin */
+}
+
+.incoming-call-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 280px; /* Match the call-notification-overlay width */
+    background: #2d2d2d;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    color: #fff;
+    z-index: 9999;
+    overflow: hidden;
+    display: none; /* Hidden by default */
+    transition: all 0.3s ease;
+}
+
+.incoming-call-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.incoming-call-avatar {
+    width: 80px; /* Smaller avatar */
+    height: 80px; /* Smaller avatar */
+    border-radius: 50%;
+    overflow: hidden;
+    margin-bottom: 16px; /* Reduced margin */
+    border: 3px solid #fff; /* Thinner border */
+}
+
+.incoming-call-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.incoming-call-name {
+    font-size: 20px; /* Smaller font */
+    font-weight: 600;
+    margin-bottom: 6px; /* Reduced margin */
+}
+
+.incoming-call-status {
+    font-size: 16px; /* Smaller font */
+    margin-bottom: 30px; /* Reduced margin */
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.incoming-call-controls {
+    display: flex;
+    gap: 30px; /* Reduced gap */
+}
+
+.answer-button, .decline-button {
+    width: 50px; /* Smaller buttons */
+    height: 50px; /* Smaller buttons */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.answer-button {
+    background-color: #7BAE37;
+}
+
+.answer-button:hover {
+    background-color: #3d8b40;
+    transform: scale(1.1);
+}
+
+.decline-button {
+    background-color: #ff3b30;
+}
+
+.decline-button:hover {
+    background-color: #ff1a0e;
+    transform: scale(1.1);
+}
+
+.answer-button i, .decline-button i {
+    font-size: 20px; /* Smaller icons */
+    color: white;
+}
+
+
+.outgoingCallOverlay,
+.outgoing-call-overlay {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 280px;
+    background: rgba(45, 45, 45, 0.95);
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    color: #fff;
+    z-index: 9999;
+    display: none;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    padding: 16px;
+}
+
+.active-call-container {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+    border-radius: 12px;
+}
+
+.active-call-container.minimized {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 220px;
+    height: auto;
+    padding: 10px;
+    background: rgba(45, 45, 45, 0.9);
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    z-index: 998;
+}
+
+.outgoing-call-overlay.visible {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.outgoing-call-avatar {
+    width: 50px; /* Smaller avatar */
+    height: 50px; /* Smaller avatar */
+    border-radius: 50%;
+    overflow: hidden;
+    margin-bottom: 10px; /* Reduced margin */
+    border: 2px solid #fff; /* Thinner border */
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+    }
+}
+
+.outgoing-call-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.outgoing-call-name {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.outgoing-call-status {
+    font-size: 14px;
+    margin-bottom: 12px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.outgoing-call-controls {
+    display: flex;
+    gap: 20px;
+}
+
+.hangup-button {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #ff3b30;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.hangup-button:hover {
+    background-color: #ff1a0e;
+    transform: scale(1.1);
+}
+
+.hangup-button i {
+    font-size: 24px;
+    color: white;
+}
+
+.incoming-call-container, .outgoing-call-container, .active-call-container {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Minimize/Maximize button for active call */
+.toggle-call-size {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.toggle-call-size i {
+    font-size: 14px;
+    color: white;
+}
+
+.caller-avatar,
+.callee-avatar,
+.participant-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-bottom: 12px;
+    border: 2px solid #fff;
+}
+
+.caller-avatar img,
+.callee-avatar img,
+.participant-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.caller-info,
+.callee-info,
+.participant-info {
+    text-align: center;
+    margin-bottom: 12px;
+    width: 100%;
+}
+
+.caller-info h3,
+.callee-info h3,
+.participant-info h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.caller-info p,
+.callee-info p,
+.participant-info p {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Call actions - more compact */
+.call-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    width: 100%;
+    margin-top: 12px;
+}
+
+.call-btn {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.call-btn.accept {
+    background-color: #7BAE37;
+}
+
+.call-btn.decline {
+    background-color: #ff3b30;
+}
+
+.call-btn.toggle {
+    background-color: #3a3a3a;
+}
+
+.call-btn:hover {
+    transform: scale(1.1);
+}
+
+.call-btn i {
+    font-size: 18px;
+    color: white;
+}
+
+/* Active call participant */
+.active-call-participant {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 16px;
+    width: 100%;
+}
+
+/* Call duration - smaller font */
+#callDuration {
+    font-family: monospace;
+    font-size: 14px;
+    opacity: 0.8;
+    margin-top: 5px;
+}
+
+/* Add call button in chat header */
+.chat-call-btn {
+    background: none;
+    border: none;
+    color: #6a7480;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 8px;
+    margin-left: 5px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+.chat-call-btn:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: #4CAF50;
+}
+
+/* Move to corner button */
+.move-call-corner {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.7);
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    margin-top: 5px;
+    padding: 5px 8px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.1);
+}
+
+.move-call-corner:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+.move-call-corner i {
+    font-size: 10px;
+}
+
+/* Additional styles to fix positioning */
+body.has-call-active {
+    overflow: hidden;
+}
+
+/* Semi-transparent background overlay */
+.call-overlay-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.call-overlay-backdrop.visible {
+    opacity: 1;
+    visibility: visible;
+}

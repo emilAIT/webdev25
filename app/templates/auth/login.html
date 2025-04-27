@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Вход - ShrekChat{% endblock %}
+
+{% block css %}
+    {{ super() }}
+    <link rel="stylesheet" href="/static/css/auth.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="left-panel">
+        <div class="logo">
+            <img src="/static/images/shrek-logo.png" alt="Shrek Logo">
+        </div>
+        <div class="welcome-text">
+            <h1>Добро Пожаловать в Shrek Chat!</h1>
+            <p>Войдите, чтобы начать общение в болоте</p>
+        </div>
+    </div>
+    <div class="right-panel">
+        <div class="form-container">
+            <h2>ВХОД</h2>
+            <form id="loginForm" method="POST" action="/login">
+                <div class="input-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="username" name="username" placeholder="ИМЯ ПОЛЬЗОВАТЕЛЯ / E-MAIL" value="{{ username or '' }}" required>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" name="password" placeholder="ПАРОЛЬ" required>
+                </div>
+                <div class="error-message" id="errorMessage">
+                    {% if error %}{{ error }}{% endif %}
+                </div>
+                <div class="forgot-password">
+                    <a href="#">Забыли пароль?</a>
+                </div>
+                <button type="submit" class="btn-submit">Войти</button>
+                <div class="register-link">
+                    <p>Нет аккаунта? <a href="/register">Зарегистрироваться</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/validation.js"></script>
+{% endblock %}

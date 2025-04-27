@@ -1,0 +1,223 @@
+/* Authentication Pages (Login & Registration) */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Roboto', sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    overflow-x: hidden;
+    background-color: #f8f9fa;
+    align-items: center;
+}
+
+.container {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Left Panel Styling */
+.left-panel {
+    flex: 1;
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('/static/images/shrek.jpg');
+    background-size: cover;
+    background-position: center;
+    color: white;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.logo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid white;
+    margin-bottom: 30px;
+}
+
+.logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.welcome-text {
+    margin-top: 40px;
+}
+
+.welcome-text h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+.welcome-text p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+/* Right Panel Styling */
+.right-panel {
+    flex: 1;
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.form-container {
+    width: 80%;
+    max-width: 400px;
+}
+
+.form-container h2 {
+    color: #555;
+    text-align: center;
+    margin-bottom: 30px;
+    font-weight: 500;
+    letter-spacing: 1px;
+}
+
+.input-group {
+    position: relative;
+    margin-bottom: 25px;
+}
+
+.input-group i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #aaa;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 15px 15px 15px 45px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.input-group input:focus {
+    border-color: #7BAE37;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+.forgot-password {
+    text-align: right;
+    margin-bottom: 20px;
+}
+
+.forgot-password a, .register-link a, .login-link a {
+    color: #7BAE37;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.btn-submit {
+    width: 100%;
+    padding: 15px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-submit:hover {
+    background-color: #7BAE37;
+}
+
+.register-link, .login-link {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 14px;
+    color: #666;
+}
+
+.error-message {
+    color: #f44336;
+    font-size: 14px;
+    margin-bottom: 15px;
+    text-align: center;
+    min-height: 20px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        height: auto;
+        width: 90%;
+    }
+    
+    .left-panel {
+        flex: none;
+        height: 30vh;
+    }
+    
+    .welcome-text h1 {
+        font-size: 1.8rem;
+    }
+    
+    .welcome-text p {
+        font-size: 1rem;
+    }
+    
+    .right-panel {
+        flex: none;
+        height: 70vh;
+    }
+}
+
+/* Dark Theme Styling for Auth Pages */
+body.dark-theme {
+    background-color: #121212;
+}
+
+body.dark-theme .right-panel {
+    background-color: #1e1e1e;
+}
+
+body.dark-theme .form-container h2 {
+    color: #e0e0e0;
+}
+
+body.dark-theme .input-group input {
+    background-color: #333;
+    border-color: #444;
+    color: #e0e0e0;
+}
+
+body.dark-theme .input-group input::placeholder {
+    color: #aaa;
+}
+
+body.dark-theme .forgot-password a, 
+body.dark-theme .register-link a, 
+body.dark-theme .login-link a {
+    color: #7BAE37;
+}
+
+body.dark-theme .register-link, 
+body.dark-theme .login-link {
+    color: #aaa;
+}
+
+body.dark-theme .error-message {
+    color: #f77;
+}

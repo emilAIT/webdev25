@@ -1,0 +1,171 @@
+/* Call Debug Styles - High Specificity */
+.call-notification-overlay.visible {
+    opacity: 1 !important;
+    visibility: visible !important;
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 280px !important;
+    max-width: 90vw !important;
+    background: #2d2d2d !important;
+    border-radius: 12px !important;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.4) !important;
+    color: #fff !important;
+    z-index: 1000 !important;
+    max-height: 400px !important;
+    overflow: hidden !important;
+}
+
+/* Position incoming call in top right corner */
+#incomingCallOverlay.call-notification-overlay {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    left: auto !important;
+    transform: none !important;
+    width: 280px !important;
+    background: #2d2d2d !important;
+    border-radius: 12px !important;
+    z-index: 1000 !important;
+}
+
+#incomingCallOverlay.call-notification-overlay.visible {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Regular call notifications in center */
+#outgoingCallOverlay.call-notification-overlay,
+#activeCallOverlay.call-notification-overlay {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 280px !important;
+    background: #2d2d2d !important;
+    border-radius: 12px !important;
+    z-index: 1000 !important;
+}
+
+.call-overlay-backdrop.visible {
+    opacity: 1 !important;
+    visibility: visible !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+    z-index: 999 !important;
+}
+
+.call-overlay-backdrop {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 999 !important;
+}
+
+.incoming-call-container,
+.outgoing-call-container,
+.active-call-container {
+    padding: 20px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.caller-avatar,
+.callee-avatar,
+.participant-avatar {
+    width: 60px !important;
+    height: 60px !important;
+    border-radius: 50% !important;
+    overflow: hidden !important;
+    margin-bottom: 12px !important;
+    border: 2px solid #fff !important;
+}
+
+.caller-info,
+.callee-info,
+.participant-info {
+    text-align: center !important;
+    margin-bottom: 12px !important;
+    width: 100% !important;
+}
+
+.call-actions {
+    display: flex !important;
+    justify-content: center !important;
+    gap: 15px !important;
+    width: 100% !important;
+    margin-top: 12px !important;
+}
+
+.call-btn {
+    width: 46px !important;
+    height: 46px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border: none !important;
+    outline: none !important;
+    cursor: pointer !important;
+    transition: transform 0.2s !important;
+}
+
+.call-btn:hover {
+    transform: scale(1.1) !important;
+}
+
+.call-btn.accept {
+    background-color: #7BAE37 !important;
+}
+
+.call-btn.decline {
+    background-color: #ff3b30 !important;
+}
+
+.call-btn.toggle {
+    background-color: #3a3a3a !important;
+}
+
+.call-btn i {
+    font-size: 18px !important;
+    color: white !important;
+}
+
+/* Add pulse animation for incoming calls */
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(123, 174, 55, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(123, 174, 55, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(123, 174, 55, 0);
+    }
+}
+
+#incomingCallOverlay .caller-avatar {
+    animation: pulse 1.5s infinite !important;
+}
+
+/* Call duration style */
+#callDuration {
+    font-family: monospace !important;
+    font-weight: bold !important;
+} 
