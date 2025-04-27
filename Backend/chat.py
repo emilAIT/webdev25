@@ -878,10 +878,60 @@ def leave_group():
         WHERE id = ?
     """, (group_id,))
     
-    admin_id = cursor.fetchone()[0]
-    if admin_id == session['user_id']:
+    group_info = cursor.fetchone()
+    if not group_info:
         conn.close()
-        return jsonify({"message": "Admin cannot leave the group. Please delete the group instead."}), 403
+        return jsonify({"message": "Group not found"}), 404
+        
+    admin_id = group_info[0]
+    
+    # If user is admin, transfer admin rights to another member if possible
+    if admin_id == session['user_id']:
+        # Find another member to transfer admin rights to
+        cursor.execute("""
+            SELECT user_id FROM group_members 
+            WHERE group_id = ? AND user_id != ?
+            LIMIT 1
+        """, (group_id, session['user_id']))
+        
+        new_admin = cursor.fetchone()
+        
+        if new_admin:
+            # Transfer admin rights to another member
+            cursor.execute("""
+                UPDATE groups SET admin_id = ? WHERE id = ?
+            """, (new_admin[0], group_id))
+            
+            # Add a system message to the group chat about admin change
+            current_time = datetime.datetime.now(pytz.timezone('Asia/Bishkek'))
+            
+            # Get usernames for notification
+            cursor.execute("SELECT username FROM users WHERE id = ?", (session['user_id'],))
+            old_admin_result = cursor.fetchone()
+            old_admin_name = old_admin_result[0] if old_admin_result else "Unknown"
+            
+            cursor.execute("SELECT username FROM users WHERE id = ?", (new_admin[0],))
+            new_admin_result = cursor.fetchone()
+            new_admin_name = new_admin_result[0] if new_admin_result else "Unknown"
+            
+            system_message = f"[SYSTEM] Admin rights transferred from {old_admin_name} to {new_admin_name}"
+            
+            # Generate a unique message ID
+            message_id = f"system_{int(time.time())}_{group_id}"
+            
+            cursor.execute("""
+                INSERT INTO group_messages (group_id, sender_id, message, time, message_id)
+                VALUES (?, ?, ?, ?, ?)
+            """, (group_id, session['user_id'], system_message, current_time, message_id))
+        else:
+            # If no other members, delete the group instead of leaving
+            cursor.execute("DELETE FROM groups WHERE id = ?", (group_id,))
+            cursor.execute("DELETE FROM group_members WHERE group_id = ?", (group_id,))
+            cursor.execute("DELETE FROM group_messages WHERE group_id = ?", (group_id,))
+            
+            conn.commit()
+            conn.close()
+            return jsonify({"message": "You were the last member. Group has been deleted."}), 200
     
     # Remove user from group
     cursor.execute("""
