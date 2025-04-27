@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <title>BlipChat - Профиль</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="logo">BlipChat</div>
+        <form id="profile-form">
+            <label>Имя:</label>
+            <input type="text" name="name" value="{{ user.name }}" required>
+            <label>Email:</label>
+            <input type="email" name="email" value="{{ user.email }}" required>
+            <label>Текущий пароль:</label>
+            <input type="password" name="current_password">
+            <label>Новый пароль:</label>
+            <input type="password" name="new_password">
+            <button type="submit">Сохранить</button>
+        </form>
+        <a href="/main">Назад</a>
+    </div>
+    <script src="/static/script.js"></script>
+</body>
+
+</html>

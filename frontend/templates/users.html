@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <title>BlipChat - Пользователи</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">BlipChat</div>
+            <a href="/logout" class="logout-btn">Выйти</a>
+        </div>
+        <input type="text" name="search" placeholder="Поиск пользователей...">
+        <ul id="users-list"></ul>
+        <div class="nav-links">
+            <a href="/main">Назад</a>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.querySelector('input[name="search"]');
+            const usersList = document.getElementById('users-list');
+
+            async function loadUsers(searchQuery = '') {
+                const resp = await fetch('/api/users?search=' + encodeURIComponent(searchQuery));
+                const users = await resp.json();
+                usersList.innerHTML = '';
+                users.forEach(user => {
+                    const li = document.createElement('li');
+                    li.className = 'user-item';
+                    li.innerHTML = `
+                        <div class="user-info">
+                            <span class="user-name">${user.name}</span>
+                            <span class="user-email">${user.email}</span>
+                        </div>
+                        <div class="user-actions">
+                            <button 
+                                onclick="startChat(${user.id}, '${user.name}')" 
+                                class="chat-btn"
+                            >
+                                Начать чат
+                            </button>
+                            <button 
+                                onclick="toggleFriend(${user.id}, this)" 
+                                class="friend-btn ${user.is_friend ? 'remove' : 'add'}"
+                            >
+                                ${user.is_friend ? 'Удалить из друзей' : 'Добавить в друзья'}
+                            </button>
+                        </div>
+                    `;
+                    usersList.appendChild(li);
+                });
+            }
+
+            // Добавим функцию для создания чата
+            window.startChat = async function (userId, userName) {
+                const resp = await fetch('/api/chats/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        name: userName
+                    })
+                });
+                if (resp.ok) {
+                    const data = await resp.json();
+                    window.location.href = `/chat/${data.id}`;
+                }
+            };
+
+            // Поиск при вводе
+            searchInput.addEventListener('input', () => {
+                loadUsers(searchInput.value);
+            });
+
+            // Начальная загрузка
+            loadUsers();
+        });
+
+        // Функция добавления/удаления из друзей
+        async function toggleFriend(userId, button) {
+            if (button.classList.contains('add')) {
+                // Добавить в друзья
+                const resp = await fetch(`/api/friends/${userId}`, {
+                    method: 'POST'
+                });
+                if (resp.ok) {
+                    button.textContent = 'Удалить из друзей';
+                    button.classList.remove('add');
+                    button.classList.add('remove');
+                }
+            } else {
+                // Удалить из друзей
+                const resp = await fetch(`/api/friends/${userId}`, {
+                    method: 'DELETE'
+                });
+                if (resp.ok) {
+                    button.textContent = 'Добавить в друзья';
+                    button.classList.remove('remove');
+                    button.classList.add('add');
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>

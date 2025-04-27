@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <title>BlipChat - Регистрация</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="logo">BlipChat</div>
+        <form method="post" action="/register">
+            <label>Имя:</label>
+            <input type="text" name="name" required>
+            <label>Email:</label>
+            <input type="email" name="email" required>
+            <label>Пароль:</label>
+            <input type="password" name="password" required>
+            <label>Подтверждение пароля:</label>
+            <input type="password" name="password2" required>
+            <button type="submit">Зарегистрироваться</button>
+        </form>
+        <a href="/login">Уже есть аккаунт? Войти</a>
+    </div>
+    <script src="/static/script.js"></script>
+</body>
+
+</html>

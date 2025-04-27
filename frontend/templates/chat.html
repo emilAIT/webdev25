@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <title>BlipChat - Чат</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+    <div class="container chat-container">
+        <div class="header">
+            <a href="/main" class="back-btn">← Назад</a>
+            <div id="chat-name" class="chat-title"></div>
+            <div id="chat-actions"></div>
+        </div>
+        <div class="messages" id="messages"></div>
+        <form id="message-form">
+            <input type="text" name="text" placeholder="Введите сообщение..." required>
+            <button type="submit">Отправить</button>
+        </form>
+    </div>
+    <script>
+        const chatId = window.location.pathname.split('/').pop();
+
+        async function loadMessages() {
+            const resp = await fetch(`/api/messages?chat_id=${chatId}`);
+            const messages = await resp.json();
+            const messagesDiv = document.getElementById('messages');
+            messagesDiv.innerHTML = '';
+
+            messages.forEach(msg => {
+                const div = document.createElement('div');
+                div.className = `message ${msg.is_mine ? 'sent' : 'received'}`;
+                div.setAttribute('data-message-id', msg.id);
+
+                const header = document.createElement('div');
+                header.className = 'message-header';
+                header.innerHTML = `
+                    <span class="message-author">${msg.user_name}</span>
+                    <span class="message-time">${msg.timestamp}</span>
+                `;
+
+                const text = document.createElement('div');
+                text.className = 'message-text';
+                if (msg.edited) {
+                    text.classList.add('edited');
+                }
+                text.textContent = msg.text;
+
+                div.appendChild(header);
+                div.appendChild(text);
+
+                // Добавляем статус прочтения только для своих сообщений
+                if (msg.is_mine && msg.status === 'read') {
+                    const readStatus = document.createElement('span');
+                    readStatus.className = 'read-status';
+                    readStatus.textContent = 'Прочитано';
+                    div.appendChild(readStatus);
+                }
+
+                // Добавляем кнопки управления только для своих сообщений
+                if (msg.is_mine) {
+                    const controls = document.createElement('div');
+                    controls.className = 'message-controls';
+
+                    // Кнопка "Редактировать"
+                    const editButton = document.createElement('button');
+                    editButton.className = 'btn btn-sm btn-outline-primary';
+                    editButton.textContent = 'Редактировать';
+                    editButton.onclick = () => editMessage(msg.id, msg.text);
+
+                    // Кнопка "Удалить"
+                    const deleteButton = document.createElement('button');
+                    deleteButton.className = 'btn btn-sm btn-outline-danger';
+                    deleteButton.textContent = 'Удалить';
+                    deleteButton.onclick = () => deleteMessage(msg.id);
+
+                    controls.appendChild(editButton);
+                    controls.appendChild(deleteButton);
+                    div.appendChild(controls);
+                }
+
+                messagesDiv.appendChild(div);
+            });
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        // Загрузка информации о чате
+        async function loadChatInfo() {
+            const resp = await fetch(`/api/chats/${chatId}`);
+            const chat = await resp.json();
+            document.getElementById('chat-name').textContent = chat.name;
+
+            // Добавляем кнопку настроек для групповых чатов
+            if (chat.is_group) {
+                const actionsDiv = document.getElementById('chat-actions');
+                actionsDiv.innerHTML = `
+                    <a href="/group/${chatId}/settings" class="settings-btn">Настройки группы</a>
+                `;
+            }
+        }
+
+        // Отправка сообщения
+        document.getElementById('message-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            formData.append('chat_id', chatId);
+
+            await fetch('/api/messages', {
+                method: 'POST',
+                body: formData
+            });
+
+            this.reset();
+            loadMessages();
+        });
+
+        // Инициализация
+        loadChatInfo();
+        loadMessages();
+        setInterval(loadMessages, 3000);
+
+        async function toggleMessageRead(messageId) {
+            try {
+                const response = await fetch(`/api/messages/${messageId}/read`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+                    const readButton = messageElement.querySelector('.btn-outline-secondary');
+                    const currentStatus = readButton.textContent === 'Прочитано' ? 'read' : 'unread';
+                    readButton.textContent = currentStatus === 'read' ? 'Не прочитано' : 'Прочитано';
+                }
+            } catch (error) {
+                console.error('Ошибка при изменении статуса сообщения:', error);
+            }
+        }
+
+        async function editMessage(messageId, currentText) {
+            const newText = prompt('Введите новый текст сообщения:', currentText);
+            if (newText && newText !== currentText) {
+                try {
+                    const formData = new FormData();
+                    formData.append('text', newText);
+
+                    const response = await fetch(`/api/messages/${messageId}`, {
+                        method: 'PUT',
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+                        const messageText = messageElement.querySelector('.message-text');
+                        messageText.textContent = newText;
+                        messageText.classList.add('edited');
+                    }
+                } catch (error) {
+                    console.error('Ошибка при редактировании сообщения:', error);
+                }
+            }
+        }
+
+        async function deleteMessage(messageId) {
+            if (confirm('Вы уверены, что хотите удалить это сообщение?')) {
+                try {
+                    const response = await fetch(`/api/messages/${messageId}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (response.ok) {
+                        const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+                        messageElement.remove();
+                    }
+                } catch (error) {
+                    console.error('Ошибка при удалении сообщения:', error);
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>
