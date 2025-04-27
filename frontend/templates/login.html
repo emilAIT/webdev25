@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MeowChat - Вход</title>
+    <link rel="stylesheet" href="/static/css/styles.css" />
+    <link rel="stylesheet" href="/static/css/auth.css" />
+    <link rel="stylesheet" href="/static/css/notifications.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+  </head>
+  <body>
+    <main class="login-container">
+      <!-- Контейнер для формы входа (изначально видимый) -->
+      <div id="login-view">
+        <div class="login-form">
+          <h1 class="login-title">Welcome Back</h1>
+          <div
+            id="login-error"
+            class="error-message"
+            style="display: none"
+          ></div>
+          {% if error %}
+          <div class="error-message">{{ error }}</div>
+          {% endif %}
+          <form id="login-form" action="/login" method="post">
+            <div class="form-group">
+              <label for="login-email">Email</label>
+              <input
+                type="email"
+                id="login-email"
+                name="login_id"
+                class="form-control"
+                placeholder="Enter Email Here"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="login-password">Password</label>
+              <div class="password-container">
+                <input
+                  type="password"
+                  id="login-password"
+                  name="password"
+                  class="form-control"
+                  placeholder="Enter Password Here"
+                  required
+                />
+                <button
+                  type="button"
+                  class="password-toggle"
+                  onclick="togglePassword('login-password')"
+                >
+                  👁️
+                </button>
+              </div>
+            </div>
+            <div class="checkbox-container">
+              <script
+                src="https://www.google.com/recaptcha/api.js"
+                async
+                defer
+              ></script>
+              <div
+                class="g-recaptcha"
+                data-sitekey="6LfBUiYrAAAAAIH2wJSd4-zpvxMEbREyU0XtMVeO
+              "
+              ></div>
+            </div>
+            <a href="#" class="forgot-password">Forgot Password?</a>
+            <button type="submit" class="login-btn">Login</button>
+            <div class="register-link">
+              Don't have an account? <a href="/register">Sign up</a>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Контейнер для формы сброса пароля (изначально скрытый) -->
+      <div id="forgot-password-view" style="display: none">
+        <div class="login-form">
+          <!-- Используем тот же класс для стилей -->
+          <h1 class="login-title">Reset Password</h1>
+          <p style="text-align: center; margin-bottom: 20px; color: #555">
+            Enter your email address and we'll send you a link to reset your
+            password.
+          </p>
+          <form id="forgot-password-form">
+            <div class="form-group">
+              <label for="forgot-email">Email</label>
+              <input
+                type="email"
+                id="forgot-email"
+                name="email"
+                class="form-control"
+                placeholder="Enter your email"
+                required
+              />
+            </div>
+            <div
+              id="forgot-error"
+              class="error-message"
+              style="display: none"
+            ></div>
+            <div
+              id="forgot-success"
+              class="success-message"
+              style="display: none"
+            ></div>
+            <button type="submit" class="login-btn">Send Reset Link</button>
+            <div class="login-link" style="margin-top: 15px">
+              <a href="#" id="back-to-login-link">Back to Login</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      function togglePassword(inputId) {
+        const passwordInput = document.getElementById(inputId);
+        const passwordToggle = passwordInput.nextElementSibling;
+
+        if (passwordInput.type === "password") {
+          passwordInput.type = "text";
+          passwordToggle.textContent = "👁️‍🗨️";
+        } else {
+          passwordInput.type = "password";
+          passwordToggle.textContent = "👁️";
+        }
+      }
+
+      // Добавляем fallback для случая, если JavaScript отключен
+      window.onload = function () {
+        const form = document.getElementById("login-form");
+        if (form && typeof fetch === "function") {
+          // Если JavaScript доступен и работает fetch,
+          // обрабатываем форму через JavaScript
+          form.setAttribute("novalidate", "");
+        }
+      };
+    </script>
+
+    <!-- JavaScript файлы -->
+    <script src="/static/js/notifications.js"></script>
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/login.js"></script>
+  </body>
+</html>

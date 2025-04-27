@@ -1,0 +1,704 @@
+/* --- Стили для панели информации о группе --- */
+.group-info-panel {
+    display: none;
+    /* Изначально скрыта */
+    flex-direction: column;
+    width: 300px;
+    /* Примерная ширина, можно настроить */
+    height: 100%;
+    border-left: 1px solid var(--border-color, #e0e0e0);
+    background-color: var(--background-color, #ffffff);
+    position: absolute;
+    /* Или relative, в зависимости от контекста */
+    right: 0;
+    top: 0;
+    z-index: 15;
+    /* Выше, чем контент чата */
+    overflow-y: auto;
+    /* Прокрутка, если контент не помещается */
+}
+
+.group-info-header {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border-color, #e0e0e0);
+    background-color: var(--header-background, #f8f9fa);
+    position: relative;
+    /* Для позиционирования кнопок */
+}
+
+.group-info-header h3 {
+    margin: 0;
+    margin-left: 15px;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary, #333);
+    flex-grow: 1;
+    /* Чтобы заголовок занимал доступное место */
+}
+
+
+/* Уточняем стили для аватара в режиме просмотра */
+.group-info-avatar {
+    width: 100px; /* Оставим 100px */
+    height: 100px;
+    border-radius: 50%; /* Делаем круглым */
+    overflow: hidden; /* ОБЯЗАТЕЛЬНО обрезаем изображение */
+    margin-bottom: 15px;
+    background-color: #f0f0f0; /* Фон на случай, если картинка не загрузится */
+    display: flex; /* Для центрирования, если нет картинки */
+    align-items: center;
+    justify-content: center;
+}
+
+.group-info-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Масштабируем картинку */
+}
+
+.group-info-name-count {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.group-info-name-count h4 {
+    margin: 0 0 5px 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary, #333);
+}
+
+.group-info-name-count span {
+    font-size: 14px;
+    color: var(--text-secondary, #777);
+}
+
+.group-info-description {
+    display: flex; /* Иконка и блок текста в ряд */
+    align-items: flex-start; /* Выравнивание по верху */
+    gap: 12px; /* Отступ между иконкой и текстом */
+    font-size: 14px;
+    color: var(--text-secondary, #555);
+    width: 100%;
+    padding: 15px 0; /* Отступы сверху/снизу */
+    border-top: 1px solid var(--border-color-light, #eee);
+    margin-top: 15px;
+}
+
+.group-info-description i {
+    margin-top: 2px; 
+    color: var(--icon-color, #888);
+    font-size: 18px; /* Немного увеличим иконку */
+}
+
+.description-text-block {
+    display: flex;
+    flex-direction: column; /* Текст и подпись друг под другом */
+    gap: 4px; /* Небольшой отступ между текстом и подписью */
+}
+
+.description-text-block p { /* Стиль для самого текста описания */
+    margin: 0;
+    line-height: 1.4;
+    color: var(--text-primary, #333); /* Основной цвет текста */
+}
+
+.description-text-block h5 { /* Стиль для подписи 'Description' */
+    margin: 0;
+    font-size: 13px; /* Меньше, чем основной текст */
+    font-weight: 500; /* Не жирный */
+    color: var(--text-secondary, #777); /* Серый цвет */
+}
+
+.group-info-members {
+    padding: 15px 20px;
+    flex-grow: 1;
+    /* Занимает оставшееся место */
+    overflow-y: auto;
+    /* Прокрутка списка участников */
+}
+
+.group-info-members h5 {
+    margin: 0 0 15px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary, #333);
+}
+
+/* Стили для хедера списка участников */
+.members-header {
+    display: flex;
+    justify-content: space-between; /* Заголовок слева, кнопка справа */
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.members-header h5 {
+    margin: 0; /* Убираем нижний отступ у h5 */
+}
+
+/* Стили для кнопки добавления участников */
+#group-info-add-member-btn {
+    /* Наследуем стили .icon-btn */
+    font-size: 16px; /* Чуть меньше иконка */
+    color: var( #f5f4f7, #0d0f3f); /* Можно использовать основной цвет */
+}
+
+#group-info-add-member-btn:hover {
+     background-color: var(#6677af, #e8e4fc); /* Цвет фона при наведении */
+}
+
+#group-info-members-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Стили для элемента списка участников (можно переиспользовать .member-item из другого места) */
+#group-info-members-list .member-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    cursor: pointer;
+    /* Можно добавить переход в профиль пользователя */
+    border-bottom: 1px solid var(--border-color-light, #eee);
+}
+
+#group-info-members-list .member-item:last-child {
+    border-bottom: none;
+}
+
+#group-info-members-list .member-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 15px;
+}
+
+#group-info-members-list .member-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+#group-info-members-list .member-info {
+    display: flex;
+    flex-direction: column;
+}
+
+#group-info-members-list .member-name {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-primary, #333);
+}
+
+#group-info-members-list .member-status {
+    font-size: 13px;
+    color: var(--text-secondary, #777);
+}
+
+/* Стили для статуса онлайн (можно переиспользовать) */
+#group-info-members-list .member-status.online {
+    color: var(--online-color, #28a745);
+}
+
+/* --- Конец стилей для панели информации о группе --- */
+
+/* Убедимся, что main-content может содержать позиционированные элементы */
+.main-content {
+    position: relative;
+    /* ... другие стили ... */
+}
+
+/* --- Стили для панели информации о группе --- */
+.group-info-panel {
+    display: none;
+    /* Изначально скрыта */
+    flex-direction: column;
+    width: 100%;
+    /* Занимаем всю ширину родителя (.chat-content) */
+    height: 100%;
+    /* Занимаем всю высоту родителя */
+    /* Убираем border-left: 1px solid var(--border-color, #e0e0e0); */
+    background-color: var(--background-color, #ffffff);
+    /* Убираем position: absolute; */
+    /* Убираем right: 0; */
+    /* Убираем top: 0; */
+    /* z-index: 15; - можно оставить или убрать, т.к. теперь она не поверх */
+    overflow-y: auto;
+    /* Оставляем прокрутку */
+}
+
+/* Остальные стили для .group-info-* остаются без изменений */
+.group-info-header {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border-color, #e0e0e0);
+    background-color: var(--header-background, #f8f9fa);
+    position: relative;
+    /* Для позиционирования кнопок */
+}
+
+/* Стили для кнопок в хедере панели */
+.group-info-header .icon-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: var(--icon-color-secondary, #666);
+    padding: 8px;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+
+.group-info-header .icon-btn:hover {
+    background-color: var(--hover-background, #e9e9e9);
+}
+
+/* Кнопка редактирования (карандаш) */
+#group-info-edit-btn {
+    margin-left: auto;
+    /* Отодвигаем вправо */
+}
+
+
+
+/* Стили для режима редактирования */
+.group-info-panel.editing #group-info-edit-btn {
+    display: none;
+    /* Скрываем карандаш */
+}
+
+
+
+/* Аватар */
+.group-info-avatar {
+    width: 100px;
+    /* Увеличим немного */
+    height: 100px;
+    border-radius: 50%;
+    overflow: hidden;
+    /* Чтобы оверлей был виден */
+    margin-bottom: 15px;
+    position: relative;
+    /* Для позиционирования оверлея */
+}
+
+/* Оверлей для смены аватара */
+.change-avatar-overlay {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 35px;
+    height: 35px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    display: none;
+    /* Изначально скрыт */
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.group-info-panel.editing .change-avatar-overlay {
+    display: flex;
+    /* Показываем в режиме редактирования */
+}
+
+.change-avatar-overlay i {
+    color: #333;
+    font-size: 16px;
+}
+
+/* Поля ввода */
+.group-info-input {
+    display: none;
+    /* Изначально скрыты */
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 16px;
+    margin-top: 5px;
+    box-sizing: border-box;
+}
+
+textarea.group-info-input {
+    min-height: 80px;
+    resize: vertical;
+}
+
+/* Переключение видимости текста и полей в режиме редактирования */
+.group-info-panel.editing #group-info-name-display,
+.group-info-panel.editing #group-info-desc-display {
+    display: none !important;
+    /* Скрываем текст */
+}
+
+.group-info-panel.editing #group-info-name-input,
+.group-info-panel.editing #group-info-desc-input {
+    display: block;
+    /* Показываем поля ввода */
+}
+
+/* Кнопка сохранения */
+#group-info-save-btn {
+    display: none;
+    /* Изначально скрыта */
+    background-color: #4CAF50;
+    /* Зеленый цвет */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background-color 0.3s;
+}
+
+.group-info-panel.editing #group-info-save-btn {
+    display: block;
+    /* Показываем кнопку Save в режиме редактирования */
+}
+
+#group-info-save-btn:hover {
+    background-color: #45a049;
+}
+
+/* Стили для режима просмотра по умолчанию */
+#group-info-view-mode {
+    /* стили для group-info-details */
+    padding: 20px;
+    display: flex; 
+    flex-direction: column;
+    align-items: center; 
+    border-bottom: 1px solid var(--border-color, #e0e0e0);
+}
+
+/* Контейнер для режима редактирования */
+#group-info-edit-mode {
+    display: none; /* Скрыт по умолчанию */
+    padding: 20px; 
+    box-sizing: border-box;
+    width: 100%;
+    /* Стили копируем/адаптируем из .create-group-container */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Адаптация стилей формы создания для контейнера редактирования */
+#group-info-edit-mode .group-avatar-upload {
+    margin-bottom: 30px;
+    width: 100%;
+    display: flex; 
+    justify-content: center; 
+}
+
+#group-info-edit-mode .avatar-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background-color: #e9e9e9; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden; /* Оставляем, чтобы обрезать картинку */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    position: relative; /* ОБЯЗАТЕЛЬНО для позиционирования оверлея */
+}
+
+#group-info-edit-mode .group-avatar-preview {
+     width: 100%;
+     height: 100%;
+     object-fit: cover;
+     position: relative; /* Чтобы z-index сработал */
+     z-index: 1; 
+}
+
+/* Изменяем позиционирование и стиль оверлея камеры */
+#group-info-edit-mode .change-avatar-overlay {
+    position: absolute;
+    bottom: 8px; /* Немного увеличим отступ снизу */
+    right: 8px;  /* Немного увеличим отступ справа */
+    width: 32px; 
+    height: 32px;
+    background-color: rgba(255, 255, 255, 0.95); 
+    border-radius: 50%;
+    display: flex; 
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 1px solid #bbb; 
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    transition: background-color 0.2s;
+    z-index: 2; /* Чтобы быть поверх img */
+}
+
+#group-info-edit-mode .change-avatar-overlay:hover {
+    background-color: #fff;
+}
+
+#group-info-edit-mode .change-avatar-overlay i {
+    color: #555; /* Чуть темнее иконка */
+    font-size: 14px; /* Чуть меньше иконка */
+}
+
+#group-info-edit-mode .create-group-form {
+    width: 100%;
+    max-width: 400px; /* Ограничим ширину формы */
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Промежуток между элементами формы */
+}
+
+#group-info-edit-mode .form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #444;
+}
+
+#group-info-edit-mode .form-group input,
+#group-info-edit-mode .form-group textarea {
+     width: 100%;
+     padding: 12px 15px;
+     border: 1px solid #ddd;
+     border-radius: 8px;
+     font-size: 16px;
+     box-sizing: border-box;
+}
+
+#group-info-edit-mode .form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+#group-info-edit-mode .form-actions {
+    display: flex;
+    justify-content: center; /* Центрируем кнопки */
+    gap: 15px; /* Промежуток между кнопками */
+    margin-top: 20px;
+}
+
+
+
+
+/* --- Переключение видимости в режиме редактирования --- */
+.group-info-panel.editing #group-info-view-mode,
+.group-info-panel.editing .group-info-members /* Скрываем и список участников */ {
+    display: none !important; 
+}
+
+.group-info-panel.editing #group-info-edit-mode {
+    display: flex !important; /* Показываем контейнер редактирования */
+}
+
+/* Прячем/показываем кнопки в хедере */
+.group-info-panel.editing #group-info-edit-btn {
+    display: none;
+}
+
+
+
+/* --- УДАЛЯЕМ старые стили для редактирования, если они остались --- */
+/* Удалить .group-info-panel.editing #group-info-name-input и т.д. */
+/* Удалить #group-info-save-btn и подобные, т.к. кнопки теперь внутри edit-mode */
+/* Удалить .change-avatar-overlay вне контекста #group-info-edit-mode */
+.group-info-input { display: none; } /* Скрыть старые инпуты на всякий случай */
+#group-info-save-btn { display: none; }
+.change-avatar-overlay:not(#group-info-edit-mode .change-avatar-overlay) { display: none; }
+
+
+/* ... остальные стили ... */
+
+/* --- Стили для модального окна добавления участников --- */
+/* (Можно переиспользовать/дополнить существующие .modal стили) */
+
+#add-member-modal .modal-content.medium {
+    max-width: 400px; 
+    max-height: 85vh; /* Ограничиваем максимальную высоту окна */
+    /* Убедимся, что flex работает для modal-content, чтобы .add-members-container мог растянуться */
+    display: flex;
+    flex-direction: column;
+}
+
+#add-member-modal .modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Отступы между блоками */
+    max-height: 60vh; /* Ограничение высоты */
+    overflow-y: auto; /* Прокрутка, если нужно */
+}
+
+#add-member-modal .modal-search input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+
+#add-member-modal .modal-results {
+    max-height: 200px; /* Ограничение высоты результатов */
+    overflow-y: auto;
+    border: 1px solid #eee;
+    border-radius: 4px;
+}
+
+#add-member-modal .modal-selected ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 150px; /* Ограничение высоты выбранных */
+    overflow-y: auto;
+}
+
+#add-member-modal .modal-selected h6 {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    color: #555;
+}
+
+/* Стили для .user-item и .member-item внутри модального окна можно переиспользовать */
+/* Возможно, понадобятся небольшие кнопки Add/Remove */
+#add-member-modal .small-btn {
+    padding: 3px 8px;
+    font-size: 12px;
+}
+
+#add-member-modal .user-action .add-button {
+    /* Стили кнопки Add в результатах поиска */
+    background-color: var(--primary-light, #f0edff);
+    color: var(--primary-color, #7b68ee);
+    border: 1px solid var(--primary-color, #7b68ee);
+    border-radius: 4px;
+}
+#add-member-modal .user-action .add-button:hover {
+    background-color: var(--primary-color, #7b68ee);
+    color: white;
+}
+
+#add-member-modal .member-item .remove-member-btn {
+     margin-left: auto; 
+     background: none; 
+     border: none;
+     padding: 5px 8px; /* Добавим немного отступа по бокам */
+     border-radius: 4px; /* Слегка скруглим */
+     transition: background-color 0.2s, color 0.2s; /* Плавный переход */
+}
+
+/* Стиль для иконки внутри кнопки */
+#add-member-modal .member-item .remove-member-btn i {
+     color: #666; /* Изначально темно-серый цвет иконки */
+     font-size: 13px; /* Чуть меньше */
+     vertical-align: middle; /* Выравнивание по центру */
+}
+
+#add-member-modal .member-item .remove-member-btn:hover {
+    background-color: #dc3545; /* Красный фон при наведении */
+}
+
+#add-member-modal .member-item .remove-member-btn:hover i {
+    color: #fff; /* Белый цвет иконки при наведении */
+}
+
+/* Стили для хедера списка участников */
+.members-header {
+    display: flex;
+    justify-content: space-between; /* Заголовок слева, кнопка справа */
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+/* ... (остальные стили до модального окна) ... */
+
+/* --- Стили для модального окна добавления участников --- */
+
+#add-member-modal .add-members-container { /* Стили для основного контейнера внутри модалки */
+    padding: 20px; 
+    padding-top: 25px; /* Увеличиваем отступ сверху */
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    overflow-y: auto; 
+    flex-grow: 1; /* Позволяем контейнеру растягиваться по высоте */
+    box-sizing: border-box;
+}
+
+#add-member-modal .add-members-header { /* Стили для заголовка модалки */
+    padding: 0; 
+    border-bottom: none; 
+    background-color: transparent;
+    justify-content: space-between; 
+    margin-bottom: 5px; /* Небольшой отступ под заголовком */
+}
+
+#add-member-modal .add-members-header h2 {
+     margin: 0;
+     font-size: 20px;
+     font-weight: 600;
+}
+
+#add-member-modal .search-container input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+
+#add-member-modal .search-results {
+    min-height: 60px; /* Минимальная высота для no-results/loading */
+    max-height: 200px; /* Ограничение высоты результатов */
+    overflow-y: auto;
+    border: 1px solid #eee;
+    border-radius: 4px;
+}
+
+#add-member-modal .selected-members {
+     border-top: 1px solid #eee; /* Линия сверху */
+     padding-top: 15px;
+}
+
+#add-member-modal .selected-members ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 150px; /* Ограничение высоты выбранных */
+    overflow-y: auto;
+}
+
+#add-member-modal .selected-members h6 {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    color: #555;
+}
+
+/* Кнопки действий внизу */
+#add-member-modal .form-actions {
+    display: flex;
+    justify-content: center; /* Центрируем кнопки */
+    gap: 10px;
+    margin-top: auto; 
+    padding-top: 15px;
+    border-top: 1px solid #eee; 
+}
+
+/* Убираем дублирующиеся стили, которые могут быть в #add-member-modal */
+#add-member-modal .modal-body,
+#add-member-modal .modal-footer {
+    display: none; /* Скрываем старые контейнеры */
+}
+
+/* ... (остальные стили для кнопок и элементов списка внутри модалки) ... */

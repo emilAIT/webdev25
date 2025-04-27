@@ -1,0 +1,230 @@
+/* Стили для страниц аутентификации (логин и регистрация) */
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+}
+
+body {
+    background-image: url('/static/images/background/lapochki.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.login-container,
+.register-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 80vh;
+    padding: 20px;
+}
+
+.login-form,
+.register-form {
+    background-color: #fff;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 400px;
+    min-width: 400px;
+}
+
+.login-title, 
+.register-title {
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 30px;
+    color: #333;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333;
+    font-size: 14px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    background-color: #fff;
+}
+
+.form-control:focus {
+    border-color: #999;
+    outline: none;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.checkbox-container input {
+    margin-right: 10px;
+}
+
+.forgot-password {
+    display: block;
+    text-align: right;
+    font-size: 14px;
+    color: #4285f4;
+    text-decoration: none;
+    margin-bottom: 20px;
+}
+
+.login-btn,
+.register-btn {
+    background-color: #000;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    width: 100%;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 10px;
+}
+
+.login-btn:hover,
+.register-btn:hover {
+    background-color: #333;
+}
+
+.register-link,
+.login-link {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 14px;
+    color: #666;
+}
+
+.register-link a,
+.login-link a {
+    color: #4285f4;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.register-link a:hover,
+.login-link a:hover {
+    text-decoration: underline;
+}
+
+.error-message {
+    background-color: #ffebee;
+    color: #c62828;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 14px;
+}
+
+/* Стили для выбора аватара на странице регистрации */
+.avatar-selection {
+    margin-bottom: 20px;
+}
+
+.avatar-selection label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333;
+    font-size: 14px;
+}
+
+.avatar-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.avatar-option {
+    text-align: center;
+    cursor: pointer;
+}
+
+.avatar-option input[type="radio"] {
+    display: none;
+}
+
+.avatar-option img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    transition: border-color 0.2s;
+    object-fit: cover;
+}
+
+.avatar-option input[type="radio"]:checked + img {
+    border-color: #4285f4;
+}
+
+/* Стили для пароля и показа/скрытия */
+.password-container {
+    position: relative;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    color: #999;
+}
+
+/* Медиа-запросы для адаптивности */
+@media (max-width: 480px) {
+    .login-form,
+    .register-form {
+        padding: 30px 20px;
+    }
+    
+    .login-title,
+    .register-title {
+        font-size: 20px;
+    }
+}
+
+/* Удаляем стили для модального окна */
+/* .modal { ... } */
+/* .modal.active { ... } */
+/* .modal-content { ... } */
+/* .modal.active .modal-content { ... } */
+/* .modal-header { ... } */
+/* .modal-header h3 { ... } */
+/* .close-modal-btn { ... } */
+/* .close-modal-btn:hover { ... } */
+/* .modal-body p { ... } */
+/* #forgot-password-form .form-group { ... } */
+/* #forgot-password-form .login-btn { ... } */
+/* .success-message { ... } */
+/* .auth-modal .modal-body { ... } */ 

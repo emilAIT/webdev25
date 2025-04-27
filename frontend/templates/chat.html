@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MeowChat</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/chat.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/group-info.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/contextMenu.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/ai.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Подключаем Luxon -->
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"></script>
+    <meta name="user-id" content="{{ user.id }}">
+    <!-- Add emoji picker library -->
+    <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
+</head>
+<body>
+    <div class="chat-container">
+        <!-- Градиентный столбик слева -->
+        <div class="sidebar">
+            <div class="sidebar-top">
+                <img src="/static/images/paw-logo.svg" alt="MeowChat Logo" class="sidebar-logo" onerror="this.src='/static/images/meow-icon.jpg'">
+            </div>
+            <!-- Кнопка профиля в сайдбаре -->
+            <div class="profile-section">
+                <div class="profile-button">
+                    <div class="avatar" id="sidebar-profile-avatar">
+                        {# Проверяем, что user.avatar существует, не пустой и не строка "None" или "null" #}
+                        {% if user and user.avatar and user.avatar != '' and user.avatar|lower != 'none' and user.avatar|lower != 'null' %}
+                            <img src="{{ user.avatar }}" alt="Профиль" class="user-avatar-img">
+                        {% else %}
+                            <img src="/static/images/meow-icon.jpg" alt="Профиль" class="user-avatar-img">
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sidebar-bottom">
+                <a href="/logout" class="logout-button">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Список чатов -->
+        <div class="chat-list-container">
+            <div class="chat-header">
+                <h2>Chat</h2>
+                <div class="chat-actions">
+                    <button class="new-chat-btn"><img src="/static/images/icons/edit.svg" alt="Edit"></button>
+                </div>
+            </div>
+            
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search">
+                </div>
+            </div>
+            
+            <!-- Выпадающее меню для создания -->
+            <div class="dropdown-menu" id="create-dropdown" style="display: none;">
+                <div class="dropdown-item" id="new-chat-item">
+                    <i class="fas fa-user"></i>
+                    <span>New Chat</span>
+                </div>
+                <div class="dropdown-item" id="new-group-item">
+                    <i class="fas fa-users"></i>
+                    <span>New Group</span>
+                </div>
+            </div>
+            
+            <div class="chat-list">
+                {% for chat in chats %}
+                <div class="chat-item" data-chat-id="{{ chat.id }}" data-user-id="{{ chat.user_id }}">
+                    <div class="chat-avatar">
+                        {% if chat.avatar %}
+                            <img src="{{ chat.avatar }}" alt="{{ chat.sender }}" class="user-avatar-img">
+                        {% elif chat.user and chat.user.avatar %}
+                            <img src="{{ chat.user.avatar }}" alt="{{ chat.user.username }}" class="user-avatar-img">
+                        {% else %}
+                            <img src="/static/images/meow-icon.jpg" alt="{{ chat.sender or 'Чат' }}" class="user-avatar-img">
+                        {% endif %}
+                        <div class="online-indicator"></div>
+                    </div>
+                    <div class="chat-info">
+                        <div class="chat-name">{{ chat.sender }}</div>
+                        <div class="chat-last-message">{{ chat.message }}</div>
+                    </div>
+                    <div class="chat-meta">
+                        <div class="chat-time">{{ chat.time }}</div>
+                        {# Всегда рендерим div, но показываем только если count > 0 #}
+                        <div class="chat-unread" {% if not chat.unread_count or chat.unread_count == 0 %}style="display: none;"{% endif %}>
+                            {{ chat.unread_count if chat.unread_count and chat.unread_count > 0 else '' }}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                <!-- This section will be populated dynamically by JavaScript -->
+                <div class="no-chats" style="display: none;">У вас пока нет чатов</div>
+            </div>
+
+            <!-- НОВЫЙ КОНТЕЙНЕР ДЛЯ ПРОФИЛЯ ВНУТРИ ЛЕВОЙ ПАНЕЛИ -->
+            <div class="main-profile-view" style="display: none;">
+                <!-- Profile header with back button -->
+                <div class="profile-view-header">
+                    <div class="back-arrow" id="profile-back-arrow">
+                        <i class="fas fa-arrow-left"></i>
+                    </div>
+                    <h2>Profile</h2>
+                    <div></div> <!-- Placeholder for alignment -->
+                </div>
+                
+                <!-- Profile content -->
+                <div class="profile-view-content">
+                    <div class="profile-avatar-container" id="main-profile-avatar-container">
+                        <div class="avatar-circle profile-avatar" id="main-profile-avatar">
+                           <!-- Avatar will be loaded by JavaScript -->
+                            <img src="/static/images/meow-icon.jpg" alt="Avatar" class="profile-avatar-image">
+                        </div>
+                        <div class="change-avatar-btn" id="main-change-avatar-btn">
+                            <img src="/static/images/icons/add-image.svg" alt="Change avatar" class="add-image-icon">
+                        </div>
+                    </div>
+                    
+                    <div class="profile-form">
+                        <div class="form-group">
+                            <label for="main-profile-name">Name</label>
+                            <input type="text" id="main-profile-name" placeholder="Enter name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="main-profile-email">Email</label>
+                            <input type="email" id="main-profile-email" placeholder="Enter email">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="main-profile-password">New password (leave blank if not changing)</label>
+                            <input type="password" id="main-profile-password" placeholder="Enter new password">
+                        </div>
+                        
+                        <button type="button" id="main-save-profile-btn" class="save-profile-btn">Save changes</button>
+                    </div>
+                </div>
+            </div>
+            <!-- Конец контейнера профиля -->
+
+        </div>
+        
+        <!-- Зона основного контента -->
+        <div class="chat-content">
+            <!-- НОВЫЙ ПЛАВАЮЩИЙ ИНДИКАТОР ДАТЫ -->
+            <div id="floating-date-indicator" class="floating-date-indicator" style="display: none;">
+                <span></span> <!-- Текст будет вставляться сюда -->
+            </div>
+            <!-- КОНЕЦ ИНДИКАТОРА -->
+
+            <!-- Экран приветствия -->
+            <div class="welcome-screen">
+                <div class="logo-container">
+                    <img src="/static/images/paw-logo.svg" alt="MeowChat Logo" class="welcome-logo" onerror="this.src='/static/images/meow-icon.jpg'">
+                </div>
+                <h1 class="welcome-title">MeowChat</h1>
+            </div>
+            
+            <!-- Область беседы -->
+            <div class="conversation" style="display: none;">
+                <div class="conversation-header">
+                    <div class="back-button"><i class="fas fa-arrow-left"></i></div>
+                    <div class="chat-user">
+                        <div class="chat-avatar">
+                            <!-- Аватар будет заполнен из JavaScript -->
+                            <img src="/static/images/meow-icon.jpg" alt="Аватар чата" class="default-avatar" id="current-chat-avatar">
+                        </div>
+                        <div class="chat-user-name"></div>
+                    </div>
+                    <!-- Add context menu trigger button -->
+                    <div class="conversation-menu-trigger">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </div>
+                </div>
+                
+                <div class="message-container">
+                    <!-- Сообщения будут загружаться сюда -->
+                </div>
+                
+                <div class="input-container">
+                    <button class="attach-button" id="attach-file-button">
+                        <i class="fas fa-paperclip"></i>
+                    </button>
+                    <!-- New Emoji Button -->
+                    <button class="emoji-button" id="emoji-button">
+                        <i class="fas fa-smile"></i>
+                    </button>
+                    <input type="file" id="file-input" style="display: none;" accept="image/*,video/*,.pdf,.doc,.docx,.zip"> <!-- Скрытый инпут для файлов -->
+                    <input type="text" class="message-input" id="message-input" placeholder="Type a message...">
+                    <button class="send-button" id="send-button">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+                <!-- Emoji Picker Element (initially hidden) -->
+                <emoji-picker id="emoji-picker" style="position: absolute; bottom: 65px; right: 10px; z-index: 1000; display: none;"></emoji-picker>
+            </div>
+            
+            <!-- НОВОЕ: Панель информации о группе (изначально скрыта) -->
+            <div class="group-info-panel" style="display: none;">
+                <!-- Заголовок панели -->
+                <div class="group-info-header">
+                    <button class="back-button icon-btn" id="group-info-back-btn">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <h3>Group Info</h3>
+                    <!-- Добавлено: Кнопка редактирования -->
+                    <button class="edit-button icon-btn" id="group-info-edit-btn">
+                        <i class="fas fa-pencil-alt"></i>
+                    </button>
+                    <!-- Добавлено: Кнопка отмены (видна только в режиме редактирования) -->
+                    <button class="cancel-edit-button icon-btn" id="group-info-cancel-btn" style="display: none;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <!-- Основная информация о группе (Режим просмотра) -->
+                <div class="group-info-details" id="group-info-view-mode">
+                    <div class="group-info-avatar">
+                        <img src="/static/images/group-meow-avatar.png" alt="Group Avatar">
+                    </div>
+                    <div class="group-info-name-count">
+                        <h4 id="group-info-name">Group Name</h4>
+                        <span id="group-info-member-count">0 members</span>
+                    </div>
+                    <div class="group-info-description">
+                         <i class="fas fa-info-circle"></i>
+                         <div class="description-text-block">
+                            <p id="group-info-desc">Description goes here...</p>
+                            <h5>Description</h5>
+                         </div>
+                    </div>
+                </div>
+                
+                 <!-- НОВОЕ: Контейнер для редактирования (Копия формы создания, скрыт по умолчанию) -->
+                 <div class="group-edit-container" id="group-info-edit-mode" style="display: none;">
+                     <div class="group-avatar-upload">
+                        <div class="avatar-circle" id="edit-group-avatar-circle">
+                            <img src="/static/images/group-meow-avatar.png" alt="Group Avatar Preview" class="group-avatar-preview">
+                            <label for="edit-group-avatar-input" class="change-avatar-overlay">
+                                <i class="fas fa-camera"></i>
+                            </label>
+                        </div>
+                        <input type="file" id="edit-group-avatar-input" accept="image/*" style="display: none;">
+                     </div>
+                     <div class="create-group-form">
+                        <div class="form-group">
+                            <label for="edit-group-name">Group Name</label>
+                            <input type="text" id="edit-group-name" placeholder="Group name" required>
+                        </div>
+                        <div class="form-group">
+                             <label for="edit-group-description">Description</label>
+                            <textarea id="edit-group-description" placeholder="Description"></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <!-- Кнопки Save/Cancel теперь здесь -->
+                             <button id="group-edit-cancel-btn" class="cancel-btn">Cancel</button> 
+                             <button id="group-edit-save-btn" class="create-group-btn">Save</button> 
+                        </div>
+                     </div>
+                 </div>
+                 <!-- Конец контейнера для редактирования -->
+
+                <!-- Список участников (остается общим) -->
+                <div class="group-info-members">
+                    <div class="members-header">
+                         <h5>Members</h5>
+                         <!-- Кнопка добавления участников -->
+                         <button class="add-member-btn icon-btn" id="group-info-add-member-btn" title="Add Members">
+                             <i class="fas fa-user-plus"></i>
+                         </button>
+                     </div>
+                    <ul id="group-info-members-list">
+                        <!-- Участники будут добавлены сюда -->
+                    </ul>
+                </div>
+
+            </div>
+            <!-- Конец панели информации о группе -->
+            
+            <!-- НОВОЕ: Модальное окно добавления участников -->
+            <div class="modal" id="add-member-modal" style="display: none;">
+                <!-- Используем структуру, похожую на add-members-container -->
+                <div class="modal-content medium add-members-container"> 
+                    <div class="modal-header add-members-header"> <!-- Объединяем классы -->
+                        <h2>Add Members</h2> <!-- Используем H2 как в inline -->
+                        <button class="close-modal icon-btn" id="close-add-member-modal">&times;</button>
+                    </div>
+                    <!-- Убираем modal-body, контент теперь прямо в modal-content -->
+                    <div class="search-container"> <!-- Убираем modal-search -->
+                         <input type="text" id="add-member-user-search" placeholder="Search users to add...">
+                    </div>
+                    <div class="search-results" id="add-member-search-results"> <!-- Убираем modal-results -->
+                         <div class="no-results">Search for users to add.</div>
+                    </div>
+                    <div class="selected-members"> <!-- Убираем modal-selected -->
+                        <h6>Users:</h6> <!-- Меняем заголовок -->
+                        <ul id="add-member-selected-list">
+                             <li class="empty-list">No users selected.</li>
+                        </ul>
+                    </div>
+                    <!-- Убираем modal-footer, используем form-actions -->
+                    <div class="form-actions">
+                         <button class="cancel-btn" id="add-member-cancel-btn">Cancel</button>
+                         <button class="create-group-btn" id="add-member-confirm-btn">Add</button> <!-- Меняем класс кнопки -->
+                    </div>
+                </div>
+            </div>
+            <!-- Конец модального окна добавления участников -->
+
+            <!-- Создание нового чата (если используется) -->
+            <div class="main-new-chat-view" style="display: none;">
+                <div class="new-chat-header">
+                    <div class="back-arrow">
+                        <i class="fas fa-arrow-left"></i>
+                    </div>
+                    <h2>New Chat</h2>
+                </div>
+                
+                <div class="new-chat-content">
+                    <div class="create-chat-form">
+                        <div class="form-group">
+                            <input type="text" id="username-search" placeholder="Enter username" required>
+                        </div>
+                        <div class="search-results" id="user-search-results"></div>
+                        <div class="next-btn-container">  <!-- Этот контейнер теперь стилизуется как блок под инпутом -->
+                            <button class="search-user-btn">
+                                <img src="/static/images/icons/arrow1%201.svg" alt="Поиск" class="search-arrow-icon">
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div> <!-- Конец chat-content -->
+    </div> <!-- Конец chat-container -->
+    
+    <!-- Message context menu -->
+    <div class="message-context-menu" id="message-context-menu">
+        <div class="context-menu-item answer-message">
+            <i class="fas fa-reply"></i> Reply
+        </div>
+        <div class="context-menu-item copy-message">
+            <i class="fas fa-copy"></i> Copy
+        </div>
+        <div class="context-menu-item edit-message">
+            <i class="fas fa-edit"></i> Edit
+        </div>
+        <div class="context-menu-item forward-message">
+            <i class="fas fa-share"></i> Forward
+        </div>
+        <div class="context-menu-item delete-message delete">
+            <i class="fas fa-trash"></i> Delete
+        </div>
+    </div>
+    <!-- Conversation header context menu -->
+    <div class="message-context-menu" id="conversation-context-menu">
+        <div class="context-menu-item search-chat">
+            <i class="fas fa-search"></i> Search
+        </div>
+        <div class="context-menu-item clear-chat">
+            <i class="fas fa-eraser"></i> Clear
+        </div>
+        <div class="context-menu-item delete-chat" id="delete-chat-option">
+            <i class="fas fa-trash"></i> Delete
+        </div>
+        <div class="context-menu-item leave-group" id="leave-group-option" style="display: none;">
+            <i class="fas fa-sign-out-alt"></i> Leave group
+        </div>
+    </div>
+    
+    <!-- Search dialog for conversation -->
+    <div class="modal" id="search-chat-modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Search in Chat</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="chat-message-search" placeholder="Search messages">
+                </div>
+                <div class="search-results" id="chat-message-search-results"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Модальное окно поиска пользователей -->
+    <div class="modal" id="search-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Find User</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="user-search" placeholder="Search by name or email" data-mode="chat">
+                </div>
+                <div class="search-results"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Модальное окно создания группы -->
+    <div class="modal" id="group-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create Group</h3>
+                <button class="close-group-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="group-form">
+                    <div class="form-group">
+                        <label for="group-name">Group Name</label>
+                        <input type="text" id="group-name" placeholder="Enter group name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="group-description">Description (optional)</label>
+                        <textarea id="group-description" placeholder="Enter group description"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Group Members (minimum 2)</label>
+                        <button type="button" id="add-members-btn" class="add-members-btn">
+                            <i class="fas fa-user-plus"></i> Add Members
+                        </button>
+                        <div id="group-members-list" class="group-members-list"></div>
+                    </div>
+                    <button type="button" id="create-group-btn" class="create-group-btn">Create Group</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- AI Floating Action Button (FAB) -->
+    <div class="ai-fab" id="ai-fab">
+        <i class="fas fa-robot"></i>
+    </div>
+    
+    <!-- AI Modal -->
+    <div class="ai-modal" id="ai-modal">
+        <div class="ai-modal-content">
+            <div class="ai-modal-header">
+                <h3>AI Assistant</h3>
+                <button class="ai-modal-close">&times;</button>
+            </div>
+            <div class="ai-modal-body">
+                <!-- Configuration Prompt Section -->
+                <div class="ai-config-section">
+                    <div class="ai-config-header">
+                        <h4 class="ai-config-title">Configuration Prompt</h4>
+                        <button class="ai-config-toggle">
+                            Show <i class="fas fa-chevron-down"></i>
+                        </button>
+                    </div>
+                    <div class="ai-config-content">
+                        <textarea id="ai-config-prompt" placeholder="Enter a base prompt for this conversation..."></textarea>
+                        <div class="ai-config-actions">
+                            <button class="ai-config-cancel">Cancel</button>
+                            <button class="ai-config-save">Save</button>
+                        </div>
+                    </div>
+                    <div class="ai-config-checkbox">
+                        <label>
+                            <input type="checkbox" id="use-config-prompt" checked>
+                            Use configuration prompt
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="ai-prompt-area">
+                    <textarea id="ai-prompt-input" placeholder="Ask me anything..."></textarea>
+                    <button class="ai-send-btn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+                <div class="ai-response-area">
+                    <div class="ai-response">Ask me anything and I'll use AI to help you!</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- JavaScript файлы -->
+    <!-- Vendor JS Files -->
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"></script> 
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it@13.0.1/dist/markdown-it.min.js"></script>
+
+    <!-- Your JS Files (Updated Order) -->
+    <script src="{{ url_for('static', path='js/utils.js') }}"></script>
+    <script src="{{ url_for('static', path='js/api.js') }}"></script>
+    <script src="{{ url_for('static', path='js/notifications.js') }}"></script>
+    <script src="{{ url_for('static', path='js/websocket.js') }}"></script>
+    <script src="{{ url_for('static', path='js/contextMenu.js') }}"></script>
+    <script src="{{ url_for('static', path='js/profile.js') }}"></script>
+    <script src="{{ url_for('static', path='js/groupInfo.js') }}"></script>
+    <script src="{{ url_for('static', path='js/chatCreation.js') }}"></script>
+    <script src="{{ url_for('static', path='js/chatDisplay.js') }}"></script>
+    <script src="{{ url_for('static', path='js/group-members.js') }}"></script> 
+    <script src="{{ url_for('static', path='js/ai.js') }}"></script>
+    <!-- ui.js и chat.js, если они еще нужны -->
+    <!-- <script src="{{ url_for('static', path='js/ui.js') }}"></script> -->
+    <script src="{{ url_for('static', path='js/chat.js') }}"></script>
+    <!-- main.js должен быть последним -->
+    <script src="{{ url_for('static', path='js/main.js') }}"></script> 
+
+    <!-- Image Lightbox Modal -->
+    <div class="image-lightbox" id="image-lightbox" style="display: none;">
+        <span class="lightbox-close-btn">&times;</span>
+        <img class="lightbox-content" id="lightbox-image" src="" alt="Zoomed Image">
+    </div>
+</body>
+</html>

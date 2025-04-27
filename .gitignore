@@ -1,0 +1,37 @@
+# Database files
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+*.sql
+*.rdb
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+*.so
+.Python
+.coverage
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+.venv/
+venv/
+env/
+ENV/
+/backend/__pycache__
+*.db
+backend/chat.db
+*.pyc
+/frontend/static/images/avatars
+/frontend/static/media
+.env
