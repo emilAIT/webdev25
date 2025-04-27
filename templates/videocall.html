@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Call</title>
+    <link rel="stylesheet" href="/static/css/videocall.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="video-call-container">
+        <div class="video-container">
+            <!-- Remote video stream -->
+            <video class="remote-video" autoplay playsinline></video>
+
+            <!-- Remote video placeholder -->
+            <div class="video-placeholder remote-placeholder">
+                <div class="placeholder-icon">
+                    <i class="fas fa-user-friends"></i>
+                </div>
+                <div class="placeholder-text">Waiting for participant</div>
+            </div>
+
+            <!-- Local video stream -->
+            <video class="local-video" autoplay playsinline muted></video>
+            
+            <!-- Local video placeholder (shown when no video) -->
+            <div class="video-placeholder local-placeholder">
+                <div class="placeholder-icon">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="placeholder-text">Your camera</div>
+            </div>
+            
+            <!-- Call information -->
+            <div class="call-info">
+                <div class="call-avatar">
+                    <img src="{{ current_user.profile_photo or 'https://via.placeholder.com/40' }}" alt="User">
+                </div>
+                <div class="call-details">
+                    <div class="call-name">{{ current_user.name }}</div>
+                    <div class="call-status">
+                        <span class="call-status-dot"></span>
+                        <span>Online</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Call controls -->
+            <div class="call-controls">
+                <button class="control-button mute" title="Mute">
+                    <i class="fas fa-microphone"></i>
+                </button>
+                <button class="control-button video-off" title="Turn off video">
+                    <i class="fas fa-video"></i>
+                </button>
+                <button class="control-button end-call" title="End call">
+                    <i class="fas fa-phone"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const CHAT_ID = {{ chat_id }};
+        const TOKEN = '{{ token }}';
+    </script>
+    <script src="/static/js/videocall.js"></script>
+</body>
+</html>

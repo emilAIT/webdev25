@@ -1,0 +1,263 @@
+/* Group Chat Styles */
+.chat-type-toggle {
+    display: flex;
+    margin-left: 20px;
+    margin-right: auto;
+}
+
+.chat-type-btn {
+    padding: 8px 12px;
+    margin: 0 5px;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.chat-type-btn.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.group-name-container {
+    margin-bottom: 15px;
+}
+
+.group-input {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background-color: var(--input-bg);
+    color: var(--text-primary);
+    margin-bottom: 10px;
+}
+
+.group-members {
+    margin: 15px 0;
+}
+
+.group-members h4 {
+    margin-bottom: 10px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.selected-members {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 15px;
+    min-height: 40px;
+    max-height: 120px;
+    overflow-y: auto;
+    padding: 5px;
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.member-tag {
+    display: flex;
+    align-items: center;
+    background-color: var(--input-bg);
+    border-radius: 20px;
+    padding: 5px 10px;
+}
+
+.member-tag .avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 5px;
+    font-size: 12px;
+}
+
+.member-tag .name {
+    margin-right: 5px;
+    font-size: 14px;
+}
+
+.member-tag .remove {
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+    font-size: 12px;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.member-tag .remove:hover {
+    opacity: 1;
+}
+
+.create-group-btn {
+    width: 100%;
+    padding: 12px;
+    margin-top: 15px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.create-group-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.create-group-btn:not(:disabled):hover {
+    background-color: #2980b9;
+}
+
+
+/* Override for avatars with images */
+.chat-item.group-chat .chat-item-avatar:has(img),
+.chat-item.group-chat .chat-avatar:has(img) {
+    background-color: transparent;
+}
+
+/* If you're supporting older browsers that don't support :has(), 
+   use this fallback approach instead: */
+.chat-item.group-chat .chat-item-avatar img,
+.chat-item.group-chat .chat-avatar img {
+    /* Make sure the image doesn't get affected by the background */
+    z-index: 1;
+    position: relative;
+}
+
+
+/* If you're supporting older browsers that don't support :has(), 
+   use this fallback approach instead: */
+.chat-item.group-chat .chat-item-avatar img,
+.chat-item.group-chat .chat-avatar img {
+    /* Make sure the image doesn't get affected by the background */
+    z-index: 1;
+    position: relative;
+}
+
+/* Group Chat Message Sender Styles - Revised for external avatar */
+.message-sender-info {
+    display: flex;
+    align-items: flex-start; /* Changed from center to align with the top of messages */
+    margin-bottom: 5px;
+    position: relative; /* Added for absolute positioning of children */
+}
+
+/* Make received messages with avatars have more left margin */
+.message.message-received.has-avatar {
+    margin-left: 36px; /* Space for the avatar */
+    position: relative;
+}
+
+/* Reposition the avatar to be outside the message bubble */
+.message.message-received.has-avatar .message-sender-avatar {
+    position: absolute;
+    left: -36px; /* Position to the left of the message */
+    bottom: 0;
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    border-radius: 50%;
+    background-color: #7f8c8d;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 500;
+    color: white;
+    overflow: hidden;
+}
+
+.message-sender-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Move sender name below avatar */
+.message.message-received.has-avatar .message-sender-name {
+    width: 28px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.message-sender-name {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.group-indicator {
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-left: 5px;
+}
+
+.group-indicator i {
+    margin-right: 4px;
+}
+
+.user-result-action {
+    margin-left: auto;
+    color: var(--primary-color);
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.user-result-action:hover {
+    opacity: 1;
+}
+
+.user-result-action.selected {
+    color: #2ecc71;
+}
+
+/* Message chain styles */
+.message.in-chain {
+    margin-top: 1px;
+}
+
+/* Adjust border radius for messages in a chain */
+.message.message-received.in-chain:not(.last-in-chain) {
+    border-radius: 15px 15px 15px 15px;
+}
+
+.message.message-sent.in-chain:not(.last-in-chain) {
+    border-radius: 15px 15px 15px 15px;
+}
+
+.message.message-received.in-chain.last-in-chain {
+    border-radius: 15px 15px 15px 0;
+}
+
+.message.message-sent.in-chain.last-in-chain {
+    border-radius: 15px 15px 0 15px;
+}
+
+
+
+/* Keep the avatar visible only for the last message in a chain */
+.message.message-received.in-chain:not(.last-in-chain) .message-sender-avatar,
+.message.message-received.in-chain:not(.last-in-chain) .message-sender-name {
+    display: none;
+}
+
+/* Add some visual linking for chained messages */
+.message.in-chain:not(:last-child) {
+    margin-bottom: 1px;
+}

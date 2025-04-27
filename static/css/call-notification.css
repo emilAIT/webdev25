@@ -1,0 +1,272 @@
+:root {
+    /* Dark theme (default) */
+    --notification-bg: #111827;
+    --text-primary: #ffffff;
+    --text-secondary: #b0b0b0;
+    --primary-color: #3498db;
+    --success-color: #2ecc71;
+    --error-color: #e74c3c;
+    --border-color: #333;
+    --shadow-color: rgba(0, 0, 0, 0.5);
+    --hover-bg: rgba(255, 255, 255, 0.1);
+}
+
+/* Light theme */
+[data-theme="light"] {
+    --notification-bg: #ffffff;
+    --text-primary: #333333;
+    --text-secondary: #666666;
+    --primary-color: #3498db;
+    --success-color: #2ecc71;
+    --error-color: #e74c3c;
+    --border-color: #e0e0e0;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --hover-bg: rgba(0, 0, 0, 0.05);
+}
+
+/* Call notification styles */
+.call-notification {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 300px;
+    background-color: var(--notification-bg);
+    border-radius: 12px;
+    box-shadow: 0 5px 20px var(--shadow-color);
+    padding: 20px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transform: translateY(100%);
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    overflow: hidden;
+}
+
+.call-notification.active {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.call-notification-header {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.call-notification-title {
+    font-size: 16px;
+    color: var(--text-primary);
+    flex-grow: 1;
+}
+
+.call-ringing {
+    display: flex;
+    align-items: center;
+    animation: pulse 1.5s infinite;
+    margin-left: 10px;
+}
+
+.call-ringing-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    margin-right: 5px;
+}
+
+.call-notification-content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.call-notification-avatar {
+    width: 60px;
+    height: 60px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 15px;
+    font-size: 26px;
+    overflow: hidden;
+}
+
+.call-notification-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.call-notification-info {
+    flex-grow: 1;
+}
+
+.call-notification-name {
+    font-weight: 600;
+    font-size: 18px;
+    color: var(--text-primary);
+}
+
+.call-notification-subtext {
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.call-notification-actions {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.call-action-button {
+    border: none;
+    border-radius: 8px;
+    padding: 10px 0;
+    width: 48%;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.call-action-button i {
+    margin-right: 8px;
+}
+
+.call-action-button.accept {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.call-action-button.decline {
+    background-color: var(--error-color);
+    color: white;
+}
+
+.call-action-button:hover {
+    transform: scale(1.05);
+}
+
+/* Pulse animation for ringing indicator */
+@keyframes pulse {
+    0% {
+        opacity: 0.5;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0.5;
+    }
+}
+
+/* Call sound control */
+.call-sound-control {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+}
+
+.call-sound-control i {
+    margin-right: 5px;
+}
+
+/* Responsiveness for mobile */
+@media screen and (max-width: 480px) {
+    .call-notification {
+        width: calc(100% - 40px);
+        bottom: 20px;
+        right: 20px;
+    }
+}
+
+/* Call status popup styles */
+.call-status-popup {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-150%);
+    background-color: var(--notification-bg);
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px var(--shadow-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 1000;
+    transition: transform 0.3s ease-out;
+    min-width: 250px;
+}
+
+.call-status-popup.deactivate {
+    transform: translateX(-50%) translateY(-150%) !important;
+}
+
+.call-status-popup.active {
+    transform: translateX(-50%) translateY(0);
+}
+
+.call-status-content {
+    display: flex;
+    align-items: center;
+}
+
+.call-status-content i {
+    margin-right: 10px;
+    color: var(--primary-color);
+    font-size: 20px;
+}
+
+.call-status-content span {
+    color: var(--text-primary);
+    font-size: 16px;
+}
+
+.call-status-popup.outgoing .call-status-content i {
+    color: var(--success-color);
+    animation: pulse 1.5s infinite;
+}
+
+.call-cancel-button {
+    border: none;
+    background-color: var(--error-color);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 5px;
+    transition: background-color 0.2s;
+    margin-top: 10px;
+}
+
+.call-cancel-button:hover {
+    background-color: #c0392b;
+}
+
+.call-status-popup.error {
+    transform: translateX(-50%) translateY(0);
+    background-color: var(--error-color);
+    color: white;
+}
+
+.call-status-popup.error .call-status-content i {
+    color: white;
+}
+
+.call-status-popup.error .call-cancel-button {
+    display: none;
+}

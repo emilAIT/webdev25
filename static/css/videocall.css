@@ -1,0 +1,224 @@
+:root {
+  /* Dark theme (default) */
+  --bg-color: #1f2937;
+  --container-bg: #111827;
+  --text-primary: #ffffff;
+  --text-secondary: #b0b0b0;
+  --primary-color: #3498db;
+  --success-color: #2ecc71;
+  --error-color: #e74c3c;
+  --border-color: #333;
+  --shadow-color: rgba(0, 0, 0, 0.3);
+  --hover-bg: rgba(255, 255, 255, 0.1);
+}
+
+/* Light theme */
+[data-theme="light"] {
+  --bg-color: #f5f5f5;
+  --container-bg: #ffffff;
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --primary-color: #3498db;
+  --success-color: #2ecc71;
+  --error-color: #e74c3c;
+  --border-color: #e0e0e0;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --hover-bg: rgba(0, 0, 0, 0.05);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  height: 100vh;
+  overflow: hidden;
+}
+
+.remote-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.video-call-container {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  position: relative;
+}
+
+/* Video containers */
+.video-container {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background-color: var(--container-bg);
+}
+
+.local-video {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 25%;
+  max-width: 300px;
+  height: auto;
+  max-height: 30%;
+  border-radius: 8px;
+  border: 2px solid var(--primary-color);
+  box-shadow: 0 4px 12px var(--shadow-color);
+  z-index: 10;
+}
+
+/* Call controls */
+.call-controls {
+  position: absolute;
+  bottom: 30px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  z-index: 20;
+}
+
+.control-button {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: var(--container-bg);
+  border: none;
+  color: var(--text-primary);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 8px var(--shadow-color);
+}
+
+.control-button:hover {
+  transform: scale(1.05);
+  background-color: var(--hover-bg);
+}
+
+.control-button.end-call {
+  background-color: var(--error-color);
+}
+
+.control-button.mute {
+  background-color: var(--text-secondary);
+}
+
+.control-button.video-off {
+  background-color: var(--text-secondary);
+}
+
+.control-button i {
+  font-size: 20px;
+}
+
+/* Call info */
+.call-info {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 10;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 10px 15px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.call-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--primary-color);
+  margin-right: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.call-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.call-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.call-name {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.call-status {
+  font-size: 12px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+}
+
+.call-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--success-color);
+  margin-right: 5px;
+}
+
+/* Video placeholder when no video */
+.video-placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--container-bg);
+  color: var(--text-secondary);
+  z-index: 5;
+}
+
+.placeholder-icon {
+  font-size: 60px;
+  margin-bottom: 15px;
+}
+
+.placeholder-text {
+  font-size: 18px;
+}
+
+/* Responsive design */
+@media screen and (max-width: 768px) {
+  .local-video {
+    width: 30%;
+    max-width: none;
+    max-height: 25%;
+  }
+
+  .remote-video{
+    object-fit: contain;
+  }
+
+  .control-button {
+    width: 45px;
+    height: 45px;
+  }
+}

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Chat - Authentication</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit" async defer></script>
+</head>
+<body>
+    <div class="container">
+        <div class="panel-container" id="panel-container">
+            <!-- Left Panel -->
+            <div class="panel left-panel">
+                <div class="left-panel-content register-panel">
+                    <h1>Already have an account?</h1>
+                    <a class="ghost-btn" id="signIn">Sign In</a>
+                </div>
+                
+                <div class="left-panel-content login-panel">
+                    <h1>Don't have an account yet?</h1>
+                    <a class="ghost-btn" id="register">Register now</a>
+                </div>
+            </div>
+
+            <!-- Right Panel -->
+            <div class="panel right-panel">
+                <!-- Registration Form -->
+                <div class="form-container register-form-container">
+                    <img src="/static/assets/emoji1.png" alt="Emoji" class="emoji emoji1">
+                    <img src="/static/assets/emoji2.png" alt="Emoji" class="emoji emoji2">
+                    <img src="/static/assets/emoji3.png" alt="Emoji" class="emoji emoji3">
+                    <form id="registerForm">
+                        <div class="logo">
+                            <img src="/static/assets/logo.png" alt="Logo" width="150">
+                        </div>   
+                        <h1>Registration</h1>
+                        <div class="form-icons">
+                            <div class="icon">📱</div>
+                            <div class="icon">📧</div>
+                            <div class="icon">👤</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="nickname">Nickname</label>
+                            <input type="text" id="nickname" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm Password</label>
+                            <input type="password" id="confirmPassword" required>
+                        </div>
+                        <div class="form-group recaptcha-container">
+                            <div id="register-recaptcha" class="g-recaptcha" data-sitekey="6LeyLJEqAAAAAFG_tm9Sl8aj1C_WIRmz-kcp0_mG"></div>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn">Register</button>
+                        </div>
+                        <div id="registerMessage" class="message"></div>
+                    </form>
+                </div>
+                
+                <!-- Login Form -->
+                <div class="form-container login-form-container">
+                    <img src="/static/assets/emoji1.png" alt="Emoji" class="emoji emoji1">
+                    <img src="/static/assets/emoji2.png" alt="Emoji" class="emoji emoji2">
+                    <img src="/static/assets/emoji3.png" alt="Emoji" class="emoji emoji3">
+                    <img src="/static/assets/emoji4.png" alt="Emoji" class="emoji emoji4">
+                    <img src="/static/assets/emoji5.png" alt="Emoji" class="emoji emoji5">
+                    <form id="loginForm">
+                        <div class="logo">
+                            <img src="/static/assets/logo.png" alt="Logo" width="150">
+                        </div>
+                        <h1>Sign In</h1>
+                        <div class="form-icons">
+                            <div class="icon">📱</div>
+                            <div class="icon">🔒</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="loginPhone">Phone Number</label>
+                            <input type="tel" id="loginPhone" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="loginPassword">Password</label>
+                            <input type="password" id="loginPassword" required>
+                        </div>
+                        <div class="form-group remember-me">
+                            <input type="checkbox" id="rememberMe">
+                            <label for="rememberMe">Remember me</label>
+                        </div>
+                        <div class="form-group recaptcha-container">
+                            <div id="login-recaptcha" class="g-recaptcha" data-sitekey="6LeyLJEqAAAAAFG_tm9Sl8aj1C_WIRmz-kcp0_mG"></div>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn">Sign In</button>
+                        </div>
+                        <div class="forgot-password">
+                            <a href="#">Forgot password?</a>
+                        </div>
+                        <div id="loginMessage" class="message"></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/auth-interceptor.js"></script>
+    <script src="/static/js/script.js"></script>
+</body>
+</html>

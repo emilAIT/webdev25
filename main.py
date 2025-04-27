@@ -1,56 +1,36 @@
+import os
+from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 
-from flask import Flask, request, render_template, jsonify
-from flask_cors import CORS
-from random import randint
-from collections import defaultdict
-app = Flask(__name__)
-CORS(app)
+from app.api.api import api_router
+from app.core.config import PROJECT_NAME
+from app.db.database import init_db
 
+# Initialize FastAPI app
+app = FastAPI(title=PROJECT_NAME)
 
-d = {
-    "correct": 0, 
-    "attempt": 0, 
-    "question": "", 
-    "incorrect": 0,
-    "question_count": 0
-}
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
 
-ops = "+-"
+# Mount static files directory
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
-@app.route("/")
-def enterance():
-    return render_template("math.html")
+# Include API router
+app.include_router(api_router)
 
-@app.route("/get_question")
-def generate_question():
-    try:
-        first = randint(0, 100)
-        second = randint(0, 100)
-        first, second = max(first, second), min(first, second)
-        op = ops[randint(0, 1)]
-        d["question"] = f'{first}{op}{second}'
-        d["question_count"] += 1
-        return jsonify({"question": d["question"]})
-    except:
-        return "ERROR IN THE SERVER"
-
-@app.route('/check_result')
-def check_result():
-    try:
-        answer = int(request.args.get("answer"))
-        d["attempt"] += 1
-        if answer == eval(d["question"]):
-            d["correct"] += 1
-        else:
-            d["incorrect"] += 1
-        return jsonify(d)   
-    except:
-        return "error in the server"
-
+# Initialize DB on startup
+@app.on_event("startup")
+async def startup_event():
+    init_db()
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080)
-
-
-
-    
+    import uvicorn
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("main:app", reload=True)

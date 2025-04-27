@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Settings</title>
+    <link rel="stylesheet" href="/static/css/profile-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .profile-photo-container {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-right: 20px;
+            border: 3px solid #3498db;
+            transition: all 0.3s ease;
+        }
+        
+        .profile-photo-container:hover {
+            cursor: pointer;
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .profile-photo-container:hover .photo-overlay {
+            opacity: 1;
+        }
+        
+        .profile-photo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .photo-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .photo-overlay i {
+            color: white;
+            font-size: 24px;
+        }
+        
+        .photo-input {
+            display: none;
+        }
+        
+        .photo-upload-indicator {
+            position: absolute;
+            bottom: -10px;
+            right: -10px;
+            background-color: #2ecc71;
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.3s ease;
+        }
+        
+        .photo-upload-indicator.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        .back-to-chat {
+            display: block;
+            margin: 10px 0;
+            color: #3498db;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .back-to-chat:hover {
+            text-decoration: underline;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            border-radius: 5px;
+            color: white;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .notification.success {
+            background-color: #2ecc71;
+        }
+        
+        .notification.error {
+            background-color: #e74c3c;
+        }
+        
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .profile-header {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            background-color: var(--header-bg);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .default-avatar {
+            width: 80px;
+            height: 80px;
+            background-color: #3498db;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="profile-container">
+        <header class="profile-header">
+            <div class="profile-photo-container" id="profile-photo-container">
+                <div class="default-avatar" id="default-avatar" {% if user.profile_photo %}style="display: none;"{% endif %}>{{ user.name[0] }}</div>
+                {% if user.profile_photo %}
+                <img src="{{ user.profile_photo }}" alt="Profile Photo" class="profile-photo" id="profile-photo" 
+                     onerror="this.style.display='none';document.getElementById('default-avatar').style.display='flex';">
+                {% else %}
+                <img src="" alt="Profile Photo" class="profile-photo" id="profile-photo" style="display: none;">
+                {% endif %}
+                <div class="photo-overlay">
+                    <i class="fas fa-camera"></i>
+                </div>
+                <div class="photo-upload-indicator" id="photo-upload-indicator">
+                    <i class="fas fa-check"></i>
+                </div>
+                <input type="file" id="photo-input" class="photo-input" accept="image/png, image/jpeg, image/gif">
+            </div>
+            <div class="profile-info">
+                <h2 id="user-nickname">{{ user.name }}</h2>
+                <p class="status">Active Status - <span class="online">Online</span></p>
+                <a href="/chat" class="back-to-chat"><i class="fas fa-arrow-left"></i> Back to chat</a>
+            </div>
+        </header>
+        <main class="profile-main">
+            <section class="personal-info">
+                <h3>Personal Information</h3>
+                <form id="personal-info-form">
+                    <div class="form-group">
+                        <label for="nickname">Nickname</label>
+                        <input type="text" id="nickname" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" required>
+                    </div>
+                </form>
+            </section>
+            <section class="preferences">
+                <h3>Preferences</h3>
+                <div class="form-group">
+                    <label for="darkMode">Dark Mode</label>
+                    <input type="checkbox" id="darkMode" checked>
+                </div>
+                <div class="form-group">
+                    <label for="messageNotifications">Message Notifications</label>
+                    <input type="checkbox" id="messageNotifications" checked>
+                </div>
+                <div class="form-group">
+                    <label for="soundEffects">Sound Effects</label>
+                    <input type="checkbox" id="soundEffects">
+                </div>
+            </section>
+            <section class="privacy-security">
+                <h3>Privacy & Security</h3>
+                <div class="form-group">
+                    <label for="changePassword">Change Password</label>
+                    <a href="#" id="changePassword">Change</a>
+                </div>
+                <div class="form-group">
+                    <button id="deleteAccount" class="delete-btn">Delete Account</button>
+                </div>
+            </section>
+        </main>
+        <footer class="profile-footer">
+            <button id="saveChanges" class="save-btn">Save Changes</button>
+        </footer>
+    </div>
+    
+    <div class="notification" id="notification"></div>
+    
+    <script src="/static/js/auth-interceptor.js"></script>
+    <script src="/static/js/profile.js"></script>
+</body>
+</html>

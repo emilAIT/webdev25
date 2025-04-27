@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web Chat</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <link rel="stylesheet" href="/static/css/chat-style.css" />
+    <link rel="stylesheet" href="/static/css/call-notification.css" />
+    <link rel="stylesheet" href="/static/css/group-chat.css" />
+  </head>
+  <body>
+    <div class="chat-container">
+      <div class="sidebar-wrapper">
+        <div class="sidebar">
+          <!-- User Profile -->
+          <div class="sidebar-header">
+            <div class="user-profile" id="user-profile">
+              <div class="avatar" id="profile-avatar">
+                {% if user.profile_photo %}
+                <img
+                  src="{{ user.profile_photo }}"
+                  alt="{{ user.name }}"
+                  onerror="this.onerror=null;this.parentElement.innerHTML='{{ user.name[0:1].upper() }}';"
+                />
+                {% else %} {{ user.name[0:1].upper() }} {% endif %}
+              </div>
+              <div class="user-info">
+                <div class="username">{{ user.name }}</div>
+                <div class="status">
+                  <span class="status-dot online"></span>{{ user.status }}
+                </div>
+              </div>
+            </div>
+            <div class="menu-icon" id="menu-icon">
+              <i class="fas fa-bars"></i>
+              <div class="dropdown-menu" id="dropdown-menu">
+                <div class="dropdown-item" id="option1">
+                  <i class="fas fa-user"></i> Профиль
+                </div>
+                <div class="dropdown-item" id="option2">
+                  <i class="fas fa-cog"></i> Настройки
+                </div>
+                <div class="dropdown-item" id="option3">
+                  <i class="fas fa-info-circle"></i> О приложении
+                </div>
+                <div class="dropdown-item" id="logout">
+                  <i class="fas fa-sign-out-alt"></i> Выйти
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Search Bar -->
+          <div class="search-bar">
+            <div class="search-icon">
+              <i class="fas fa-search"></i>
+            </div>
+            <input type="text" placeholder="Search chats" />
+          </div>
+
+          <!-- Chat List -->
+          <div class="chat-list" id="chat-list">
+            <!-- Chat items will be populated dynamically -->
+            <div class="loading-indicator">
+              <div class="spinner"></div>
+              <span>Loading chats...</span>
+            </div>
+          </div>
+          <!-- Add New Chat Button inside sidebar -->
+          <button class="add-chat-button" id="add-chat-button">
+            <i class="fas fa-plus"></i>
+          </button>
+        </div>
+      </div>
+      <div class="main-chat-wrapper">
+        <div class="main-chat">
+          <div class="chat-header">
+            <button class="back-to-chats" style="display:none"><i class="fas fa-arrow-left"></i></button>
+            <div class="chat-info">
+              <div class="chat-avatar" id="selected-chat-avatar">?</div>
+              <div class="chat-name" id="selected-chat-name">Select a chat</div>
+            </div>
+            <div class="chat-actions">
+              <i class="fas fa-ellipsis-v"></i>
+              <!-- Add video call button -->
+              <a
+                href="/videocall/0"
+                id="video-call-button"
+                title="Start Video Call"
+              >
+                <i
+                  class="fas fa-video"
+                  style="
+                    font-size: 20px;
+                    color: var(--primary-color);
+                    cursor: pointer;
+                  "
+                ></i>
+              </a>
+            </div>
+          </div>
+
+          <!-- Message Area -->
+          <div class="message-area" id="message-area">
+            <div class="empty-state">
+              <div class="empty-icon">
+                <i class="far fa-comment-dots"></i>
+              </div>
+              <p>Select a chat to start messaging</p>
+            </div>
+            <!-- Messages will be populated dynamically -->
+          </div>
+
+          <!-- Message Input Area -->
+          <div class="chat-input-container">
+            <button id="voice-message-button" class="voice-message-button" title="Record voice message">
+              <i class="fas fa-microphone"></i>
+            </button>
+            <input type="text" id="message-input" placeholder="Type a message...">
+            <button id="send-button" class="send-button">
+              <i class="fas fa-paper-plane"></i>
+            </button>
+          </div>
+          <div id="voice-recording-container" class="voice-recording-container" style="display: none;">
+            <div class="recording-timer">00:00</div>
+            <div class="recording-waveform"></div>
+            <button id="stop-recording-button" class="stop-recording-button">
+              <i class="fas fa-stop"></i>
+            </button>
+            <button id="cancel-recording-button" class="cancel-recording-button">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- New Chat Modal -->
+    <div class="modal" id="new-chat-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>New Chat</h3>
+          <div class="chat-type-toggle">
+            <button class="chat-type-btn active" id="direct-chat-btn">Direct Chat</button>
+            <button class="chat-type-btn" id="group-chat-btn">Group Chat</button>
+          </div>
+          <button class="close-modal" id="close-modal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <!-- Direct Chat Section -->
+          <div id="direct-chat-section">
+            <div class="search-container">
+              <input
+                type="text"
+                id="user-search"
+                placeholder="Type username, email or phone."
+              />
+            </div>
+            <div class="search-results" id="search-results">
+              <!-- Search results will appear here -->
+            </div>
+          </div>
+          
+          <!-- Group Chat Section -->
+          <div id="group-chat-section" style="display: none;">
+            <div class="group-name-container">
+              <input
+                type="text"
+                id="group-name"
+                placeholder="Group name"
+                class="group-input"
+              />
+            </div>
+            <div class="search-container">
+              <input
+                type="text"
+                id="group-user-search"
+                placeholder="Add members by name, email or phone"
+                class="group-input"
+              />
+            </div>
+            <div class="group-members">
+              <h4>Selected Members: <span id="member-count">0</span></h4>
+              <div class="selected-members" id="selected-members">
+                <!-- Selected members will appear here -->
+              </div>
+            </div>
+            <div class="search-results" id="group-search-results">
+              <!-- Search results for group creation will appear here -->
+            </div>
+            <button class="create-group-btn" id="create-group-button" disabled>
+              Create Group
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hidden input to store user details -->
+    <input type="hidden" id="current-user-id" value="{{ user.id }}" />
+    <input type="hidden" id="current-user-name" value="{{ user.name }}" />
+    <input
+      type="hidden"
+      id="current-user-photo"
+      value="{{ user.profile_photo or '' }}"
+    />
+
+    <!-- Debug info - будет удален в продакшн -->
+    <div style="display: none" id="debug-info">
+      Profile Photo: {{ user.profile_photo|default('No photo', true) }}
+    </div>
+
+    <!-- Call Notification Component -->
+    <div class="call-notification" id="call-notification">
+      <div class="call-notification-header">
+        <div class="call-notification-title">Incoming Video Call</div>
+        <div class="call-ringing">
+          <div class="call-ringing-dot"></div>
+          <div class="call-ringing-dot"></div>
+          <div class="call-ringing-dot"></div>
+        </div>
+      </div>
+      <div class="call-notification-content">
+        <div class="call-notification-avatar" id="caller-avatar">
+          <!-- Dynamically filled -->
+        </div>
+        <div class="call-notification-info">
+          <div class="call-notification-name" id="caller-name">
+            <!-- Dynamically filled -->
+          </div>
+          <div class="call-notification-subtext">is calling you...</div>
+        </div>
+      </div>
+      <div class="call-notification-actions">
+        <button class="call-action-button decline" id="decline-call">
+          <i class="fas fa-phone-slash"></i>Decline
+        </button>
+        <button class="call-action-button accept" id="accept-call">
+          <i class="fas fa-phone"></i>Accept
+        </button>
+      </div>
+      <div class="call-sound-control" id="toggle-call-sound">
+        <i class="fas fa-volume-up"></i>Sound
+      </div>
+    </div>
+
+    <!-- Audio for call ringtone -->
+    <audio id="call-ringtone" loop preload="auto">
+      <source src="/static/assets/call-ringtone.mp3" type="audio/mpeg" />
+    </audio>
+
+    <!-- Context Menu for Messages -->
+    <div class="message-context-menu" id="message-context-menu">
+        <div class="context-menu-item" id="edit-message">
+            <i class="fas fa-edit"></i> Edit
+        </div>
+        <div class="context-menu-item" id="delete-message">
+            <i class="fas fa-trash"></i> Delete
+        </div>
+    </div>
+
+    <script src="/static/js/auth-interceptor.js"></script>
+    <script src="/static/js/chat.js"></script>
+    <script src="/static/js/call-notification.js"></script>
+    <script>
+      // Добавляем скрипт для отладки профиля пользователя сразу в шаблоне
+      document.addEventListener("DOMContentLoaded", () => {
+        const profilePhoto = "{{ user.profile_photo|default('', true) }}";
+        console.log("Profile photo from template:", profilePhoto);
+
+        // Остальные обработчики
+        const menuIcon = document.getElementById("menu-icon");
+        const dropdownMenu = document.getElementById("dropdown-menu");
+        const profileAvatar = document.getElementById("profile-avatar");
+        const profileOption = document.getElementById("option1");
+
+        menuIcon.addEventListener("click", (event) => {
+          event.stopPropagation(); // Prevent click from propagating
+          dropdownMenu.style.display =
+            dropdownMenu.style.display === "block" ? "none" : "block";
+        });
+
+        document.addEventListener("click", () => {
+          dropdownMenu.style.display = "none";
+        });
+
+        profileAvatar.addEventListener("click", () => {
+          window.location.href = "/profile";
+        });
+
+        // Добавляем навигацию к профилю из выпадающего меню
+        if (profileOption) {
+          profileOption.addEventListener("click", () => {
+            window.location.href = "/profile";
+          });
+        }
+
+        // Добавляем кнопку выхода из системы
+        const logoutBtn = document.getElementById("logout");
+        if (logoutBtn) {
+          logoutBtn.addEventListener("click", () => {
+            // Удаляем токен доступа
+            localStorage.removeItem("access_token");
+            // Перенаправляем на страницу входа
+            window.location.href = "/";
+          });
+        }
+
+        // Remove conflicting event handlers for the video call button
+        // The handler in chat.js will take care of this
+      });
+    </script>
+  </body>
+</html>
