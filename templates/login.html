@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/authentication.css') }}">
+</head>
+
+<body>
+    <div class="parent">
+        <div class="authentication-container">
+            <div class="input-container">
+                <input type="text" placeholder="Username or email" id="username">
+            </div>
+            
+            <div class="input-container">
+                <input type="password" placeholder="Password" id="password" class="password-input">
+                <img src="{{ url_for('static', filename='images/free-icon-eye-6107590.png') }}" class="toggle-password" id="togglePassword">
+            </div>
+            
+            <p id="error_msg"></p>
+            <button onclick="login()">Log in</button>
+            
+            <div class="auth-link">Don't have an account? <a href="/signup">Sign up</a></div>
+        </div>
+    </div>
+    <script>
+        function login() {
+            const usernameOrEmail = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+            const errorMsg = document.getElementById('error_msg');
+
+            if (!usernameOrEmail || !password) {
+                errorMsg.textContent = "Username/Email and password are required";
+                return;
+            }
+
+            fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    usernameOrEmail: usernameOrEmail,
+                    password: password
+                }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = '/';
+                    } else {
+                        errorMsg.textContent = data.message || "Username/Email or password is incorrect";
+                    }
+                })
+                .catch(error => {
+                    errorMsg.textContent = "An error occurred. Please try again.";
+                    console.error('Error:', error);
+                });
+        }
+
+        // Add event listener for Enter key
+        document.getElementById("password").addEventListener("keydown", function (event) {
+            if (event.key === "Enter") {
+                login();
+            }
+        });
+        
+        // Toggle password visibility
+        document.getElementById("togglePassword").addEventListener("click", function () {
+            const passwordInput = document.getElementById("password");
+            const toggleIcon = document.getElementById("togglePassword");
+            
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                toggleIcon.src = "{{ url_for('static', filename='images/free-icon-open-eye-829117.png') }}";
+            } else {
+                passwordInput.type = "password";
+                toggleIcon.src = "{{ url_for('static', filename='images/free-icon-eye-6107590.png') }}";
+            }
+        });
+    </script>
+</body>
+
+</html>

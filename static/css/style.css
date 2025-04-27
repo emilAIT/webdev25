@@ -1,0 +1,1100 @@
+.user {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  border-bottom: 1px solid #e0e0e0;
+  cursor: pointer;
+  position: relative;
+}
+
+.user::before {
+  content: '';
+  width: 24px;
+  height: 24px;
+  background-color: #ccc;
+  border-radius: 50%;
+  position: absolute;
+  left: 25px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.user-info {
+  margin-left: 50px;
+}
+
+.user:hover {
+  background-color: #f5f5f5;
+}
+
+.user.active {
+  background-color: #e6f7ff;
+}
+
+.user-name {
+  font-weight: bold;
+  margin-bottom: 3px;
+}
+
+.last-message {
+  font-size: 0.85em;
+  color: #888;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.contact-actions {
+  display: flex;
+  align-items: center;
+}
+
+.settings-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1em;
+  padding: 5px;
+  border-radius: 50%;
+  opacity: 0.6;
+}
+
+.settings-btn:hover {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Base modal styles for all modals */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+  background-color: white;
+  width: 90%;
+  max-width: 500px;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+}
+
+.close-modal {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close-modal:hover {
+  color: black;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.form-group input:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Добавление отступа между кнопками в модальном окне */
+.modal-actions .btn {
+  padding: 12px 0;
+  width: 48%;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.modal-actions .btn.primary {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.modal-actions .btn.danger {
+  background-color: #f44336;
+  color: white;
+}
+
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn.primary {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.btn.danger {
+  background-color: #ff4d4f;
+  color: white;
+}
+
+.error-message {
+  color: #ff4d4f;
+  margin: 5px 0;
+  font-size: 0.9em;
+}
+
+/* Additional styles for group modals */
+.contacts-list,
+.members-list,
+.participants-list {
+  max-height: 300px;
+  overflow-y: auto;
+  margin: 15px 0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 5px;
+}
+
+.contact-item,
+.member-item,
+.admin-item,
+.participant-item {
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.contact-item:last-child,
+.member-item:last-child,
+.admin-item:last-child,
+.participant-item:last-child {
+  border-bottom: none;
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.checkbox-container.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.checkbox-container input[type="checkbox"] {
+  margin-right: 10px;
+}
+
+.checkbox-label {
+  flex-grow: 1;
+}
+
+.form-input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.separator {
+  border-bottom: 1px solid #ddd;
+  padding: 5px 15px;
+  font-weight: bold;
+  color: #666;
+  background-color: #f7f7f7;
+}
+
+/* Admin and user information styles */
+.admin-info {
+  background-color: #f5f5f5;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+.participants-list {
+  margin-bottom: 20px;
+}
+
+/* Group actions */
+.group-actions {
+  display: flex;
+  align-items: center;
+}
+
+/* No results message */
+.no-results {
+  padding: 10px;
+  color: #999;
+  text-align: center;
+}
+
+/* Loading indicator */
+.loading {
+  padding: 10px;
+  color: #666;
+  text-align: center;
+}
+
+/* Message styling */
+.message {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+.message.own {
+  align-items: flex-end;
+}
+
+/* Add alignment for contact messages */
+.message:not(.own) {
+  align-items: flex-start;
+}
+
+.message-content {
+  max-width: 80%;
+  padding: 10px;
+  border-radius: 10px;
+  background-color: #fff;
+  position: relative;
+  outline: none;
+  display: inline-block; /* Ensure content width is based on content */
+  width: auto; /* Allow width to be determined by content */
+}
+
+/* Add outline to contact messages */
+.message:not(.own) .message-content {
+  outline: 2px solid gray;
+}
+
+.message.own .message-content {
+  background-color: #DCF8C6;
+}
+
+.sender-name {
+  font-weight: bold;
+  font-size: 0.9em;
+  margin-bottom: 4px;
+  color: #333;
+  display: block;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding-bottom: 3px;
+}
+
+.message-text {
+  word-wrap: break-word;
+}
+
+/* Message action buttons */
+.message-actions {
+  position: absolute;
+  left: -60px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.2s ease, left 0.2s ease;
+}
+
+.message-content:hover .message-actions {
+  opacity: 1;
+  left: -68px;
+}
+
+.message-actions button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f5f5f5;
+  font-size: 14px;
+}
+
+.message-actions .edit-btn:hover {
+  background-color: #e0e0e0;
+}
+
+.message-actions .delete-btn:hover {
+  background-color: #ffebee;
+}
+
+/* Edit message modal */
+.edit-message-modal,
+.delete-message-modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+/* When displayed with style.display = 'block' via JS */
+.edit-message-modal[style*="display: block"],
+.delete-message-modal[style*="display: block"] {
+  display: flex !important;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 15vh;
+}
+
+.edit-message-modal.show,
+.delete-message-modal.show {
+  display: flex !important;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 15vh;
+}
+
+.edit-message-content,
+.delete-message-content {
+  background-color: white;
+  margin: 0 auto;
+  margin-top: 15vh;
+  padding: 20px;
+  border-radius: 8px;
+  width: 80%;
+  max-width: 400px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.edit-message-header,
+.delete-message-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #000;
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+}
+
+.edit-message-header h3,
+.delete-message-header h3 {
+  margin: 0;
+}
+
+.close-modal-btn {
+  color: #aaa;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+
+.close-modal-btn:hover {
+  color: black;
+}
+
+.edit-message-input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  min-height: 80px;
+  resize: vertical;
+}
+
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.save-btn,
+.confirm-delete-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.save-btn {
+  background-color: #1890ff;
+  color: white;
+}
+
+.confirm-delete-btn {
+  background-color: #ff4d4f;
+  color: white;
+}
+
+.cancel-btn {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  background-color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* AI Chat Copy Button Styling */
+.ai-content-wrapper {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.ai-text {
+  flex-grow: 1;
+  word-wrap: break-word;
+}
+
+.copy-icon {
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+.copy-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f0f0;
+  font-size: 16px;
+  margin-left: 8px;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+  position: absolute;
+  right: -35px;
+  top: 50%;
+  transform: translateY(-50%);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.copy-btn:hover {
+  background-color: #e0e0e0;
+}
+
+.copy-btn.copied {
+  background-color: #c8e6c9;
+  color: #2e7d32;
+}
+
+/* Read message indicator */
+.message.read .message-content {
+  outline: 2px solid gray;
+}
+
+.message.own.read .message-content {
+  outline: 2px solid gray;
+}
+
+/* Styles for contact settings modal buttons */
+.modal-buttons {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.update-btn, .delete-btn {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.update-btn {
+  background-color: #4CAF50; /* зеленый */
+  color: white;
+}
+
+.delete-btn {
+  background-color: #f44336; /* красный */
+  color: white;
+}
+
+.update-btn:hover {
+  background-color: #3e8e41;
+}
+
+.delete-btn:hover {
+  background-color: #d32f2f;
+}
+
+/* Стиль для кнопки Add Contact */
+.add-contact-btn-wrapper {
+  margin: 15px 0;
+}
+
+.add-contact-btn {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  padding: 8px 0;
+  font-size: 16px;
+  cursor: pointer;
+  color: #000;
+}
+
+.add-contact-icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+}
+
+/* Стили для списка участников */
+.members-list {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.member-item {
+  padding: 0;
+  border-bottom: 1px solid #eee;
+  height: 45px;
+}
+
+.member-item:last-child {
+  border-bottom: none;
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+}
+
+.checkbox-container.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.checkbox-container input[type="checkbox"] {
+  margin: 0 0 0 12.5px;
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.checkbox-container input[type="checkbox"]:checked {
+  accent-color: #4285F4;
+}
+
+.checkbox-label {
+  font-size: 16px;
+  line-height: 20px;
+  display: flex;
+  align-items: center;
+  margin-left: 12.5px;
+  margin-right: 12.5px;
+}
+
+.member-role {
+  color: #666;
+  margin-left: 3px;
+}
+
+/* Стили для модального окна настроек группы */
+.add-contact-header {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+.add-contact-header:hover {
+  opacity: 0.8;
+}
+
+.add-contact-header img {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+}
+
+.add-contact-header span {
+  font-size: 16px;
+}
+
+/* Обновленные стили для текстового поля названия группы */
+#group-name-edit {
+  font-size: 18px;
+  padding: 12px 15px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  margin-top: 10px;
+  text-align: left;
+}
+
+/* Обновленные стили для списка участников */
+.members-list {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.member-item {
+  padding: 0;
+  border-bottom: 1px solid #eee;
+  height: 45px;
+}
+
+.member-item:last-child {
+  border-bottom: none;
+}
+
+/* Существующие стили для иконки добавления контакта */
+.add-contact-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Стиль для модального окна добавления контактов в группу */
+#add-to-group-modal .modal-content {
+  max-width: 350px;
+  border-radius: 15px;
+  padding: 15px;
+}
+
+#add-to-group-modal .contacts-list {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  margin: 10px 0 20px 0;
+  padding: 0;
+  max-height: 350px;
+}
+
+#add-to-group-modal .search-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+#add-to-group-modal .search-input-container {
+  position: relative;
+  flex-grow: 1;
+  margin-right: 15px;
+}
+
+#add-to-group-modal .search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  opacity: 0.6;
+}
+
+#add-to-group-modal #contact-search {
+  padding-left: 40px;
+  border-radius: 20px;
+  width: 100%;
+  padding: 12px 12px 12px 40px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  margin-bottom: 0;
+}
+
+#add-to-group-modal .close-modal {
+  font-size: 24px;
+  margin-left: 5px;
+  margin-top: 0;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  height: 24px;
+}
+
+#add-to-group-modal .contact-item {
+  height: 45px;
+  padding: 0;
+  border-bottom: 1px solid #eee;
+}
+
+#add-to-group-modal .contact-item:last-child {
+  border-bottom: none;
+}
+
+#add-to-group-modal .checkbox-container {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0;
+}
+
+#add-to-group-modal .checkbox-container input[type="checkbox"] {
+  margin: 0 0 0 12.5px;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+#add-to-group-modal .checkbox-container input[type="checkbox"]:checked {
+  accent-color: #4285F4;
+}
+
+#add-to-group-modal .checkbox-label {
+  font-size: 16px;
+  line-height: 20px;
+  margin-left: 12.5px;
+  margin-right: 12.5px;
+}
+
+#add-to-group-modal #add-selected-contacts {
+  width: 100%;
+  border-radius: 8px;
+  padding: 12px 0;
+  font-size: 16px;
+  font-weight: bold;
+  background-color: #4CAF50;
+  color: white;
+}
+
+/* Specific styles for contact settings modal */
+#contact-settings-modal {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2000;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: none;
+}
+
+#contact-settings-modal.show {
+  display: flex !important;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 15vh;
+}
+
+#contact-settings-modal .modal-content {
+  max-width: 400px;
+  border-radius: 15px;
+  padding: 15px;
+  position: relative;
+  margin: 0 auto;
+}
+
+.username-header {
+  margin-bottom: 15px;
+  margin-top: 10px;
+}
+
+.username-header p {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 0;
+}
+
+#contact-settings-modal .form-input {
+  font-size: 16px;
+  padding: 12px 15px;
+  margin-bottom: 20px;
+}
+
+#contact-settings-modal .modal-actions {
+  display: flex;
+  justify-content: space-between;
+}
+
+#contact-settings-modal .btn {
+  width: 48%;
+  border-radius: 5px;
+  font-size: 16px;
+  text-transform: none;
+}
+
+/* Specific styles for group settings modal */
+#group-settings-modal {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2000;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: none;
+}
+
+#group-settings-modal.show {
+  display: flex !important;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 15vh;
+}
+
+#group-settings-modal .modal-content {
+  background-color: white;
+  width: 90%;
+  max-width: 500px;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
+  margin: 0 auto;
+  max-height: 90vh; 
+  overflow-y: auto;
+}
+
+#group-settings-modal .search-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+#group-settings-modal #group-name-edit {
+  flex-grow: 1;
+  margin: 0;
+  margin-right: 15px;
+  font-size: 18px;
+  padding: 12px 15px;
+  font-weight: bold;
+}
+
+#group-settings-modal .close-modal {
+  font-size: 24px;
+  margin-left: 5px;
+  margin-top: 0;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  height: 24px;
+}
+
+/* Add Contact modal alignment like settings */
+#add-contact-modal.show {
+  display: flex !important;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 15vh;
+}
+
+/* Create Group modal alignment like settings */
+#create-group-modal.show {
+  display: flex !important;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 15vh;
+}
+
+/* Стили для иконок действий */
+.action-icon {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+/* Стили для кнопок в модальных окнах на всю ширину */
+.full-width {
+  width: 100%;
+  margin-top: 15px;
+  padding: 12px 0;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+/* Стили для модальных окон редактирования и удаления сообщений */
+#edit-message-modal .modal-content,
+#delete-message-modal .modal-content {
+  max-width: 400px;
+  border-radius: 15px;
+  padding: 20px;
+}
+
+#edit-message-modal h2,
+#delete-message-modal h2 {
+  text-align: left;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+#edit-message-input {
+  font-size: 16px;
+  padding: 12px 15px;
+  border-radius: 10px;
+}
+
+#delete-message-modal .btn.danger {
+  background-color: #ff4d4f;
+}
+
+#edit-message-modal .btn.primary {
+  background-color: #4CAF50;
+}
+
+.menu-items {
+    padding: 15px 0;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    text-decoration: none;
+    color: #333;
+}
+
+.menu-item img {
+    width: 24px;
+    height: 24px;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+.menu-item span {
+    font-size: 16px;
+    line-height: 24px;
+}
+
+.sidebar {
+    width: 250px;
+    background-color: #f5f5f5;
+    height: 100%;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 1000;
+    padding-top: 20px;
+}
+
+.menu {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+#users-header {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #e0e0e0;
+    position: relative;
+}
+
+/* Add a class for AI messages to support the copy button positioning */
+.ai-message {
+  position: relative;
+  padding-right: 20px;
+  margin-right: 20px;
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+}
+
+#contact-settings-modal .modal-content,
+#group-settings-modal .modal-content,
+#add-to-group-modal .modal-content,
+#edit-message-modal .modal-content,
+#delete-message-modal .modal-content {
+  position: relative;
+  top: auto;
+  left: auto;
+  transform: none;
+  margin: 0 auto;
+}
+
+/* Specific style for dynamically created edit/delete message modals */
+#edit-message-modal.modal,
+#delete-message-modal.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+#edit-message-modal[style*="display: block"],
+#delete-message-modal[style*="display: block"] {
+  display: flex !important;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 15vh;
+}
+
+#edit-message-modal .modal-content,
+#delete-message-modal .modal-content {
+  position: relative;
+  top: auto;
+  left: auto;
+  transform: none;
+  margin: 0 auto;
+  margin-top: 0;
+  width: 90%;
+  max-width: 400px;
+  border-radius: 15px;
+  padding: 20px;
+}

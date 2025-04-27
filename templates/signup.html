@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign up</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/authentication.css') }}">
+</head>
+
+<body>
+    <div class="parent">
+        <div class="authentication-container">
+            <div class="input-container">
+                <input type="text" placeholder="Username" id="username">
+            </div>
+            
+            <div class="input-container">
+                <input type="email" id="email" placeholder="Email" required>
+            </div>
+            
+            <div class="input-container">
+                <input type="password" id="pw_input1" placeholder="Password" class="password-input">
+                <img src="{{ url_for('static', filename='images/free-icon-eye-6107590.png') }}" class="toggle-password" id="togglePassword1">
+            </div>
+            
+            <div class="input-container">
+                <input type="password" id="pw_input2" placeholder="Confirm password" class="password-input">
+                <img src="{{ url_for('static', filename='images/free-icon-eye-6107590.png') }}" class="toggle-password" id="togglePassword2">
+            </div>
+            
+            <p id="error_msg"></p>
+            <button onclick="signup()">Sign up</button>
+            
+            <div class="auth-link">Already have an account? <a href="/login">Log in</a></div>
+        </div>
+    </div>
+
+    <script>
+        function isValidEmail(email) {
+            // Regular expression for email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        function signup() {
+            const username = document.getElementById("username").value;
+            const email = document.getElementById("email").value;
+            const pw1 = document.getElementById("pw_input1").value;
+            const pw2 = document.getElementById("pw_input2").value;
+            const errorMsg = document.getElementById('error_msg');
+
+            // Clear previous error message
+            errorMsg.textContent = "";
+            
+            console.log("Attempting to register with:", { username, email });
+
+            // Basic validation
+            if (!username || !email || !pw1 || !pw2) {
+                errorMsg.textContent = "Input fields cannot be empty";
+                return;
+            }
+
+            // Email validation
+            if (!isValidEmail(email)) {
+                errorMsg.textContent = "Please enter a valid email address";
+                return;
+            }
+
+            // Password match validation
+            if (pw1 !== pw2) {
+                errorMsg.textContent = "Passwords do not match";
+                return;
+            }
+
+            console.log("Validation passed, sending request");
+
+            fetch('/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: username,
+                    email: email,
+                    password: pw1
+                }),
+            })
+                .then(response => {
+                    console.log("Response status:", response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Response data:", data);
+                    if (data.success) {
+                        window.location.href = '/';
+                    } else {
+                        errorMsg.textContent = data.message || "Registration failed";
+                    }
+                })
+                .catch(error => {
+                    console.error('Error during registration:', error);
+                    errorMsg.textContent = "An error occurred. Please try again.";
+                });
+        }
+        // Add event listener for Enter key
+        document.getElementById("pw_input2").addEventListener("keydown", function (event) {
+            if (event.key === "Enter") {
+                signup();
+            }
+        });
+        
+        // Toggle password visibility for first password field
+        document.getElementById("togglePassword1").addEventListener("click", function () {
+            const passwordInput = document.getElementById("pw_input1");
+            const toggleIcon = document.getElementById("togglePassword1");
+            
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                toggleIcon.src = "{{ url_for('static', filename='images/free-icon-open-eye-829117.png') }}";
+            } else {
+                passwordInput.type = "password";
+                toggleIcon.src = "{{ url_for('static', filename='images/free-icon-eye-6107590.png') }}";
+            }
+        });
+        
+        // Toggle password visibility for confirm password field
+        document.getElementById("togglePassword2").addEventListener("click", function () {
+            const passwordInput = document.getElementById("pw_input2");
+            const toggleIcon = document.getElementById("togglePassword2");
+            
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                toggleIcon.src = "{{ url_for('static', filename='images/free-icon-open-eye-829117.png') }}";
+            } else {
+                passwordInput.type = "password";
+                toggleIcon.src = "{{ url_for('static', filename='images/free-icon-eye-6107590.png') }}";
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BlahBlahLand</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+  <div id="chat-container">
+    <div id="users-list">
+      <div class="overlay" id="overlay"></div>
+      <div id="side-menu">
+        <div id="closeSideMenu">
+          <img src="{{ url_for('static', filename='images/menu.png') }}" alt="Close Menu">
+        </div>
+        <div class="menu-items">
+          <a href="#" class="menu-item">
+            <img src="{{ url_for('static', filename='images/add-contact.png') }}" alt="Add contact">
+            <span>Add contact</span>
+          </a>
+          <a href="#" class="menu-item">
+            <img src="{{ url_for('static', filename='images/group.png') }}" alt="Create a group">
+            <span>Create a group</span>
+          </a>
+          <a href="#" class="menu-item">
+            <img src="{{ url_for('static', filename='images/logout.png') }}" alt="Log out">
+            <span>Log out</span>
+          </a>
+        </div>
+      </div>
+      <div id="users-header">
+        <div id="openSideMenu">
+          <img src="{{ url_for('static', filename='images/menu.png') }}" alt="Menu">
+        </div>
+        <div class="search-wrapper">
+          <img src="{{ url_for('static', filename='images/search.png') }}" class="search-icon" alt="">
+          <input type="text" id="contact-search-input" placeholder="Find contact">
+        </div>
+        <h3 style="font-weight: 500;">Chats</h3>
+      </div>
+      <ul id="users">
+        <!-- Contacts will be loaded dynamically via JavaScript -->
+      </ul>
+    </div>
+
+    <div id="chat-box">
+      <div id="chat-header">
+        <div id="chat-header-left">
+          <h3 id="chat-header-title">Select a conversation</h3>
+        </div>
+        <div id="chat-header-right">
+          <img id="star" src="{{ url_for('static', filename='images/star.png') }}" alt="" class="header-icon">
+          <img id="settings" src="{{ url_for('static', filename='images/settings.png') }}" alt="" class="header-icon">
+        </div>
+        <div class="chat-header-divider"></div>
+      </div>
+      <div id="messages"></div>
+      <div id="input-container">
+        <input type="text" id="message-input" placeholder="Type a message..." disabled/>
+        <button id="send-button" disabled>Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chat Window (Hidden Initially) -->
+  <div id="chat-window">
+    <div id="chat-window-header">
+      <span>AI Message Assistant</span>`
+      <button onclick="toggleChat()">✖</button>
+    </div>
+    <div id="ai-chat-messages">
+    </div>
+    <div id="ai-input-container">
+      <textarea id="ai-message-input" placeholder="Ask me anything..."></textarea>
+      <button id="ai-send-button">Send</button>
+    </div>
+  </div>
+
+  <!-- Add Contact Modal -->
+  <div id="add-contact-modal" class="modal">
+    <div class="modal-content">
+      <h2>Add New Contact</h2>
+      <span class="close-modal">&times;</span>
+      <div id="modal-error-msg" class="error-message"></div>
+      <input type="text" id="contact-identifier" placeholder="Username or Email">
+      <input type="text" id="contact-display-name" placeholder="Display Name (optional)">
+      <button id="submit-contact">Add Contact</button>
+    </div>
+  </div>
+
+  <script>
+    // Toggle chat function
+    function toggleChat() {
+      const chatWindow = document.getElementById("chat-window");
+      chatWindow.style.display = chatWindow.style.display === "none" || chatWindow.style.display === "" ? "flex" : "none";
+    }
+  </script>
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+
+</html>

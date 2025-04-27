@@ -1,0 +1,94 @@
+body {
+    background-color: #009688;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+.parent {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.authentication-container {
+    width: 340px;
+    text-align: left;
+}
+
+.input-container {
+    position: relative;
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+input {
+    border: none;
+    border-radius: 25px;
+    width: 100%;
+    height: 45px;
+    font-size: 16px;
+    padding: 0 20px;
+    box-sizing: border-box;
+    outline: none;
+}
+
+.password-input {
+    padding-right: 45px; /* Добавляем место для иконки */
+}
+
+.toggle-password {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+}
+
+button {
+    border: none;
+    border-radius: 25px;
+    width: 100%;
+    height: 45px;
+    font-size: 16px;
+    color: #009688;
+    background-color: white;
+    cursor: pointer;
+    margin: 0 0 10px;
+    font-weight: bold;
+    text-align: center;
+}
+
+button:hover {
+    background-color: #f5f5f5;
+}
+
+p {
+    margin: 0 0 10px;
+    font-size: 14px;
+    color: red;
+    text-align: left;
+    min-height: 0;
+}
+
+.auth-link {
+    margin: 0;
+    font-size: 14px;
+    color: #000;
+    text-align: left;
+}
+
+.auth-link a {
+    color: 551A8B;
+    text-decoration: underline;
+}
+
+i {
+    background-color: white;
+    color: teal;
+    padding: 15px 15px;
+    border-radius: 50px;
+}
