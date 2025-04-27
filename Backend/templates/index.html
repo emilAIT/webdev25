@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TogolokChat</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&display=swap');
+        
+        * {
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-image: url('/static/images/pik_karakol.jpg.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            position: relative;
+        }
+        .container {
+            position: relative;
+            z-index: 1;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 400px;
+            padding: 0;
+            color: white;
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 50%;
+            width: 450px;
+            height: 180px;
+            margin: 0 auto 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .logo-text {
+            font-family: 'Caveat', cursive;
+            font-size: 68px;
+            font-weight: 400;
+            letter-spacing: 1px;
+        }
+        .logo-text span:first-child {
+            color: white;
+        }
+        .logo-text span:last-child {
+            color: #4ecdc4;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #ffffff;
+        }
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        input:focus {
+            outline: none;
+            border-color: #4ecdc4;
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        /* Input validation styling */
+        input:invalid {
+            border: 2px solid red;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: #2d6a4f;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background-color: #205339;
+        }
+        .error-message {
+            color: #ff6b6b;
+            margin-top: 15px;
+            text-align: center;
+            font-size: 14px;
+        }
+        .success-message {
+            color: #7bed9f;
+            margin-top: 15px;
+            text-align: center;
+            font-size: 14px;
+        }
+        .form {
+            display: none;
+            /* Removing background color as requested */
+            padding: 20px 0;
+        }
+        .form.active {
+            display: block;
+        }
+        .form-switch {
+            text-align: center;
+            margin-top: 20px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        .form-switch a {
+            color: #4ecdc4;
+            text-decoration: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .form-switch a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Modal styling */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+        .modal-content {
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+            color: white;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+        }
+        .modal-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            padding-right: 30px;
+            color: white;
+        }
+        .modal-close {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.7);
+            width: auto;
+            padding: 0;
+            line-height: 1;
+        }
+        .modal-close:hover {
+            color: white;
+            background: none;
+        }
+        
+        /* Login options container */
+        .login-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            margin: 0;
+        }
+        .forgot-password {
+            margin: 0;
+        }
+        .forgot-password a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+        .forgot-password a:hover {
+            color: #4ecdc4;
+        }
+        
+        /* Toggle switch styling */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+            margin-right: 10px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.2);
+            transition: .4s;
+            border-radius: 24px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .toggle-slider {
+            background-color: #4ecdc4;
+        }
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Password visibility toggle styles */
+        .password-container {
+            position: relative;
+            width: 100%;
+        }
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.7);
+            padding: 0;
+            width: auto;
+        }
+        .password-toggle:hover {
+            color: white;
+        }
+        .password-toggle i {
+            font-size: 18px;
+        }
+        
+        /* Mobile responsiveness */
+        @media (max-width: 450px) {
+            .container {
+                max-width: 90%;
+            }
+            .modal-content {
+                max-width: 90%;
+                padding: 20px;
+            }
+            .logo {
+                width: 320px;
+                height: 140px;
+            }
+            .logo-text {
+                font-size: 48px;
+            }
+        }
+    </style>
+    <!-- Add Font Awesome for eye icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Logo in oval shape as per screenshot -->
+        <div class="logo">
+            <div class="logo-text">
+                <span>Togolok</span><span>Chat</span>
+            </div>
+        </div>
+        
+        <!-- Login Form -->
+        <form class="form active" id="login-form">
+            <div class="form-group">
+                <input type="text" id="login-username" placeholder="Кайманга атыңыз же почтаңыз" required>
+            </div>
+            <div class="form-group">
+                <div class="password-container">
+                    <input type="password" id="login-password" placeholder="Сыр сөз" required>
+                    <button type="button" class="password-toggle" onclick="togglePasswordVisibility('login-password')">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="login-options">
+                <div class="toggle-container">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="remember-me">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span>Эстеп кал</span>
+                </div>
+                <div class="forgot-password">
+                    <a id="forgot-password-link">Сыр сөздү унуттуңузбу?</a>
+                </div>
+            </div>
+            <button type="submit">Кирүү</button>
+            <div class="form-switch">
+                Аккаунт жокпу? <a id="go-to-register">Каттолуу</a>
+            </div>
+            <div class="error-message" id="login-error"></div>
+            <div class="success-message" id="login-success"></div>
+        </form>
+        
+        <!-- Register Form (Initial) -->
+        <form class="form" id="register-form">
+            <div class="form-group">
+                <input type="text" id="register-username" placeholder="Колдонуучу аты" required>
+            </div>
+            <div class="form-group">
+                <input type="email" id="register-email" placeholder="Электрондук почта" required>
+            </div>
+            <div class="form-group">
+                <div class="password-container">
+                    <input type="password" id="register-password" placeholder="Сыр сөз" required>
+                    <button type="button" class="password-toggle" onclick="togglePasswordVisibility('register-password')">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="password-container">
+                    <input type="password" id="register-password-confirm" placeholder="Сыр сөздү ырастоо" required>
+                    <button type="button" class="password-toggle" onclick="togglePasswordVisibility('register-password-confirm')">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+            <button type="submit">Каттоону улантуу</button>
+            <div class="form-switch">
+                Мурунтан аккаунтуңуз барбы? <a id="go-to-login">Кирүү</a>
+            </div>
+            <div class="error-message" id="register-error"></div>
+            <div class="success-message" id="register-success"></div>
+        </form>
+    </div>
+    
+    <!-- Security Question Modal -->
+    <div class="modal" id="security-modal">
+        <div class="modal-content">
+            <button class="modal-close" id="close-security-modal">×</button>
+            <div class="modal-title">Коопсуздук маалыматы</div>
+            <div class="form-group">
+                <input type="text" id="security-question" placeholder="Коопсуздук суроосу" required>
+            </div>
+            <div class="form-group">
+                <input type="text" id="secret-word" placeholder="Жашыруун сөз жообу" required>
+            </div>
+            <button id="complete-registration">Каттоону аяктоо</button>
+            <div class="error-message" id="modal-error"></div>
+        </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div class="modal" id="forgot-password-modal">
+        <div class="modal-content">
+            <button class="modal-close" id="close-forgot-modal">×</button>
+            <div class="modal-title">Сыр сөздү калыбына келтирүү</div>
+            <div id="forgot-step-1">
+                <div class="form-group">
+                    <input type="text" id="forgot-username" placeholder="Колдонуучу аты" required>
+                </div>
+                <button id="check-security">Улантуу</button>
+            </div>
+            <div id="forgot-step-2" style="display: none;">
+                <div class="form-group">
+                    <label id="security-question-label">Коопсуздук суроосу</label>
+                    <div class="form-group">
+                        <input type="text" id="forgot-secret-word" placeholder="Жашыруун сөз" required>
+                    </div>
+                </div>
+                <button id="verify-secret">Текшерүү</button>
+            </div>
+            <div id="forgot-step-3" style="display: none;">
+                <div class="form-group">
+                    <div class="password-container">
+                        <input type="password" id="new-password" placeholder="Жаңы сыр сөз" required>
+                        <button type="button" class="password-toggle" onclick="togglePasswordVisibility('new-password')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="password-container">
+                        <input type="password" id="confirm-password" placeholder="Жаңы сыр сөздү ырастоо" required>
+                        <button type="button" class="password-toggle" onclick="togglePasswordVisibility('confirm-password')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <button id="reset-password">Сыр сөздү жаңыртуу</button>
+            </div>
+            <div class="error-message" id="forgot-error"></div>
+        </div>
+    </div>
+
+    <script>
+        // Add password visibility toggle function
+        function togglePasswordVisibility(inputId) {
+            const input = document.getElementById(inputId);
+            const toggleButton = input.nextElementSibling;
+            const icon = toggleButton.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        // DOM elements
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const securityModal = document.getElementById('security-modal');
+        const forgotPasswordModal = document.getElementById('forgot-password-modal');
+        const goToRegister = document.getElementById('go-to-register');
+        const goToLogin = document.getElementById('go-to-login');
+        
+        // Switch to register form
+        goToRegister.addEventListener('click', () => {
+            loginForm.classList.remove('active');
+            registerForm.classList.add('active');
+        });
+        
+        // Switch to login form
+        goToLogin.addEventListener('click', () => {
+            registerForm.classList.remove('active');
+            loginForm.classList.add('active');
+        });
+        
+        // Form data storage for registration
+        let registrationData = {};
+        
+        // Handle initial registration form submission
+        registerForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Clear previous error messages
+            document.getElementById('register-error').textContent = '';
+            
+            // Get form values
+            const username = document.getElementById('register-username').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const confirmPassword = document.getElementById('register-password-confirm').value;
+            
+            // Basic validation
+            if (!username || !email || !password || !confirmPassword) {
+                document.getElementById('register-error').textContent = 'All fields are required!';
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                document.getElementById('register-error').textContent = 'Passwords do not match!';
+                return;
+            }
+            
+            // Store the initial registration data
+            registrationData = {
+                username,
+                email,
+                password
+            };
+            
+            // Show the security modal
+            securityModal.style.display = 'flex';
+        });
+        
+        // Handle the complete registration button in the modal
+        document.getElementById('complete-registration').addEventListener('click', function() {
+            const securityQuestion = document.getElementById('security-question').value;
+            const secretWord = document.getElementById('secret-word').value;
+            
+            // Clear previous error messages
+            document.getElementById('modal-error').textContent = '';
+            
+            // Validate security fields
+            if (!securityQuestion || !secretWord) {
+                document.getElementById('modal-error').textContent = 'Security information is required!';
+                return;
+            }
+            
+            // Add security information to registration data
+            registrationData.security_question = securityQuestion;
+            registrationData.secret_word = secretWord;
+            
+            // Send registration request to API
+            fetch('/auth/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(registrationData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === "User registered successfully") {
+                    // Hide modal
+                    securityModal.style.display = 'none';
+                    
+                    // Show success message
+                    document.getElementById('register-success').textContent = 'Registration successful! You can now log in.';
+                    
+                    // Reset forms
+                    registerForm.reset();
+                    document.getElementById('security-question').value = '';
+                    document.getElementById('secret-word').value = '';
+                    
+                    // Switch to login form
+                    setTimeout(() => {
+                        registerForm.classList.remove('active');
+                        loginForm.classList.add('active');
+                        document.getElementById('register-success').textContent = '';
+                    }, 2000);
+                } else {
+                    // Show error message
+                    document.getElementById('modal-error').textContent = data.message || 'Registration failed. Please try again.';
+                }
+            })
+            .catch(error => {
+                document.getElementById('modal-error').textContent = 'An error occurred. Please try again.';
+                console.error('Error:', error);
+            });
+        });
+        
+        // Close button handlers
+        document.getElementById('close-security-modal').addEventListener('click', function() {
+            securityModal.style.display = 'none';
+            // Clear security modal inputs
+            document.getElementById('security-question').value = '';
+            document.getElementById('secret-word').value = '';
+            document.getElementById('modal-error').textContent = '';
+        });
+
+        document.getElementById('close-forgot-modal').addEventListener('click', function() {
+            forgotPasswordModal.style.display = 'none';
+            // Clear forgot password modal inputs
+            document.getElementById('forgot-username').value = '';
+            document.getElementById('forgot-secret-word').value = '';
+            document.getElementById('new-password').value = '';
+            document.getElementById('confirm-password').value = '';
+            document.getElementById('forgot-error').textContent = '';
+            // Reset to first step
+            document.getElementById('forgot-step-1').style.display = 'block';
+            document.getElementById('forgot-step-2').style.display = 'none';
+            document.getElementById('forgot-step-3').style.display = 'none';
+        });
+
+        // Close modals when clicking outside
+        window.addEventListener('click', function(e) {
+            if (e.target === securityModal) {
+                securityModal.style.display = 'none';
+            }
+            if (e.target === forgotPasswordModal) {
+                forgotPasswordModal.style.display = 'none';
+            }
+        });
+
+        // Handle forgot password link click
+        document.getElementById('forgot-password-link').addEventListener('click', function() {
+            document.getElementById('forgot-password-modal').style.display = 'flex';
+            document.getElementById('forgot-step-1').style.display = 'block';
+            document.getElementById('forgot-step-2').style.display = 'none';
+            document.getElementById('forgot-step-3').style.display = 'none';
+            document.getElementById('forgot-error').textContent = '';
+            // Clear all inputs
+            document.getElementById('forgot-username').value = '';
+            document.getElementById('forgot-secret-word').value = '';
+            document.getElementById('new-password').value = '';
+            document.getElementById('confirm-password').value = '';
+        });
+
+        // Handle check security button click
+        document.getElementById('check-security').addEventListener('click', function() {
+            const username = document.getElementById('forgot-username').value;
+            
+            if (!username) {
+                document.getElementById('forgot-error').textContent = 'Please enter your username';
+                return;
+            }
+
+            // Fetch security question from server
+            fetch('/auth/get-security-question', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById('forgot-error').textContent = data.error;
+                    return;
+                }
+                document.getElementById('security-question-label').textContent = data.security_question;
+                document.getElementById('forgot-step-1').style.display = 'none';
+                document.getElementById('forgot-step-2').style.display = 'block';
+            })
+            .catch(error => {
+                document.getElementById('forgot-error').textContent = 'An error occurred. Please try again.';
+            });
+        });
+
+        // Handle verify secret word button click
+        document.getElementById('verify-secret').addEventListener('click', function() {
+            const username = document.getElementById('forgot-username').value;
+            const secretWord = document.getElementById('forgot-secret-word').value;
+
+            if (!secretWord) {
+                document.getElementById('forgot-error').textContent = 'Please enter the secret word';
+                return;
+            }
+
+            // Verify secret word with server
+            fetch('/auth/verify-secret-word', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, secret_word: secretWord })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById('forgot-error').textContent = data.error;
+                    return;
+                }
+                document.getElementById('forgot-step-2').style.display = 'none';
+                document.getElementById('forgot-step-3').style.display = 'block';
+            })
+            .catch(error => {
+                document.getElementById('forgot-error').textContent = 'An error occurred. Please try again.';
+            });
+        });
+
+        // Handle reset password button click
+        document.getElementById('reset-password').addEventListener('click', function() {
+            const username = document.getElementById('forgot-username').value;
+            const newPassword = document.getElementById('new-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+
+            if (!newPassword || !confirmPassword) {
+                document.getElementById('forgot-error').textContent = 'Please fill in all fields';
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                document.getElementById('forgot-error').textContent = 'Passwords do not match';
+                return;
+            }
+
+            // Reset password on server
+            fetch('/auth/reset-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                    username,
+                    new_password: newPassword
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById('forgot-error').textContent = data.error;
+                    return;
+                }
+                document.getElementById('forgot-password-modal').style.display = 'none';
+                document.getElementById('login-success').textContent = 'Password reset successfully. Please login with your new password.';
+            })
+            .catch(error => {
+                document.getElementById('forgot-error').textContent = 'An error occurred. Please try again.';
+            });
+        });
+
+        // Handle login form submission with remember me
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+            const rememberMe = document.getElementById('remember-me').checked;
+            
+            fetch('/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username,
+                    password,
+                    remember_me: rememberMe
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById('login-error').textContent = data.error;
+                    return;
+                }
+                window.location.href = '/';
+            })
+            .catch(error => {
+                document.getElementById('login-error').textContent = 'An error occurred. Please try again.';
+            });
+        });
+    </script>
+</body>
+</html>

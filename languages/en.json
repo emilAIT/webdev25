@@ -1,0 +1,53 @@
+{
+  "app": {
+    "title": "TogolokChat",
+    "tagline": "Connect with friends and family"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "username": "Username",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "forgotPassword": "Forgot Password?",
+    "loginButton": "Sign In",
+    "registerButton": "Sign Up"
+  },
+  "chat": {
+    "search": "Search contacts...",
+    "newMessage": "New Message",
+    "newGroup": "New Group",
+    "typing": "typing...",
+    "online": "Online",
+    "offline": "Offline",
+    "lastSeen": "Last seen",
+    "messageInput": "Type a message...",
+    "send": "Send",
+    "attachment": "Attachment",
+    "chats": "Chats",
+    "contacts": "Contacts",
+    "groups": "Groups",
+    "add": "Add",
+    "settings": "Settings"
+  },
+  "settings": {
+    "title": "Settings",
+    "profile": "Profile",
+    "account": "Account",
+    "privacy": "Privacy",
+    "notifications": "Notifications",
+    "language": "Language",
+    "theme": "Theme",
+    "save": "Save Changes",
+    "cancel": "Cancel",
+    "languageSaved": "Language preference saved!",
+    "password": "Change Password",
+    "admin": "Admin Panel",
+    "logout": "Logout"
+  },
+  "languages": {
+    "en": "English",
+    "ru": "Russian",
+    "ky": "Kyrgyz"
+  }
+}
