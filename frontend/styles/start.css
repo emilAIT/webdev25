@@ -1,0 +1,136 @@
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  font-size: 16px;
+  font-family: "Inter", sans-serif;
+}
+a {
+  text-decoration: none;
+  color: #000;
+}
+img {
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover; /* or 'contain' depending on your goal */
+  display: block; /* removes default inline spacing */
+}
+.block {
+  width: 550px;
+  min-height: 450px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.4); /* semi-transparent black */
+  display: block;
+  border-radius: 20px;
+}
+.logo_container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 50px;
+  flex-direction: column;
+  height: 100%;
+  row-gap: 80px;
+}
+.logo-text {
+  height: auto;
+  width: 100%;
+  object-fit: contain;
+}
+.btn {
+  width: 200px;
+  padding: 10px 20px;
+  border-radius: 30px;
+  background-color: #ffd500;
+  border: none;
+  font-weight: 600;
+  font-size: 14px;
+}
+.btn:hover {
+  background-color: #f0c200;
+  cursor: pointer;
+}
+.btn:active {
+  background-color: #e0b000;
+  transform: translateY(2px);
+}
+.login {
+  padding-bottom: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.login .logo {
+  width: 70px;
+  object-fit: contain;
+  height: auto;
+}
+.login h1 {
+  color: #fff;
+  font-size: 20px;
+  font-weight: 500;
+}
+.logo-title {
+  margin: 20px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: auto;
+  gap: 10px;
+}
+
+.inputs {
+  width: 70%;
+  margin: 10px 0 40px 0;
+}
+.input-block {
+  color: #eaeaea;
+  margin: 10px 0;
+}
+.input-block .label {
+  margin-left: 5px;
+  margin-bottom: 5px;
+  font-size: 12px;
+  font-weight: 400;
+}
+.input-logo {
+  position: relative;
+}
+.input-logo img {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 15px;
+  height: 50px;
+  height: auto;
+}
+.left {
+  left: 10px;
+}
+.right {
+  right: 20px;
+}
+.input-logo input {
+  color: #fff;
+  font-size: 14px;
+  padding: 10px 10px 10px 40px;
+  border: none;
+  border-radius: 5px;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+.input-logo input:focus {
+  border: none;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+}
+.text-gray {
+  margin-top: 40px;
+  color: #8d8d8d;
+}
+.text-gray a {
+  text-decoration: underline;
+  color: #ffd500;
+}
