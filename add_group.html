@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Create Group</title>
+  <style>
+    body {
+      background-color: black;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+    .group-box {
+      background-color: black; /* Тёмный фон формы */
+      padding: 20px;
+      border-radius: 15px;
+      width: 350px;
+      box-sizing: border-box;
+    }
+    .button-container {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+    .group-box button {
+      padding: 8px 20px;
+      font-size: 14px;
+      border: 1px solid #666;
+      border-radius: 10px;
+      background-color: #d3d3d3; /* Светло-серый фон кнопок */
+      color: black; 
+      cursor: pointer;
+      text-transform: lowercase;
+    }
+    .group-name-container {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .group-name-container span {
+      font-size: 20px;
+      margin-right: 10px;
+      width: 30px; /* Фиксированная ширина для выравнивания */
+      display: inline-block;
+      text-align: center;
+    }
+    .group-box input[type="text"] {
+      padding: 12px; /* Увеличиваем внутренние отступы для большей высоты */
+      border: 1px solid #666;
+      border-radius: 12px;
+      background-color: #f4eded; /* Светло-серый фон поля ввода */
+      color: #666;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    .group-box input[type="text"]::placeholder {
+      color: #666; /* Цвет плейсхолдера */
+    }
+    .group-box input.name-of-group {
+      width: 55%; /* Ширина для "Name of group" */
+      height: 33px;
+    }
+    .group-box input.name-of-member {
+      width: 70%; 
+      margin-left: 0; /* Убираем отступ, чтобы сдвинуть левее */
+      margin-bottom: 15px; /* Сохраняем отступ снизу */
+      height: 33px;
+    }
+    .group-icon {
+    width: 37px;  /* Увеличиваем размер */
+    height: 37px; 
+    margin-right: 10px; /* Увеличиваем отступ от поля ввода */
+    object-fit: cover; /* Сохраняем пропорции */
+  }
+    .member-list {
+      margin-top: 20px;
+    }
+    .member-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .member-item span.avatar {
+      font-size: 20px;
+      margin-right: 10px;
+      width: 30px; /* Фиксированная ширина для выравнивания */
+      display: inline-block;
+      text-align: center;
+    }
+    .member-item span.name {
+      flex: 1; /* Занимает всё доступное пространство */
+      padding: 8px;
+      border: 1px solid #666;
+      border-radius: 10px;
+      background-color: #d3d3d3;
+      color: black;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="group-box">
+    <div class="button-container">
+      <button>cancel</button>
+      <button>create</button>
+    </div>
+    <div class="group-name-container">
+      <img src="png/camera.png" alt="Group Icon" class="group-icon">
+      <input type="text" class="name-of-group" placeholder="Name of group">
+    </div>
+    <div class="group-name-container">
+      <input type="text" class="name-of-member" placeholder="Name of member">
+    </div>
+    <div class="member-list">
+      <div class="member-item">
+        <span class="avatar">👤</span>
+        <span class="name">Dair</span>
+      </div>
+      <div class="member-item">
+        <span class="avatar">🖼️</span>
+        <span class="name">Nurdin</span>
+      </div>
+      <div class="member-item">
+        <span class="avatar">🦊</span>
+        <span class="name">Aktan</span>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="js/create_group.js"></script>
+</body>
+</html>

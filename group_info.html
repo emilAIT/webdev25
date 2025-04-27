@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Group Info</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: black;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .group-info-container {
+      width: 320px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: white;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 20px;
+    }
+
+    .back-icon {
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+    }
+
+    .group-avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin: 10px 0;
+    }
+
+    .rename-input {
+      background-color: #d3d3d3;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 14px;
+      width: 100px;
+      text-align: center;
+    }
+
+    .add-icon {
+      width: 30px;
+      height: 30px;
+      cursor: pointer;
+    }
+
+    .member-section {
+      width: 100%;
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .member-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .member-item {
+      display: flex;
+      align-items: center;
+      background-color: #d3d3d3;
+      border-radius: 8px;
+      padding: 8px 12px;
+      width: 200px;
+      color: black;
+    }
+
+    .member-item .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 10px;
+    }
+
+    #exitBtn {
+      background-color: #d3d3d3;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      width: 200px;
+      color: black;
+    }
+
+    #exitBtn:hover {
+      background-color: #a0a0a0;
+    }
+  </style>
+</head>
+<body>
+  <div class="group-info-container">
+    <div class="header">
+      <img src="png/image 18.png" alt="Back" class="back-icon" id="backIcon">
+      <img src="png/group_avatar.png" alt="Group Avatar" class="group-avatar" id="groupAvatar">
+      <img src="png/plus.png" alt="Add" class="add-icon" id="addIcon">
+    </div>
+    <input type="text" class="rename-input" placeholder="retitle" id="renameInput">
+    <div class="member-section">
+      <h3 id="memberCount">0 members</h3>
+      <div id="memberList" class="member-list"></div>
+    </div>
+    <button id="exitBtn">exit from group</button>
+  </div>
+  <script src="group_info.js"></script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>New Menu</title>
+  <style>
+    /* Сброс отступов и заполнения по умолчанию */
+    html, body {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    *, *::before, *::after {
+      box-sizing: inherit;
+    }
+
+    /* Оформление body */
+    body {
+      background-color: black;
+      font-family: Arial, sans-serif;
+      color: white;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      justify-content: center; /* Центрирует .container по горизонтали */
+      align-items: center;     /* Центрирует .container по вертикали */
+    }
+
+    /* Внешний контейнер, чтобы разместить меню по центру экрана */
+    .container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center; /* Повторно центрируем .menu-container */
+      align-items: center;
+      position: relative;
+    }
+
+    /* Контейнер, в котором лежит иконка и само меню */
+    .menu-container {
+      position: relative; /* Обязателен, чтобы .back-arrow была абсолютна внутри */
+      width: 350px;       /* Ширина блока с меню (и иконкой) */
+      background-color: #000000; /* Фон, если хотите видеть границы */
+      border-radius: 10px;       /* Слегка скруглим, если нужно */
+      padding: 50px 20px 20px 20px; /* Отступы внутри блока */
+    }
+
+    /* Иконка «назад» */
+    .back-arrow {
+      position: absolute;
+      top: 20px;
+      left: 0px;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+    }
+
+    /* Контейнер с самим меню (кнопками) */
+    .menu {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-top: 40px; /* Отступ, чтобы иконка "назад" не налезала на кнопки */
+    }
+
+    /* Каждый пункт меню (иконка + кнопка) */
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    /* Иконки внутри пунктов меню */
+    .menu-item img {
+      width: 40px;
+      height: 40px;
+      background-color: white;
+      border-radius: 50%;
+      padding: 4px;
+    }
+
+    /* Стили для кнопок */
+    .menu-item button {
+      width: 240px;
+      height: 35px;
+      background-color: lightgray;
+      border: none;
+      border-radius: 10px;
+      padding: 0px 10px;
+      font-size: 20px;
+      color: black;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      text-align: left;
+      display: flex;        /* Делаем кнопку flex-контейнером */
+      align-items: center;  /* Выравнивание текста по вертикали */
+      justify-content: left; /* Выравнивание текста по левому краю */
+    }
+
+    .menu-item button:hover {
+      background-color: #d3d3d3;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Контейнер, в котором и иконка "назад", и само меню -->
+    <div class="menu-container">
+      <!-- Иконка «назад» -->
+      <img
+        src="png/image 18.png"
+        alt="Back"
+        class="back-arrow"
+        onclick="history.back()"
+      >
+
+      <!-- Основное меню -->
+      <div class="menu">
+        <div class="menu-item">
+          <img src="png/image 8.png" alt="icon">
+          <button onclick="window.location.href = 'new_contact.html'">
+            New contact
+          </button>
+        </div>
+        <div class="menu-item">
+          <img src="png/image 11.png" alt="icon">
+          <button onclick="window.location.href ='add_group.html'">
+            New group
+          </button>
+        </div>
+        <div class="menu-item">
+          <img src="png/image 10.png" alt="icon">
+          <button onclick="window.location.href = 'add_community.html'">
+            New community
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

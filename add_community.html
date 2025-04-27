@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Create Community</title>
+  <style>
+    body {
+      background-color: black;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+    .group-box {
+      background-color: black;
+      padding: 20px;
+      border-radius: 15px;
+      width: 350px;
+      box-sizing: border-box;
+    }
+    .button-container {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+    .group-box button {
+      padding: 8px 20px;
+      font-size: 14px;
+      border: 1px solid #666;
+      border-radius: 10px;
+      background-color: #d3d3d3;
+      color: black;
+      cursor: pointer;
+      text-transform: lowercase;
+    }
+    .group-name-container {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .group-box input[type="text"] {
+      padding: 12px;
+      border: 1px solid #666;
+      border-radius: 12px;
+      background-color: #f4eded;
+      color: #666;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    .group-box input[type="text"]::placeholder {
+      color: #666;
+    }
+    .group-box input.name-of-group {
+      width: 55%;
+      height: 33px;
+    }
+    .group-icon {
+      width: 37px;
+      height: 37px;
+      margin-right: 10px;
+      object-fit: cover;
+    }
+    .member-list {
+      margin-top: 20px;
+    }
+    .member-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .member-item span.avatar {
+      font-size: 20px;
+      margin-right: 10px;
+      width: 30px;
+      display: inline-block;
+      text-align: center;
+    }
+    .member-item label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+    }
+    .member-item span.name {
+      padding: 8px;
+      border: 1px solid #666;
+      border-radius: 10px;
+      background-color: #d3d3d3;
+      color: black;
+      font-size: 14px;
+      flex: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="group-box">
+    <div class="button-container">
+      <button>cancel</button>
+      <button>create</button>
+    </div>
+    <div class="group-name-container">
+      <img src="png/camera.png" alt="Community Icon" class="group-icon">
+      <input type="text" class="name-of-group" placeholder="Name of community">
+    </div>
+    <div class="member-list">
+      <!-- Groups will be loaded here -->
+    </div>
+  </div>
+  <script type="module" src="js/add_community.js"></script>
+</body>
+</html>

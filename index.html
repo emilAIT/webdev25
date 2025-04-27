@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+  <style>
+    body {
+      background-color: black;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+    .login-box {
+      text-align: center;
+      color: white;
+    }
+    .login-box h1 {
+      color: yellow;
+      font-size: 48px;
+      margin-bottom: 40px;
+    }
+    .login-box input[type="text"],
+    .login-box input[type="password"] {
+      width: 400px;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: none;
+      background-color: lightgray;
+      font-size: 18px;
+    }
+    .login-box button {
+      padding: 10px 25px;
+      font-size: 18px;
+      border: none;
+      border-radius: 6px;
+      background-color: lightgray;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    .register-link {
+      margin-top: 40px;
+      display: block;
+      color: white;
+      text-decoration: none;
+      font-size: 16px;
+    }
+    .register-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <h1>Login</h1>
+    <input id="loginInput" type="text" placeholder="Name or email"><br>
+    <input id="passwordInput" type="password" placeholder="Password"><br>
+    <button onclick="login()">Login</button>
+    <script type="module" src="js/functions.js"></script>
+    <p id="error-message" style="color: red; margin-top: 20px;"></p>
+    <a class="register-link" href="register.html">Register</a>
+  </div>
+</body>
+</html>

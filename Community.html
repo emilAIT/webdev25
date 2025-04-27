@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Community Groups</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: black;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      touch-action: manipulation;
+    }
+
+    .chat-container {
+      width: 320px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 105%;
+      padding: 20px;
+    }
+
+    .back-icon {
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+    }
+
+    .chat-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+      align-items: center;
+    }
+
+    .chat-item {
+      display: flex;
+      align-items: center;
+      width: 80%;
+      position: relative;
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .chat-box {
+      background-color: #d3d3d3;
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin-left: 10px;
+      display: flex;
+      align-items: center;
+      width: 130px;
+      height: 30px;
+      justify-content: left;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .chat-box span {
+      color: black;
+      font-size: 16px;
+    }
+
+    .context-menu {
+      position: absolute;
+      left: calc(100% - 65px);
+      top: 0;
+      background-color: #d3d3d3;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      width: 80px;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateX(-5px);
+      visibility: hidden;
+      transition: 
+        opacity 0.2s ease,
+        transform 0.2s ease,
+        visibility 0.2s;
+    }
+
+    .context-menu button {
+      border: none;
+      background: none;
+      padding: 6px 8px;
+      text-align: left;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.1s ease;
+    }
+
+    .context-menu .edit-btn {
+      color: #4a8cff;
+    }
+
+    .context-menu .delete-btn {
+      color: #ff4a4a;
+    }
+
+    .context-menu button:hover {
+      background-color: gainsboro;
+    }
+
+    .chat-item.active .context-menu {
+      opacity: 1;
+      transform: translateX(0);
+      visibility: visible;
+    }
+
+    .chat-item.active .chat-box {
+      background-color: #a0a0a0;
+    }
+
+    .chat-box {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <div class="header">
+      <img src="png/image 18.png" alt="Back" class="back-icon">
+    </div>
+    <div class="chat-list" id="groupList">
+      <!-- Groups will be loaded here -->
+    </div>
+  </div>
+  <script type="module" src="js/community.js"></script>
+</body>
+</html>

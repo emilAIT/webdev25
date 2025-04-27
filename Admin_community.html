@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Chat List with Context Menu</title>
+  <style>
+    /* Сброс отступов и границ */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* Центрирование всей страницы */
+    body {
+      background-color: black; /* Чёрный фон */
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      touch-action: manipulation; /* Улучшение обработки касаний */
+    }
+
+    /* Основной контейнер чатов */
+    .chat-container {
+      width: 320px; /* Ширина контейнера */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Верхняя панель (заголовок и кнопки) */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 105%;
+      padding: 20px;
+    }
+
+    /* Левая иконка (назад) */
+    .back-icon {
+      width: 40px; /* Размер иконки */
+      height: 40px;
+      cursor: pointer;
+    }
+
+    /* Поле "Rename" */
+    .rename-input {
+      flex-grow: 1;
+      background-color: #d3d3d3;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 14px;
+      max-width: 80px;
+    }
+
+    /* Правая иконка (плюс) */
+    .add-icon {
+      width: 30px; /* Размер иконки */
+      height: 30px;
+      cursor: pointer;
+    }
+
+    /* Список чатов */
+    .chat-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px; /* Расстояние между чатами */
+      width: 100%;
+      align-items: center;
+    }
+
+    /* Один элемент чата */
+    .chat-item {
+      display: flex;
+      align-items: center;
+      width: 80%; /* Ширина элемента чата */
+      position: relative; /* Для позиционирования контекстного меню */
+    }
+
+    /* Аватар пользователя */
+    .avatar {
+      width: 40px; /* Размер аватарки */
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    /* Пустое пространство вместо аватара для других чатов */
+    .empty-avatar {
+      width: 40px; /* Такой же размер, как у аватарки */
+      height: 40px;
+    }
+
+    /* Поле чата */
+    .chat-box {
+      background-color: #d3d3d3; /* Серый фон */
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin-left: 10px; /* Отступ от аватарки */
+      display: flex;
+      align-items: center;
+      width: 130px; /* Ширина полей чатов */
+      height: 30px; /* Высота полей чатов */
+      justify-content: left;
+      cursor: pointer;
+      user-select: none; /* Запрет выделения текста */
+    }
+
+    /* Текст в поле чата */
+    .chat-box span {
+      color: black;
+      font-size: 16px;
+    }
+
+    /* Контекстное меню */
+    .context-menu {
+      position: absolute;
+      left: calc(100% - 65px); /* Расположение справа от чата с отступом */
+      top: 0;
+      background-color: #d3d3d3;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      width: 80px;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateX(-5px);
+      visibility: hidden;
+      transition: 
+        opacity 0.2s ease,
+        transform 0.2s ease,
+        visibility 0.2s;
+    }
+
+    /* Кнопки в контекстном меню */
+    .context-menu button {
+      border: none;
+      background: none;
+      padding: 6px 8px;
+      text-align: left;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.1s ease;
+    }
+
+      /* Стиль для кнопки edit */
+      .context-menu .edit-btn {
+      color: #4a8cff; /* Синий цвет */
+      /* border-bottom: 1px solid #f0f0f0; */
+      /* Разделитель */
+    }
+
+      /* Стиль для кнопки delete */
+      .context-menu .delete-btn {
+      color: #ff4a4a; /* Красный цвет */
+    }
+
+    .context-menu button:hover {
+      background-color: gainsboro;
+    }
+
+    /* Показать меню при активном состоянии */
+    .chat-item.active .context-menu {
+      opacity: 1;
+      transform: translateX(0);
+      visibility: visible;
+    }
+
+    /* Подсветка выбранного чата */
+    .chat-item.active .chat-box {
+      background-color: #a0a0a0;
+    }
+
+    /* Запрет выделения текста при долгом нажатии */
+    .chat-box {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <!-- Верхняя панель -->
+    <div class="header">
+      <img src="png/image 18.png" alt="Back" class="back-icon">
+      <input type="text" class="rename-input" placeholder="Rename">      
+      <img src="png/plus.png" alt="Add Chat" class="add-icon">
+    </div>
+    
+    <!-- Список чатов -->
+    <div class="chat-list">
+      <div class="chat-item" id="chat1">
+        <img src="png/AIT.png" alt="Avatar" class="avatar">
+        <div class="chat-box"><span>chat_1</span></div>
+        <!-- Контекстное меню -->
+        <div class="context-menu">
+          <button class="edit-btn">edit</button>
+          <button class="delete-btn">delete</button>
+        </div>
+      </div>
+      
+      <div class="chat-item" id="chat2">
+        <div class="empty-avatar"></div>
+        <div class="chat-box"><span>chat_2</span></div>
+        <div class="context-menu">
+          <button class="edit-btn">edit</button>
+          <button class="delete-btn">delete</button>
+        </div>
+      </div>
+      
+      <div class="chat-item" id="chat3">
+        <div class="empty-avatar"></div>
+        <div class="chat-box"><span>chat_3</span></div>
+        <div class="context-menu">
+          <button class="edit-btn">edit</button>
+          <button class="delete-btn">delete</button>
+        </div>
+      </div>
+      
+      <div class="chat-item" id="chat4">
+        <div class="empty-avatar"></div>
+        <div class="chat-box"><span>chat_4</span></div>
+        <div class="context-menu">
+          <button class="edit-btn">edit</button>
+          <button class="delete-btn">delete</button>
+        </div>
+      </div>
+      
+      <div class="chat-item" id="chat5">
+        <div class="empty-avatar"></div>
+        <div class="chat-box"><span>chat_5</span></div>
+        <div class="context-menu">
+          <button class="edit-btn">edit</button>
+          <button class="delete-btn">delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Обработчики для контекстного меню
+      document.querySelectorAll('.chat-item').forEach(chatItem => {
+        let pressTimer;
+        let isContextMenuVisible = false;
+        const chatBox = chatItem.querySelector('.chat-box');
+        const contextMenu = chatItem.querySelector('.context-menu');
+        
+        // Функция показа меню
+        function showMenu(event) {
+          // Скрыть все другие меню
+          document.querySelectorAll('.chat-item').forEach(item => {
+            item.classList.remove('active');
+          });
+          
+          // Показать текущее меню
+          chatItem.classList.add('active');
+          isContextMenuVisible = true;
+          
+          // Для правого клика - позиционирование
+          if (event && event.type === 'contextmenu') {
+            event.preventDefault();
+            const rect = chatBox.getBoundingClientRect();
+            const menuWidth = contextMenu.offsetWidth;
+            // Позиционируем меню ближе к чату
+            contextMenu.style.left = 'calc(100% - 65px)';
+            contextMenu.style.top = '0';
+            contextMenu.style.transform = 'translateX(0)';  
+            
+            // Проверка, чтобы меню не выходило за границы экрана
+            if (rect.right + menuWidth > windowWidth) {
+              contextMenu.style.left = 'auto';
+              contextMenu.style.right = '100%';
+              contextMenu.style.transform = 'translateX(10px)';
+            } else {
+              contextMenu.style.left = 'calc(100% + 10px)';
+              contextMenu.style.right = 'auto';
+              contextMenu.style.transform = 'translateX(0)';
+            }
+            
+            chatItem.classList.add('active');
+          }
+        }
+        
+        // Функция скрытия меню
+        function hideMenu() {
+          chatItem.classList.remove('active');
+          isContextMenuVisible = false;
+        }
+        
+        // Долгое нажатие (для мобильных)
+        chatBox.addEventListener('touchstart', function(e) {
+          e.preventDefault();
+          pressTimer = setTimeout(() => showMenu(e), 500); // 500ms задержка
+        }, { passive: false });
+        
+        // Отмена при отпускании (для мобильных)
+        chatBox.addEventListener('touchend', function(e) {
+          clearTimeout(pressTimer);
+          // Если было короткое нажатие и меню открыто - закрыть его
+          if (isContextMenuVisible) {
+            e.preventDefault();
+            hideMenu();
+          }
+        }, { passive: false });
+        
+        // Отмена при движении пальца (для мобильных)
+        chatBox.addEventListener('touchmove', function() {
+          clearTimeout(pressTimer);
+        });
+        
+        // Правый клик (для десктопов)
+        chatBox.addEventListener('contextmenu', function(e) {
+          showMenu(e);
+        });
+        
+        // Клик вне меню скрывает его
+        document.addEventListener('click', function(e) {
+          if (!chatItem.contains(e.target) && !isContextMenuFromAnotherChat(e.target)) {
+            hideMenu();
+          }
+        });
+        
+        // Проверка, является ли элемент частью другого контекстного меню
+        function isContextMenuFromAnotherChat(target) {
+          while (target) {
+            if (target.classList && target.classList.contains('context-menu')) {
+              return true;
+            }
+            target = target.parentElement;
+          }
+          return false;
+        }
+        
+        // Скрытие меню при прокрутке
+        document.addEventListener('scroll', hideMenu, true);
+        
+        // Скрытие меню при изменении размера окна
+        window.addEventListener('resize', hideMenu);
+        
+        // Обработчики для кнопок меню
+        const editBtn = chatItem.querySelector('.edit-btn');
+        const deleteBtn = chatItem.querySelector('.delete-btn');
+        
+        editBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          alert('Edit: ' + chatItem.querySelector('.chat-box span').textContent);
+          hideMenu();
+        });
+        
+        deleteBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          if (confirm('Delete this chat?')) {
+            chatItem.remove();
+          }
+          hideMenu();
+        });
+      });
+    });
+  </script>
+</body>
+</html>

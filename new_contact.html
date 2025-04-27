@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Add New Contact</title>
+  <style>
+    body {
+      background-color: black;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+    .contact-box {
+      background-color: black;
+      padding: 20px;
+      border-radius: 10px;
+      width: 450px;
+    }
+    .button-container {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      margin-bottom: 40px; /* Отступ снизу для разделения кнопок и поля ввода */
+    }
+    .contact-box button {
+      padding: 10px 25px;
+      font-size: 18px;
+      border: none;
+      border-radius: 6px;
+      background-color: #d3d3d3; /* чуть темнее светло-серого */
+      cursor: pointer;
+    }
+    .contact-box input[type="text"] {
+      width: 425px;
+      padding: 12px;
+      margin: 0;
+      border-radius: 8px;
+      border: none;
+      background-color: #f4eded; 
+      font-size: 18px;
+    }
+    .contact-box input[type="text"]::placeholder {
+      color: #666; /* Цвет плейсхолдера */
+    }
+  </style>
+</head>
+<body>
+  <div class="contact-box">
+    <div class="button-container">
+      <button>cancel</button>
+      <button>safe</button>
+    </div>
+    <input id="nameInput" type="text" placeholder="Name">
+  </div>
+</body>
+<script type="module">
+  import { setupAddContact } from './js/functions.js';
+  setupAddContact(
+    '.button-container button:nth-child(1)',  // cancel
+    '.button-container button:nth-child(2)',  // save
+    '#nameInput'                              // input
+  );
+</script>
+</html>

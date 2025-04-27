@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Register</title>
+  <style>
+    body {
+      background-color: black;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+    .register-box {
+      text-align: center;
+      color: white;
+      position: relative;
+    }
+    .register-box h1 {
+      color: yellow;
+      font-size: 48px;
+      margin-bottom: 30px;
+    }
+    .register-box input[type="text"],
+    .register-box input[type="email"],
+    .register-box input[type="password"] {
+      width: 400px;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: none;
+      background-color: lightgray;
+      font-size: 18px;
+    }
+    .register-box button {
+      padding: 10px 25px;
+      font-size: 18px;
+      border: none;
+      border-radius: 6px;
+      background-color: lightgray;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    /* Иконка «назад» в левом верхнем углу */
+    .back-arrow {
+      position: absolute; /* «Абсолют» внутри .container */
+      top: 0px;          /* Отступ сверху */
+      left: -25px;         /* Отступ слева */
+      width: 50px;
+      height: 50px;
+      cursor: pointer;    /* Указатель при наведении */
+    }
+    /* .back-arrow:hover {
+      text-decoration: underline;
+    } */
+  </style>
+</head>
+<body>
+  <div class="register-box">
+    <a href="index.html"><img
+      src="png/image 18.png"  
+      alt="Back"
+      class="back-arrow"></a>
+    <h1>Register</h1>
+    <input id="regName" type="text" placeholder="Name"><br>
+    <input id="regEmail" type="email" placeholder="Email"><br>
+    <input id="regPassword" type="password" placeholder="Password"><br>
+    <input id="regConfirm" type="password" placeholder="Confirm the password"><br>
+    <button onclick="register()">Sign up</button>
+    <p id="reg-error-message" style="color: red; margin-top: 20px;"></p>
+    <script type="module" src="js/functions.js"></script>
+  </div>
+</body>
+</html>
