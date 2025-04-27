@@ -1,0 +1,1259 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: url('/static/images/chat-background.jpg') no-repeat center center;
+    background-size: cover;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.main-wrapper {
+    display: flex;
+    height: 100vh;
+}
+
+.sidebar-menu {
+    width: 60px;
+    background: #249FF4;
+    border-right: 1px solid #249FF4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 20px;
+    position: relative;
+}
+
+.menu-toggle {
+    color: #fff;
+    font-size: 26px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.menu-toggle:hover {
+    color: #f0f0f0;
+}
+
+.menu-items {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+    width: 100%;
+}
+
+.menu-items.active {
+    display: flex;
+}
+
+.sidebar-menu.active .menu-items {
+    display: flex;
+}
+
+.menu-item {
+    color: #fff;
+    font-size: 26px;
+    cursor: pointer;
+    transition: color 0.3s;
+    width: 100%;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.menu-item:hover {
+    color: #f0f0f0;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.menu-item.active {
+    color: #f0f0f0;
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.container {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+    gap: 20px;
+    background: url('/static/images/chat-background.jpg') no-repeat center center;
+    background-size: cover;
+}
+
+.version {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: #666;
+    font-size: 12px;
+    transform: rotate(-45deg);
+}
+
+.sidebar {
+    order: 1;
+    width: 300px;
+    background: #ffffff;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.search-bar {
+    padding: 15px;
+    position: relative;
+}
+
+.search-bar input {
+    width: 100%;
+    padding: 8px 30px 8px 15px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    outline: none;
+}
+
+.search-bar i {
+    position: absolute;
+    right: 25px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #666;
+}
+
+.contacts,
+.groups {
+    flex: 1;
+    overflow-y: auto;
+    display: none;
+}
+
+.contacts.active,
+.groups.active {
+    display: block;
+}
+
+.contact,
+.group {
+    padding: 12px 15px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    border-radius: 15px;
+    margin-bottom: 10px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s, transform 0.2s;
+    width: 100%;
+    justify-content: space-between;
+    position: relative;
+}
+
+/* Добавляем стиль для счетчика сообщений группы */
+.message-count {
+    display: none;
+}
+
+.status {
+    display: none;
+}
+
+.contact:hover,
+.group:hover {
+    background-color: #f0f8ff;
+    transform: translateY(-2px);
+}
+
+.contact.active,
+.group.active {
+    background-color: #e6f7ff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background-color: #e6e6e6;
+    margin-right: 15px;
+    flex-shrink: 0;
+}
+
+.name {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+}
+
+.status {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #ddd;
+    margin-left: 10px;
+}
+
+.status.online {
+    background-color: #249FF4;
+}
+
+.contact.active .status {
+    background-color: #249FF4;
+    width: 12px;
+    height: 12px;
+    box-shadow: 0 0 5px rgba(36, 159, 244, 0.5);
+}
+
+.chat-area {
+    order: 2;
+    flex: 1;
+    background: linear-gradient(135deg, #f0f8ff, #e6f7ff);
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: slideIn 0.3s ease-in-out;
+    color: #333;
+}
+
+.chat-header {
+    padding: 15px;
+    background: transparent;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    border-radius: 15px 15px 0 0;
+}
+
+.user-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.user-info .name {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
+
+.user-info .status {
+    font-size: 12px;
+    font-weight: 700;
+    color: #f7f57b;
+    background: none;
+    margin-top: 3px;
+}
+
+.create-group-chat {
+    padding: 10px;
+    background-color: #0084ff;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.create-group-chat:hover {
+    background-color: #0073e6;
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    background: transparent;
+}
+
+.message {
+    margin-bottom: 15px;
+    display: flex;
+}
+
+.message.sent {
+    justify-content: flex-end;
+}
+
+.message-content {
+    max-width: 70%;
+    position: relative;
+}
+
+.message-text {
+    display: inline-block;
+    padding: 10px 15px;
+    background: linear-gradient(90deg, #249FF4, #0084ff);
+    color: #fff;
+    border-radius: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.message-time {
+    font-size: 12px;
+    color: #666;
+    margin-left: 10px;
+}
+
+.message-status {
+    margin-left: 5px;
+}
+
+.message-status.read i {
+    color: #0084ff;
+}
+
+.message-status.unread i {
+    color: #666;
+}
+
+.message-actions {
+    position: relative;
+    margin-left: 10px;
+}
+
+.message-actions i {
+    cursor: pointer;
+    color: #666;
+    font-size: 20px;
+    padding: 4px;
+}
+
+.message-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+    width: 200px;
+    padding: 10px 0;
+}
+
+.message-menu.active {
+    display: block;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 15px;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.menu-item i {
+    margin-right: 10px;
+    font-size: 16px;
+}
+
+.menu-item:hover {
+    background-color: #f0f0f0;
+}
+
+.menu-item:last-child {
+    color: #ff4444;
+}
+
+.menu-item:last-child:hover {
+    background-color: #ffe6e6;
+}
+
+.chat-input {
+    padding: 15px;
+    background: transparent;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+}
+
+.chat-input input {
+    flex: 1;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    outline: none;
+    background-color: #fff;
+    color: #333;
+    transition: border-color 0.3s ease;
+}
+
+.chat-input input:focus {
+    border-color: #249FF4;
+    box-shadow: 0 0 5px rgba(36, 159, 244, 0.3);
+}
+
+.chat-input button {
+    margin-left: 10px;
+    padding: 10px;
+    background: linear-gradient(90deg, #249FF4, #0084ff);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(36, 159, 244, 0.3);
+    transition: all 0.3s ease;
+}
+
+.chat-input button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(36, 159, 244, 0.5);
+    background: linear-gradient(90deg, #0084ff, #249FF4);
+}
+
+.edit-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.edit-input {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 15px;
+    outline: none;
+    width: 100%;
+    background-color: #fff;
+    color: #333;
+    transition: border-color 0.3s ease;
+}
+
+.edit-input:focus {
+    border-color: #249FF4;
+    box-shadow: 0 0 5px rgba(36, 159, 244, 0.3);
+}
+
+.edit-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.edit-actions button {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.save-btn {
+    background: linear-gradient(90deg, #249FF4, #0084ff);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(36, 159, 244, 0.3);
+    transition: all 0.3s ease;
+}
+
+.save-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(36, 159, 244, 0.5);
+    background: linear-gradient(90deg, #0084ff, #249FF4);
+}
+
+.delete-btn {
+    background: linear-gradient(90deg, #ff6666, #ff3333);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(255, 51, 51, 0.3);
+    transition: all 0.3s ease;
+}
+
+.delete-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 51, 51, 0.5);
+    background: linear-gradient(90deg, #ff3333, #ff6666);
+}
+
+.cancel-btn {
+    background-color: #ddd;
+    color: #333;
+}
+
+.emoji-button {
+    margin-right: 10px;
+    padding: 10px;
+    background: transparent;
+    color: #666;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.emoji-button:hover {
+    background: #f5f5f5;
+}
+
+.emoji-panel {
+    display: none;
+    position: absolute;
+    bottom: 60px;
+    left: 15px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    z-index: 100;
+    width: 320px;
+    height: 320px;
+    overflow-y: auto;
+    padding: 10px;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.emoji-panel.active {
+    display: block;
+    opacity: 1;
+}
+
+.emoji-category {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 10px;
+}
+
+.emoji-title {
+    font-size: 14px;
+    color: #666;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.emoji {
+    font-size: 24px;
+    cursor: pointer;
+    padding: 5px;
+    display: inline-block;
+}
+
+.emoji:hover {
+    background-color: #f5f5f5;
+    border-radius: 5px;
+}
+
+.settings-menu {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 300px;
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    z-index: 1000;
+}
+
+.settings-menu.active {
+    display: block;
+}
+
+.settings-main,
+.settings-profile {
+    display: none;
+}
+
+.settings-main.active,
+.settings-profile.active {
+    display: block;
+}
+
+/* Стили для окна Settings */
+.settings-main {
+    background: linear-gradient(135deg, #f0f8ff, #e6f7ff);
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    padding: 20px;
+    width: 300px;
+    animation: slideIn 0.3s ease-in-out;
+    color: #333;
+}
+
+/* Стили для окна профиля */
+.settings-profile {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: linear-gradient(135deg, #f0f8ff, #e6f7ff);
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    padding: 20px;
+    width: 300px;
+    height: 70vh;
+    animation: slideIn 0.3s ease-in-out;
+    color: #333;
+    z-index: 1001;
+}
+
+/* Стили для модального окна Create Group */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: linear-gradient(135deg, #f0f8ff, #e6f7ff);
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    padding: 20px;
+    width: 380px;
+    max-width: 90%;
+    animation: slideIn 0.3s ease-in-out;
+    color: #333;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.modal-header span {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.modal-body label {
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: -5px;
+}
+
+.contacts-list {
+    max-height: 200px;
+    overflow-y: auto;
+    margin-top: 5px;
+}
+
+.contacts-list .contact {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #f0f2f5;
+    background: #ffffff;
+    border-radius: 10px;
+    margin-bottom: 5px;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.contacts-list .contact:hover {
+    background-color: #f0f8ff;
+    transform: translateY(-2px);
+}
+
+.contacts-list .contact input[type="checkbox"],
+.contact-checkbox {
+    margin-right: 10px;
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+.contacts-list .contact .avatar {
+    width: 30px;
+    height: 30px;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+.contacts-list .contact .name {
+    flex-grow: 1;
+    font-size: 14px;
+    color: #333;
+}
+
+/* Стили для футера модального окна */
+.modal-footer {
+    padding: 15px 0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.modal-footer button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 15px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(36, 159, 244, 0.3);
+}
+
+.modal-footer button:first-child {
+    background: linear-gradient(90deg, #249FF4, #0084ff);
+    color: #fff;
+}
+
+.modal-footer button:first-child:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(36, 159, 244, 0.5);
+    background: linear-gradient(90deg, #0084ff, #249FF4);
+}
+
+.modal-footer button:last-child {
+    background: linear-gradient(90deg, #ff6666, #ff3333);
+    color: #fff;
+}
+
+.modal-footer button:last-child:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 51, 51, 0.5);
+    background: linear-gradient(90deg, #ff3333, #ff6666);
+}
+
+/* Стили для заголовка (общие для .settings-main, .settings-profile и .modal-content) */
+.settings-header,
+.modal-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.settings-header i,
+.modal-header i {
+    cursor: pointer;
+    margin-right: 10px;
+    font-size: 18px;
+    color: #249FF4;
+}
+
+.settings-header span,
+.modal-header span {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+}
+
+.modal-header i {
+    margin-left: auto;
+    margin-right: 0;
+}
+
+/* Стили для кнопок в .settings-main */
+.settings-main .settings-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: linear-gradient(90deg, #249FF4, #0084ff);
+    color: #fff;
+    border: none;
+    border-radius: 25px;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 15px rgba(36, 159, 244, 0.3);
+}
+
+.settings-main .settings-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(36, 159, 244, 0.5);
+    background: linear-gradient(90deg, #0084ff, #249FF4);
+}
+
+.settings-main .settings-icon {
+    font-size: 18px;
+    color: #fff;
+}
+
+/* Анимация появления (общая для .settings-main, .settings-profile, .modal-content и .chat-area) */
+@keyframes slideIn {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Контейнер информации профиля */
+.settings-profile .profile-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* Стили для аватара */
+.settings-profile .profile-avatar {
+    width: 100px;
+    height: 100px;
+    background: #ddd;
+    border-radius: 50%;
+    margin-bottom: 15px;
+    position: relative;
+    overflow: hidden;
+    border: 4px solid transparent;
+    background-clip: padding-box;
+    box-shadow: 0 0 20px rgba(36, 159, 244, 0.5);
+    transition: transform 0.3s ease;
+}
+
+/* Градиентная обводка для аватара */
+.settings-profile .profile-avatar::after {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    bottom: -4px;
+    border-radius: 50%;
+    background: linear-gradient(90deg, #249FF4, #0084ff);
+    z-index: -1;
+}
+
+.settings-profile .profile-avatar:hover {
+    transform: scale(1.05);
+}
+
+/* Контейнер для имени и email */
+.settings-profile .profile-details {
+    text-align: center;
+    width: 100%;
+}
+
+/* Контейнеры для имени и email с иконками */
+.profile-name-container,
+.profile-email-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 10px 0;
+}
+
+.profile-icon {
+    margin-right: 10px;
+    font-size: 18px;
+    color: #249FF4;
+}
+
+/* Стили для имени */
+.settings-profile .profile-name {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Стили для email */
+.settings-profile .profile-email {
+    font-size: 16px;
+    font-weight: normal;
+    color: #666;
+    word-break: break-all;
+}
+
+/* Стили для кнопки "information" */
+.settings-profile .info-button {
+    background: linear-gradient(90deg, #249FF4, #0084ff);
+    color: #fff;
+    border: none;
+    border-radius: 25px;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(36, 159, 244, 0.3);
+}
+
+.settings-profile .info-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(36, 159, 244, 0.5);
+    background: linear-gradient(90deg, #0084ff, #249FF4);
+}
+
+/* Стили для содержимого модального окна Create Group */
+.modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.modal-body label {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+}
+
+.modal-body input {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 15px;
+    outline: none;
+    font-size: 14px;
+    color: #333;
+    background-color: #fff;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    width: 100%;
+}
+
+.modal-body input:focus {
+    border-color: #249FF4;
+    box-shadow: 0 0 8px rgba(36, 159, 244, 0.3);
+}
+
+.contacts {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+    background: #eeeff061;
+    border-radius: 15px;
+}
+
+/* Добавляем стили для результатов поиска */
+#searchResults {
+    padding: 0 15px;
+}
+
+.search-result {
+    padding: 12px 15px;
+    display: flex;
+    align-items: center;
+    border-radius: 15px;
+    margin-bottom: 10px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s, transform 0.2s;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.search-result:hover {
+    background-color: #f0f8ff;
+    transform: translateY(-2px);
+}
+
+.user-info-wrapper {
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+/* Стили для переключателя */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 20px;
+    margin-left: auto;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 20px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+}
+
+input:checked+.slider {
+    background-color: #249FF4;
+}
+
+input:checked+.slider:before {
+    transform: translateX(20px);
+}
+
+/* Стили для иконки настроек группы */
+.group-settings-icon {
+    margin-left: auto;
+    cursor: pointer;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #249FF4;
+    font-size: 24px;
+    border-radius: 50%;
+    transition: background-color 0.3s;
+}
+
+.group-settings-icon:hover {
+    background-color: rgba(36, 159, 244, 0.1);
+}
+
+.group-settings-icon i {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+.group-dropdown-menu {
+    position: absolute;
+    top: 55px;
+    right: 15px;
+    background-color: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 8px 0;
+    min-width: 200px;
+    z-index: 100;
+    display: none;
+}
+
+.group-dropdown-menu.active {
+    display: block;
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.group-menu-item {
+    padding: 12px 18px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 16px;
+}
+
+.group-menu-item i {
+    font-size: 22px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 26px;
+    height: 26px;
+}
+
+.group-menu-item:hover {
+    background-color: #f5f5f5;
+}
+
+.group-menu-item.delete-group {
+    color: #f44336;
+}
+
+.group-menu-item.delete-group:hover {
+    background-color: #ffebee;
+}
+
+.members-modal, .rename-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.members-content, .rename-content {
+    background-color: white;
+    padding: 25px;
+    border-radius: 20px;
+    width: 80%;
+    max-width: 500px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.members-header, .rename-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.members-close, .rename-close {
+    cursor: pointer;
+    font-size: 20px;
+}
+
+.members-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.member {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #f5f5f5;
+    margin-bottom: 5px;
+}
+
+.member .avatar {
+    width: 30px;
+    height: 30px;
+    background-color: #ccc;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.member .name {
+    flex-grow: 1;
+    font-size: 14px;
+    color: #333;
+}
+
+.member-checkbox {
+    margin-right: 10px;
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+.add-members-section {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.add-members-btn, .save-members-btn {
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 15px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    transition: background-color 0.3s, transform 0.2s;
+    box-shadow: 0 4px 10px rgba(33, 150, 243, 0.3);
+}
+
+.add-members-btn:hover, .save-members-btn:hover {
+    background-color: #0b7dda;
+    transform: translateY(-2px);
+}
+
+.add-members-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.rename-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.rename-input {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 15px;
+    font-size: 14px;
+    width: 100%;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.rename-input:focus {
+    border-color: #249FF4;
+    box-shadow: 0 0 8px rgba(36, 159, 244, 0.3);
+    outline: none;
+}
+
+.rename-btn {
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 15px;
+    padding: 12px 15px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: background-color 0.3s, transform 0.2s;
+    width: 100%;
+}
+
+.rename-btn:hover {
+    background-color: #0b7dda;
+    transform: translateY(-2px);
+}
+
+/* Обновляем стили для иконок в боковом меню */
+.sidebar-menu i {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
