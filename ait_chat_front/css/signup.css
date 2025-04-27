@@ -1,0 +1,53 @@
+/* Signup-specific styles */
+
+/* Change the button text to "Sign Up" */
+#signup-button {
+  width: auto;
+  padding: 10px 28px;
+}
+
+/* Additional styling for the confirm password field */
+#confirm-password:focus {
+  border-color: #1352F1;
+  box-shadow: 0 0 0 2px rgba(19, 82, 241, 0.1);
+}
+
+/* Adjust heading for signup context */
+.login-title h1 {
+  margin-bottom: 30px;
+}
+
+/* Add some custom styling for the signup form container */
+.login-form-container {
+  max-width: 450px; /* Slightly larger to accommodate longer fields */
+}
+
+/* For password strength indicator (can be styled further with JavaScript) */
+.password-strength {
+  height: 5px;
+  margin-top: 8px;
+  border-radius: 3px;
+  background-color: #e0e0e0;
+  transition: all 0.3s ease;
+}
+
+.password-strength.weak {
+  background-color: #F44336;
+  width: 30%;
+}
+
+.password-strength.medium {
+  background-color: #FFA000;
+  width: 60%;
+}
+
+.password-strength.strong {
+  background-color: #4CAF50;
+  width: 100%;
+}
+
+/* Adjust login text link for better visibility */
+.signup-text a {
+  color: #0A3ED7;
+  font-weight: 600;
+} 

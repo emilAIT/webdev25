@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Chat Media Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .section {
+        border: 1px solid #ddd;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+      }
+      input,
+      button {
+        padding: 8px;
+        margin: 5px 0;
+      }
+      #messages {
+        max-height: 400px;
+        overflow-y: auto;
+        border: 1px solid #eee;
+        padding: 10px;
+        margin-top: 10px;
+      }
+      .message {
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin: 5px 0;
+        border-radius: 5px;
+      }
+      .status {
+        color: green;
+        font-weight: bold;
+      }
+      .error {
+        color: red;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Chat Media Testing Tool</h1>
+    <p>
+      Testing with backend at:
+      <code>https://aitchat-262190805406.us-central1.run.app/</code>
+    </p>
+
+    <div class="section">
+      <h3>1. Authentication</h3>
+      <input id="username" placeholder="Username" />
+      <input id="password" type="password" placeholder="Password" />
+      <button onclick="login()">Login</button>
+      <div id="token-display"></div>
+      <div id="auth-status"></div>
+    </div>
+
+    <div class="section">
+      <h3>2. Upload Media</h3>
+      <input type="file" id="file-input" />
+      <button onclick="uploadFile()">Upload</button>
+      <div id="upload-result"></div>
+    </div>
+
+    <div class="section">
+      <h3>3. Send Message with Media</h3>
+      <div>
+        <h4>Direct Message</h4>
+        <input id="recipient-id" placeholder="Recipient ID" />
+        <input id="message-text" placeholder="Message text" />
+        <button onclick="sendDirectMessage()">Send Direct Message</button>
+      </div>
+      <div style="margin-top: 15px">
+        <h4>Group Message</h4>
+        <input id="group-id" placeholder="Group ID" />
+        <button onclick="sendGroupMessage()">Send Group Message</button>
+      </div>
+      <div id="send-status"></div>
+    </div>
+
+    <div class="section">
+      <h3>Messages:</h3>
+      <div id="messages"></div>
+    </div>
+
+    <script>
+      // API Base URL - change this to your deployed API
+      const API_BASE_URL = "https://aitchat-262190805406.us-central1.run.app";
+
+      let token = "";
+      let socket;
+      let mediaInfo = null;
+
+      async function login() {
+        try {
+          const username = document.getElementById("username").value;
+          const password = document.getElementById("password").value;
+
+          if (!username || !password) {
+            showStatus(
+              "auth-status",
+              "Please enter username and password",
+              true
+            );
+            return;
+          }
+
+          showStatus("auth-status", "Logging in...");
+
+          const response = await fetch(`${API_BASE_URL}/token`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: `username=${encodeURIComponent(
+              username
+            )}&password=${encodeURIComponent(password)}`,
+          });
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Login failed: ${response.status} ${errorText}`);
+          }
+
+          const data = await response.json();
+          token = data.access_token;
+          document.getElementById(
+            "token-display"
+          ).innerText = `Token: ${token.substring(0, 10)}...`;
+
+          showStatus(
+            "auth-status",
+            "Login successful! Connecting websocket..."
+          );
+
+          // Connect WebSocket
+          connectWebSocket();
+        } catch (error) {
+          console.error("Login error:", error);
+          showStatus("auth-status", `Error: ${error.message}`, true);
+        }
+      }
+
+      function connectWebSocket() {
+        // Use wss:// for secure WebSocket connections
+        socket = new WebSocket(
+          `wss://aitchat-262190805406.us-central1.run.app/ws/${token}`
+        );
+
+        socket.onopen = () => {
+          console.log("WebSocket connected");
+          showStatus("auth-status", "WebSocket connected successfully!");
+        };
+
+        socket.onmessage = (event) => {
+          console.log("Received message:", event.data);
+          try {
+            const data = JSON.parse(event.data);
+            displayMessage(data);
+          } catch (e) {
+            console.error("Error parsing message:", e);
+          }
+        };
+
+        socket.onerror = (error) => {
+          console.error("WebSocket error:", error);
+          showStatus("auth-status", "WebSocket error occurred", true);
+        };
+
+        socket.onclose = (event) => {
+          console.log("WebSocket closed:", event);
+          showStatus("auth-status", `WebSocket closed (${event.code})`, true);
+        };
+      }
+
+      async function uploadFile() {
+        try {
+          if (!token) {
+            showStatus("upload-result", "Please login first", true);
+            return;
+          }
+
+          const fileInput = document.getElementById("file-input");
+          const file = fileInput.files[0];
+          if (!file) {
+            showStatus("upload-result", "Please select a file", true);
+            return;
+          }
+
+          showStatus("upload-result", "Uploading file...");
+
+          const formData = new FormData();
+          formData.append("file", file);
+          formData.append("folder", "images");
+
+          const response = await fetch(`${API_BASE_URL}/upload-media`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            body: formData,
+          });
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Upload failed: ${response.status} ${errorText}`);
+          }
+
+          mediaInfo = await response.json();
+
+          let previewHtml = `
+            <p class="status">Upload successful!</p>
+            <p>URL: ${mediaInfo.url}</p>
+            <p>Type: ${mediaInfo.media_type}</p>
+          `;
+
+          // Add preview based on media type
+          if (mediaInfo.media_type === "image") {
+            previewHtml += `<img src="${mediaInfo.url}" style="max-width: 200px">`;
+          } else if (mediaInfo.media_type === "video") {
+            previewHtml += `
+              <video controls style="max-width: 300px">
+                <source src="${mediaInfo.url}" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
+            `;
+          } else if (mediaInfo.media_type === "audio") {
+            previewHtml += `
+              <audio controls>
+                <source src="${mediaInfo.url}">
+                Your browser does not support the audio element.
+              </audio>
+            `;
+          } else {
+            previewHtml += `<p><a href="${mediaInfo.url}" target="_blank">Download ${mediaInfo.filename}</a></p>`;
+          }
+
+          document.getElementById("upload-result").innerHTML = previewHtml;
+        } catch (error) {
+          console.error("Upload error:", error);
+          showStatus("upload-result", `Error: ${error.message}`, true);
+        }
+      }
+
+      function sendDirectMessage() {
+        try {
+          if (!socket) {
+            showStatus(
+              "send-status",
+              "WebSocket not connected. Please login first.",
+              true
+            );
+            return;
+          }
+
+          if (!mediaInfo) {
+            showStatus("send-status", "Please upload a file first", true);
+            return;
+          }
+
+          const recipientId = parseInt(
+            document.getElementById("recipient-id").value
+          );
+          if (isNaN(recipientId)) {
+            showStatus(
+              "send-status",
+              "Please enter a valid recipient ID",
+              true
+            );
+            return;
+          }
+
+          const content = document.getElementById("message-text").value || ""; // Allow empty message with media
+
+          const message = {
+            action: "message",
+            payload: {
+              content: content,
+              recipient_id: recipientId,
+              media_url: mediaInfo.url,
+              media_type: mediaInfo.media_type,
+              media_filename: mediaInfo.filename,
+              media_size: mediaInfo.size,
+            },
+          };
+
+          socket.send(JSON.stringify(message));
+          showStatus("send-status", "Direct message sent!");
+        } catch (error) {
+          console.error("Send message error:", error);
+          showStatus("send-status", `Error: ${error.message}`, true);
+        }
+      }
+
+      function sendGroupMessage() {
+        try {
+          if (!socket) {
+            showStatus(
+              "send-status",
+              "WebSocket not connected. Please login first.",
+              true
+            );
+            return;
+          }
+
+          if (!mediaInfo) {
+            showStatus("send-status", "Please upload a file first", true);
+            return;
+          }
+
+          const groupId = parseInt(document.getElementById("group-id").value);
+          if (isNaN(groupId)) {
+            showStatus("send-status", "Please enter a valid group ID", true);
+            return;
+          }
+
+          const content = document.getElementById("message-text").value || ""; // Allow empty message with media
+
+          const message = {
+            action: "group_message",
+            payload: {
+              content: content,
+              group_id: groupId,
+              media_url: mediaInfo.url,
+              media_type: mediaInfo.media_type,
+              media_filename: mediaInfo.filename,
+              media_size: mediaInfo.size,
+            },
+          };
+
+          socket.send(JSON.stringify(message));
+          showStatus("send-status", "Group message sent!");
+        } catch (error) {
+          console.error("Send group message error:", error);
+          showStatus("send-status", `Error: ${error.message}`, true);
+        }
+      }
+
+      function displayMessage(data) {
+        const messagesDiv = document.getElementById("messages");
+        let html = "";
+
+        if (data.action === "message" || data.action === "group_message") {
+          const payload = data.payload;
+          html = `
+          <div class="message">
+            <p><strong>From:</strong> ${payload.sender.username} (ID: ${
+            payload.sender.id
+          })</p>
+            <p><strong>Message:</strong> ${
+              payload.content || "<i>No text content</i>"
+            }</p>
+          `;
+
+          if (payload.media_url) {
+            if (payload.media_type === "image") {
+              html += `<img src="${payload.media_url}" style="max-width: 300px"><br>`;
+            } else if (payload.media_type === "video") {
+              html += `
+                <video controls style="max-width: 300px">
+                  <source src="${payload.media_url}">
+                  Your browser does not support the video tag.
+                </video><br>
+              `;
+            } else if (payload.media_type === "audio") {
+              html += `
+                <audio controls>
+                  <source src="${payload.media_url}">
+                  Your browser does not support the audio element.
+                </audio><br>
+              `;
+            }
+
+            html += `
+              <p><strong>Media:</strong> <a href="${
+                payload.media_url
+              }" target="_blank">${
+              payload.media_filename || "Download file"
+            }</a></p>
+              <p><strong>Type:</strong> ${payload.media_type}</p>
+            `;
+          }
+
+          html += `</div>`;
+
+          messagesDiv.innerHTML = html + messagesDiv.innerHTML;
+        } else if (data.action === "ping") {
+          console.log("Ping received:", data);
+          // Send pong if needed
+        } else {
+          console.log("Other message received:", data);
+        }
+      }
+
+      function showStatus(elementId, message, isError = false) {
+        const element = document.getElementById(elementId);
+        element.innerHTML = `<p class="${
+          isError ? "error" : "status"
+        }">${message}</p>`;
+
+        // Clear success messages after 5 seconds (but keep errors)
+        if (!isError) {
+          setTimeout(() => {
+            if (element.innerText === message) {
+              element.innerHTML = "";
+            }
+          }, 5000);
+        }
+      }
+    </script>
+  </body>
+</html>

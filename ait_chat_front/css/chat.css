@@ -1,0 +1,1874 @@
+/* Basic Reset / Box Sizing */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Define CSS variables based on Figma globalVars (adjust as needed) */
+:root {
+  --font-primary: 'Inter', sans-serif;
+  --font-logo: 'Kufam', sans-serif;
+
+  --color-bg-main: #CCEDFF; /* fill_X3EG0Q */
+  --color-bg-sidebar: #FFFFFF; /* fill_XD2EOU used in side rectangle */
+  --color-bg-chat-header: #FFFFFF; /* fill_XD2EOU used in header rectangle */
+  --color-bg-chat-footer: #FFFFFF; /* fill_XD2EOU used in footer rectangle */
+  --color-bg-message-receiver: #FFFFFF; /* fill_XD2EOU used in receiver Frame 9 */
+  --color-bg-message-sender: #00A3FF; /* fill_OM88QP used in sender Frame 9 */
+  --color-bg-search-bar: #FFFFFF; /* fill_XD2EOU from Rectangle 2 */
+  --color-bg-send-button: #00A3FF; /* fill_OM88QP */
+  --color-bg-modal: #55bdf9f5; /* fill_XD2EOU */
+  --color-bg-contact-active: rgba(0, 163, 255, 0.2); /* fill_0CGEZY */
+
+  --color-text-primary: #515151; /* fill_CMBGYE */
+  --color-text-secondary: #A0A0A0; /* fill_G66IML */
+  --color-text-light: #FFFFFF; /* fill_XD2EOU */
+  --color-text-logo: #00A3FF; /* fill_OM88QP */
+  --color-text-placeholder: rgba(171, 175, 177, 0.6); /* fill_3O7R7X */
+  --color-text-link: #00A3FF; /* Often the primary blue */
+  --color-text-header: #717171; /* fill_8ZV1ZV used in contact names in sidebar */
+
+  --color-border-light: #E7E7E7; /* stroke_WK7W06 */
+  --color-border-medium: #DFDFDF; /* stroke_UYU145 / stroke_65H06X */
+  --color-border-search: #CCCFD0; /* stroke_CLWZF2 */
+  --color-border-sidebar: rgba(94, 94, 94, 0.2); /* stroke_JXGQJI */
+
+  --sidebar-width: 350px; /* Adjust as needed */
+}
+
+body {
+  font-family: var(--font-primary);
+  background-color: var(--color-bg-main);
+  color: var(--color-text-primary);
+  line-height: 1.5;
+  height: 100vh;
+  overflow: hidden; /* Prevent body scroll */
+}
+
+.app-container {
+  display: flex;
+  height: 100vh;
+}
+
+/* Sidebar Styles */
+.sidebar {
+  width: var(--sidebar-width);
+  background-color: var(--color-bg-sidebar);
+  border-right: 1px solid var(--color-border-sidebar);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding-bottom: 20px;
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid var(--color-border-medium);
+}
+
+/* New Profile Header Styles */
+.sidebar-profile-header {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    flex-grow: 1; /* Allow it to take space */
+    margin-right: 15px; /* Space before action buttons */
+    overflow: hidden; /* Prevent long names breaking layout */
+}
+
+.sidebar-profile-header .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+    flex-shrink: 0; /* Prevent avatar shrinking */
+}
+
+.sidebar-profile-header .username {
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--color-text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Adjust sidebar actions positioning */
+.sidebar-actions {
+    /* Remove justify-content if needed, alignment is handled by flex now */
+    flex-shrink: 0; /* Prevent buttons shrinking */
+}
+
+.logo {
+  font-family: var(--font-logo);
+  font-weight: 600;
+  font-size: 24px; /* style_WEY96Q */
+  color: var(--color-text-logo);
+}
+
+.sidebar-actions .icon-button {
+  /* Style placeholder icons */
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  margin-left: 10px;
+}
+
+.search-bar {
+  display: flex;
+  padding: 15px 20px;
+  border-bottom: 1px solid var(--color-border-medium);
+}
+
+#search-input {
+  flex-grow: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border-search);
+  border-radius: 8px; /* Based on Rectangle 2 */
+  font-size: 16px; /* style_AGFIGV */
+  margin-right: 10px;
+}
+
+#search-input::placeholder {
+  color: var(--color-text-placeholder);
+}
+
+.search-bar .icon-button {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: var(--color-text-placeholder);
+}
+
+.contact-list-container {
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.list-header {
+  font-size: 12px; /* style_WSHS4O */
+  font-weight: 500;
+  color: var(--color-text-secondary); /* fill_UDMP6A */
+  padding: 15px 20px 5px 20px;
+  text-transform: uppercase;
+}
+
+.pinned-chats,
+.all-messages {
+  /* Add potential dividers if needed */
+}
+
+#pinned-list,
+#user-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* --- Combined Styles for Contact and Group Items --- */
+.chat-list-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--color-border-light);
+  transition: background-color 0.2s ease;
+  text-overflow: ellipsis;
+}
+
+.chat-list-item:hover {
+  background-color: #f0f0f0;
+}
+
+.chat-list-item.active {
+  background-color: var(--color-bg-contact-active);
+  border-right: 3px solid var(--color-text-logo); /* style based on fill_0CGEZY & stroke_TVU6O8 */
+}
+
+.chat-list-item .avatar-container {
+  position: relative; /* Needed for absolute positioning of status dot */
+  margin-right: 15px; /* Keep existing margin */
+}
+
+.chat-list-item .avatar-container .avatar,
+.chat-header .avatar-container .avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+  background-color: #d9d9d9;
+  display: block; /* Ensure avatar takes up space */
+}
+
+.chat-header .avatar-container .avatar {
+    width: 40px;
+    height: 40px;
+}
+
+.chat-list-item .status-indicator {
+  position: absolute;
+  bottom: 2px; /* Position dot at the bottom right of avatar */
+  right: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--color-bg-sidebar); /* White border to separate from avatar */
+  background-color: #a0a0a0; /* Default offline/grey color */
+}
+
+.chat-header .status-indicator {
+    bottom: 1px;
+    right: 1px;
+    width: 10px;
+    height: 10px;
+    border: 1.5px solid var(--color-bg-chat-header);
+}
+
+.status-indicator.online {
+  background-color: #28a745; /* Green for online */
+}
+
+.status-indicator.offline {
+  background-color: #a0a0a0; /* Grey for offline */
+}
+
+.chat-list-item .contact-info {
+  flex-grow: 1;
+  overflow: hidden;
+}
+
+.chat-list-item .contact-name {
+  display: block;
+  font-weight: 500; /* style_IXEZEC */
+  font-size: 17px; /* Approximation */
+  color: var(--color-text-header);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chat-list-item .contact-preview {
+  display: block;
+  font-size: 14px; /* style_B9BC52 */
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chat-list-item .contact-meta {
+  margin-left: auto; /* Push meta to the right */
+  padding-left: 10px;
+  text-align: right;
+}
+
+.chat-list-item .contact-meta .timestamp {
+  display: block;
+  font-size: 13px; /* style_3HWYW0 */
+  margin-bottom: 4px;
+}
+
+.chat-list-item .contact-meta .unread-count {
+  /* Style copied from Figma */
+  display: inline-block; 
+  background-color: var(--color-text-logo); /* fill_OM88QP */
+  color: var(--color-text-light); /* fill_XD2EOU */
+  font-size: 12px; /* style_K5SLQD */
+  font-weight: 600; /* style_K5SLQD */
+  border-radius: 15px; /* Based on Frame 6 */
+  padding: 3px 8px; /* Adjusted padding */
+  min-width: 22px; /* Ensure circle for single digits */
+  height: 22px; /* Ensure circle */
+  line-height: 16px; /* Adjust for vertical centering */
+  text-align: center;
+  margin-left: 5px; /* Space from timestamp/last-seen */
+}
+
+/* Chat Area Styles */
+.chat-area {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: #CCEDFF; /* Example background */
+}
+
+/* Chat Header Styles */
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 25px;
+  background-color: var(--color-bg-chat-header);
+  border-bottom: 1px solid var(--color-border-medium);
+  min-height: 65px; /* Adjust based on content */
+}
+
+.contact-details {
+  display: flex;
+  align-items: center;
+}
+
+.chat-header .avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 15px;
+  object-fit: cover;
+  background-color: #d9d9d9; /* Default */
+}
+
+.chat-header .contact-info .contact-name {
+  font-size: 18px; /* style_IT1ZAM */
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.chat-header .contact-info .contact-status {
+  font-size: 14px; /* style_B9BC52 */
+  color: var(--color-text-logo); /* Online status color */
+}
+
+.chat-actions .icon-button,
+.chat-actions .logout-button {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  margin-left: 15px;
+}
+
+.chat-actions .logout-button {
+  font-size: 14px;
+  font-weight: 500;
+  padding: 5px 10px;
+  /* Add more specific styling if needed */
+}
+
+/* Chat Messages Area Styles */
+.chat-messages {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.message-group {
+  display: flex;
+  margin-bottom: 15px;
+  max-width: 70%; /* Limit message width */
+}
+
+.message-group .avatar {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  object-fit: cover;
+  background-color: #d9d9d9;
+  margin-top: auto; /* Align to bottom */
+}
+
+.message-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.message-group.receiver {
+  align-self: flex-start;
+}
+
+.message-group.sender {
+  align-self: flex-end;
+  flex-direction: row-reverse; /* Put avatar on the right */
+}
+
+.message-group.receiver .avatar {
+  margin-right: 10px;
+}
+
+.message-group.sender .avatar {
+  margin-left: 10px;
+}
+
+.message-group.sender .message-content {
+  align-items: flex-end;
+}
+
+.message-group.receiver .message-content {
+  align-items: flex-start;
+}
+
+.sender-name {
+  font-size: 14px; /* style_4IAP9Y / style_C97ZH4 approx */
+  font-weight: 500;
+  color: var(--color-text-primary);
+  margin-bottom: 4px;
+}
+
+.message-bubble {
+  padding: 12px 18px; /* Based on Figma padding */
+  border-radius: 14px; /* Based on Frame 9 */
+  font-size: 16px; /* style_77C6K9 approx */
+  line-height: 1.4;
+  max-width: 100%;
+  word-wrap: break-word;
+  /* NEW: Allow flex direction for media + text */
+  display: flex;
+  flex-direction: column;
+  gap: 5px; /* Space between media and text */
+}
+
+/* NEW: Styles for image thumbnail container and image */
+.media-thumbnail-container {
+    display: block; /* Allow setting max-width */
+    max-width: 200px; /* Max width for the thumbnail container */
+    max-height: 150px; /* Max height */
+    overflow: hidden; /* Hide parts of image that exceed container */
+    border-radius: 8px; /* Rounded corners for the container */
+    cursor: pointer;
+}
+
+.media-thumbnail {
+    display: block; /* Remove extra space below image */
+    width: 100%;    /* Make image fill container width */
+    height: 100%;   /* Make image fill container height */
+    object-fit: cover; /* Scale image to cover container, cropping if needed */
+    transition: transform 0.2s ease; /* Smooth zoom on hover */
+}
+
+.media-thumbnail-container:hover .media-thumbnail {
+    transform: scale(1.05); /* Slightly zoom image on hover */
+}
+
+.message-bubble .media-placeholder {
+    display: flex;
+    align-items: center;
+    background-color: #f0f0f0; /* Light background for placeholder */
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    font-size: 13px;
+}
+
+.message-bubble .media-placeholder img.file-icon {
+    width: 24px; /* Size of the file type icon */
+    height: 24px;
+    margin-right: 8px;
+}
+
+.message-bubble .media-placeholder .file-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.message-bubble .media-placeholder .file-name {
+    font-weight: 500;
+    word-break: break-all; /* Break long filenames */
+}
+
+.message-bubble .media-placeholder .file-size {
+    font-size: 11px;
+    color: var(--color-text-secondary);
+}
+
+.message-group.receiver .message-bubble {
+  background-color: var(--color-bg-message-receiver);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-light);
+  border-top-left-radius: 0; /* Based on Figma */
+}
+
+.message-group.sender .message-bubble {
+  background-color: var(--color-bg-message-sender);
+  color: var(--color-text-light);
+  border: 1px solid var(--color-text-logo);
+  border-top-right-radius: 0; /* Based on Figma */
+}
+
+.timestamp {
+  font-size: 11px; /* style_M1QAI3 */
+  color: var(--color-text-secondary);
+  margin-top: 5px;
+}
+
+.message-group.receiver .timestamp {
+  align-self: flex-start;
+  margin-left: 5px;
+}
+
+.message-group.sender .timestamp {
+  align-self: flex-end;
+  margin-right: 5px;
+}
+
+/* System Messages */
+.chat-message.system {
+  align-self: center;
+  background-color: #e0e0e0;
+  color: #555;
+  padding: 5px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  margin: 10px 0;
+}
+
+/* Chat Footer Styles */
+.chat-footer {
+  display: flex;
+  align-items: center;
+  padding: 15px 25px;
+  background-color: var(--color-bg-chat-footer);
+  border-top: 1px solid var(--color-border-medium);
+}
+
+.chat-footer .icon-button {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  margin-right: 15px;
+}
+
+#message-input {
+  flex-grow: 1;
+  border: none;
+  outline: none;
+  font-size: 16px; /* Approximation */
+  padding: 10px;
+  background-color: transparent;
+}
+
+#message-input::placeholder {
+    color: var(--color-text-secondary);
+    font-size: 16px; /* style_1LUP31 approx */
+}
+
+.send-button {
+  background-color: var(--color-bg-send-button);
+  color: var(--color-text-light);
+  border: none;
+  border-radius: 12px; /* Based on Rectangle 3 */
+  padding: 10px 18px;
+  font-size: 16px; /* style_IT1ZAM approx */
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  margin-left: 15px;
+  transition: background-color 0.2s ease;
+}
+
+.send-button:hover {
+  background-color: #008bdb; /* Darker shade of blue */
+}
+
+.send-button span {
+  margin-right: 8px; /* Space between text and icon */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .chat-message {
+    max-width: 85%;
+  }
+  
+  .chat-footer {
+    padding: 10px;
+  }
+  
+  .chat-footer input {
+    padding: 10px;
+  }
+  
+  .chat-footer button {
+    padding: 10px 15px;
+  }
+}
+
+/* Last Seen Text (within contact-meta) */
+.chat-list-item .last-seen {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  margin-top: 2px;
+}
+
+/* Chat Header Status Text */
+.chat-header .contact-status {
+    font-size: 13px;
+    color: var(--color-text-secondary);
+}
+
+/* Typing Indicator Styles */
+.typing-indicator {
+  padding: 5px 25px; /* Match chat footer padding */
+  font-style: italic;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  height: 30px; /* Give it some fixed height */
+  line-height: 20px;
+}
+
+.typing-indicator span {
+    font-weight: 500; /* Make username bold */
+}
+
+/* Styles for Disabled Chat Area */
+.chat-placeholder {
+  display: none; /* Hidden by default */
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: var(--color-text-secondary);
+  padding: 40px;
+}
+
+.chat-placeholder h2 {
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.chat-area.chat-disabled .chat-placeholder {
+  display: flex; /* Show placeholder when disabled */
+}
+
+.chat-area.chat-disabled .chat-header,
+.chat-area.chat-disabled .chat-messages,
+.chat-area.chat-disabled .typing-indicator,
+.chat-area.chat-disabled .chat-footer {
+  display: none; /* Hide chat elements when disabled */
+}
+
+/* Ensure chat elements are visible when enabled (if they were set to none) */
+.chat-area:not(.chat-disabled) .chat-header {
+    display: flex;
+}
+.chat-area:not(.chat-disabled) .chat-messages {
+    display: flex;
+}
+.chat-area:not(.chat-disabled) .chat-footer {
+    display: flex;
+}
+/* .typing-indicator display is handled by JS */
+
+/* Styles for Read Status Icon */
+.message-meta {
+    display: flex;
+    align-items: center;
+    margin-top: 5px;
+    justify-content: flex-end; /* Align items to the end for sender */
+}
+
+.message-group.receiver .message-meta {
+    justify-content: flex-start; /* Align items to start for receiver */
+}
+
+.message-meta .timestamp {
+   margin: 0; /* Reset margin from previous rule */
+   margin-right: 5px; /* Space between timestamp and icon */
+   font-size: 11px; 
+   color: var(--color-text-secondary); 
+}
+
+.message-group.sender .message-meta .timestamp {
+   /* Sender specific alignment if needed, but justify-content: flex-end should handle it */
+}
+
+.read-status-icon-container {
+    display: inline-flex; /* Use flex to help center icon if needed */
+    align-items: center;
+    height: 12px; /* Match icon height roughly */
+}
+
+.read-status-icon {
+    width: 16px; /* Adjust size as needed */
+    height: auto; 
+    /* No margin needed if spacing is handled by .timestamp margin-right */
+}
+
+/* Animation for read status icon update */
+@keyframes readIconUpdate {
+  0% { transform: scale(0.8); opacity: 0.5; }
+  50% { transform: scale(1.1); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.read-status-icon-container.icon-updating img.read-status-icon {
+  animation: readIconUpdate 0.5s ease-in-out;
+}
+
+/* Add Contact Popup Styles */
+.add-contact-popup {
+  display: none; /* Hidden by default */
+  position: fixed; /* Center on screen */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 320px; /* Adjust width */
+  background-color: #FCFCFC; /* Match group popup */
+  border: 1px solid var(--color-border-medium);
+  border-radius: 10px; /* Match group popup */
+  padding: 25px; /* Match group popup */
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15); /* Match group popup */
+  z-index: 1000; /* Ensure it's above everything */
+  text-align: center; /* Center content */
+}
+
+.add-contact-popup.visible {
+  display: block; /* Show when class is added */
+}
+
+.add-contact-popup h4 {
+  margin-top: 0;
+  margin-bottom: 20px; /* More space */
+  font-size: 18px; /* Match group popup */
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.add-contact-popup .close-popup-button {
+  position: absolute;
+  top: 15px; /* Adjust position */
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  line-height: 1;
+  padding: 5px;
+}
+
+.add-contact-form {
+  display: flex;
+  flex-direction: column; /* Stack input and button */
+  gap: 15px; /* Space between input and button */
+  margin-bottom: 15px;
+}
+
+#add-contact-username {
+  width: 100%;
+  padding: 10px 15px; /* Larger padding */
+  border: 1px solid var(--color-border-search);
+  border-radius: 8px; /* Rounded corners */
+  font-size: 14px;
+  margin-bottom: 5px; /* Add margin */
+}
+
+#add-contact-button {
+  padding: 10px 15px;
+  background-color: var(--color-text-logo);
+  color: var(--color-text-light);
+  border: none;
+  border-radius: 8px; /* Match input */
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+#add-contact-button:hover {
+  background-color: #008bdb;
+}
+
+#add-contact-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+
+.add-contact-status {
+  font-size: 13px;
+  min-height: 1.5em; /* Reserve space */
+  margin-top: 10px; /* Space above status */
+}
+
+.add-contact-status.success {
+  color: #28a745;
+}
+
+.add-contact-status.error {
+  color: #E53935;
+}
+
+/* --- New Chat Button Styles --- */
+.new-chat-button {
+    position: relative;
+    width: 50px;
+    height: 50px;
+    background-color: var(--color-text-logo); /* Use logo color */
+    color: var(--color-text-light);
+    border: none;
+    border-radius: 50%; /* Make it circular */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px; /* Size of the '+' icon if text */
+    cursor: pointer;
+    margin-left: 80%;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    z-index: 50; /* Ensure it's above contact list but below popups */
+}
+
+.new-chat-button:hover {
+    background-color: #008bdb; /* Darker shade */
+    transform: scale(1.05);
+}
+
+.new-chat-button img.icon-svg {
+    width: 24px; /* Adjust icon size */
+    height: 24px;
+}
+
+/* --- New Chat Modal Styles --- */
+.new-chat-modal {
+    display: none; /* Hidden by default */
+    position: absolute; 
+    /* Position it centered, or anchored like the add contact popup */
+    top: 50%; 
+    left: 50%;
+    transform: translate(-50%, -50%); 
+    width: 90%; /* Relative to sidebar */
+    max-width: 300px; /* Max width */
+    background-color: var(--color-bg-sidebar);
+    border: 1px solid var(--color-border-medium);
+    border-radius: 10px;
+    padding: 20px 0px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    z-index: 100; /* Above other sidebar content */
+}
+
+.new-chat-modal.visible {
+    display: block; /* Show when class is added */
+}
+
+.new-chat-modal h4 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    text-align: center;
+}
+
+/* Re-use close button style */
+.new-chat-modal .close-popup-button {
+    /* Inherits from .add-contact-popup styles */
+}
+
+/* List inside the modal */
+.new-chat-contact-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 300px; /* Limit height and allow scroll */
+    overflow-y: auto;
+}
+
+/* Style for items in the new chat modal list */
+.new-chat-contact-list .contact-item {
+    /* Reuse existing contact-item styles or simplify */
+    display: flex;
+    align-items: center;
+    padding: 10px 15px; /* Slightly less padding */
+    cursor: pointer;
+    border-bottom: 1px solid var(--color-border-light);
+    transition: background-color 0.2s ease;
+}
+
+.new-chat-contact-list .contact-item:last-child {
+    border-bottom: none;
+}
+
+.new-chat-contact-list .contact-item:hover {
+    background-color: #f0f0f0;
+}
+
+/* Simplify item content if needed, e.g., hide preview/meta */
+.new-chat-contact-list .contact-item .avatar-container {
+    margin-right: 10px;
+}
+.new-chat-contact-list .contact-item .avatar {
+    width: 35px; 
+    height: 35px;
+}
+.new-chat-contact-list .contact-item .status-indicator {
+    width: 10px;
+    height: 10px;
+    bottom: 1px;
+    right: 1px;
+}
+.new-chat-contact-list .contact-item .contact-name {
+    font-size: 15px;
+}
+.new-chat-contact-list .contact-item .contact-preview,
+.new-chat-contact-list .contact-item .contact-meta {
+    display: none; /* Hide preview and meta in this list */
+}
+
+/* --- Create Group Popup Styles --- */
+.create-group-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 360px;
+    max-width: 90vw;
+    max-height: 80vh;
+    overflow-y: auto;
+    background: #FCFCFC;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    padding: 25px;
+    z-index: 1000;
+    display: none;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.create-group-popup.visible {
+    display: flex;
+}
+
+.create-group-popup .close-popup-button {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 24px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #777;
+}
+
+/* Group Header */
+.group-creation-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.group-avatar-container {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    margin-bottom: 15px;
+}
+
+.group-avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: #ECFCFF;
+    object-fit: cover;
+}
+
+.camera-icon-button {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #C7C7C7;
+    border: 2px solid #5D5E5E;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.camera-icon {
+    width: 16px;
+    height: 16px;
+}
+
+.create-group-title {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 20px;
+    color: #1E1E1E;
+    margin: 5px 0 15px 0;
+}
+
+/* Group Name Input */
+#create-group-name {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    color: rgba(30, 30, 30, 0.8);
+    margin-bottom: 15px;
+}
+
+#create-group-name::placeholder {
+    color: rgba(30, 30, 30, 0.5);
+}
+
+/* Members Section */
+.members-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.members-label {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    color: #1E1E1E;
+    margin: 5px 0;
+}
+
+.member-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.group-divider {
+    border: none;
+    height: 1px;
+    background-color: #4A4A4A;
+    opacity: 0.2;
+    margin: 10px 0;
+}
+
+/* Member Item */
+.member-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background: rgba(0, 163, 255, 0);
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+.member-item:hover {
+    background: rgba(0, 163, 255, 0.1);
+}
+
+.member-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 10px;
+}
+
+.member-name {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    color: #1E1E1E;
+    flex-grow: 1;
+}
+
+.remove-member-icon {
+    color: #777;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.remove-member-icon:hover {
+    opacity: 1;
+    color: #E53935;
+}
+
+/* Contacts Section */
+.contacts-section {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.contact-list-for-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.contact-item-for-group {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background: rgba(0, 163, 255, 0);
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+.contact-item-for-group:hover {
+    background: rgba(0, 163, 255, 0.1);
+}
+
+.contact-item-for-group .member-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.contact-item-for-group .member-name {
+    flex-grow: 1;
+}
+
+.add-contact-to-group-button {
+    width: 24px;
+    height: 24px;
+    background-color: #00A3FF;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.add-contact-to-group-button img {
+    width: 14px;
+    height: 14px;
+    filter: brightness(0) invert(1);
+}
+
+.add-contact-to-group-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.no-contacts-message {
+    text-align: center;
+    color: #777;
+    font-size: 14px;
+    padding: 10px;
+}
+
+/* Create Group Button */
+.create-group-button {
+    background: #00A3FF;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 10px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 10px;
+    text-transform: uppercase;
+    cursor: pointer;
+    margin-top: 15px;
+    align-self: center;
+    transition: background-color 0.2s;
+    width: fit-content;
+}
+
+.create-group-button:hover {
+    background: #0088d1;
+}
+
+.create-group-status {
+    text-align: center;
+    min-height: 20px;
+    font-size: 14px;
+}
+
+/* --- Group List Section Styles --- */
+.group-list {
+    /* Similar to .all-messages or customize */
+}
+
+#group-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Use .contact-item for groups too, or create .group-item */
+.group-item {
+    /* Copy styles from .contact-item if desired */
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--color-border-light);
+    transition: background-color 0.2s ease;
+}
+
+.group-item:hover {
+  background-color: #f0f0f0;
+}
+
+.group-item.active {
+  background-color: var(--color-bg-contact-active);
+  border-right: 3px solid var(--color-text-logo); 
+}
+
+/* Style group avatar/icon differently if needed */
+.group-item .avatar-container .avatar {
+    /* Maybe use a default group icon */
+    background-color: #e0e0e0; /* Different default bg */
+}
+
+/* --- Manage Members Modal Styles --- */
+.manage-members-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 360px;
+    max-width: 90vw;
+    max-height: 80vh;
+    overflow-y: auto;
+    background: #FCFCFC;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    padding: 25px;
+    z-index: 1000;
+    display: none;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.manage-members-modal.visible {
+    display: flex;
+}
+
+.manage-members-modal .close-popup-button {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 24px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #777;
+}
+
+/* Group Header */
+.group-info-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.group-avatar {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 10px;
+}
+
+.group-name-header {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 16px;
+    color: #1E1E1E;
+    margin: 5px 0;
+}
+
+.group-members-count {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    color: #1E1E1E;
+    opacity: 0.7;
+}
+
+.section-header {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 20px;
+    color: #1E1E1E;
+    margin: 15px 0 5px 0;
+}
+
+.members-label {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    color: #1E1E1E;
+    margin: 10px 0;
+}
+
+/* Member List */
+.group-member-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.group-member-list li {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-radius: 8px;
+    background: rgba(0, 163, 255, 0);
+    transition: background-color 0.2s;
+}
+
+.group-member-list li:hover {
+    background: rgba(0, 163, 255, 0.1);
+}
+
+.group-member-list li .member-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 10px;
+}
+
+.group-member-list span.member-name {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    color: #1E1E1E;
+    flex-grow: 1;
+}
+
+.group-member-list .self-indicator {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    color: #1E1E1E;
+    opacity: 0.7;
+    margin-left: 5px;
+}
+
+.group-member-list .remove-member-button {
+    background: none;
+    border: none;
+    color: #888;
+    font-size: 18px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s;
+    margin-left: auto;
+    padding: 0 5px;
+}
+
+.group-member-list li:hover .remove-member-button {
+    opacity: 0.7;
+}
+
+.group-member-list .remove-member-button:hover {
+    opacity: 1;
+    color: #E53935; /* Red color on hover */
+}
+
+/* Add Member Button */
+.add-new-member-button {
+    background: #00A3FF;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 10px 15px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 10px;
+    cursor: pointer;
+    margin-top: 15px;
+    align-self: flex-start;
+    transition: background-color 0.2s;
+}
+
+.add-new-member-button:hover {
+    background: #0088d1;
+}
+
+/* Add Member Form */
+.add-member-form {
+    margin-top: 15px;
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+}
+
+.add-member-form h5 {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+#add-member-username {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    margin-bottom: 10px;
+}
+
+.add-member-search-results {
+    max-height: 150px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+}
+
+.add-member-status {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+/* Adjustments for header icon buttons if needed */
+.sidebar-actions .icon-button img.icon-svg {
+    width: 20px; /* Consistent icon sizing */
+    height: 20px;
+}
+
+/* Style group items similarly to contact items */
+#group-list .group-item {
+    /* Reuse contact-item styles if needed */
+    /* Styles are already similar via .group-item definition */
+}
+#group-list .group-item .avatar {
+    /* Style group avatar if different */
+    /* background-color: #e0e0e0; Already using SVG */
+    border-radius: 50%; /* Make group avatar circular */
+}
+
+.create-group-popup .divider {
+  border: none;
+  border-top: 1px solid #e0e0e0;
+  margin: 15px 0;
+}
+
+.create-group-popup .contact-list-for-group {
+  max-height: 180px; /* Adjust height as needed */
+  overflow-y: auto;
+  margin-bottom: 20px;
+}
+
+.create-group-popup .contact-item-for-group {
+  display: flex;
+  align-items: center;
+  padding: 6px 0;
+}
+
+/* Reuse member-avatar and member-name styles */
+.create-group-popup .contact-item-for-group .member-avatar {
+  width: 28px;
+  height: 28px;
+}
+
+.create-group-popup .contact-item-for-group .member-name {
+  font-size: 13px;
+}
+
+.create-group-popup .add-contact-to-group-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-left: auto; /* Push button to the right */
+}
+
+.create-group-popup .add-contact-to-group-button img {
+  width: 22px;
+  height: 22px;
+}
+
+.create-group-popup .add-contact-to-group-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.create-group-popup .no-contacts-message {
+    text-align: center;
+    color: var(--color-text-secondary);
+    font-size: 13px;
+    padding: 10px;
+}
+
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  margin-top: 15px;
+  width: 100%;
+}
+
+.modal-action-button {
+  border: none;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-sidebar);
+  padding: 15px  0 15px  15px;
+  font-size: 16px;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  width: 100%;
+}
+
+.modal-action-button:hover {
+  background-color: var(--color-bg-main);
+  color: var(--color-text-link);
+}
+
+.new-chat-modal h5 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin: 15px 0 10px;
+  padding: 0 15px;
+}
+
+.new-chat-modal .divider {
+  border: none;
+  height: 1px;
+  background-color: var(--color-border);
+  margin: 15px 0;
+  width: 100%;
+}
+
+/* New Sidebar Footer Styles */
+.sidebar-footer {
+    padding: 15px 20px;
+    margin-top: auto; /* Push to the bottom */
+    border-top: 1px solid var(--color-border-medium);
+    text-align: center; /* Center the logo */
+}
+
+/* New Profile Modal Styles (similar to others) */
+.profile-modal {
+    display: none; /* Hidden by default */
+    position: fixed; 
+    top: 50%; 
+    left: 50%;
+    transform: translate(-50%, -50%); 
+    width: 90%; 
+    max-width: 350px; /* Adjust as needed */
+    background-color: var(--color-bg-sidebar);
+    border: 1px solid var(--color-border-medium);
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    z-index: 1000; 
+}
+
+.profile-modal.visible {
+    display: block; 
+}
+
+.profile-modal h4 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    text-align: center;
+}
+
+.profile-modal .close-popup-button {
+    /* Inherit from existing close button styles if defined globally,
+       otherwise copy styles from .add-contact-popup .close-popup-button */
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    line-height: 1;
+    padding: 5px;
+}
+
+/* NEW: Styles for Add Contact search results */
+.add-contact-search-results {
+    width: 100%;
+    max-height: 180px; /* Adjust height as needed */
+    overflow-y: auto;
+    background-color: #fff;
+    border: 1px solid var(--color-border-medium);
+    border-radius: 4px;
+    margin-top: -1px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    display: none; /* Hidden by default */
+}
+
+.add-contact-search-results.visible {
+    display: block; /* Show when populated */
+}
+
+/* Re-use search-result-item styles from group member search */
+.add-contact-search-results .search-result-item {
+    /* These styles should ideally be defined once and reused,
+       but we'll copy them here for clarity for now */
+    display: flex;
+    align-items: center;
+    padding: 8px 10px;
+    cursor: pointer;
+    font-size: 13px;
+    border-bottom: 1px solid var(--color-border-light);
+}
+
+.add-contact-search-results .search-result-item:last-child {
+    border-bottom: none;
+}
+
+.add-contact-search-results .search-result-item:hover {
+    background-color: #f0f0f0;
+}
+
+.add-contact-search-results .search-result-item img.avatar {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    margin-right: 8px;
+    background-color: #eee; /* Placeholder color */
+}
+
+#add-contact-button {
+  padding: 10px 15px;
+  background-color: var(--color-text-logo);
+  color: var(--color-text-light);
+  border: none;
+  border-radius: 8px; /* Match input */
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+#add-contact-button:hover {
+  background-color: #008bdb;
+}
+
+#add-contact-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+/* Chat Actions Dropdown Styles */
+.chat-actions {
+    position: relative; /* Needed for absolute positioning of dropdown */
+}
+
+.chat-actions-dropdown {
+    display: none; /* Hidden by default */
+    position: absolute;
+    top: 100%; /* Position below the header actions */
+    right: 50px; /* Align near the 3-dots button */
+    background-color: var(--color-bg-sidebar); /* White background */
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 8px 0; /* Padding top/bottom */
+    z-index: 120; /* Above chat content */
+    min-width: 180px; /* Minimum width */
+}
+
+.chat-actions-dropdown.visible {
+    display: block;
+}
+
+.chat-actions-dropdown ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.chat-actions-dropdown li button {
+    display: block;
+    width: 100%;
+    background: none;
+    border: none;
+    text-align: left;
+    padding: 10px 15px;
+    font-size: 14px;
+    color: var(--color-text-primary);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.chat-actions-dropdown li button:hover {
+    background-color: #f0f0f0;
+}
+
+.chat-actions-dropdown li button.danger {
+    color: #E53935; /* Red for destructive actions */
+}
+
+.chat-actions-dropdown li button.danger:hover {
+    background-color: rgba(229, 57, 53, 0.1);
+}
+
+.chat-actions-dropdown li.separator hr {
+    border: none;
+    border-top: 1px solid var(--color-border-light);
+    margin: 8px 0;
+}
+
+/* NEW: Attachment Preview Styles in Footer */
+.attachment-preview {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-left: 10px; /* Space from attach button */
+    padding: 4px 8px;
+    background-color: #e9ecef; /* Light background */
+    border-radius: 6px;
+    max-width: 150px; /* Limit width */
+    overflow: hidden; /* Hide overflow */
+}
+
+.attachment-preview .loading-indicator {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+}
+
+.attachment-preview .preview-content {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.attachment-preview .preview-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0; /* Prevent icon shrinking */
+}
+
+.attachment-preview .preview-filename {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-grow: 1; /* Allow filename to take space */
+}
+
+.attachment-preview .clear-attachment-button {
+    background: none;
+    border: none;
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    padding: 0 2px;
+    line-height: 1;
+    margin-left: auto; /* Push to the end */
+    flex-shrink: 0;
+}
+
+/* Emoji Picker Styles */
+.emoji-picker-container {
+    position: relative; /* For absolute positioning of the picker */
+    margin-right: 5px; /* Space between picker button and attach button */
+}
+
+#emoji-picker {
+    position: absolute;
+    bottom: 100%; /* Position above the footer */
+    left: 0;
+    margin-bottom: 10px; /* Space between picker and footer */
+    z-index: 100; /* Ensure it's above footer content */
+    /* The library might apply its own styles, adjust if needed */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border-radius: 8px;
+}
+/* Ensure icon button looks okay */
+#emoji-button img.icon-svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* --- NEW: Edit Group Modal Specific Styles --- */
+
+/* Use existing create-group-popup styles as base */
+#edit-group-modal {
+    /* Inherits styles from .create-group-popup */
+}
+
+/* Style the description textarea */
+#edit-group-description {
+    width: 100%;
+    min-height: 80px; 
+    padding: 10px 15px;
+    margin-bottom: 15px;
+    border: 1px solid var(--color-border-medium);
+    border-radius: 8px;
+    background-color: var(--color-bg-sidebar);
+    color: var(--color-text-primary);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    resize: vertical; /* Allow vertical resize */
+    box-sizing: border-box; 
+}
+
+#edit-group-description::placeholder {
+    color: var(--color-text-placeholder);
+}
+
+#save-group-changes-button {
+     /* Inherits styles from .create-group-button */
+     /* Add any specific overrides if needed */
+}
+
+#edit-group-status {
+     /* Inherits styles from .create-group-status */
+}
+
+/* --- End Edit Group Modal Styles --- */
+
+.group-item.active {
+    background-color: var(--background-hover);
+}
+
+/* Ensure group avatar uses same styling as contact avatar */
+.group-item .avatar-container .avatar,
+.chat-header .avatar-container.group .avatar { /* Added class for header group avatar */
+    width: 40px;
+    height: 40px;
+}
+
+/* --- Specific Styles for Contact Items (Users) --- */
+.chat-list-item[data-type="user"] .status-indicator,
+.chat-list-item[data-type="user"] .last-seen {
+  /* Ensure they are displayed if they have content */
+  /* display: block; /* Or inline-block depending on original style */ 
+  /* Let the presence/absence of the element in innerHTML handle display */
+}
+
+/* --- Specific Styles for Group Items --- */
+.chat-list-item[data-type="group"] .status-indicator,
+.chat-list-item[data-type="group"] .last-seen {
+  display: none !important; /* Hide these elements for groups forcefully */
+}
+
+.chat-list-item[data-type="group"] .avatar-container .avatar {
+    /* Keep any group-specific avatar styles if needed */
+    /* Example: Different default background */
+    /* background-color: #e0e0e0; */
+} 

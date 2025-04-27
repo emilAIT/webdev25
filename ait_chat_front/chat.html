@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AIT Chat</title>
+  <link rel="stylesheet" href="css/chat.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Kufam:wght@400;600;700&display=swap" rel="stylesheet">
+  <!-- Add Emoji Picker Library -->
+  <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
+</head>
+<body>
+  <div class="app-container">
+
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <!-- NEW: Profile Header Area -->
+        <div id="sidebar-profile-header" class="sidebar-profile-header">
+            <img src="assets/images/default-avatar.png" alt="My Avatar" class="avatar" id="sidebar-profile-avatar">
+            <span id="sidebar-profile-username" class="username">Loading...</span>
+        </div>
+        <!-- Settings button moved here -->
+        <div class="sidebar-actions">
+            <button class="icon-button" id="users-button" aria-label="Users & Contacts">
+                <img src="assets/svg/users.svg" alt="Users" class="icon-svg">
+            </button>
+             <button class="icon-button" aria-label="Settings">
+                 <img src="assets/svg/settings.svg" alt="Settings" class="icon-svg">
+            </button>
+        </div>
+      </div>
+
+      <!-- Add Contact Popup (Now centered) -->
+      <div id="add-contact-popup" class="add-contact-popup">
+          <button class="close-popup-button" id="close-add-contact-popup" aria-label="Close">&times;</button>
+          <h4>Add New Contact</h4>
+          <div class="add-contact-form">
+              <input type="text" id="add-contact-username" placeholder="Search username...">
+              <!-- NEW: Search results container -->
+              <div id="add-contact-search-results" class="add-contact-search-results"></div>
+              <!-- Removed old Add button -->
+          </div>
+          <div id="add-contact-status" class="add-contact-status"></div>
+      </div>
+      
+      <!-- Create Group Popup (Redesigned) -->
+      <div id="create-group-popup" class="create-group-popup">
+          <button class="close-popup-button" id="close-create-group-popup" aria-label="Close">&times;</button>
+          
+          <!-- Group Info Header -->
+          <div class="group-creation-header">
+              <div class="group-avatar-container">
+                  <img src="assets/images/group-avatar-placeholder.png" alt="Group" class="group-avatar-placeholder" id="group-avatar-placeholder">
+                  <button class="camera-icon-button" id="group-avatar-upload-button">
+                      <img src="assets/images/camera-icon.png" alt="Upload" class="camera-icon">
+                  </button>
+                  <input type="file" id="group-avatar-input" accept="image/*" style="display: none;">
+              </div>
+              <h3 class="create-group-title">Create new group</h3>
+          </div>
+          
+          <!-- Group Name Input -->
+          <input type="text" id="create-group-name" placeholder="Write name of group...">
+          
+          <!-- Members Section -->
+          <div class="members-section">
+              <h5 class="members-label">Members:</h5>
+              <div class="member-list" id="selected-member-list">
+                  <!-- Selected member entries will be dynamically added here -->
+              </div>
+              
+              <!-- Divider -->
+              <hr class="group-divider">
+              
+              <!-- Contacts Section -->
+              <div class="contacts-section">
+                  <div class="contact-list-for-group" id="create-group-contact-list">
+                      <!-- Contact list will be populated here -->
+                  </div>
+              </div>
+          </div>
+          
+          <!-- Create Group Button -->
+          <button id="create-group-submit-button" class="create-group-button">
+              Create new group
+          </button>
+          
+          <!-- Status Message -->
+          <div id="create-group-status" class="create-group-status"></div>
+      </div>
+      
+      <!-- NEW: Profile Modal (Initially Hidden) -->
+      <div id="profile-modal" class="profile-modal">
+          <button class="close-popup-button" id="close-profile-modal" aria-label="Close">&times;</button>
+          <h4>My Profile</h4>
+          <!-- Profile content will go here later -->
+          <p>Profile details coming soon...</p> 
+      </div>
+      
+      <div class="search-bar">
+        <input type="search" id="search-input" placeholder="Search messages, people">
+        <button class="icon-button" aria-label="Search">
+             <img src="assets/svg/search.svg" alt="Search" class="icon-svg">
+        </button>
+      </div>
+      <div class="contact-list-container">
+        <!-- Unified Chat List -->
+        <ul id="chat-list">
+            <!-- Combined chat items will be populated here by JS -->
+        </ul>
+      </div>
+      
+      <!-- Combined Modal (Existing) -->
+      <div id="combined-modal" class="new-chat-modal">
+          <button class="close-popup-button" id="close-combined-modal" aria-label="Close">&times;</button>
+          <h4>Contacts</h4>
+          <div class="action-buttons">
+              <button id="modal-add-contact" class="modal-action-button">Add new contact</button>
+              <button id="modal-create-group" class="modal-action-button">Create new group</button>
+          </div>
+          <hr class="divider">
+          <h5>Start chat with:</h5>
+          <ul id="new-chat-contact-list" class="new-chat-contact-list">
+              <!-- Contact list will be populated here -->
+          </ul>
+      </div>
+
+      <!-- NEW: Logo moved to the bottom -->
+      <div class="sidebar-footer">
+          <div class="logo">AITC</div>
+      </div>
+
+    </aside>
+
+    <!-- Main Chat Area -->
+    <main class="chat-area chat-disabled">
+      <header class="chat-header">
+        <div class="contact-details">
+          <div class="avatar-container">
+            <!-- Use specific ID for group avatar in header -->
+            <img src="assets/images/default-avatar.png" alt="Avatar" class="avatar" id="chat-header-avatar">
+            <div class="status-indicator offline" id="chat-header-status-indicator"></div>
+          </div>
+          <div class="contact-info">
+            <span class="contact-name" id="chat-header-name">Select a chat</span>
+            <span class="contact-status" id="chat-header-status">Offline / Group Info</span>
+          </div>
+        </div>
+        <div class="chat-actions">
+            <button class="icon-button" aria-label="Video Call">📹</button>
+            <button class="icon-button" aria-label="Phone Call">📞</button>
+            <button class="icon-button" id="chat-header-more-options" aria-label="More Options">⋮</button>
+            <button class="logout-button">Logout</button>
+
+            <!-- NEW: Chat Actions Dropdown (hidden by default) -->
+            <div id="chat-actions-dropdown" class="chat-actions-dropdown">
+                <ul>
+                    <!-- Items will be populated by JS -->
+                    <li><button data-action="edit-details">Edit Details</button></li>
+                    <li><button data-action="leave-chat">Leave Chat</button></li>
+                    <li class="separator"><hr></li>
+                    <li><button data-action="delete-chat" class="danger">Delete Chat</button></li>
+                </ul>
+            </div>
+        </div>
+      </header>
+
+      <div id="chat-messages" class="chat-messages">
+      </div>
+
+      <div id="typing-indicator" class="typing-indicator" style="display: none;">
+        <span></span> is typing...
+      </div>
+
+      <footer class="chat-footer">
+         <!-- Add a container for the picker -->
+        <div class="emoji-picker-container">
+            <button id="emoji-button" class="icon-button" aria-label="Emoji">
+                 <img src="assets/svg/emoji-picker.svg" alt="Emoji" class="icon-svg">
+            </button>
+            <!-- The picker element -->
+            <emoji-picker id="emoji-picker" class="light" style="display: none;"></emoji-picker>
+        </div>
+        <!-- Attach Button -->
+        <button id="attach-button" class="icon-button" aria-label="Attach File">
+             <img src="assets/svg/clip.svg" alt="Attach" class="icon-svg">
+        </button>
+        <!-- Hidden File Input -->
+        <input type="file" id="file-input" style="display: none;" accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt,.zip">
+        <!-- Attachment Preview Area -->
+        <div id="attachment-preview" class="attachment-preview" style="display: none;">
+            <span class="loading-indicator" style="display: none;">Uploading...</span>
+            <!-- Image element for preview -->
+            <img id="attachment-preview-image" src="" alt="Preview" style="display: none; max-height: 24px; max-width: 50px; margin-right: 5px;">
+            <div class="preview-content" style="display: none;">
+                 <img src="assets/svg/file-text.svg" alt="File" class="preview-icon">
+                 <span class="preview-filename"></span>
+                 <button class="clear-attachment-button">&times;</button>
+            </div>
+        </div>
+        <input id="message-input" type="text" placeholder="Type message...">
+        <button id="send-button" class="send-button">
+            <span>Send</span>
+            <img src="assets/svg/send.svg" alt="Send" class="icon-svg send-icon">
+        </button>
+      </footer>
+
+      <!-- Manage Group Members Modal (Initially Hidden) -->
+      <div id="manage-members-modal" class="manage-members-modal">
+        <button class="close-popup-button" id="close-manage-members-modal" aria-label="Close">&times;</button>
+        
+        <!-- Group Info Header -->
+        <div class="group-info-header">
+            <img id="group-avatar" src="assets/images/default-avatar.png" alt="Group" class="group-avatar">
+            <h3 id="group-name-header" class="group-name-header">Group Name</h3>
+            <span id="group-members-count" class="group-members-count">0 members</span>
+        </div>
+        
+        <h4 class="section-header">Group info</h4>
+        
+        <!-- Members Section -->
+        <div class="members-section">
+            <h5 class="members-label">Members:</h5>
+            <ul id="group-member-list" class="group-member-list">
+                <!-- Members will be populated here -->
+            </ul>
+            
+            <!-- Add New Member Button -->
+            <button id="add-new-member-button" class="add-new-member-button">
+                Add new member
+            </button>
+        </div>
+        
+        <!-- Add Member Form (hidden by default) -->
+        <div id="add-member-form" class="add-member-form" style="display: none;">
+            <h5>Add Member</h5>
+            <input type="text" id="add-member-username" placeholder="Enter username to search...">
+            <div id="add-member-search-results" class="add-member-search-results"></div>
+            <div id="add-member-status" class="add-member-status"></div>
+        </div>
+      </div>
+
+      <!-- NEW: Edit Group Modal (Initially Hidden, similar to create-group-popup) -->
+      <div id="edit-group-modal" class="create-group-popup" style="display: none;"> 
+          <button class="close-popup-button" id="close-edit-group-modal" aria-label="Close">&times;</button>
+          
+          <!-- Group Info Header -->
+          <div class="group-creation-header"> 
+              <div class="group-avatar-container">
+                  <img src="assets/images/group-avatar-placeholder.png" alt="Group" class="group-avatar-placeholder" id="edit-group-avatar-preview">
+                  <button class="camera-icon-button" id="edit-group-avatar-upload-button">
+                      <img src="assets/images/camera-icon.png" alt="Upload" class="camera-icon">
+                  </button>
+                  <input type="file" id="edit-group-avatar-input" accept="image/*" style="display: none;">
+              </div>
+              <h3 class="create-group-title">Edit Group Details</h3>
+          </div>
+          
+          <!-- Group Name Input -->
+          <input type="text" id="edit-group-name" placeholder="Edit name of group...">
+          
+          <!-- Group Description Input -->
+          <textarea id="edit-group-description" placeholder="Edit group description..."></textarea> 
+
+          <!-- Save Changes Button -->
+          <button id="save-group-changes-button" class="create-group-button"> 
+              Save Changes
+          </button>
+          
+          <!-- Status Message -->
+          <div id="edit-group-status" class="create-group-status"></div> 
+      </div>
+
+    </main>
+  </div>
+  <script type="module" src="js/main.js"></script> 
+</body>
+</html> 
