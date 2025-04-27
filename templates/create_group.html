@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Group</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/main.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: rgb(0, 0, 0);
+        }
+        
+        .create-group-container {
+            width: 400px;
+            background: #1b1919;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .title {
+            font-size: 20px;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .group-form {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #aaa;
+        }
+        
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: #333;
+            border: 1px solid #555;
+            color: white;
+            box-sizing: border-box;
+        }
+        
+        .form-group textarea {
+            height: 80px;
+            resize: vertical;
+        }
+        
+        .members-section {
+            margin-top: 20px;
+        }
+        
+        .members-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .members-title {
+            font-size: 16px;
+            color: white;
+        }
+        
+        .members-count {
+            color: #aaa;
+            font-size: 14px;
+        }
+        
+        .members-list {
+            border: 1px solid #444;
+            border-radius: 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .member-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .member-item:hover {
+            background-color: #333;
+        }
+        
+        .member-item.selected {
+            background-color: #2a5885;
+        }
+        
+        .member-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #555;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .member-name {
+            color: white;
+        }
+        
+        .buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            border: none;
+            transition: background-color 0.2s;
+        }
+        
+        .cancel {
+            background: #555;
+            color: white;
+        }
+        
+        .cancel:hover {
+            background: #666;
+        }
+        
+        .create {
+            background: #6b6b6b;
+            color: white;
+        }
+        
+        .create:hover {
+            background: #7b7b7b;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: #333;
+            border: 1px solid #555;
+            color: white;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+        
+        .no-contacts {
+            color: #888;
+            text-align: center;
+            padding: 15px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="create-group-container">
+        <div class="header">
+            <div class="title">Create New Group</div>
+        </div>
+        
+        <form id="createGroupForm" class="group-form" method="post" action="{{ url_for('create_group') }}">
+            <div class="form-group">
+                <label for="groupName">Group Name</label>
+                <input type="text" id="groupName" name="name" placeholder="Enter group name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="groupDescription">Description (optional)</label>
+                <textarea id="groupDescription" name="description" placeholder="Describe your group"></textarea>
+            </div>
+            
+            <div class="members-section">
+                <div class="members-header">
+                    <div class="members-title">Add Members</div>
+                    <div class="members-count" id="membersCount">0 Selected</div>
+                </div>
+                
+                <input type="text" id="searchMembers" class="search-input" placeholder="Search contacts">
+                
+                <div class="members-list" id="membersList">
+                    <!-- Members will be populated dynamically -->
+                    <div class="no-contacts">Loading contacts...</div>
+                </div>
+            </div>
+            
+            <div class="buttons">
+                <a href="{{ url_for('main') }}" class="btn cancel">Cancel</a>
+                <button type="submit" class="btn create">Create Group</button>
+            </div>
+        </form>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Fetch contacts
+            fetch('/get_users_for_group')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayMembers(data.users);
+                    } else {
+                        showError('Failed to load contacts');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showError('Failed to load contacts');
+                });
+            
+            // Function to display members
+            function displayMembers(users) {
+                const membersList = document.getElementById('membersList');
+                
+                if (users.length === 0) {
+                    membersList.innerHTML = '<div class="no-contacts">No contacts found</div>';
+                    return;
+                }
+                
+                membersList.innerHTML = '';
+                
+                users.forEach(user => {
+                    const memberItem = document.createElement('div');
+                    memberItem.className = 'member-item';
+                    memberItem.dataset.userId = user.id;
+                    
+                    let avatarContent;
+                    if (user.avatar_path) {
+                        avatarContent = `<img src="${user.avatar_path}" alt="${user.name}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                    } else {
+                        avatarContent = user.name.charAt(0);
+                    }
+                    
+                    memberItem.innerHTML = `
+                        <div class="member-avatar">${avatarContent}</div>
+                        <div class="member-name">${user.name}</div>
+                        <input type="checkbox" name="members" value="${user.id}" style="display: none;">
+                    `;
+                    
+                    memberItem.addEventListener('click', function() {
+                        this.classList.toggle('selected');
+                        const checkbox = this.querySelector('input[type="checkbox"]');
+                        checkbox.checked = this.classList.contains('selected');
+                        updateMembersCount();
+                    });
+                    
+                    membersList.appendChild(memberItem);
+                });
+            }
+            
+            // Function to update members count
+            function updateMembersCount() {
+                const selectedMembers = document.querySelectorAll('.member-item.selected').length;
+                document.getElementById('membersCount').textContent = `${selectedMembers} Selected`;
+            }
+            
+            // Search functionality
+            const searchInput = document.getElementById('searchMembers');
+            searchInput.addEventListener('input', function() {
+                const searchValue = this.value.toLowerCase();
+                const memberItems = document.querySelectorAll('.member-item');
+                
+                memberItems.forEach(item => {
+                    const memberName = item.querySelector('.member-name').textContent.toLowerCase();
+                    if (memberName.includes(searchValue)) {
+                        item.style.display = 'flex';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+            
+            // Function to show error
+            function showError(message) {
+                const membersList = document.getElementById('membersList');
+                membersList.innerHTML = `<div class="no-contacts" style="color: #e57373;">${message}</div>`;
+            }
+        });
+    </script>
+</body>
+</html>

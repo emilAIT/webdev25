@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Главное окно</title>
+  <!-- Include modular CSS files -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles/main.css') }}">
+  
+  <!-- Include modular JavaScript files -->
+  <script src="{{ url_for('static', filename='js/core.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/api.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/ui.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/chat.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/group_chat.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/messages.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/contacts.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/search.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/notifications.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+</head>
+<body>
+  <!-- Боковая панель -->
+  <div class="sidebar">
+    <div class="top-bar">
+      <button class="menu-btn" id="menuBtn">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <div class="search-container">
+        <svg class="search-icon" viewBox="0 0 24 24" width="22" height="22">
+          <path fill="#aaa" d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" 
+               stroke-width="0.6" stroke="#aaa"></path>
+        </svg>
+        <input type="text" placeholder="Search" id="searchInput">
+      </div>
+      <!-- Removed create group button from here -->
+    </div>
+    
+    <!-- Список контактов -->
+    <div class="contacts-list" id="contactsList">
+      <!-- Контакты будут добавлены динамически -->
+      <div class="no-contacts-message">Нет контактов.</div>
+    </div>
+  </div>
+
+  <!-- Выдвижное боковое меню -->
+  <div class="side-menu" id="sideMenu">
+    <div class="close-menu-btn" id="closeMenuBtn">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5"></path>
+        <path d="M12 19l-7-7 7-7"></path>
+      </svg>
+    </div>
+
+    <div class="user-profile-header">
+      <div class="user-profile">
+        <div class="avatar-placeholder" id="avatarPlaceholder">
+          <!-- Если есть аватарка - показываем, если нет - инициалы -->
+          {% if user and user.avatar_path %}
+            <img src="{{ url_for('static', filename=user.avatar_path.replace('static/', '')) }}" alt="{{ user.name }}" class="avatar-image">
+          {% else %}
+            <div class="avatar-initials" id="avatarInitials">{{ session.get('user_name', 'U')[0] }}</div>
+          {% endif %}
+          
+          <!-- Иконка для загрузки фото -->
+          <div class="avatar-upload-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M12 5V19" stroke="white" stroke-width="2" stroke-linecap="round"/>
+              <path d="M5 12H19" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+        <!-- Скрытый input для выбора файла -->
+        <input type="file" id="avatarInput" accept="image/*" style="display: none;">
+        
+        <div class="user-info">
+          <h3>{{ session.get('user_name', 'User') }}</h3>
+          <p class="user-status" style="display: block !important; visibility: visible !important;">
+            {{ user.bio if user and user.bio else 'Нет информации' }}
+          </p>
+        </div>
+      </div>
+      <!-- Кнопка редактирования профиля -->
+      <button class="edit-profile-btn" id="editProfileBtn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+        </svg>
+      </button>
+    </div>
+    
+    <!-- Added new group button here, under user profile header -->
+    <a href="#" class="menu-item create-group-link" id="createGroupBtn">
+      <span class="menu-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 5v14M5 12h14"></path>
+          <circle cx="12" cy="12" r="10" stroke-width="1"></circle>
+        </svg>
+      </span>
+      <span>Новая Группа</span>
+    </a>
+    
+    <div class="menu-items">
+      <a href="#" class="menu-item logout" id="logoutBtn">
+        <span>Выйти</span>
+      </a>
+      <div class="version-text">ver 0.0.1</div>
+    </div>
+  </div>
+
+  <!-- Боковая панель редактирования профиля - без класса active по умолчанию -->
+  <div class="edit-profile-sidebar" id="editProfileSidebar">
+    <div class="edit-profile-header">
+      <div class="header-title-wrapper">
+        <button class="back-btn" id="backToMainMenu">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 12H5"></path>
+            <path d="M12 19l-7-7 7-7"></path>
+          </svg>
+        </button>
+        <h3>Редактировать профиль</h3>
+      </div>
+    </div>
+    
+    <div class="edit-profile-content">
+      <form id="editProfileForm">
+        <div class="edit-field">
+          <label for="name">Имя</label>
+          <input type="text" id="profileName" name="name" value="{{ session.get('user_name', '') }}">
+        </div>
+        
+        <div class="edit-field">
+          <label for="bio">Информация</label>
+          <textarea id="profileBio" name="bio" placeholder="Расскажите о себе">{{ user.bio if user and user.bio else '' }}</textarea>
+        </div>
+        
+        <button type="submit" class="save-profile-btn">Сохранить</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Темная подложка при открытом меню -->
+  <div class="overlay" id="overlay"></div>
+
+  <!-- Основная область -->
+  <div class="main-content"></div>
+  
+  <!-- Модальное окно подтверждения выхода -->
+  <div class="modal" id="logoutModal">
+    <div class="modal-content">
+      <h3>Подтверждение</h3>
+      <p>Вы действительно хотите выйти из аккаунта?</p>
+      <div class="modal-buttons">
+        <button id="cancelLogout" class="btn-secondary">Отмена</button>
+        <button onclick="window.location.href='{{ url_for('auth.logout') }}';" class="btn-primary">Выйти</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Модальное окно создания группы -->
+  <div class="modal" id="createGroupModal">
+    <div class="modal-content group-modal-content">
+      <h3>Создать новую группу</h3>
+      <form id="createGroupForm" enctype="multipart/form-data">
+        <!-- Add group avatar upload section -->
+        <div class="form-group group-avatar-upload">
+          <label for="groupAvatar">Аватар группы</label>
+          <div class="group-avatar-container">
+            <div class="group-avatar-wrapper" id="groupAvatarPreview">
+              <div class="avatar-initials">G</div>
+              <div class="avatar-upload-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 5V19" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M5 12H19" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </div>
+            </div>
+            <input type="file" id="groupAvatarInput" name="avatar" accept="image/*" style="display: none;">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="groupName">Название группы</label>
+          <input type="text" id="groupName" name="name" placeholder="Введите название группы" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="groupDescription">Описание (опционально)</label>
+          <textarea id="groupDescription" name="description" placeholder="Опишите вашу группу"></textarea>
+        </div>
+        
+        <div class="members-section">
+          <div class="members-header">
+            <div class="members-title">Добавить участников</div>
+            <div class="members-count" id="membersCount">0 выбрано</div>
+          </div>
+          
+          <input type="text" id="searchMembers" class="search-input" placeholder="Поиск контактов">
+          
+          <div class="members-list" id="membersList">
+            <!-- Члены группы будут добавлены динамически -->
+            <div class="no-contacts">Загрузка контактов...</div>
+          </div>
+        </div>
+        
+        <div class="modal-buttons">
+          <button type="button" id="cancelGroupCreate" class="btn-secondary">Отмена</button>
+          <button type="submit" class="btn-primary">Создать группу</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

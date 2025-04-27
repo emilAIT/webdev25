@@ -1,0 +1,109 @@
+/**
+ * Search CSS - search results and user search items
+ */
+
+/* Search results container */
+.search-results {
+    position: absolute;
+    top: 50px;
+    left: 0;
+    width: 100%;
+    background-color: var(--sidebar-background);
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    z-index: 100;
+    max-height: 400px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+
+.search-results::-webkit-scrollbar {
+    width: var(--scrollbar-width-thin);
+}
+
+.search-results::-webkit-scrollbar-track {
+    background: var(--sidebar-background);
+}
+
+.search-results::-webkit-scrollbar-thumb {
+    background: #444;
+    border-radius: calc(var(--scrollbar-width-thin) / 2);
+}
+
+.search-results-header {
+    padding: 10px 15px;
+    color: var(--text-secondary);
+    font-size: 12px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Search user items */
+.search-user-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: var(--avatar-background);
+    margin-right: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.search-user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.search-user-avatar .avatar-initials {
+    font-size: 20px;
+    color: white;
+    font-weight: 500;
+}
+
+.search-user-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.search-user-item:hover {
+    background-color: #2a2a2a;
+}
+
+.search-user-info {
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.search-user-name {
+    font-size: 15px;
+    color: white;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.search-user-bio {
+    font-size: 13px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.search-no-results, .search-error {
+    padding: 15px;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.search-error {
+    color: #e57373;
+}

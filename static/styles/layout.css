@@ -1,0 +1,122 @@
+/**
+ * Layout CSS - major structural components of the application
+ */
+
+/* Main layout structure */
+.sidebar {
+    width: var(--sidebar-width);
+    height: 100vh;
+    background-color: var(--sidebar-background);
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.main-content {
+    flex-grow: 1;
+    background-color: #0e0e0e;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    width: calc(100% - var(--sidebar-width));
+    height: 100vh;
+    overflow: hidden;
+    border-left: 1px solid var(--border-color);
+}
+
+/* Top bar with search */
+.top-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px 8px 14px;
+    margin: 0;
+    background-color: var(--sidebar-background);
+}
+
+/* Create group button */
+.create-group-btn {
+    width: 38px;
+    height: 38px;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    padding: 0;
+    margin-left: 6px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.create-group-btn:hover {
+    background-color: var(--button-hover);
+    color: white;
+}
+
+/* Sidebar search container */
+.search-container {
+    position: relative;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    z-index: 1;
+    width: 22px;
+    height: 22px;
+}
+
+.search-icon path {
+    stroke-width: 0.6;
+    stroke: var(--text-secondary);
+}
+
+#searchInput {
+    flex-grow: 1;
+    height: 36px;
+    padding: 0 15px 0 42px;
+    border: none;
+    border-radius: 18px;
+    background-color: var(--dark-background);
+    color: var(--text-primary);
+    font-size: 15px;
+    outline: none;
+    margin: 0;
+    width: 100%;
+}
+
+#searchInput:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+#searchInput::placeholder {
+    color: var(--text-secondary);
+}
+
+/* Overlay for modals and side menus */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: none;
+}
+
+.overlay.active {
+    display: block;
+}

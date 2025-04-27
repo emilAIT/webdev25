@@ -1,0 +1,3 @@
+# PythonAnywhere configuration
+# This file helps with identifying when the app is running on PythonAnywhere
+PYTHONANYWHERE_HOST=tymeer.pythonanywhere.com

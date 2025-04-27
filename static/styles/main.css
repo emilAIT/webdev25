@@ -1,0 +1,32 @@
+/**
+ * Main CSS file that imports all modular styles
+ */
+
+/* Import reset and base styles */
+@import url('reset.css');
+@import url('base.css');
+
+/* Import layout components */
+@import url('layout.css');
+@import url('menu.css');
+
+/* Import chat components */
+@import url('chat.css');
+@import url('messages.css');
+@import url('input.css');
+
+/* Import sidebar components */
+@import url('contacts.css');
+@import url('search.css');
+
+/* Import UI components */
+@import url('modals.css');
+@import url('profile.css');
+
+/* Import authentication pages */
+@import url('login.css');
+
+/* Import component styles */
+@import url('notification.css');
+@import url('file-menu.css');
+@import url('message-menu.css');

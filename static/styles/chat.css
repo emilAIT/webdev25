@@ -1,0 +1,317 @@
+/**
+ * Chat CSS - chat interface components
+ */
+
+/* Chat header */
+.chat-header {
+    position: relative;
+    height: 60px;
+    background-color: #212121;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    border-bottom: 1px solid #333;
+    flex-shrink: 0;
+    z-index: 10;
+    box-sizing: border-box;
+}
+
+.chat-user-info {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    max-width: 90%; /* Increased from 80% to allow more space */
+    height: 100%;
+    position: relative;
+    overflow: hidden; /* Added to contain children */
+}
+
+.chat-user-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: #555;
+    margin-right: 12px;
+    overflow: hidden;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chat-user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.chat-user-name {
+    font-size: 17px;
+    font-weight: 500;
+    color: white;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* Removed max-width calc, let flexbox handle it within the parent's bounds */
+    /* max-width: calc(100% - 20px); */
+    flex: 1; /* Allow name to take available space */
+    min-width: 0; /* Important for flex item truncation */
+    position: relative;
+    left: 0;
+    top: -10px; /* Restored previous value */
+    transform: none;
+    margin: 0;
+}
+
+.chat-menu-btn {
+    width: 40px;
+    height: 40px;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding: 0;
+}
+
+.chat-menu-btn:hover {
+    background-color: var(--button-hover);
+    color: white;
+}
+
+/* Chat messages area */
+.chat-messages {
+    flex-grow: 1;
+    height: calc(100vh - 128px);
+    padding: 20px 16px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    background-color: #0f0f0f;
+    background-image: none;
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+
+.chat-messages::-webkit-scrollbar {
+    width: var(--scrollbar-width);
+}
+
+.chat-messages::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: calc(var(--scrollbar-width) / 2);
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+}
+
+.messages-container {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+/* No messages placeholder */
+.no-messages {
+    color: var(--text-dimmed);
+    text-align: center;
+    font-style: italic;
+    padding: 20px;
+    margin-top: 30%;
+    margin-bottom: 120px;
+    font-size: 18px;
+    opacity: 0.8;
+    font-weight: 300;
+}
+
+/* Group chat specific styles */
+.chat-group-members {
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+}
+
+.message-sender {
+  font-size: 12px;
+  font-weight: 500;
+  color: #68a4e8;
+  margin-bottom: 2px;
+}
+
+.group-avatar {
+  background-color: #5a8cc0 !important;
+}
+
+.group-item .contact-avatar {
+  background-color: #5a8cc0 !important;
+}
+
+/* User Information Modal Styles */
+.user-info-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+.user-info-content {
+  background-color: #1c1c1c;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 400px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+  animation: fadeInUp 0.3s ease;
+}
+
+.user-info-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #333;
+}
+
+.user-info-header h3 {
+  margin: 0;
+  color: white;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.user-info-header .close-btn {
+  background: transparent;
+  border: none;
+  color: #aaa;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.user-info-header .close-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.user-info-body {
+  padding: 20px;
+}
+
+.user-info-avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  margin: 0 auto 20px;
+  overflow: hidden;
+  background-color: #555;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-info-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.user-info-avatar .avatar-initials {
+  font-size: 36px;
+  color: white;
+  font-weight: 500;
+}
+
+.user-info-details {
+  text-align: center;
+}
+
+.user-info-name {
+  margin: 0 0 20px;
+  color: white;
+  font-size: 22px;
+  font-weight: 500;
+}
+
+.user-info-bio {
+  text-align: left;
+  background-color: #252525;
+  padding: 15px;
+  border-radius: 6px;
+  margin-top: 15px;
+}
+
+.user-info-bio h4 {
+  margin: 0 0 10px;
+  color: #aaa;
+  font-size: 14px;
+  font-weight: normal;
+}
+
+.user-info-bio p {
+  margin: 0;
+  color: white;
+  font-size: 15px;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+}
+
+.loading-spinner .spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  border-top-color: #aaa;
+  animation: spin 1s ease-in-out infinite;
+  margin-bottom: 15px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.error-message {
+  color: #e57373;
+  text-align: center;
+  padding: 20px;
+}

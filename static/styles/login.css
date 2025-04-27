@@ -1,0 +1,210 @@
+/**
+ * Login CSS - styles for login, register, and password reset pages
+ */
+
+/* Login container */
+.login-container {
+    background-color: #1b1919;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    text-align: center;
+}
+
+h1 {
+    margin-top: 0;
+    margin-bottom: 25px;
+    font-size: 24px;
+    color: #f4f4f4;
+}
+
+.input-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #474747;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #474747;
+    border-radius: 4px;
+    box-sizing: border-box;
+    background-color: #1b1919;
+    color: #f4f4f4;
+}
+
+input[type="email"] {
+    background-color: inherit;
+    color: inherit;
+}
+
+input::placeholder {
+    color: #6b6b6b;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    background-color: #6b6b6b;
+    color: #f4f4f4;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    margin-bottom: 15px;
+}
+
+button:hover {
+    background-color: #5a5a5a;
+}
+
+.footer {
+    font-size: 12px;
+    color: #474747;
+    margin-top: 10px;
+}
+
+.footer a {
+    color: #6b6b6b;
+    text-decoration: none;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}
+
+.divider {
+    height: 1px;
+    background-color: #303030;
+    margin: 20px 0;
+}
+
+/* Flash messages */
+.flash-messages {
+    margin-bottom: 15px;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #282626;
+    border-left: 4px solid #333;
+}
+
+.flash-messages .success {
+    color: #58d68d;
+    border-left: 4px solid #58d68d;
+}
+
+.flash-messages .error {
+    color: #e74c3c;
+    border-left: 4px solid #e74c3c;
+    font-weight: bold;
+    background-color: rgba(231, 76, 60, 0.1);
+    padding: 8px 10px;
+}
+
+.flash-messages .info {
+    color: #3498db;
+    border-left: 4px solid #3498db;
+}
+
+.flash-messages p {
+    margin: 5px 0;
+    padding: 5px;
+}
+
+/* Validation */
+.input-error {
+    border: 1px solid #e74c3c !important;
+}
+
+.field-error {
+    color: #e74c3c;
+    font-size: 12px;
+    margin-top: 5px;
+    display: none;
+}
+
+/* Password controls */
+.password-input-container {
+    position: relative;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #6b6b6b;
+    font-size: 16px;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.eye-icon {
+    width: 24px;
+    height: 24px;
+    fill: #6b6b6b;
+    transition: fill 0.2s;
+}
+
+.toggle-password:hover .eye-icon {
+    fill: #aaaaaa;
+}
+
+/* Forgot password */
+.forgot-password {
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    display: none;
+}
+
+.forgot-password a {
+    color: #3498db;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.forgot-password a:hover {
+    text-decoration: underline;
+}
+
+.forgot-password-btn {
+    background: transparent;
+    border: none;
+    color: #3498db;
+    font-size: 14px;
+    text-decoration: none;
+    cursor: pointer;
+    padding: 0;
+    margin: 10px 0;
+}
+
+.forgot-password-btn:hover {
+    color: #3498db;
+    text-decoration: none;
+    background-color: transparent !important;
+    opacity: 1;
+    transform: none;
+}
+
+.reset-message {
+    color: #58d68d;
+    font-size: 14px;
+    margin: 10px 0;
+    display: none;
+}

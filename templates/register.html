@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        input[type="email"] {
+            background-color: inherit;
+            color: inherit;
+        }
+        
+        .flash-messages {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #282626;
+            border-left: 4px solid #333;
+        }
+        
+        .flash-messages .success {
+            color: #58d68d;
+            border-left: 4px solid #58d68d;
+        }
+        
+        .flash-messages .error {
+            color: #e74c3c;
+            border-left: 4px solid #e74c3c;
+        }
+        
+        .flash-messages p {
+            margin: 5px 0;
+            padding: 5px;
+        }
+        
+        .input-error {
+            border: 1px solid #e74c3c !important;
+        }
+        
+        .field-error {
+            color: #e74c3c;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .password-input-container {
+            position: relative;
+        }
+        
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #6b6b6b;
+            font-size: 16px;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Стиль для SVG иконки глаза */
+        .eye-icon {
+            width: 24px;
+            height: 24px;
+            fill: #6b6b6b;
+            transition: fill 0.2s;
+        }
+        
+        .toggle-password:hover .eye-icon {
+            fill: #aaaaaa;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>Регистрация</h1>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <p class="{{ category }}">{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+        <form method="POST" action="{{ url_for('auth.register') }}" id="registerForm">
+            <div class="input-group">
+                <label for="name">Имя пользователя</label>
+                <input type="text" id="name" name="name" placeholder="Введите имя" required>
+                <div class="field-error" id="nameError">Имя не может быть пустым</div>
+            </div>
+            
+            <div class="input-group">
+                <label for="email">Email адрес</label>
+                <input type="email" id="email" name="email" placeholder="Введите email" required>
+                <div class="field-error" id="emailError">Пожалуйста, введите корректный email</div>
+            </div>
+            
+            <div class="input-group">
+                <label for="password">Пароль</label>
+                <div class="password-input-container">
+                    <input type="password" id="password" name="password" placeholder="Пароль" required>
+                    <button type="button" class="toggle-password" data-target="password">
+                        <svg class="eye-icon" viewBox="0 0 24 24">
+                            <path d="M12,9c-1.642,0-3,1.359-3,3c0,1.642,1.358,3,3,3c1.641,0,3-1.358,3-3C15,10.359,13.641,9,12,9z"></path>
+                            <path d="M12,5c-7.569,0-12,6.5-12,7c0,0.5,4.431,7,12,7s12-6.5,12-7C24,11.5,19.569,5,12,5z M12,17c-2.757,0-5-2.243-5-5 s2.243-5,5-5s5,2.243,5,5S14.757,17,12,17z"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="field-error" id="passwordError">Пароль должен содержать минимум 6 символов</div>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <button type="submit">Зарегистрироваться</button>
+        </form>
+        
+        <p class="login-form-help">Уже есть аккаунт? <a href="{{ url_for('auth.login') }}">Войти</a></p>
+        <div class="version" style="color: #666; font-size: 15px;">ver 0.0.1</div>
+    </div>
+    
+    <script>
+        // Функция для переключения видимости пароля
+        document.querySelectorAll('.toggle-password').forEach(button => {
+            const eyeIcon = button.querySelector('.eye-icon');
+            
+            button.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const passwordInput = document.getElementById(targetId);
+                
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    eyeIcon.innerHTML = '<path d="M12,7c2.76,0,5,2.24,5,5c0,0.65-0.13,1.26-0.36,1.83l2.92,2.92c1.51-1.26,2.7-2.89,3.43-4.75 c-1.73-4.39-6-7.5-11-7.5c-1.4,0-2.74,0.25-3.98,0.7l2.16,2.16C10.74,7.13,11.35,7,12,7z"></path><path d="M2,4.27l2.28,2.28l0.46,0.46C3.08,8.3,1.78,10.02,1,12c1.73,4.39,6,7.5,11,7.5c1.55,0,3.03-0.3,4.38-0.84l0.42,0.42 L19.73,22L21,20.73L3.27,3L2,4.27z M7.53,9.8l1.55,1.55C9.03,11.56,9,11.78,9,12c0,1.66,1.34,3,3,3c0.22,0,0.44-0.03,0.65-0.08 l1.55,1.55c-0.67,0.33-1.41,0.53-2.2,0.53c-2.76,0-5-2.24-5-5C7,11.21,7.2,10.47,7.53,9.8z M11.84,9.02l3.15,3.15l0.02-0.16 c0-1.66-1.34-3-3-3L11.84,9.02z"></path>';
+                } else {
+                    passwordInput.type = 'password';
+                    eyeIcon.innerHTML = '<path d="M12,9c-1.642,0-3,1.359-3,3c0,1.642,1.358,3,3,3c1.641,0,3-1.358,3-3C15,10.359,13.641,9,12,9z"></path><path d="M12,5c-7.569,0-12,6.5-12,7c0,0.5,4.431,7,12,7s12-6.5,12-7C24,11.5,19.569,5,12,5z M12,17c-2.757,0-5-2.243-5-5 s2.243-5,5-5s5,2.243,5,5S14.757,17,12,17z"></path>';
+                }
+            });
+        });
+        
+        // Клиентская валидация
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            let isValid = true;
+            const name = document.getElementById('name');
+            const email = document.getElementById('email');
+            const password = document.getElementById('password');
+            const nameError = document.getElementById('nameError');
+            const emailError = document.getElementById('emailError');
+            const passwordError = document.getElementById('passwordError');
+            
+            // Сбросить предыдущие ошибки
+            name.classList.remove('input-error');
+            email.classList.remove('input-error');
+            password.classList.remove('input-error');
+            nameError.style.display = 'none';
+            emailError.style.display = 'none';
+            passwordError.style.display = 'none';
+            
+            // Проверка имени
+            if (!name.value.trim()) {
+                name.classList.add('input-error');
+                nameError.style.display = 'block';
+                isValid = false;
+            }
+            
+            // Проверка email
+            if (!email.value.trim()) {
+                email.classList.add('input-error');
+                emailError.textContent = 'Email не может быть пустым';
+                emailError.style.display = 'block';
+                isValid = false;
+            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())) {
+                email.classList.add('input-error');
+                emailError.textContent = 'Введите корректный email адрес';
+                emailError.style.display = 'block';
+                isValid = false;
+            }
+            
+            // Проверка пароля
+            if (!password.value.trim()) {
+                password.classList.add('input-error');
+                passwordError.textContent = 'Пароль не может быть пустым';
+                passwordError.style.display = 'block';
+                isValid = false;
+            } else if (password.value.length < 6) {
+                password.classList.add('input-error');
+                passwordError.textContent = 'Пароль должен содержать минимум 6 символов';
+                passwordError.style.display = 'block';
+                isValid = false;
+            }
+            
+            if (!isValid) {
+                e.preventDefault(); // Отменить отправку формы при наличии ошибок
+            }
+        });
+    </script>
+</body>
+</html>

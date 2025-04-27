@@ -1,0 +1,102 @@
+/**
+ * Base CSS styles - foundational elements including variables, resets, and basic typography
+ */
+
+/* CSS variables - global color scheme and measurements */
+:root {
+    --dark-background: #100E0E;
+    --sidebar-background: #1c1c1c;
+    --chat-header-background: #212121;
+    --input-background: #303030;
+    --message-sent: #b4b4b4; /* Changed from #333333 (dark gray) to #e0e0e0 (light gray) */
+    --message-received: #222222; /* Changed from #2b5278 (blue) to #222222 (soft black) */
+    --text-primary: #fff;
+    --text-secondary: #aaa;
+    --text-dimmed: #666;
+    --border-color: #333;
+    --button-hover: rgba(255, 255, 255, 0.1);
+    --avatar-background: #555;
+    --scrollbar-thumb: rgba(255, 255, 255, 0.2);
+    --scrollbar-thumb-hover: rgba(255, 255, 255, 0.3);
+    --scrollbar-width: 6px;
+    --scrollbar-width-thin: 4px;
+    --sidebar-width: 320px;
+    --avatar-placeholder-color: #706c6c;
+}
+
+/* Common utility classes */
+.avatar-shared {
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.text-ellipsis {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Base styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: var(--dark-background);
+    color: var(--text-primary);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Avatar styles used throughout the app */
+.avatar-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-initials {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 500;
+    color: white;
+}
+
+/* Animation keyframes */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes menu-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
