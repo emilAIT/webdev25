@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SomeMsger - Create Group</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <script src="/static/script.js"></script>
+</head>
+<body class="group-create">
+    <header>
+        <div class="logo">SomeMsger</div>
+    </header>
+    <div class="container">
+        <div class="main">
+            <h2>Create Group</h2>
+            <form id="group-form" onsubmit="submitCreateGroup(); return false;">
+                <label for="group_name">Group Name</label>
+                <input type="text" id="group_name" name="group_name" placeholder="Enter group name" required>
+                <label for="description">Description</label>
+                <textarea id="description" name="description" placeholder="Enter group description" rows="4"></textarea>
+                <label>Select Friends</label>
+                <div class="friend-list">
+                    {% for friend in friends %}
+                        <div class="friend-item">
+                            <input type="checkbox" id="friend_{{ friend }}" name="usernames" value="{{ friend }}">
+                            <label for="friend_{{ friend }}">{{ friend }}</label>
+                        </div>
+                    {% endfor %}
+                </div>
+                <button type="submit" class="submit-button">Create Group</button>
+            </form>
+            <p class="back-link"><a href="/groups">Back to Groups</a></p>
+        </div>
+    </div>
+</body>
+</html>

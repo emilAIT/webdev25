@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SomeMsger - Verify Code</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #fff;
+        }
+        .logo {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+        .form-container {
+            width: 300px;
+            text-align: center;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #000;
+            font-size: 24px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .error {
+            color: #dc3545;
+            text-align: center;
+            margin: 10px 0;
+        }
+        form {
+            width: 100%;
+        }
+        .code-inputs {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+        }
+        .code-inputs input {
+            width: 40px;
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+            color: #000;
+            font-size: 14px;
+        }
+        .form-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .cancel-button {
+            width: 48%;
+            padding: 10px;
+            background-color: #6c757d;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            text-transform: uppercase;
+            text-decoration: none;
+            text-align: center;
+        }
+        .cancel-button:hover {
+            background-color: #5a6268;
+        }
+        .submit-button {
+            width: 48%;
+            padding: 10px;
+            background-color: #000;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            text-transform: uppercase;
+        }
+        .submit-button:hover {
+            background-color: #333;
+        }
+    </style>
+    <script>
+        function moveToNext(current, nextField) {
+            if (current.value.length >= 1) {
+                document.getElementById(nextField).focus();
+            }
+        }
+
+        function handleInput(event, current, prevField, nextField) {
+            const key = event.key;
+
+            // Move to next field on input
+            if (current.value.length >= 1 && key !== 'Backspace' && key !== 'ArrowLeft' && key !== 'ArrowRight') {
+                document.getElementById(nextField).focus();
+            }
+
+            // Handle backspace: delete and move to previous field if empty
+            if (key === 'Backspace' && current.value.length === 0 && prevField) {
+                document.getElementById(prevField).focus();
+            }
+
+            // Move with arrow keys
+            if (key === 'ArrowLeft' && prevField) {
+                document.getElementById(prevField).focus();
+            }
+            if (key === 'ArrowRight' && nextField) {
+                document.getElementById(nextField).focus();
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="logo">SomeMsger</div>
+    <div class="form-container">
+        <h2>VERIFY EMAIL</h2>
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+        <form method="POST" action="/verify_code">
+            <div class="code-inputs">
+                <input type="text" id="digit1" name="digit1" maxlength="1" onkeydown="handleInput(event, this, null, 'digit2')" required>
+                <input type="text" id="digit2" name="digit2" maxlength="1" onkeydown="handleInput(event, this, 'digit1', 'digit3')" required>
+                <input type="text" id="digit3" name="digit3" maxlength="1" onkeydown="handleInput(event, this, 'digit2', 'digit4')" required>
+                <input type="text" id="digit4" name="digit4" maxlength="1" onkeydown="handleInput(event, this, 'digit3', 'digit5')" required>
+                <input type="text" id="digit5" name="digit5" maxlength="1" onkeydown="handleInput(event, this, 'digit4', 'digit6')" required>
+                <input type="text" id="digit6" name="digit6" maxlength="1" onkeydown="handleInput(event, this, 'digit5', null)" required>
+            </div>
+            <div class="form-buttons">
+                <a href="/register" class="cancel-button">Cancel</a>
+                <button type="submit" class="submit-button">Submit</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

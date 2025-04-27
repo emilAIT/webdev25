@@ -1,0 +1,83 @@
+/* Default to Small Size */
+:root {
+    /* Small Size */
+    --font-size-base: 14px;
+    --font-size-heading: 16px;
+    --font-size-title: 18px;
+    --font-size-large: 24px;
+    --padding-small: 5px;
+    --padding-medium: 10px;
+    --padding-large: 20px;
+    --margin-small: 5px;
+    --margin-medium: 10px;
+    --margin-large: 20px;
+    --border-radius: 5px;
+    --avatar-size: 24px;
+    --avatar-icon-size: 16px;
+    --sidebar-width: 300px;
+    --input-padding: 10px;
+    --button-padding: 10px 20px;
+    --modal-width: 80%;
+    --modal-max-width: 500px;
+    --modal-padding: 20px;
+    --modal-max-height: 80vh;
+    --message-margin: 2px 0;
+    --bubble-padding: 8px 12px;
+    --date-divider-margin: 20px 0;
+}
+
+/* Medium Size */
+:root[data-size="medium"] {
+    /* Medium Size */
+    --font-size-base: 18px;
+    --font-size-heading: 20px;
+    --font-size-title: 24px;
+    --font-size-large: 30px;
+    --padding-small: 8px;
+    --padding-medium: 15px;
+    --padding-large: 25px;
+    --margin-small: 8px;
+    --margin-medium: 15px;
+    --margin-large: 25px;
+    --border-radius: 8px;
+    --avatar-size: 32px;
+    --avatar-icon-size: 20px;
+    --sidebar-width: 350px;
+    --input-padding: 12px;
+    --button-padding: 12px 24px;
+    --modal-width: 85%;
+    --modal-max-width: 600px;
+    --modal-padding: 25px;
+    --modal-max-height: 85vh;
+    --message-margin: 4px 0;
+    --bubble-padding: 10px 15px;
+    --date-divider-margin: 25px 0;
+}
+
+/* Large Size */
+:root[data-size="large"] {
+    /* Large Size */
+    --font-size-base: 20px;
+    --font-size-heading: 24px;
+    --font-size-title: 26px;
+    --font-size-large: 36px;
+    --padding-small: 10px;
+    --padding-medium: 20px;
+    --padding-large: 30px;
+    --margin-small: 10px;
+    --margin-medium: 20px;
+    --margin-large: 30px;
+    --border-radius: 10px;
+    --avatar-size: 40px;
+    --avatar-icon-size: 24px;
+    --sidebar-width: 400px;
+    --input-padding: 15px;
+    --button-padding: 15px 30px;
+    --modal-width: 90%;
+    --modal-max-width: 700px;
+    --modal-padding: 30px;
+    --modal-max-height: 90vh;
+    --message-margin: 6px 0;
+    --bubble-padding: 12px 18px;
+    --date-divider-margin: 30px 0;
+}

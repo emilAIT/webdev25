@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SomeMsger - Styles Settings</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <script src="/static/script.js"></script>
+</head>
+<body class="settings">
+    <header>
+        <div class="logo">SomeMsger</div>
+    </header>
+    <div class="app-container">
+        <div class="sidebar">
+            <div class="chat-list">
+                <a href="/settings/profile" class="chat-item">
+                    <div class="avatar">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                    </div>
+                    <div class="chat-info">
+                        <span class="chat-name">Profile</span>
+                    </div>
+                </a>
+                <a href="/settings/styles" class="chat-item active">
+                    <div class="avatar">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2a10 10 0 0 0-7.35 16.83M12 2a10 10 0 0 1 7.35 16.83M12 2v4M12 18v4M2 12h4M18 12h4"/>
+                        </svg>
+                    </div>
+                    <div class="chat-info">
+                        <span class="chat-name">Styles</span>
+                    </div>
+                </a>
+                <a href="/settings/account" class="chat-item">
+                    <div class="avatar">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                            <circle cx="8.5" cy="7" r="4"/>
+                            <path d="M20 8v6M23 11h-6"/>
+                        </svg>
+                    </div>
+                    <div class="chat-info">
+                        <span class="chat-name">Account</span>
+                    </div>
+                </a>
+            </div>
+            <a href="/chats" class="sidebar-link">Back to chats</a>
+            <a href="/logout" class="sidebar-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>
+                </svg>
+                Logout
+            </a>
+        </div>
+        <div class="chat-container">
+            <header class="chat-header">
+                <h2>Styles Settings</h2>
+            </header>
+            <div class="settings-section">
+                <p>
+                    <strong>Theme:</strong>
+                    <select id="theme-select">
+                        <option value="light">Light</option>
+                        <option value="dark">Dark</option>
+                        <option value="alienora">Alienora's Favorite Theme</option>
+                        <option value="hollow-purple">Hollow Purple</option>
+                        <option value="maniac">Maniac</option>
+                    </select>
+                </p>
+                <p>
+                    <strong>Font Size:</strong>
+                    <select id="font-size-select">
+                        <option value="small">Small</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="large">Large</option>
+                    </select>
+                </p>
+                <button class="submit-button" onclick="updateStyles()">Save Styles</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Load current styles when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCurrentStyles();
+        });
+
+        function loadCurrentStyles() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            const savedFontSize = localStorage.getItem('fontSize') || 'medium';
+
+            // Apply saved theme and size by setting data attributes
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            document.documentElement.setAttribute('data-size', savedFontSize);
+
+            // Update UI indicators
+            document.getElementById('theme-select').value = savedTheme;
+            document.getElementById('font-size-select').value = savedFontSize;
+        }
+
+        function updateStyles() {
+            const theme = document.getElementById('theme-select').value;
+            const fontSize = document.getElementById('font-size-select').value;
+
+            // Save to localStorage
+            localStorage.setItem('theme', theme);
+            localStorage.setItem('fontSize', fontSize);
+
+            // Apply the selected theme and size
+            document.documentElement.setAttribute('data-theme', theme);
+            document.documentElement.setAttribute('data-size', fontSize);
+
+            // Optional: Provide feedback to the user
+            alert('Styles updated successfully!');
+        }
+    </script>
+</body>
+</html>

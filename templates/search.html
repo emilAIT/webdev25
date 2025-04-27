@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SomeMsger - Search</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <script src="/static/script.js"></script>
+</head>
+<body class="search">
+    <header>
+        <div class="logo">SomeMsger</div>
+    </header>
+    <div class="container">
+        <div class="main">
+            <div class="back-link">
+                <a href="/chats">Back to Chats</a>
+            </div>
+            <h2>Add Friend</h2>
+            <input type="text" id="search-input" placeholder="Enter nickname..." oninput="searchUsers()">
+            <div id="suggestions" class="suggestions"></div>
+            <div class="pending-requests">
+                <h3>Pending Requests</h3>
+                {% if pending_requests %}
+                    {% for request in pending_requests %}
+                        <div class="pending-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                <circle cx="12" cy="7" r="4"/>
+                            </svg>
+                            <span>{{ request }}</span>
+                            <button onclick="acceptFriendRequest('{{ request }}')">Accept</button>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="no-pending-message">No pending friend requests.</p>
+                {% endif %}
+            </div>
+            <div class="recommendations-section">
+                <h3>Recommended Friends</h3>
+                {% if recommendations %}
+                    {% for rec in recommendations %}
+                        <div class="suggestion-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                <circle cx="12" cy="7" r="4"/>
+                            </svg>
+                            <span>{{ rec.username }} ({{ rec.common_interests_count }} common interest{{ 's' if rec.common_interests_count > 1 else '' }})</span>
+                            <button onclick="sendFriendRequest('{{ rec.username }}')">Add Friend</button>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No recommendations available.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

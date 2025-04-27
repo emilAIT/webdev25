@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SomeMsger - Account Settings</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <script src="/static/script.js"></script>
+</head>
+<body class="settings">
+    <header>
+        <div class="logo">SomeMsger</div>
+    </header>
+    <div class="app-container">
+        <div class="sidebar">
+            <div class="chat-list">
+                <a href="/settings/profile" class="chat-item">
+                    <div class="avatar">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                    </div>
+                    <div class="chat-info">
+                        <span class="chat-name">Profile</span>
+                    </div>
+                </a>
+                <a href="/settings/styles" class="chat-item">
+                    <div class="avatar">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2a10 10 0 0 0-7.35 16.83M12 2a10 10 0 0 1 7.35 16.83M12 2v4M12 18v4M2 12h4M18 12h4"/>
+                        </svg>
+                    </div>
+                    <div class="chat-info">
+                        <span class="chat-name">Styles</span>
+                    </div>
+                </a>
+                <a href="/settings/account" class="chat-item active">
+                    <div class="avatar">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                            <circle cx="8.5" cy="7" r="4"/>
+                            <path d="M20 8v6M23 11h-6"/>
+                        </svg>
+                    </div>
+                    <div class="chat-info">
+                        <span class="chat-name">Account</span>
+                    </div>
+                </a>
+            </div>
+            <a href="/chats" class="sidebar-link">Back to chats</a>
+            <a href="/logout" class="sidebar-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>
+                </svg>
+                Logout
+            </a>
+        </div>
+        <div class="chat-container">
+            <header class="chat-header">
+                <h2>Account Settings</h2>
+            </header>
+            <div class="settings-section">
+                <p><strong>Email:</strong> {{ user[1][:2] + '***@' + user[1].split('@')[1] }}</p>
+                <p><strong>Username:</strong> {{ user[2] }} <button onclick="toggleEditUsername()">Edit Username</button></p>
+                <form id="username-form" style="display: none;">
+                    <label for="username">New Username:</label>
+                    <input type="text" id="username" value="{{ user[2] }}" required>
+                    <button type="button" onclick="updateUsername()">Save</button>
+                    <button type="button" onclick="toggleEditUsername()">Cancel</button>
+                </form>
+                <p><a href="#" onclick="toggleChangePasswordForm()">Change Password</a></p>
+                <form id="change-password-form" style="display: none;">
+                    <label for="old_password">Old Password:</label>
+                    <input type="password" id="old_password" required>
+                    <label for="new_password">New Password:</label>
+                    <input type="password" id="new_password" required>
+                    <label for="confirm_password">Confirm New Password:</label>
+                    <input type="password" id="confirm_password" required>
+                    <button type="button" onclick="changePassword()">Save</button>
+                    <button type="button" onclick="toggleChangePasswordForm()">Cancel</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        function toggleEditUsername() {
+            const form = document.getElementById('username-form');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9360b68bfd694535',t:'MTc0NTYxNDIzMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

@@ -1,0 +1,475 @@
+/* Default to Light Mode */
+:root {
+    /* Light Mode Colors */
+    --background-color: #f0f2f5;
+    --text-color: #000;
+    --sidebar-bg: #e8ecef;
+    --sidebar-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    --sidebar-heading: #000;
+    --chat-item-bg: transparent;
+    --chat-item-hover-bg: #d1d5da;
+    --chat-item-active-bg: #ced4da;
+    --chat-item-text: #000;
+    --sidebar-link-text: #007bff;
+    --sidebar-link-hover-bg: #d1d5da;
+    --chat-header-bg: #d4e6ff;
+    --chat-header-text: #000000;
+    --chat-header-text-hover: #4f4f4f;
+    --messages-bg: #f5f7fa;
+    --bubble-sent-bg: #00bcd4;
+    --bubble-sent-tail: #00bcd4;
+    --bubble-received-bg: #b2ebf2;
+    --bubble-received-tail: #b2ebf2;
+    --sender-text: #555;
+    --content-text: #333;
+    --timestamp-text: #999;
+    --message-form-bg: #e9ecef;
+    --input-bg: #fff;
+    --input-border: #ced4da;
+    --input-placeholder: #6c757d;
+    --input-text: #000;
+    --button-bg: #007bff;
+    --button-text: #fff;
+    --button-hover-bg: #0056b3;
+    --modal-bg: rgba(0, 0, 0, 0.5);
+    --modal-content-bg: #fff;
+    --modal-content-text: #000;
+    --modal-button-bg: #007bff;
+    --modal-button-hover-bg: #0056b3;
+    --modal-close-bg: #6c757d;
+    --modal-close-hover-bg: #5a6268;
+    --edit-form-input-bg: #fff;
+    --edit-form-input-text: #000;
+    --member-item-border: #ced4da;
+    --member-item-text: #000;
+    --remove-button-bg: #dc3545;
+    --remove-button-hover-bg: #c82333;
+    --add-member-form-bg: #f8f9fa;
+    --container-bg: #fff;
+    --container-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    --header-bg: #007bff;
+    --header-text: #fff;
+    --nav-link-text: #fff;
+    --settings-label-text: #000;
+    --settings-input-bg: #fff;
+    --settings-input-text: #000;
+    --link-text: #007bff;
+    --index-bg: linear-gradient(135deg, #e6f0fa 0%, #b3cde0 100%);
+    --index-h1-text: #fff;
+    --index-h2-text: #6c757d;
+    --index-footer-text: #6c757d;
+    --error-text: #dc3545;
+    --suggestion-item-bg: #f8f9fa;
+    --suggestion-item-border: #e9ecef;
+    --suggestion-item-text: #000;
+    --suggestion-item-hover-bg: #e9ecef;
+    --pending-item-bg: #f8f9fa;
+    --pending-item-border: #e9ecef;
+    --pending-item-text: #000;
+    --pending-item-hover-bg: #e9ecef;
+    --accept-button-bg: #28a745;
+    --accept-button-hover-bg: #218838;
+    --friend-item-bg: #f8f9fa;
+    --friend-item-border: #e9ecef;
+    --friend-item-text: #000;
+    --friend-item-hover-bg: #e9ecef;
+    --message-actions-text: #555;
+    --dropdown-bg: #fff;
+    --dropdown-border: #ced4da;
+    --dropdown-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    --dropdown-item-text: #000;
+    --dropdown-item-hover-bg: #f0f0f0;
+    --header-actions-text: #333;
+    --dialog-bg: #fff;
+    --dialog-shadow: 0 0 10px rgba(0,0,0,0.3);
+    --dialog-overlay-bg: rgba(0,0,0,0.5);
+    --dialog-input-bg: #fff;
+    --dialog-input-text: #000;
+    --date-divider-text: #6c757d;
+    --date-divider-line: #ced4da;
+    --date-divider-bg: #ced4da;
+}
+
+/* Dark Mode */
+:root[data-theme="dark"] {
+    /* Dark Mode Colors */
+    --background-color: #1a1a1a;
+    --text-color: #e0e0e0;
+    --sidebar-bg: #2c2c2c;
+    --sidebar-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+    --sidebar-heading: #e0e0e0;
+    --chat-item-bg: transparent;
+    --chat-item-hover-bg: #3a3a3a;
+    --chat-item-active-bg: #404040;
+    --chat-item-text: #e0e0e0;
+    --sidebar-link-text: #1e90ff;
+    --sidebar-link-hover-bg: #3a3a3a;
+    --chat-header-bg: #2e2e2e;
+    --chat-header-text: #e0e0e0;
+    --chat-header-text-hover: #a0a0a0;
+    --messages-bg: #222222;
+    --bubble-sent-bg: #1e90ff;
+    --bubble-sent-tail: #1e90ff;
+    --bubble-received-bg: #333333;
+    --bubble-received-tail: #333333;
+    --sender-text: #aaaaaa;
+    --content-text: #e0e0e0;
+    --timestamp-text: #777777;
+    --message-form-bg: #2c2c2c;
+    --input-bg: #333333;
+    --input-border: #444444;
+    --input-placeholder: #888888;
+    --input-text: #e0e0e0;
+    --button-bg: #1e90ff;
+    --button-text: #ffffff;
+    --button-hover-bg: #1c86ee;
+    --modal-bg: rgba(0, 0, 0, 0.8);
+    --modal-content-bg: #2c2c2c;
+    --modal-content-text: #e0e0e0;
+    --modal-button-bg: #1e90ff;
+    --modal-button-hover-bg: #1c86ee;
+    --modal-close-bg: #555555;
+    --modal-close-hover-bg: #666666;
+    --edit-form-input-bg: #333333;
+    --edit-form-input-text: #e0e0e0;
+    --member-item-border: #444444;
+    --member-item-text: #e0e0e0;
+    --remove-button-bg: #ff4444;
+    --remove-button-hover-bg: #ee3333;
+    --add-member-form-bg: #333333;
+    --container-bg: #2c2c2c;
+    --container-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    --header-bg: #1e90ff;
+    --header-text: #ffffff;
+    --nav-link-text: #ffffff;
+    --settings-label-text: #e0e0e0;
+    --settings-input-bg: #333333;
+    --settings-input-text: #e0e0e0;
+    --link-text: #1e90ff;
+    --index-bg: linear-gradient(135deg, #2c2c2c 0%, #444444 100%);
+    --index-h1-text: #555555;
+    --index-h2-text: #888888;
+    --index-footer-text: #888888;
+    --error-text: #ff5555;
+    --suggestion-item-bg: #333333;
+    --suggestion-item-border: #444444;
+    --suggestion-item-text: #e0e0e0;
+    --suggestion-item-hover-bg: #444444;
+    --pending-item-bg: #333333;
+    --pending-item-border: #444444;
+    --pending-item-text: #e0e0e0;
+    --pending-item-hover-bg: #444444;
+    --accept-button-bg: #2ecc71;
+    --accept-button-hover-bg: #27ae60;
+    --friend-item-bg: #333333;
+    --friend-item-border: #444444;
+    --friend-item-text: #e0e0e0;
+    --friend-item-hover-bg: #444444;
+    --message-actions-text: #aaaaaa;
+    --dropdown-bg: #2c2c2c;
+    --dropdown-border: #444444;
+    --dropdown-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    --dropdown-item-text: #e0e0e0;
+    --dropdown-item-hover-bg: #3a3a3a;
+    --header-actions-text: #e0e0e0;
+    --dialog-bg: #2c2c2c;
+    --dialog-shadow: 0 0 10px rgba(0,0,0,0.5);
+    --dialog-overlay-bg: rgba(0,0,0,0.8);
+    --dialog-input-bg: #333333;
+    --dialog-input-text: #e0e0e0;
+    --date-divider-text: #888888;
+    --date-divider-line: #444444;
+    --date-divider-bg: #444444;
+}
+
+/* Alienora's Favorite Theme (Pink Theme) */
+:root[data-theme="alienora"] {
+    /* Pink Theme Colors */
+    --background-color: #ffe6f0;
+    --text-color: #d81b60;
+    --sidebar-bg: #ffccde;
+    --sidebar-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    --sidebar-heading: #c2185b;
+    --chat-item-bg: transparent;
+    --chat-item-hover-bg: #ffb1cc;
+    --chat-item-active-bg: #ff99bb;
+    --chat-item-text: #d81b60;
+    --sidebar-link-text: #f06292;
+    --sidebar-link-hover-bg: #ffb1cc;
+    --chat-header-bg: #ff80ab;
+    --chat-header-text: #ffffff;
+    --chat-header-text-hover: #f8bbd0;
+    --messages-bg: #fff5f7;
+    --bubble-sent-bg: #f06292;
+    --bubble-sent-tail: #f06292;
+    --bubble-received-bg: #fce4ec;
+    --bubble-received-tail: #fce4ec;
+    --sender-text: #c2185b;
+    --content-text: #d81b60;
+    --timestamp-text: #f48fb1;
+    --message-form-bg: #ffccde;
+    --input-bg: #fff;
+    --input-border: #f8bbd0;
+    --input-placeholder: #f48fb1;
+    --input-text: #d81b60;
+    --button-bg: #ff4081;
+    --button-text: #ffffff;
+    --button-hover-bg: #f50057;
+    --modal-bg: rgba(0, 0, 0, 0.5);
+    --modal-content-bg: #ffccde;
+    --modal-content-text: #d81b60;
+    --modal-button-bg: #ff4081;
+    --modal-button-hover-bg: #f50057;
+    --modal-close-bg: #f48fb1;
+    --modal-close-hover-bg: #f06292;
+    --edit-form-input-bg: #fff;
+    --edit-form-input-text: #d81b60;
+    --member-item-border: #f8bbd0;
+    --member-item-text: #d81b60;
+    --remove-button-bg: #ff1744;
+    --remove-button-hover-bg: #e53935;
+    --add-member-form-bg: #fce4ec;
+    --container-bg: #fff5f7;
+    --container-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    --header-bg: #ff80ab;
+    --header-text: #ffffff;
+    --nav-link-text: #ffffff;
+    --settings-label-text: #d81b60;
+    --settings-input-bg: #fff;
+    --settings-input-text: #d81b60;
+    --link-text: #f06292;
+    --index-bg: linear-gradient(135deg, #ffccde 0%, #f8bbd0 100%);
+    --index-h1-text: #fce4ec;
+    --index-h2-text: #f48fb1;
+    --index-footer-text: #f48fb1;
+    --error-text: #ff1744;
+    --suggestion-item-bg: #fce4ec;
+    --suggestion-item-border: #f8bbd0;
+    --suggestion-item-text: #d81b60;
+    --suggestion-item-hover-bg: #ffccde;
+    --pending-item-bg: #fce4ec;
+    --pending-item-border: #f8bbd0;
+    --pending-item-text: #d81b60;
+    --pending-item-hover-bg: #ffccde;
+    --accept-button-bg: #ff80ab;
+    --accept-button-hover-bg: #f06292;
+    --friend-item-bg: #fce4ec;
+    --friend-item-border: #f8bbd0;
+    --friend-item-text: #d81b60;
+    --friend-item-hover-bg: #ffccde;
+    --message-actions-text: #f48fb1;
+    --dropdown-bg: #ffccde;
+    --dropdown-border: #f8bbd0;
+    --dropdown-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    --dropdown-item-text: #d81b60;
+    --dropdown-item-hover-bg: #ffb1cc;
+    --header-actions-text: #ffffff;
+    --dialog-bg: #ffccde;
+    --dialog-shadow: 0 0 10px rgba(0,0,0,0.3);
+    --dialog-overlay-bg: rgba(0,0,0,0.5);
+    --dialog-input-bg: #fff;
+    --dialog-input-text: #d81b60;
+    --date-divider-text: #f48fb1;
+    --date-divider-line: #f8bbd0;
+    --date-divider-bg: #fce4ec;
+}
+
+/* Hollow Purple Theme (Chill Purple with Cool Spec Effects) */
+:root[data-theme="hollow-purple"] {
+    /* Chill Purple Theme Colors */
+    --background-color: #0d001a; /* Deep cosmic black with a hint of purple */
+    --text-color: #ffffff; /* White text for contrast */
+    --sidebar-bg: #1a0033; /* Darker purple sidebar */
+    --sidebar-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+    --sidebar-heading: #ab47bc; /* Light purple for headings */
+    --chat-item-bg: transparent;
+    --chat-item-hover-bg: #2a0055; /* Slightly lighter purple on hover */
+    --chat-item-active-bg: #4b0082; /* Medium purple for active items */
+    --chat-item-text: #ffffff; /* White text for chat items */
+    --sidebar-link-text: #ab47bc; /* Light purple for links */
+    --sidebar-link-hover-bg: #2a0055;
+    --chat-header-bg: #2a0055; /* Dark purple header */
+    --chat-header-text: #ffffff; /* White text for contrast */
+    --chat-header-text-hover: #ab47bc; /* Light purple on hover */
+    --messages-bg: linear-gradient(135deg, #0d001a 0%, #1a0033 100%); /* Cosmic gradient background */
+    --bubble-sent-bg: #6a1b9a; /* Medium purple for sent messages */
+    --bubble-sent-tail: #6a1b9a;
+    --bubble-received-bg: #330066; /* Darker purple for received messages */
+    --bubble-received-tail: #330066;
+    --sender-text: #ab47bc; /* Light purple for sender names */
+    --content-text: #ffffff; /* White for message content */
+    --timestamp-text: #ab47bc; /* Light purple for timestamps */
+    --message-form-bg: #1a0033; /* Dark purple for message form */
+    --input-bg: #0d001a; /* Cosmic black input background */
+    --input-border: #4b0082; /* Medium purple border */
+    --input-placeholder: #ab47bc; /* Light purple placeholder */
+    --input-text: #ffffff; /* White input text */
+    --button-bg: #6a1b9a; /* Medium purple buttons */
+    --button-text: #ffffff; /* White text on buttons */
+    --button-hover-bg: #4b0082; /* Darker purple on hover */
+    --modal-bg: rgba(0, 0, 0, 0.8);
+    --modal-content-bg: #1a0033; /* Dark purple modal background */
+    --modal-content-text: #ffffff; /* White modal text */
+    --modal-button-bg: #6a1b9a;
+    --modal-button-hover-bg: #4b0082;
+    --modal-close-bg: #4b0082; /* Medium purple for close buttons */
+    --modal-close-hover-bg: #ab47bc; /* Light purple on hover */
+    --edit-form-input-bg: #0d001a;
+    --edit-form-input-text: #ffffff;
+    --member-item-border: #4b0082;
+    --member-item-text: #ffffff;
+    --remove-button-bg: #6a1b9a; /* Medium purple for remove buttons */
+    --remove-button-hover-bg: #4b0082;
+    --add-member-form-bg: #2a0055; /* Darker purple for forms */
+    --container-bg: #0d001a; /* Cosmic black containers */
+    --container-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    --header-bg: #2a0055; /* Dark purple header */
+    --header-text: #ffffff;
+    --nav-link-text: #ffffff;
+    --settings-label-text: #ffffff;
+    --settings-input-bg: #0d001a;
+    --settings-input-text: #ffffff;
+    --link-text: #ab47bc; /* Light purple links */
+    --index-bg: linear-gradient(135deg, #0d001a 0%, #2a0055 50%, #4b0082 100%); /* Gradient of purples */
+    --index-h1-text: #ab47bc; /* Light purple for large text */
+    --index-h2-text: #ab47bc; /* Light purple for secondary text */
+    --index-footer-text: #ab47bc;
+    --error-text: #ab47bc; /* Light purple for errors */
+    --suggestion-item-bg: #2a0055;
+    --suggestion-item-border: #4b0082;
+    --suggestion-item-text: #ffffff;
+    --suggestion-item-hover-bg: #1a0033;
+    --pending-item-bg: #2a0055;
+    --pending-item-border: #4b0082;
+    --pending-item-text: #ffffff;
+    --pending-item-hover-bg: #1a0033;
+    --accept-button-bg: #6a1b9a; /* Medium purple for accept buttons */
+    --accept-button-hover-bg: #4b0082;
+    --friend-item-bg: #2a0055;
+    --friend-item-border: #4b0082;
+    --friend-item-text: #ffffff;
+    --friend-item-hover-bg: #1a0033;
+    --message-actions-text: #ab47bc;
+    --dropdown-bg: #1a0033;
+    --dropdown-border: #4b0082;
+    --dropdown-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    --dropdown-item-text: #ffffff;
+    --dropdown-item-hover-bg: #2a0055;
+    --header-actions-text: #ffffff;
+    --dialog-bg: #1a0033;
+    --dialog-shadow: 0 0 10px rgba(0,0,0,0.5);
+    --dialog-overlay-bg: rgba(0,0,0,0.8);
+    --dialog-input-bg: #0d001a;
+    --dialog-input-text: #ffffff;
+    --date-divider-text: #ab47bc;
+    --date-divider-line: #4b0082;
+    --date-divider-bg: #2a0055;
+}
+
+/* Maniac Theme (Jam-Green, Black, Unique Vibe) */
+:root[data-theme="maniac"] {
+    /* Jam-Green, Black Theme Colors */
+    --background-color: #212121; /* Dark black background */
+    --text-color: #00e676; /* Bright jam-green text */
+    --sidebar-bg: #2e2e2e; /* Slightly lighter black sidebar */
+    --sidebar-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+    --sidebar-heading: #00c853; /* Slightly darker green for headings */
+    --chat-item-bg: transparent;
+    --chat-item-hover-bg: #424242; /* Dark gray on hover */
+    --chat-item-active-bg: #616161; /* Medium gray for active items */
+    --chat-item-text: #b9f6ca; /* Light greenish text */
+    --sidebar-link-text: #00e676; /* Bright jam-green for links */
+    --sidebar-link-hover-bg: #424242;
+    --chat-header-bg: #2e2e2e; /* Dark black header */
+    --chat-header-text: #00e676; /* Bright jam-green text */
+    --chat-header-text-hover: #b9f6ca; /* Light greenish on hover */
+    --messages-bg: #1a1a1a; /* Very dark black for messages area */
+    --bubble-sent-bg: #00ff85; /* Bright green for sent messages (from screenshot) */
+    --bubble-sent-tail: #00ff85;
+    --bubble-received-bg: #424242; /* Dark gray for received messages */
+    --bubble-received-tail: #424242;
+    --sender-text: #b9f6ca; /* Light greenish for sender names */
+    --content-text: #ffffff; /* Cyan for message content (from screenshot) */
+    --timestamp-text: #b9f6ca; /* Light greenish for timestamps */
+    --message-form-bg: #2e2e2e; /* Dark black for message form */
+    --input-bg: #1a1a1a; /* Very dark black input background */
+    --input-border: #616161; /* Medium gray border */
+    --input-placeholder: #b9f6ca; /* Light greenish placeholder */
+    --input-text: #00e676; /* Bright jam-green input text */
+    --button-bg: #00e676; /* Bright jam-green buttons */
+    --button-text: #212121; /* Black text on buttons for contrast */
+    --button-hover-bg: #00c853; /* Slightly darker green on hover */
+    --modal-bg: rgba(0, 0, 0, 0.8);
+    --modal-content-bg: #2e2e2e; /* Dark black modal background */
+    --modal-content-text: #00e676; /* Bright jam-green modal text */
+    --modal-button-bg: #00e676;
+    --modal-button-hover-bg: #00c853;
+    --modal-close-bg: #616161; /* Medium gray for close buttons */
+    --modal-close-hover-bg: #424242; /* Dark gray on hover */
+    --edit-form-input-bg: #1a1a1a;
+    --edit-form-input-text: #00e676;
+    --member-item-border: #616161;
+    --member-item-text: #00e676;
+    --remove-button-bg: #ff1744; /* Red for remove buttons (stands out) */
+    --remove-button-hover-bg: #e53935;
+    --add-member-form-bg: #424242; /* Dark gray for forms */
+    --container-bg: #1a1a1a; /* Very dark black containers */
+    --container-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    --header-bg: #2e2e2e; /* Dark black header */
+    --header-text: #00e676;
+    --nav-link-text: #00e676;
+    --settings-label-text: #00e676;
+    --settings-input-bg: #1a1a1a;
+    --settings-input-text: #00e676;
+    --link-text: #00e676; /* Bright jam-green links */
+    --index-bg: linear-gradient(135deg, #00e676 0%, #212121 100%); /* Green to black gradient */
+    --index-h1-text: #b9f6ca; /* Light greenish for large text */
+    --index-h2-text: #00c853; /* Slightly darker green for secondary text */
+    --index-footer-text: #b9f6ca;
+    --error-text: #ff1744; /* Red for errors (stands out) */
+    --suggestion-item-bg: #424242;
+    --suggestion-item-border: #616161;
+    --suggestion-item-text: #00e676;
+    --suggestion-item-hover-bg: #2e2e2e;
+    --pending-item-bg: #424242;
+    --pending-item-border: #616161;
+    --pending-item-text: #00e676;
+    --pending-item-hover-bg: #2e2e2e;
+    --accept-button-bg: #00e676; /* Bright jam-green for accept buttons */
+    --accept-button-hover-bg: #00c853;
+    --friend-item-bg: #424242;
+    --friend-item-border: #616161;
+    --friend-item-text: #00e676;
+    --friend-item-hover-bg: #2e2e2e;
+    --message-actions-text: #b9f6ca;
+    --dropdown-bg: #2e2e2e;
+    --dropdown-border: #616161;
+    --dropdown-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    --dropdown-item-text: #00e676;
+    --dropdown-item-hover-bg: #424242;
+    --header-actions-text: #00e676;
+    --dialog-bg: #2e2e2e;
+    --dialog-shadow: 0 0 10px rgba(0,0,0,0.5);
+    --dialog-overlay-bg: rgba(0,0,0,0.8);
+    --dialog-input-bg: #1a1a1a;
+    --dialog-input-text: #00e676;
+    --date-divider-text: #b9f6ca;
+    --date-divider-line: #616161;
+    --date-divider-bg: #424242;
+}
+
+/* Add glow effect to message bubbles for Hollow Purple theme */
+:root[data-theme="hollow-purple"] .message.sent .bubble {
+    box-shadow: 0 0 10px #ab47bc, 0 0 20px #6a1b9a; /* Light and medium purple glow */
+}
+
+:root[data-theme="hollow-purple"] .message.received .bubble {
+    box-shadow: 0 0 10px #330066; /* Subtle darker purple glow */
+}
+
+/* Add glow effect to buttons for Hollow Purple theme */
+:root[data-theme="hollow-purple"] .button,
+:root[data-theme="hollow-purple"] .submit-button,
+:root[data-theme="hollow-purple"] .modal-button-bg {
+    box-shadow: 0 0 10px #ab47bc; /* Light purple glow on buttons */
+}

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SomeMsger - Profile Settings</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <script src="/static/script.js"></script>
+</head>
+<body class="settings">
+    <header>
+        <div class="logo">SomeMsger</div>
+    </header>
+    <div class="app-container">
+        <div class="sidebar">
+            <div class="chat-list">
+                <a href="/settings/profile" class="chat-item active">
+                    <div class="avatar">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                    </div>
+                    <div class="chat-info">
+                        <span class="chat-name">Profile</span>
+                    </div>
+                </a>
+                <a href="/settings/styles" class="chat-item">
+                    <div class="avatar">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2a10 10 0 0 0-7.35 16.83M12 2a10 10 0 0 1 7.35 16.83M12 2v4M12 18v4M2 12h4M18 12h4"/>
+                        </svg>
+                    </div>
+                    <div class="chat-info">
+                        <span class="chat-name">Styles</span>
+                    </div>
+                </a>
+                <a href="/settings/account" class="chat-item">
+                    <div class="avatar">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                            <circle cx="8.5" cy="7" r="4"/>
+                            <path d="M20 8v6M23 11h-6"/>
+                        </svg>
+                    </div>
+                    <div class="chat-info">
+                        <span class="chat-name">Account</span>
+                    </div>
+                </a>
+            </div>
+            <a href="/chats" class="sidebar-link">Back to chats</a>
+            <a href="/logout" class="sidebar-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>
+                </svg>
+                Logout
+            </a>
+        </div>
+        <div class="chat-container">
+            <header class="chat-header">
+                <h2>Profile Settings</h2>
+            </header>
+            <div class="settings-section">
+                <p>Name: <span id="display-name">{{ user[4] or '' }}</span></p>
+                <p>Surname: <span id="display-surname">{{ user[5] or '' }}</span></p>
+                <p>Age: <span id="display-age">{{ user[6] or '' }}</span></p>
+                <p><strong>Interests:</strong></p>
+                <div id="display-interests">
+                    {% if user[7] %}
+                        {% set interests = user[7] | from_json %}
+                        {% for interest in interests %}
+                            <div>#{{ interest }} <span style="color: red;">x</span></div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <button class="submit-button" onclick="toggleEditProfileForm()">Edit Profile</button>
+                <form id="edit-profile-form" style="display: none;">
+                    <p>Name: <input type="text" id="edit-name" value="{{ user[4] or '' }}"></p>
+                    <p>Surname: <input type="text" id="edit-surname" value="{{ user[5] or '' }}"></p>
+                    <p>Age: <input type="number" id="edit-age" value="{{ user[6] or '' }}"></p>
+                    <p><strong>Interests:</strong></p>
+                    <div id="interests-list">
+                        {% if user[7] %}
+                            {% set interests = user[7] | from_json %}
+                            {% for interest in interests %}
+                                <div class="interest-item">
+                                    #<span class="interest-text">{{ interest }}</span>
+                                    <button type="button" onclick="removeInterest(this)">Remove</button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <p>
+                        <input type="text" id="new-interest" placeholder="Add interest (no spaces)">
+                        <button type="button" onclick="addInterest()">Add Interest</button>
+                    </p>
+                    <button type="button" class="submit-button" onclick="updateProfile()">Save Profile</button>
+                    <button type="button" onclick="toggleEditProfileForm()">Cancel</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        function toggleEditProfileForm() {
+            const form = document.getElementById('edit-profile-form');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function addInterest() {
+            const input = document.getElementById('new-interest');
+            const interest = input.value.trim().replace(/\s/g, '');
+            if (!interest) return;
+            const list = document.getElementById('interests-list');
+            const div = document.createElement('div');
+            div.className = 'interest-item';
+            div.innerHTML = `
+                #<span class="interest-text">${interest}</span>
+                <button type="button" onclick="removeInterest(this)">Remove</button>
+            `;
+            list.appendChild(div);
+            input.value = '';
+        }
+
+        function removeInterest(button) {
+            button.parentElement.remove();
+        }
+
+        // Prevent spaces in the new interest input
+        document.getElementById('new-interest').addEventListener('input', function(e) {
+            this.value = this.value.replace(/\s/g, '');
+        });
+
+        async function updateProfile() {
+            const formData = new FormData();
+            formData.append('name', document.getElementById('edit-name').value);
+            formData.append('surname', document.getElementById('edit-surname').value);
+            formData.append('age', document.getElementById('edit-age').value);
+            const interests = Array.from(document.querySelectorAll('#interests-list .interest-text'))
+                .map(span => span.textContent);
+            formData.append('interests', JSON.stringify(interests));
+            try {
+                const response = await fetch('/update_profile', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                if (result.status === 'success') {
+                    // Update display fields
+                    document.getElementById('display-name').textContent = formData.get('name');
+                    document.getElementById('display-surname').textContent = formData.get('surname');
+                    document.getElementById('display-age').textContent = formData.get('age');
+                    const displayInterests = document.getElementById('display-interests');
+                    displayInterests.innerHTML = interests.length
+                        ? interests.map(i => `#${i} <span style="color: red;">x</span>`).join('<br>')
+                        : '';
+                    toggleEditProfileForm();
+                    alert('Profile updated');
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (error) {
+                alert('Error updating profile');
+            }
+        }
+    </script>
+</body>
+</html>

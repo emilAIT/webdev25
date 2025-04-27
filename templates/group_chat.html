@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SomeMsger - Group {{ group }}</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.js"></script>
+    <script src="/static/script.js"></script>
+</head>
+<body class="groups">
+    <header>
+        <div class="logo">SomeMsger</div>
+    </header>
+    <div class="app-container">
+        <div class="sidebar">
+            <div class="tabs">
+                <a href="/chats" class="tab">Chats</a>
+                <a href="/groups" class="tab active">Groups</a>
+            </div>
+            <div class="chat-list">
+                <a href="/groups/create" class="chat-item">
+                    <div class="avatar">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 5v14M5 12h14"/>
+                        </svg>
+                    </div>
+                    <div class="chat-info">
+                        <span class="chat-name">Create New Group</span>
+                    </div>
+                </a>
+                {% for g in groups %}
+                    <a href="/group/{{ g[0] }}" class="chat-item {{ 'active' if g[0] == group_id }}">
+                        <div class="avatar">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+                            </svg>
+                        </div>
+                        <div class="chat-info">
+                            <span class="chat-name">{{ g[1] }}</span>
+                        </div>
+                        {% if g[0] == group_id %}
+                            <span class="online-dot"></span>
+                        {% endif %}
+                    </a>
+                {% endfor %}
+            </div>
+            <a href="/settings/profile" class="sidebar-link">
+                <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l-.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h-.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l-.06-.06a1.65 1.65 0 0 0 1.82.33h-.09A1.65 1.65 0 0 0 10 3.09V3a2 2 0 0 1 4 0v-.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l-.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+                Settings
+            </a>
+            <a href="/logout" class="sidebar-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>
+                </svg>
+                Logout
+            </a>
+        </div>
+        <div class="chat-container">
+            <header class="chat-header">
+                <h2 id="group-header-name">{{ group }}</h2>
+                <div class="header-actions">
+                    <div class="dropdown">
+                        <div onclick="showInfoModal()">Info</div>
+                        {% if session.user_id == creator_id %}
+                            <div onclick="showClearChatDialog()">Clear</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </header>
+            <div class="messages" id="messages">
+                {% set last_message_id = 0 %}
+                {% set messages_by_date = {} %}
+                {% for message in messages %}
+                    {% set timestamp_parts = message[4].split(' ') %}
+                    {% if timestamp_parts|length >= 4 %}
+                        {% set message_date = timestamp_parts[0] + ' ' + timestamp_parts[1] + ' ' + timestamp_parts[2] %}
+                        {% set time_only = timestamp_parts[3] %}
+                    {% else %}
+                        {% set message_date = today_date %}
+                        {% set time_only = message[4] %}
+                    {% endif %}
+                    {% if message_date not in messages_by_date %}
+                        {% set _ = messages_by_date.update({message_date: []}) %}
+                    {% endif %}
+                    {% set _ = messages_by_date[message_date].append({
+                        'id': message[0],
+                        'sender_id': message[1],
+                        'content': message[3],
+                        'time_only': time_only,
+                        'sender_username': message[7]
+                    }) %}
+                    {% if message[0] > last_message_id %}
+                        {% set last_message_id = message[0] %}
+                    {% endif %}
+                {% endfor %}
+                {% for date, date_messages in messages_by_date.items() %}
+                    {% set is_today = date == today_date %}
+                    {% set is_yesterday = date == yesterday_date %}
+                    <div class="date-divider">
+                        <span>
+                            {% if is_today %}
+                                Today
+                            {% elif is_yesterday %}
+                                Yesterday
+                            {% else %}
+                                {{ date }}
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="message-block">
+                        {% for message in date_messages %}
+                            <div class="message {{ 'sent' if message.sender_id == session.user_id else 'received' }}" data-message-id="{{ message.id }}">
+                                <div class="bubble">
+                                    <span class="sender">{{ message.sender_username }}</span>
+                                    <span class="content">{{ message.content }}</span>
+                                </div>
+                                <span class="timestamp">{{ message.time_only }}</span>
+                                {% if message.sender_id == session.user_id %}
+                                    <div class="message-actions">
+                                        <div class="dropdown">
+                                            <div onclick="showEditDialog('{{ message.id }}', '{{ message.content | tojson }}')">Edit</div>
+                                            <div onclick="showDeleteDialog('{{ message.id }}', true)">Delete</div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+            <form class="message-form" onsubmit="sendMessage(event, null, true, '{{ group_id }}')">
+                <input type="text" id="message-input" placeholder="Type a message..." autocomplete="off">
+                <button type="submit">Send</button>
+            </form>
+        </div>
+    </div>
+    <div id="infoModal" class="modal">
+        <div class="modal-content"></div>
+    </div>
+    <script>
+        window.isGroup = true;
+        window.groupId = "{{ group_id }}";
+        window.currentUserId = "{{ session.user_id | tojson }}";
+
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Initializing group_chat with group_id:', "{{ group_id }}");
+            initializeChat(
+                "{{ session.user_id | tojson }}",
+                null,
+                true,
+                "{{ group_id | tojson }}",
+                "{{ last_message_id }}",
+                '{{ session.username | tojson }}',
+                "{{ creator_id | tojson }}",
+            );
+            const messagesDiv = document.getElementById('messages');
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+            const messageForm = document.querySelector('.message-form');
+            if (messageForm) {
+                messageForm.style.display = 'flex';
+                console.log('Message form is visible');
+            } else {
+                console.error('Message form not found');
+            }
+
+            const headerActions = document.querySelector('.header-actions');
+            if (headerActions) {
+                headerActions.addEventListener('click', (e) => {
+                    const dropdown = headerActions.querySelector('.dropdown');
+                    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+                    e.stopPropagation();
+                });
+            }
+
+            const messageActions = document.querySelectorAll('.message-actions');
+            messageActions.forEach(action => {
+                action.addEventListener('click', (e) => {
+                    const dropdown = action.querySelector('.dropdown');
+                    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+                    e.stopPropagation();
+                });
+            });
+
+            document.addEventListener('click', (e) => {
+                const headerDropdown = document.querySelector('.header-actions .dropdown');
+                if (headerDropdown && !headerActions.contains(e.target)) {
+                    headerDropdown.style.display = 'none';
+                }
+
+                messageActions.forEach(action => {
+                    const dropdown = action.querySelector('.dropdown');
+                    if (dropdown && !action.contains(e.target)) {
+                        dropdown.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
