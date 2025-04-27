@@ -329,7 +329,37 @@
     height: 24px;
 }
 
+/* Message animation for new messages */
+@keyframes newMessageAnimation {
+    from {
+        opacity: 0.6;
+        transform: translateY(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.new-message-animation {
+    animation: newMessageAnimation 0.3s ease forwards;
+    transform-origin: bottom;
+    will-change: transform, opacity;
+    /* Prevent animation from affecting layout of other elements */
+    position: relative;
+}
+
+/* Adjust read status icon */
+.message-status-icon {
+    font-size: 0.7rem;
+    letter-spacing: -0.15em; /* Bring double checkmarks closer together */
+    color: white; /* Make read marks white */
+    margin-left: 3px;
+}
+
+/* Smooth scrolling for message list */
 #message-list {
+    scroll-behavior: smooth;
     overflow-y: auto;
     overflow-x: hidden;
     padding-right: 10px;

@@ -207,23 +207,34 @@ function setupSocketEvents() {
     });
 
     // Message handling with reply support
-    socket.on('message', (data) => {
+    socket.on('message', function (data) {
         console.log('Received message:', data);
 
-        // Only show messages for the current conversation
+        // If this is a message for the current conversation, add it to the UI
         if (data.conversation_id === currentConversationId) {
             const messageList = document.getElementById('message-list');
-            if (!messageList) return;
-
             const messageDiv = createMessageElement(data);
             if (messageDiv) {
                 messageList.appendChild(messageDiv);
-                messageList.scrollTop = messageList.scrollHeight;
+
+                // Use smooth scroll to the new message
+                messageList.scrollTo({
+                    top: messageList.scrollHeight,
+                    behavior: 'smooth'
+                });
+
+                // Handle read receipt for other user's messages
+                if (data.sender_id !== currentUserId) {
+                    socket.emit('mark_read', {
+                        message_id: data.id,
+                        conversation_id: data.conversation_id
+                    });
+                }
             }
-        } else {
-            // For messages in other conversations, update the conversation list
-            loadConversations();
         }
+
+        // Refresh conversations list to show the latest message
+        loadConversations();
     });
 
     socket.on('message_deleted', (data) => {

@@ -779,7 +779,8 @@ function createMessageElement(msg) {
         'mb-2',
         'rounded-lg',
         isOwnMessage ? 'self-end' : 'self-start',
-        'relative'
+        'relative',
+        'new-message-animation' // Add animation class to new messages
     ];
 
     if (msg.is_deleted) {
@@ -855,9 +856,6 @@ function createMessageElement(msg) {
         statusIcon.innerHTML = msg.read_at
             ? '&#10004;&#10004;' // Double checkmark for read
             : '&#10004;'; // Single checkmark for sent/delivered
-        // Style the checkmarks
-        statusIcon.style.fontSize = '0.7rem';
-        statusIcon.style.color = msg.read_at ? '#4ade80' : 'inherit'; // Green for read
         statusContainer.appendChild(statusIcon);
     }
 
@@ -883,7 +881,6 @@ function updateMessageReadStatus(messageIds) {
             const statusIcon = messageElement.querySelector('.message-status-icon');
             if (statusIcon) {
                 statusIcon.innerHTML = '&#10004;&#10004;'; // Double checkmark
-                statusIcon.style.color = '#4ade80'; // Green color
             }
         }
     });
