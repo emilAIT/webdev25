@@ -87,82 +87,75 @@ async function register() {
   
   window.register = register;  
 
-  import { userID } from './global.js';
+import { userID } from './global.js';
+const userId = userID;
 
-  const userId = userID;
+export async function loadChats(container, sortBy = 'default') {
+  container.innerHTML = '';
 
-  export async function loadChats(container) {
-    container.innerHTML = '';
-  
-    try {
-      console.log('userID:', userID);
-      const [friendsRes, groupsRes, communitiesRes, communityGroupsRes] = await Promise.all([
-        fetch(`http://localhost:5000/friends?user_id=${userId}`),
-        fetch(`http://localhost:5000/groups_user?user_id=${userId}`),
-        fetch(`http://localhost:5000/communities_user?user_id=${userId}`),
-        fetch(`http://localhost:5000/community_groups_all`)
-      ]);
-  
-      const friends = await friendsRes.json();
-      const groups = await groupsRes.json();
-      const communities = await communitiesRes.json();
-      const communityGroups = await communityGroupsRes.json();
-  
-      // Extract group IDs that are part of any community
-      const communityGroupIds = communityGroups.map(cg => cg.group_id);
-  
-      // Filter groups to exclude those in communities
-      const filteredGroups = groups.filter(group => !communityGroupIds.includes(group.id));
-  
-      friends.forEach(friend => {
-        const item = document.createElement('div');
-        item.className = 'chat-item';
-        item.innerHTML = `
-          <img class="avatar" src="../png/i5.webp" alt="Avatar">
-          <div class="chat-box">
-            <span>${friend.name}</span>
-          </div>
-        `;
-        item.addEventListener('click', () => {
-          window.location.href = `chat.html?chat_id=${friend.id}&is_group=0`;
-        });
-        container.appendChild(item);
-      });
-  
-      filteredGroups.forEach(group => {
-        const item = document.createElement('div');
-        item.className = 'chat-item';
-        item.innerHTML = `
-          <img class="avatar" src="../png/i3.webp" alt="Group">
-          <div class="chat-box">
-            <span>${group.name}</span>
-          </div>
-        `;
-        item.addEventListener('click', () => {
-          window.location.href = `chat.html?chat_id=${group.id}&is_group=1`;
-        });
-        container.appendChild(item);
-      });
-  
-      communities.forEach(community => {
-        const item = document.createElement('div');
-        item.className = 'chat-item';
-        item.innerHTML = `
-          <img class="avatar" src="png/i4.webp" alt="Community">
-          <div class="chat-box">
-            <span>${community.name}</span>
-          </div>
-        `;
-        item.addEventListener('click', () => {
-          window.location.href = `Community.html?community_id=${community.id}`;
-        });
-        container.appendChild(item);
-      });
-  
-    } catch (error) {
-      console.error('Error loading chats:', error);
+  try {
+    const [friendsRes, groupsRes, communitiesRes, communityGroupsRes] = await Promise.all([
+      fetch(`http://localhost:5000/friends?user_id=${userId}`),
+      fetch(`http://localhost:5000/groups_user?user_id=${userId}`),
+      fetch(`http://localhost:5000/communities_user?user_id=${userId}`),
+      fetch(`http://localhost:5000/community_groups_all`)
+    ]);
+
+    const friends = await friendsRes.json();
+    const groups = await groupsRes.json();
+    const communities = await communitiesRes.json();
+    const communityGroups = await communityGroupsRes.json();
+
+    const communityGroupIds = communityGroups.map(cg => cg.group_id);
+    const filteredGroups = groups.filter(group => !communityGroupIds.includes(group.id));
+
+    const allChats = [
+      ...friends.map(f => ({ ...f, type: 'friend' })),
+      ...filteredGroups.map(g => ({ ...g, type: 'group' })),
+      ...communities.map(c => ({ ...c, type: 'community' }))
+    ];
+
+    if (sortBy === 'alpha') {
+      allChats.sort((a, b) => a.name.localeCompare(b.name));
     }
+
+    allChats.forEach(chat => {
+      const item = document.createElement('div');
+      item.className = 'chat-item';
+      let avatarSrc;
+      let clickHandler;
+
+      if (chat.type === 'friend') {
+        avatarSrc = '../png/i5.webp';
+        clickHandler = () => {
+          window.location.href = `chat.html?chat_id=${chat.id}&is_group=0`;
+        };
+      } else if (chat.type === 'group') {
+        avatarSrc = '../png/i3.webp';
+        clickHandler = () => {
+          window.location.href = `chat.html?chat_id=${chat.id}&is_group=1`;
+        };
+      } else if (chat.type === 'community') {
+        avatarSrc = 'png/i4.webp';
+        clickHandler = () => {
+          window.location.href = `Community.html?community_id=${chat.id}`;
+        };
+      }
+
+      item.innerHTML = `
+        <img class="avatar" src="${avatarSrc}" alt="${chat.type}">
+        <div class="chat-box">
+          <span>${chat.name}</span>
+        </div>
+      `;
+      item.addEventListener('click', clickHandler);
+      container.appendChild(item);
+    });
+
+  } catch (error) {
+    console.error('Error loading chats:', error);
   }
+}
 
 export function setupAddContact(cancelSelector, saveSelector, inputSelector) {
   const cancelButton = document.querySelector(cancelSelector);
@@ -184,11 +177,9 @@ export function setupAddContact(cancelSelector, saveSelector, inputSelector) {
       }
 
       try {
-        // Получить список пользователей
         const res = await fetch('http://127.0.0.1:5000/users');
         const users = await res.json();
 
-        // Найти пользователя по имени
         const friend = users.find(u => u.name.toLowerCase() === name.toLowerCase());
         if (!friend) {
           alert('User not found');
@@ -200,7 +191,6 @@ export function setupAddContact(cancelSelector, saveSelector, inputSelector) {
           return;
         }
 
-        // Отправить запрос на добавление друга
         const addRes = await fetch('http://127.0.0.1:5000/friends_add', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

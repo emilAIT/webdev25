@@ -15,23 +15,21 @@
       font-family: Arial, sans-serif;
       display: flex;
       justify-content: center;
-      align-items: start; /* Изменено, чтобы хедер не съезжал вверх */
+      align-items: start;
       height: 100vh;
-      padding-top: 120px; /* чтобы отступ был сверху */
+      padding-top: 120px;
     }
 
     .chat-container {
       width: 420px;
-      height: 70vh; /* ограничиваем высоту контейнера */
+      height: 70vh;
       background-color: black;
       border-radius: 12px;
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      /* border: 1px solid #444; */
     }
 
-    /* Шапка */
     .header {
       display: flex;
       align-items: center;
@@ -66,6 +64,7 @@
     .header-right {
       display: flex;
       gap: 25px;
+      position: relative;
     }
 
     .header-right img {
@@ -74,7 +73,44 @@
       cursor: pointer;
     }
 
-    /* Список чатов */
+    .filter-options {
+      display: none;
+      position: absolute;
+      top: 60px;
+      right: 70px;
+      background-color: white;
+      padding: 8px;
+      border-radius: 5px;
+      z-index: 10;
+      width: 80px;
+    }
+
+    .filter-options button {
+      width: 100%;
+      margin: 5px 0;
+      background-color: #e0e0e0;
+      border: none;
+      border-radius: 5px;
+      padding: 5px;
+      cursor: pointer;
+    }
+
+    .filter-options button:hover {
+      background-color: #d0d0d0;
+    }
+
+    .search-input {
+      display: none;
+      position: absolute;
+      top: 60px;
+      right: 10px;
+      width: 200px;
+      padding: 5px;
+      border: none;
+      background-color: #e0e0e0;
+      border-radius: 5px;
+    }
+
     .chat-list {
       display: flex;
       flex-direction: column;
@@ -104,7 +140,6 @@
     }
 
     .avatar {
-      cursor: pointer;
       width: 50px;
       height: 50px;
       border-radius: 50%;
@@ -113,7 +148,6 @@
     }
 
     .chat-box {
-      cursor: pointer;
       flex-grow: 1;
       background-color: #d9d9d9;
       border-radius: 10px;
@@ -137,21 +171,70 @@
       </div>
       <h1>Chats</h1>
       <div class="header-right">
-        <img src="png/filter.png" alt="Filter">
-        <img src="png/search.png" alt="Search">
+        <img src="png/filter.png" alt="Filter" id="filterIcon">
+        <div id="filterOptions" class="filter-options">
+          <button id="sortAZ">A-Z</button>
+          <button id="sortTime">Time</button>
+        </div>
+        <img src="png/search.png" alt="Search" id="searchIcon">
+        <input type="text" id="searchInput" placeholder="Search" class="search-input">
       </div>
     </div>
 
     <div class="chat-list" id="chatList">
-      <!-- Чаты будут вставляться сюда -->
+      <!-- Chats will be inserted here -->
     </div>
   </div>
 
   <script type="module">
     import { loadChats } from './js/functions.js';
-  
+
     const chatList = document.getElementById('chatList');
+    const filterIcon = document.getElementById('filterIcon');
+    const searchIcon = document.getElementById('searchIcon');
+    const filterOptions = document.getElementById('filterOptions');
+    const searchInput = document.getElementById('searchInput');
+
+    filterIcon.addEventListener('click', (e) => {
+      e.stopPropagation();
+      filterOptions.style.display = (filterOptions.style.display === 'block') ? 'none' : 'block';
+      searchInput.style.display = 'none';
+    });
+
+    searchIcon.addEventListener('click', (e) => {
+      e.stopPropagation();
+      searchInput.style.display = (searchInput.style.display === 'block') ? 'none' : 'block';
+      filterOptions.style.display = 'none';
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.header-right')) {
+        filterOptions.style.display = 'none';
+        searchInput.style.display = 'none';
+      }
+    });
+
+    document.getElementById('sortAZ').addEventListener('click', () => {
+      loadChats(chatList, 'alpha');
+      filterOptions.style.display = 'none';
+    });
+
+    document.getElementById('sortTime').addEventListener('click', () => {
+      loadChats(chatList, 'default');
+      filterOptions.style.display = 'none';
+    });
+
+    searchInput.addEventListener('input', (e) => {
+      const searchTerm = e.target.value.toLowerCase();
+      const chatItems = chatList.querySelectorAll('.chat-item');
+      chatItems.forEach(item => {
+        const name = item.querySelector('.chat-box span').textContent.toLowerCase();
+        item.style.display = name.includes(searchTerm) ? '' : 'none';
+      });
+    });
+
     loadChats(chatList);
+
     document.getElementById('add-chat-icon').addEventListener('click', () => {
       window.location.href = 'add_button.html';
     });

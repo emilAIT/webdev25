@@ -258,6 +258,23 @@ def create_community():
 
     conn = connect_db()
     cursor = conn.cursor()
+    
+    # Check if community with the same name exists
+    cursor.execute('SELECT id FROM communities WHERE name = ?', (name,))
+    existing_community = cursor.fetchone()
+    
+    if existing_community:
+        community_id = existing_community[0]  # Correctly access the id
+        # Add groups to existing community if not already present
+        for group_id in group_ids:
+            cursor.execute('SELECT 1 FROM community_groups WHERE community_id = ? AND group_id = ?', (community_id, group_id))
+            if not cursor.fetchone():
+                cursor.execute('INSERT INTO community_groups (community_id, group_id) VALUES (?, ?)', (community_id, group_id))
+        conn.commit()
+        conn.close()
+        return jsonify({'message': 'Joined existing community', 'community_id': community_id})
+    
+    # Create new community
     cursor.execute('INSERT INTO communities (name, creator_id) VALUES (?, ?)', (name, creator_id))
     community_id = cursor.lastrowid
 
@@ -591,7 +608,6 @@ def get_user_by_id(user_id):
         return type('User', (object,), {'name': row[0]})()
     return None
 
-
 @app.route('/chat_info/<int:chat_id>')
 def get_chat_info(chat_id):
     is_group = request.args.get('is_group') == '1'
@@ -624,4 +640,4 @@ def set_status():
     return jsonify({'success': True})
 
 if __name__ == '__main__':
-    socketio.run(app,debug=True)
+    socketio.run(app, debug=True)

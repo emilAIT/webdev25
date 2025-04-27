@@ -14,7 +14,7 @@
       font-family: Arial, sans-serif;
     }
     .group-box {
-      background-color: black; /* Тёмный фон формы */
+      background-color: black;
       padding: 20px;
       border-radius: 15px;
       width: 350px;
@@ -31,8 +31,8 @@
       font-size: 14px;
       border: 1px solid #666;
       border-radius: 10px;
-      background-color: #d3d3d3; /* Светло-серый фон кнопок */
-      color: black; 
+      background-color: #d3d3d3;
+      color: black;
       cursor: pointer;
       text-transform: lowercase;
     }
@@ -41,41 +41,34 @@
       align-items: center;
       margin-bottom: 15px;
     }
-    .group-name-container span {
-      font-size: 20px;
-      margin-right: 10px;
-      width: 30px; /* Фиксированная ширина для выравнивания */
-      display: inline-block;
-      text-align: center;
-    }
     .group-box input[type="text"] {
-      padding: 12px; /* Увеличиваем внутренние отступы для большей высоты */
+      padding: 12px;
       border: 1px solid #666;
       border-radius: 12px;
-      background-color: #f4eded; /* Светло-серый фон поля ввода */
+      background-color: #f4eded;
       color: #666;
       font-size: 14px;
       box-sizing: border-box;
     }
     .group-box input[type="text"]::placeholder {
-      color: #666; /* Цвет плейсхолдера */
+      color: #666;
     }
     .group-box input.name-of-group {
-      width: 55%; /* Ширина для "Name of group" */
+      width: 55%;
       height: 33px;
     }
     .group-box input.name-of-member {
-      width: 70%; 
-      margin-left: 0; /* Убираем отступ, чтобы сдвинуть левее */
-      margin-bottom: 15px; /* Сохраняем отступ снизу */
+      width: 70%;
+      margin-left: 0;
+      margin-bottom: 15px;
       height: 33px;
     }
     .group-icon {
-    width: 37px;  /* Увеличиваем размер */
-    height: 37px; 
-    margin-right: 10px; /* Увеличиваем отступ от поля ввода */
-    object-fit: cover; /* Сохраняем пропорции */
-  }
+      width: 37px;
+      height: 37px;
+      margin-right: 10px;
+      object-fit: cover;
+    }
     .member-list {
       margin-top: 20px;
     }
@@ -84,15 +77,15 @@
       align-items: center;
       margin-bottom: 15px;
     }
-    .member-item span.avatar {
-      font-size: 20px;
+    .member-item .avatar {
+      width: 30px;
+      height: 30px;
       margin-right: 10px;
-      width: 30px; /* Фиксированная ширина для выравнивания */
-      display: inline-block;
-      text-align: center;
+      object-fit: cover;
+      border-radius: 50%;
     }
     .member-item span.name {
-      flex: 1; /* Занимает всё доступное пространство */
+      flex: 1;
       padding: 8px;
       border: 1px solid #666;
       border-radius: 10px;
@@ -116,18 +109,7 @@
       <input type="text" class="name-of-member" placeholder="Name of member">
     </div>
     <div class="member-list">
-      <div class="member-item">
-        <span class="avatar">👤</span>
-        <span class="name">Dair</span>
-      </div>
-      <div class="member-item">
-        <span class="avatar">🖼️</span>
-        <span class="name">Nurdin</span>
-      </div>
-      <div class="member-item">
-        <span class="avatar">🦊</span>
-        <span class="name">Aktan</span>
-      </div>
+      <!-- Friends will be loaded here -->
     </div>
   </div>
   <script type="module" src="js/create_group.js"></script>
