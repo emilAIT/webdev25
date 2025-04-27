@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NewGroup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Konkhmer+Sleokchher&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/newgroup.css">
+</head>
+<body>
+  <div class="container">
+    <div class="main-background"></div>
+    <img class="background-image" src="/static/img/image 86.png" />
+    
+    <h1 class="title">New Group</h1>
+    
+    <div class="form-section">
+      <input type="text" class="input-field" placeholder="name group">
+    </div>
+    
+    <div class="form-section">
+      <div class="form-label">Select Friends:</div>
+      <div class="friends-container">
+        <ul class="friends-list">
+          <li class="friend-item">
+            <img class="friend-avatar" src="/static/img/image 12.png" />
+            <div class="friend-name">Dair</div>
+            <button class="friend-status selected" title="Click to toggle selection"></button>
+          </li>
+        </ul>
+      </div>
+    </div>
+    
+    <button class="create-button">Create</button>
+  </div>
+  
+  <script>
+    // Скрипт для переключения статуса друзей
+    document.querySelectorAll('.friend-status').forEach(button => {
+      // При инициализации нужно установить начальное состояние для уже не выбранных элементов
+      if (!button.classList.contains('selected')) {
+        button.classList.add('not-selected');
+      }
+      button.addEventListener('click', function() {
+        this.classList.toggle('selected');
+        this.classList.toggle('not-selected');
+      });
+    });
+
+    // Загружаем список друзей при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+      loadFriendsList();
+      
+      // Обработчик для кнопки создания группы
+      document.querySelector('.create-button').addEventListener('click', createGroup);
+    });
+    
+    // Функция для загрузки списка друзей
+    function loadFriendsList() {
+      fetch('/get_friends')
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            populateFriendsList(data.friends);
+          } else {
+            showNotification('Ошибка загрузки списка друзей: ' + data.message, true);
+          }
+        })
+        .catch(error => {
+          console.error('Error loading friends:', error);
+          showNotification('Ошибка при загрузке списка друзей. Пожалуйста, попробуйте позже.', true);
+        });
+    }
+    
+    // Функция для заполнения списка друзей
+    function populateFriendsList(friends) {
+      const friendsList = document.querySelector('.friends-list');
+      friendsList.innerHTML = ''; // Очищаем список
+      
+      friends.forEach(friend => {
+        const listItem = document.createElement('li');
+        listItem.className = 'friend-item';
+        listItem.setAttribute('data-user-id', friend.id);
+        
+        listItem.innerHTML = `
+          <img class="friend-avatar" src="${friend.avatar ? '/static/uploads/' + friend.avatar : '/static/img/image 12.png'}" alt="${friend.name}">
+          <div class="friend-name">${friend.nickname || friend.name}</div>
+          <button class="friend-status selected" title="Click to toggle selection" data-user-id="${friend.id}"></button>
+        `;
+        
+        // Добавляем обработчик для переключения статуса выбора
+        const statusButton = listItem.querySelector('.friend-status');
+        statusButton.addEventListener('click', function() {
+          this.classList.toggle('selected');
+          this.classList.toggle('not-selected');
+        });
+        
+        friendsList.appendChild(listItem);
+      });
+    }
+    
+    // Функция для создания группы
+    function createGroup() {
+      // Получаем имя группы
+      const groupName = document.querySelector('.input-field').value.trim();
+      
+      if (!groupName) {
+        showNotification('Пожалуйста, введите имя группы', true);
+        return;
+      }
+      
+      // Собираем ID выбранных друзей
+      const selectedMembers = [];
+      document.querySelectorAll('.friend-status.selected').forEach(button => {
+        selectedMembers.push(parseInt(button.getAttribute('data-user-id')));
+      });
+      
+      if (selectedMembers.length === 0) {
+        showNotification('Пожалуйста, выберите хотя бы одного участника группы', true);
+        return;
+      }
+      
+      // Отправляем запрос на создание группы
+      fetch('/create_group', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: groupName,
+          members: selectedMembers
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Если группа создана успешно, получаем её детали
+          getGroupDetails(data.group.id);
+        } else {
+          showNotification('Ошибка при создании группы: ' + data.message, true);
+        }
+      })
+      .catch(error => {
+        console.error('Error creating group:', error);
+        showNotification('Ошибка при создании группы. Пожалуйста, попробуйте позже.', true);
+      });
+    }
+    
+    // Функция для получения деталей группы
+    function getGroupDetails(groupId) {
+      fetch(`/get_group_details/${groupId}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // Группа успешно создана, показываем уведомление
+            showNotification(`Группа "${data.group.name}" успешно создана!`);
+            // Перенаправляем на главную страницу через некоторое время
+            setTimeout(() => {
+            }, 2000);
+          } else {
+            showNotification('Ошибка при получении деталей группы: ' + data.message, true);
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching group details:', error);
+          showNotification('Ошибка получения информации о группе', true);
+          // Перенаправляем на главную страницу с небольшой задержкой
+          setTimeout(() => {
+          }, 2000);
+        });
+    }
+
+    // Добавьте эту функцию showNotification в скрипт
+    function showNotification(message, isError = false) {
+      const container = document.querySelector('.container');
+      const notification = document.createElement('div');
+      notification.className = 'notification';
+      notification.textContent = message;
+      notification.style.position = 'absolute';
+      notification.style.bottom = '100px';
+      notification.style.left = '0';
+      notification.style.right = '0';
+      notification.style.margin = '0 auto';
+      notification.style.width = '80%';
+      notification.style.backgroundColor = isError ? '#F44336' : '#28983D';
+      notification.style.color = 'white';
+      notification.style.padding = '10px 20px';
+      notification.style.borderRadius = '20px';
+      notification.style.textAlign = 'center';
+      notification.style.zIndex = '5';
+      notification.style.opacity = '0';
+      notification.style.transition = 'opacity 0.3s';
+
+      container.appendChild(notification);
+
+      // Показываем уведомление
+      setTimeout(() => {
+        notification.style.opacity = '1';
+      }, 10);
+
+      // Скрываем уведомление через 3 секунды
+      setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => {
+          container.removeChild(notification);
+        }, 300);
+      }, 3000);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,299 @@
+/* Add Google Fonts */
+ @import url('https://fonts.googleapis.com/css2?family=Konkhmer+Sleokchher&family=Concert+One&family=Jua&display=swap');
+
+body {
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background-color: #306748;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .register-container {
+    width: 100%;
+    height: 100%;
+    max-width: 1440px;
+    max-height: 1024px;
+    position: relative;
+    background: #306748;
+    overflow: hidden;
+}
+  
+  .background-image {
+    width: 1270px;
+    height: 1185px;
+    left: 323px;
+    top: 37px;
+    position: absolute;
+    opacity: 0.10;
+    border-radius: 223.50px;
+  }
+  
+  .input-field {
+    width: 600px;
+    height: 65px;
+    position: absolute;
+    background: #E39451;
+    border-radius: 35px;
+    border: none;
+    color: white;
+    font-size: 42px;
+    font-family: 'Konkhmer Sleokchher', cursive;
+    font-weight: 400;
+    text-align: center;
+  }
+  
+  .input-field::placeholder {
+    color: white;
+    opacity: 1;
+  }
+  
+  .username-field {
+    left: 228px;
+    top: 150px; /* уменьшил с 250px до 150px */
+  }
+  
+  .password-field {
+    left: 228px;
+    top: 245px; /* уменьшил с 345px до 245px */
+  }
+  
+  .confirm-field {
+    left: 228px;
+    top: 340px; /* уменьшил с 440px до 340px */
+  }
+  
+  .email-field {
+    left: 228px;
+    top: 435px; /* уменьшил с 535px до 435px */
+  }
+  
+  .input-text {
+    text-align: center;
+    color: white;
+    font-size: 48px;
+    font-family: 'Konkhmer Sleokchher', cursive;
+    font-weight: 400;
+    word-wrap: break-word;
+  }
+  
+  .username-text {
+    width: 431px;
+    height: 73px;
+    left: 316px;
+    top: 159px;
+    position: absolute;
+  }
+  
+  .password-text {
+    width: 431px;
+    height: 73px;
+    left: 317px;
+    top: 272px;
+    position: absolute;
+  }
+  
+  .confirm-text {
+    width: 431px;
+    height: 73px;
+    left: 317px;
+    top: 393px;
+    position: absolute;
+  }
+  
+  .email-text {
+    left: 468px;
+    top: 512px;
+    position: absolute;
+  }
+  
+  .captcha-image {
+    width: 600px; /* уменьшил с 500px до 400px */
+    height: 120px; /* уменьшил с 150px до 120px */
+    left: 228px; /* центрировал относительно полей ввода */
+    top: 510px;
+    position: absolute;
+    border-radius: 20px;
+  }
+  
+  .register-button {
+    width: 500px;
+    height: 65px;
+    left: 285px;
+    top: 635px; /* уменьшил с 735px до 635px */
+    position: absolute;
+    background: #FDD367;
+    border-radius: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    border: none;
+    margin: 15px 0;
+    padding: 0;
+  }
+  
+  .register-text {
+    color: #7E453D;
+    font-size: 42px; /* уменьшил с 48px до 42px */
+    font-family: 'Konkhmer Sleokchher', cursive;
+    font-weight: 400;
+  }
+  
+  .logo {
+    position: fixed; /* Изменено с absolute на fixed */
+    left: 20px;
+    top: 20px;
+    color: white;
+    font-size: 64px;
+    font-family: 'Concert One', cursive;
+    font-weight: 400;
+    z-index: 1000; /* Увеличен z-index */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    padding: 10px 15px;
+    border-radius: 8px;
+}
+
+/* Обновляем стили для captcha-container */
+.captcha-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 400px;
+    height: 120px;
+    left: 228px;
+    top: 510px;
+    position: absolute;
+    background: rgba(255,255,255,0.6);
+    padding: 10px;
+    border-radius: 20px;
+}
+
+/* Стили для reCAPTCHA - объединяем с прежними стилями captcha-container */
+.g-recaptcha {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 600px;
+    height: 120px;
+    left: 228px;
+    top: 510px;
+    position: absolute;
+    /* background: rgba(255,255,255,0.6); */
+    padding: 10px;
+    border-radius: 20px;
+    transform-origin: center;
+    transform: scale(1.1);
+}
+
+/* Если reCAPTCHA слишком большая, изменяем трансформацию
+@media (max-width: 1024px) {
+    .g-recaptcha {
+        transform: scale(0.9);
+    }
+} */
+
+.captcha-container input {
+    margin-right: 10px;
+    transform: scale(1.5);
+}
+
+.captcha-container label {
+    margin-right: 10px;
+    font-family: 'Konkhmer Sleokchher', cursive;
+    color: #333;
+}
+
+.login-link {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.login-link a {
+    color: #fff;
+    text-decoration: none;
+    font-family: 'Konkhmer Sleokchher', cursive;
+    font-size: 16px;
+    transition: color 0.3s;
+}
+
+.login-link a:hover {
+    color: #FDD367;
+    text-decoration: underline;
+}
+
+.back-arrow-btn {
+    position: fixed;
+    left: 32px;
+    bottom: 32px;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    z-index: 1001;
+    transition: transform 0.15s;
+}
+.back-arrow-btn svg {
+    display: block;
+    transition: box-shadow 0.2s;
+    box-shadow: 0 2px 8px 0 rgba(48, 103, 72, 0.10);
+    border-radius: 50%;
+    transition: transform 0.2s;
+}
+.back-arrow-btn:hover svg {
+    box-shadow: 0 4px 16px 0 rgba(253, 211, 103, 0.25);
+    transform: translateX(-6px) scale(1.08);
+}
+
+/* mainWindow.css, register.css, settings.css */
+button, .tab, .all-button, .register-button, .create-button, .add-button, .control-button {
+  transition: transform 0.15s cubic-bezier(.4,0,.2,1), box-shadow 0.15s;
+}
+button:hover, .tab:hover, .all-button:hover, .register-button:hover, .create-button:hover, .add-button:hover, .control-button:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 6px 24px 0 rgba(48, 103, 72, 0.13);
+}
+button:active, .tab:active, .all-button:active, .register-button:active, .create-button:active, .add-button:active, .control-button:active {
+  transform: scale(0.97);
+}
+
+
+.success-modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.7);
+  justify-content: center;
+  align-items: center;
+}
+
+.success-content {
+  background-color: white;
+  padding: 30px;
+  border-radius: 15px;
+  text-align: center;
+  max-width: 80%;
+}
+
+.success-content img {
+  width: 250px;
+  height: 250px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+}
+
+.success-content h2 {
+  color: #306748;
+  font-family: 'Jua', sans-serif;
+  margin: 0;
+}
+

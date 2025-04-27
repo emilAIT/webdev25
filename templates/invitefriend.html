@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>InviteFriend</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Konkhmer+Sleokchher&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/invitefriend.css">
+</head>
+<body>
+  <div class="container">
+    <img class="background-image" src="/static/img/image 86.png" />
+    
+    <div class="title">
+      <span class="title-invite">Invite</span>
+      <span class="title-friend">Your Friend</span>
+    </div>
+    
+    <div class="input-container" style="position:relative;">
+      <input type="text" class="input-field" placeholder="Name or Email" autocomplete="off">
+      <div class="autocomplete-list" style="position:absolute; top:100%; left:0; right:0; z-index:10;"></div>
+    </div>
+    
+    <button class="add-button">
+      <span class="add-text">Add</span>
+    </button>
+  </div>
+    <script>
+      document.querySelector('.add-button').addEventListener('click', function() {
+        // Получаем введенное значение
+        const inputField = document.querySelector('.input-field');
+        const friendNameOrEmail = inputField.value.trim();
+      
+        if (friendNameOrEmail) {
+          // Создаем эффект нажатия
+          this.style.transform = 'scale(0.95)';
+        
+          // Send request to add friend API
+          fetch('/add_friend', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ identifier: friendNameOrEmail })
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              // Показываем уведомление об успешном добавлении
+              showNotification('Friend added: ' + friendNameOrEmail);
+              
+              // Очищаем поле ввода
+              inputField.value = '';
+            } else {
+              // Show error message
+              showNotification(data.message || 'Error adding friend', true);
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            showNotification('Error adding friend. Please try again.', true);
+          })
+          .finally(() => {
+            // Возвращаем кнопку в нормальное состояние
+            setTimeout(() => {
+              this.style.transform = 'scale(1)';
+            }, 150);
+          });
+        } else {
+          // Показываем эффект ошибки, если поле пустое
+          inputField.style.border = '3px solid red';
+          inputField.placeholder = 'Please enter!';
+        
+          // Возвращаем стандартный стиль через 1.5 секунды
+          setTimeout(() => {
+            inputField.style.border = '3px black solid';
+            inputField.placeholder = 'Name or Email';
+          }, 1500);
+        }
+      });
+
+      // Function to show notifications
+      function showNotification(message, isError = false) {
+        const container = document.querySelector('.container');
+        const notification = document.createElement('div');
+        notification.className = 'notification';
+        notification.textContent = message;
+        notification.style.position = 'absolute';
+        notification.style.bottom = '100px';
+        notification.style.left = '0';
+        notification.style.right = '0';
+        notification.style.margin = '0 auto';
+        notification.style.width = '80%';
+        notification.style.backgroundColor = isError ? '#F44336' : '#28983D';
+        notification.style.color = 'white';
+        notification.style.padding = '10px 20px';
+        notification.style.borderRadius = '20px';
+        notification.style.textAlign = 'center';
+        notification.style.zIndex = '5';
+        notification.style.opacity = '0';
+        notification.style.transition = 'opacity 0.3s';
+      
+        container.appendChild(notification);
+      
+        // Показываем уведомление
+        setTimeout(() => {
+          notification.style.opacity = '1';
+        }, 10);
+      
+        // Скрываем уведомление через 3 секунды
+        setTimeout(() => {
+          notification.style.opacity = '0';
+          setTimeout(() => {
+            container.removeChild(notification);
+          }, 300);
+        }, 3000);
+      }
+
+      // Добавляем CSS-анимацию для кнопки
+      const style = document.createElement('style');
+      style.textContent = `
+        .add-button {
+          transition: transform 0.15s, box-shadow 0.15s;
+        }
+      
+        .add-button:hover {
+          transform: scale(1.02);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+      
+        .add-button:active {
+          transform: scale(0.95);
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+      `;
+      document.head.appendChild(style);
+
+      const inputField = document.querySelector('.input-field');
+      const autocompleteList = document.querySelector('.autocomplete-list');
+
+      inputField.addEventListener('input', function() {
+        const query = this.value.trim();
+        if (query.length < 1) {
+          autocompleteList.innerHTML = '';
+          return;
+        }
+        fetch('/search_friends?q=' + encodeURIComponent(query))
+          .then(res => res.json())
+          .then(data => {
+            autocompleteList.innerHTML = '';
+            if (data.friends && data.friends.length) {
+              data.friends.forEach(friend => {
+                const item = document.createElement('div');
+                item.className = 'autocomplete-item';
+                item.textContent = friend.name + ' (' + friend.email + ')';
+                item.style.padding = '8px 12px';
+                item.style.cursor = 'pointer';
+                item.style.background = '#fff';
+                item.style.borderBottom = '1px solid #eee';
+                item.addEventListener('mousedown', function() {
+                  inputField.value = friend.email;
+                  autocompleteList.innerHTML = '';
+                });
+                autocompleteList.appendChild(item);
+              });
+            }
+          });
+      });
+
+      // Скрывать список при потере фокуса
+      inputField.addEventListener('blur', () => {
+        setTimeout(() => autocompleteList.innerHTML = '', 100);
+      });
+    </script>
+</body>
+</html>

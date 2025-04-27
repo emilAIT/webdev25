@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MyProfile</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Konkhmer+Sleokchher&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/myprofile.css">
+</head>
+<body>
+  <div class="container">
+    <div class="main-background"></div>
+    <img class="background-image" src="/static/img/image 86.png" />
+    
+    <div class="title">My Profile</div>
+    
+    <div class="profile-pic-container">
+      <img class="profile-pic" src="{{ '/static/uploads/' + current_user.avatar if current_user.avatar else '/static/img/image 86.png' }}" id="profilePic" />
+      <input type="file" id="profilePicInput" accept="image/*" style="display:none;">
+    </div>
+    
+    <div class="field-label nickname-label">Nickname</div>
+    <div class="field-value nickname-value">{{ current_user.nickname or 'Set a nickname' }}</div>
+    
+    <div class="field-label name-label">Name</div>
+    <div class="field-value name-value">{{ current_user.name }}</div>
+    
+    <div class="field-label password-label">Password</div>
+    <div class="field-value password-value">••••••••</div>
+    
+    <div class="field-label dob-label">Date of Birth</div>
+    <div class="field-value dob-value">{{ current_user.birthdate.strftime('%d.%m.%Y') if current_user.birthdate else 'Not set' }}</div>
+    
+    <div class="field-label bio-label">Bio</div>
+    <div class="field-value bio-value">{{ current_user.status or 'Available' }}</div>
+    
+    <div class="field-label email-label">email@</div>
+    <div class="field-value email-value">{{ current_user.email }}</div>
+    
+    <button class="change-button">Change?</button>
+  </div>
+  <script>
+    // Главный обработчик кнопки "Change?"
+    document.querySelector('.change-button').addEventListener('click', function() {
+      // Список редактируемых полей
+      const editableFields = [
+        'nickname-value',
+        'name-value',
+        'password-value',
+        'dob-value', 
+        'bio-value',
+        'email-value'
+      ];
+      
+      // Проверяем, находимся ли мы в режиме редактирования
+      const isEditing = this.getAttribute('data-editing') === 'true';
+      
+      if (!isEditing) {
+        // Переключаемся в режим редактирования
+        this.textContent = 'Save';
+        this.setAttribute('data-editing', 'true');
+        
+        // Делаем поля редактируемыми
+        editableFields.forEach(className => {
+          const element = document.querySelector('.' + className);
+          const originalValue = element.textContent;
+          
+          // Сохраняем оригинальное значение
+          element.setAttribute('data-original', originalValue);
+  
+          // Создаем поле ввода прямо внутри текущего поля (без замены)
+          const input = document.createElement('input');
+          input.type = className === 'password-value' ? 'password' : 'text';
+          input.value = originalValue === '••••••••' ? '' : originalValue;
+          
+          // Копируем ключевые стили для сохранения позиции
+          const styles = window.getComputedStyle(element);
+          input.style.width = '100%';
+          input.style.fontSize = styles.fontSize;
+          input.style.lineHeight = styles.lineHeight;
+          input.style.fontFamily = "'Konkhmer Sleokchher', cursive";
+          input.style.color = '#76536B';
+          input.style.border = 'none';
+          input.style.background = 'transparent';
+          input.style.outline = 'none';
+          input.style.padding = '0';
+          input.style.margin = '0';
+          input.style.textAlign = 'left'; // Важно для сохранения выравнивания
+          
+          // Особые настройки для даты рождения
+          if (className === 'dob-value') {
+            const dobMatch = originalValue.match(/(.*)\s\((.*)\)/);
+            if (dobMatch) {
+              input.value = dobMatch[1]; // Только дата
+            }
+          }
+          
+          // Очищаем элемент и добавляем поле ввода
+          element.innerHTML = '';
+          element.appendChild(input);
+        });
+        
+      } else {
+        // Сохраняем изменения
+        this.textContent = 'Change?';
+        this.setAttribute('data-editing', 'false');
+        
+        // Собираем данные формы
+        const formData = new FormData();
+        
+        // Получаем значения из полей ввода
+        const nickname = document.querySelector('.nickname-value input').value.trim();
+        const name = document.querySelector('.name-value input').value.trim();
+        const password = document.querySelector('.password-value input').value.trim();
+        const birthdate = document.querySelector('.dob-value input').value.trim();
+        const status = document.querySelector('.bio-value input').value.trim();
+        const email = document.querySelector('.email-value input').value.trim();
+        
+        // Добавляем данные в formData
+        formData.append('nickname', nickname);
+        formData.append('name', name);
+        formData.append('email', email);
+        formData.append('status', status);
+        
+        if (password) {
+          formData.append('password', password);
+        }
+        
+        if (birthdate) {
+          // Проверяем формат даты и преобразуем в формат YYYY-MM-DD для сервера
+          const parts = birthdate.split('.');
+          if (parts.length === 3) {
+            const dateForServer = `${parts[2]}-${parts[1]}-${parts[0]}`;
+            formData.append('birthdate', dateForServer);
+          }
+        }
+        
+        // Отправляем данные на сервер
+        fetch('/update_profile', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // Обновляем значения в DOM
+            document.querySelector('.nickname-value').textContent = nickname;
+            document.querySelector('.name-value').textContent = name;
+            document.querySelector('.password-value').textContent = password ? '••••••••' : '••••••••';
+            
+            // Особая обработка для даты рождения
+            if (birthdate) {
+              const age = calculateAge(birthdate);
+              document.querySelector('.dob-value').textContent = `${birthdate} (${age})`;
+            } else {
+              document.querySelector('.dob-value').textContent = 'Not set';
+            }
+            
+            document.querySelector('.bio-value').textContent = status || 'Available';
+            document.querySelector('.email-value').textContent = email;
+            
+            // Показываем уведомление об успехе
+            showNotification('Profile updated successfully!');
+          } else {
+            // Показываем сообщение об ошибке
+            showNotification('Error updating profile: ' + (data.message || 'Unknown error'), true);
+          }
+        })
+        .catch(error => {
+          console.error('Error updating profile:', error);
+          showNotification('Error updating profile. Please try again.', true);
+        });
+      }
+    });
+    
+    // Функция для показа уведомлений
+    function showNotification(message, isError = false) {
+      const notification = document.createElement('div');
+      notification.textContent = message;
+      notification.style.position = 'fixed';
+      notification.style.top = '20px';
+      notification.style.left = '50%';
+      notification.style.transform = 'translateX(-50%)';
+      notification.style.backgroundColor = isError ? '#F44336' : '#4CAF50';
+      notification.style.color = 'white';
+      notification.style.padding = '10px 20px';
+      notification.style.borderRadius = '5px';
+      notification.style.zIndex = '1000';
+      notification.style.opacity = '0';
+      notification.style.transition = 'opacity 0.3s';
+      
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.style.opacity = '1';
+        setTimeout(() => {
+          notification.style.opacity = '0';
+          setTimeout(() => {
+            document.body.removeChild(notification);
+          }, 300);
+        }, 2000);
+      }, 10);
+    }
+
+    // Добавьте эту функцию для расчета возраста
+    function calculateAge(birthdate) {
+      // Ожидаем формат дд.мм.гггг
+      const parts = birthdate.split('.');
+      if (parts.length !== 3) return 'none';
+      
+      const birthDay = parseInt(parts[0], 10);
+      const birthMonth = parseInt(parts[1], 10) - 1; // Месяцы в JS с 0 до 11
+      const birthYear = parseInt(parts[2], 10);
+      
+      const birthDate = new Date(birthYear, birthMonth, birthDay);
+      const today = new Date();
+      
+      let age = today.getFullYear() - birthDate.getFullYear();
+      
+      // Проверяем, был ли уже день рождения в этом году
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--; // Уменьшаем возраст, если день рождения в этом году еще не наступил
+      }
+      
+      return age + ' y.o.';
+    }
+
+    const profilePic = document.getElementById('profilePic');
+    const profilePicInput = document.getElementById('profilePicInput');
+
+    profilePic.addEventListener('dblclick', () => {
+      profilePicInput.click();
+    });
+
+    profilePicInput.addEventListener('change', function() {
+      const file = this.files[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append('profile_pic', file);
+
+      fetch('/update_profile_pic', {
+        method: 'POST',
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.new_pic_url) {
+          profilePic.src = data.new_pic_url + '?t=' + Date.now(); // обновить аватарку без кэша
+        } else {
+          showNotification('Error updating profile picture', true);
+        }
+      })
+      .catch(() => showNotification('Error updating profile picture', true));
+    });
+  </script>
+</body>
+</html>

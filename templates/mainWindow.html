@@ -1,0 +1,2639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"="width=device-width, initial-scale=1.0">
+  <title>Capybara Messenger</title>
+  <link href="https://fonts.googleapis.com/css2?family=Konkhmer+Sleokchher&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/mainWindow.css">
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+  <script src="/static/js/socket.js"></script>
+</head>
+<body data-user-id="{{ current_user.id }}">
+  <div class="app">
+    <!-- Menu button and Profile picture -->
+    <img src="/static/img/image 86.png" alt="Profile" class="profile-pic">
+    <div class="menu-button" id="settingsButton" title="Open Settings">
+      <div class="menu-line"></div>
+      <div class="menu-line"></div>
+      <div class="menu-line"></div>
+    </div>
+    
+    <!-- Search bar -->
+    <div class="search-container">
+      <input type="text" class="search-bar" placeholder="Search">
+      <div class="filter-dropdown">
+        <button type="button" class="all-button" id="filterButton">All Chats</button>
+        <div class="filter-dropdown-content" id="filterDropdown">
+          <button type="button" class="filter-option" data-filter="all">All Chats</button>
+          <button type="button" class="filter-option" data-filter="direct">Directs</button>
+          <button type="button" class="filter-option" data-filter="group">Groups</button>
+        </div>
+      </div>
+    </div>  
+    
+    <!-- Filter tabs -->
+    <div class="filter-tabs">
+      <button class="filter-btn active">All</button>
+      <button class="filter-btn">Read</button>
+      <button class="filter-btn">Unread</button>
+    </div>
+    
+    <!-- Main content area -->
+    <div class="content">
+      <!-- Chat list (sidebar) -->
+      <div class="sidebar">
+        <!-- Динамически наполняется через JS: updateFriendsList и updateGroupsList -->
+      </div>
+      
+      <!-- Chat messages -->
+      <div class="chat-window">
+        <!-- Динамически: group-header, status-circle, delete-chat-widget, chat-messages, input-box -->
+        <div class="status-circle" title="Chat options"></div>
+        <div class="delete-chat-widget" id="deleteChatWidget">
+          <button class="delete-chat-btn" title="Delete chat">
+            <!-- SVG иконка мусорки -->
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+              <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6h16z" stroke="#F44336" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M10 11v6M14 11v6" stroke="#F44336" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <button class="block-user-btn green-btn" title="Block user" style="margin-left:10px;">
+            <!-- SVG иконка блокировки -->
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" style="background:none;">
+              <circle cx="12" cy="12" r="10" stroke="#FDD367" stroke-width="2"/>
+              <line x1="8" y1="8" x2="16" y2="16" stroke="#FDD367" stroke-width="2"/>
+            </svg>
+          </button>
+        </div>
+        <div class="chat-messages"></div>
+        
+        <div class="input-box">
+          <div class="options-container">
+              <button type="button" class="options-button">
+                  <div class="dot"></div>
+                  <div class="dot"></div>
+                  <div class="dot"></div>
+              </button>
+              <div class="options-menu" id="optionsMenu">
+                <button class="option-btn" title="Pictures">
+                  <!-- Иконка картинки -->
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                    <rect x="3" y="5" width="18" height="14" rx="2" stroke="#FDD367" stroke-width="2"/>
+                    <circle cx="8" cy="10" r="2" stroke="#FDD367" stroke-width="2"/>
+                    <path d="M21 19l-5.5-7-4.5 6-3-4-4 5" stroke="#FDD367" stroke-width="2"/>
+                  </svg>
+                </button>
+                <button class="option-btn" title="Videos">
+                  <!-- Иконка видео -->
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                    <rect x="3" y="5" width="15" height="14" rx="2" stroke="#FDD367" stroke-width="2"/>
+                    <polygon points="8,8 14,12 8,16" stroke="#FDD367" fill="none"/>
+                  </svg>
+                </button>
+              </div>
+          </div>
+          <input type="text" placeholder="Type a message..." />
+          <button type="button" class="send-button">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#306748" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="22" y1="2" x2="11" y2="13"></line>
+                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <input type="file" id="fileInput" style="display:none;" accept="image/*,video/*">
+
+  <script>
+    // Обработчик клика по кнопке меню
+    document.getElementById('settingsButton').addEventListener('click', function() {
+      // Переход на страницу настроек
+      window.location.href = '/settings';
+    });
+    // Код для управления выпадающим меню с опциями
+    document.querySelector('.options-button').addEventListener('click', function(event) {
+      const menu = document.getElementById('optionsMenu');
+      menu.classList.toggle('visible');
+      event.stopPropagation(); // Предотвращаем "всплытие" события
+    });
+  
+    // Закрытие меню при клике в любом месте документа
+    document.addEventListener('click', function(event) {
+      const menu = document.getElementById('optionsMenu');
+      if (menu.classList.contains('visible')) {
+        menu.classList.remove('visible');
+      }
+    });
+  
+    // Предотвращаем закрытие меню при клике на самом меню
+    document.querySelector('.options-menu').addEventListener('click', function(event) {
+      event.stopPropagation();
+    });
+  
+    // Обработчики для кнопок "Pictures" и "Videos"
+    document.querySelectorAll('.option-btn').forEach(function(button) {
+      button.addEventListener('click', function() {
+        // alert('Выбрана опция: ' + this.textContent);
+        // Здесь можно добавить логику для загрузки изображений или видео
+      });
+    });
+
+    // Получаем элементы
+    const fileInput = document.getElementById('fileInput');
+    const picturesBtn = document.querySelector('.option-btn:nth-child(1)');
+    const videosBtn = document.querySelector('.option-btn:nth-child(2)');
+
+    // Клик по Pictures — только картинки
+    picturesBtn.addEventListener('click', function() {
+        fileInput.accept = 'image/*';
+        fileInput.click();
+    });
+
+    // Клик по Videos — только видео
+    videosBtn.addEventListener('click', function() {
+        fileInput.accept = 'video/*';
+        fileInput.click();
+    });
+
+    // Обработка выбора файла
+    fileInput.addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // 1. Показываем спиннер в чате
+        const chatMessages = document.querySelector('.chat-messages');
+        const spinnerContainer = document.createElement('div');
+        spinnerContainer.className = 'chat-upload-spinner';
+        // Меняем подпись в зависимости от типа файла
+        let label = file.type.startsWith('image/') ? 'Uploading photo...' : 'Uploading video...';
+        spinnerContainer.innerHTML = `<div class="loader"></div><div style="color:#FDD367;margin-top:10px;">${label}</div>`;
+        chatMessages.appendChild(spinnerContainer);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        fetch('/upload_attachment', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            // 2. Удаляем спиннер после загрузки
+            spinnerContainer.remove();
+
+            if (data.success && data.url) {
+                // Определяем активный чат
+                const activeChat = document.querySelector('.chat-item.active');
+                if (!activeChat) return;
+                const chatType = activeChat.getAttribute('data-chat-type');
+                const recipientId = chatType === 'group'
+                    ? activeChat.getAttribute('data-group-id')
+                    : activeChat.getAttribute('data-user-id');
+                const userId = document.body.getAttribute('data-user-id');
+                let roomPromise = chatType === 'group'
+                    ? joinGroupRoom(recipientId)
+                    : joinPrivateRoom(userId, recipientId);
+
+                roomPromise.then(roomId => {
+                    if (roomId) {
+                        // Формируем html для картинки или видео
+                        let content = '';
+                        if (file.type.startsWith('image/')) {
+                            content = `<img src="${data.url}" class="chat-image" style="max-width:200px;max-height:200px;">`;
+                        } else if (file.type.startsWith('video/')) {
+                            content = `<video src="${data.url}" controls style="max-width:200px;max-height:200px;"></video>`;
+                        }
+                        sendMessage(content, roomId, chatType, recipientId);
+                    }
+                });
+            } else {
+                showNotification('Ошибка загрузки файла', true);
+            }
+        })
+        .catch(() => {
+            spinnerContainer.remove();
+            showNotification('Ошибка загрузки файла', true);
+        });
+    });
+
+     // Функция для создания нового сообщения
+    function createMessage(text, isSent, isRead = false, messageId = null, isDelivered = true, createdAt = null) {
+      const container = document.createElement('div');
+      container.className = isSent ? 'message-container sent-container' : 'message-container received-container';
+      if (messageId) container.setAttribute('data-message-id', messageId);
+    
+      const messageDiv = document.createElement('div');
+      messageDiv.className = isSent ? 'message sent' : 'message received';
+      messageDiv.innerHTML = text;
+    
+      // Если это наше сообщение, добавляем кнопку редактирования и виджет
+      if (isSent) {
+        // Создаем виджет с кнопками
+        const editWidget = document.createElement('div');
+        editWidget.className = 'edit-widget';
+    
+        const editBtn = document.createElement('button');
+        editBtn.className = 'widget-button edit-btn';
+        editBtn.innerHTML = `
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M14.06 9L15 9.94L5.92 19H5V18.08L14.06 9Z" stroke="#FDD367" stroke-width="2"/>
+            <path d="M17.66 3C17.41 3 17.15 3.1 16.96 3.29L15.13 5.12L18.88 8.87L20.71 7.04C21.1 6.65 21.1 6.02 20.71 5.63L18.37 3.29C18.17 3.09 17.92 3 17.66 3ZM14.06 6.19L3 17.25V21H6.75L17.81 9.94L14.06 6.19Z" stroke="#FDD367" stroke-width="2"/>
+          </svg>
+        `;
+    
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'widget-button delete-btn';
+        deleteBtn.innerHTML = `
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M3 6h18" stroke="#FDD367" stroke-width="2" stroke-linecap="round"/>
+            <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="#FDD367" stroke-width="2"/>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" stroke="#FDD367" stroke-width="2"/>
+            <path d="M10 11v6M14 11v6" stroke="#FDD367" stroke-width="2"/>
+          </svg>
+        `;
+    
+        editWidget.appendChild(editBtn);
+        editWidget.appendChild(deleteBtn);
+        messageDiv.appendChild(editWidget);
+    
+        // Добавляем кнопку-карандаш
+        const editButton = document.createElement('button');
+        editButton.className = 'edit-button';
+        editButton.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+          </svg>
+        `;
+    
+        // Обработчик клика по карандашу
+        editButton.addEventListener('click', function(e) {
+          e.stopPropagation(); // Останавливаем всплытие события
+          toggleWidget(editWidget);
+        });
+    
+        // Обработчики для кнопок в виджете
+        editBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          editMessage(messageDiv, text);
+          editWidget.classList.remove('visible');
+        });
+    
+        deleteBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          const messageId = container.getAttribute('data-message-id');
+          if (messageId) {
+            fetch('/delete_message', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({ message_id: messageId })
+            })
+            .then(res => res.json())
+            .then(data => {
+              if (data.success) {
+                container.remove(); // Удаляем из DOM только после успеха
+              } else {
+                showNotification('Ошибка при удалении сообщения', true);
+              }
+            });
+          }
+        });
+    
+        messageDiv.appendChild(editButton);
+      }
+  
+      // Создаем футер с временем и статусом
+      const footer = document.createElement('div');
+      footer.className = 'message-footer';
+    
+      const time = document.createElement('span');
+      time.className = 'message-time';
+      let dateObj = createdAt ? new Date(createdAt) : new Date();
+      time.textContent = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    
+      // Статус прочтения (только для своих сообщений)
+    if (isSent) {
+      const readStatus = document.createElement('span');
+      readStatus.className = isRead ? 'read-status read' : 'read-status unread';
+      
+      // Создаем SVG-иконку статуса
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('width', '16');
+      svg.setAttribute('height', '11');
+      svg.setAttribute('viewBox', '0 0 16 12');
+      
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      if (isRead) {
+        path.setAttribute('d', 'M15.01 3.316l-.478-.372a.365.365 0 0 0-.51.063L8.666 9.879a.32.32 0 0 1-.484.033l-.358-.325a.319.319 0 0 0-.484.032l-.378.483a.418.418 0 0 0 .036.541l1.32 1.266c.143.14.361.125.484-.033l6.272-8.048a.366.366 0 0 0-.064-.512zm-4.1 0l-.478-.372a.365.365 0 0 0-.51.063L4.566 9.879a.32.32 0 0 1-.484.033L1.891 7.769a.366.366 0 0 0-.515.006l-.423.433a.364.364 0 0 0 .006.514l3.258 3.185c.143.14.361.125.484-.033l6.272-8.048a.365.365 0 0 0-.063-.51z');
+      } else if (isDelivered) {
+        path.setAttribute('d', 'M10.91 3.316l-.478-.372a.365.365 0 0 0-.51.063L4.566 9.879a.32.32 0 0 1-.484.033L1.891 7.769a.366.366 0 0 0-.515.006l-.423.433a.364.364 0 0 0 .006.514l3.258 3.185c.143.14.361.125.484-.033l6.272-8.048a.365.365 0 0 0-.063-.51z');
+      } else {
+        // Для статуса "отправлено" (не доставлено)
+        path.setAttribute('d', 'M10.91 3.316l-.478-.372a.365.365 0 0 0-.51.063L4.566 9.879a.32.32 0 0 1-.484.033L1.891 7.769a.366.366 0 0 0-.515.006l-.423.433a.364.364 0 0 0 .006.514l3.258 3.185c.143.14.361.125.484-.033l6.272-8.048a.365.365 0 0 0-.063-.51z');
+        path.setAttribute('fill', '#aaaaaa'); // Более светлый цвет для отправленных
+      }
+      path.setAttribute('fill', 'currentColor');
+      
+      svg.appendChild(path);
+      readStatus.appendChild(svg);
+      footer.appendChild(readStatus);
+    }
+    
+      footer.appendChild(time);
+      messageDiv.appendChild(footer);
+      container.appendChild(messageDiv);
+      return container;
+    }
+
+
+
+        // Функция для переключения видимости виджета
+    function toggleWidget(widget) {
+      widget.classList.toggle('visible');
+  
+      // Закрываем все другие виджеты
+      document.querySelectorAll('.edit-widget.visible').forEach(function(w) {
+        if (w !== widget) {
+          w.classList.remove('visible');
+        }
+      });
+  
+      // Закрываем виджет при клике в любом месте страницы
+      setTimeout(function() {
+        const clickHandler = function() {
+          widget.classList.remove('visible');
+          document.removeEventListener('click', clickHandler);
+        };
+        document.addEventListener('click', clickHandler);
+      }, 10);
+    }
+
+    // Функция для редактирования сообщения
+    function editMessage(messageElement, currentText) {
+      // Запоминаем старое содержимое и очищаем сообщение
+      const oldContent = messageElement.innerHTML;
+      const messageText = currentText || messageElement.childNodes[0].nodeValue.trim();
+  
+      // Сохраняем дочерние элементы (кроме текста)
+      const childElements = Array.from(messageElement.children);
+  
+      // Очищаем содержимое сообщения
+      messageElement.innerHTML = '';
+  
+      // Создаем поле ввода для редактирования
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.value = messageText;
+      input.style.width = '100%';
+      input.style.padding = '5px';
+      input.style.border = 'none';
+      input.style.borderRadius = '5px';
+      input.style.backgroundColor = 'white';
+      input.style.color = '#333';
+      input.style.marginBottom = '5px';
+  
+      // Добавляем кнопки для сохранения/отмены
+      const saveButton = document.createElement('button');
+      saveButton.textContent = 'Save';
+      saveButton.style.backgroundColor = '#4CAF50';
+      saveButton.style.color = 'white';
+      saveButton.style.border = 'none';
+      saveButton.style.borderRadius = '3px';
+      saveButton.style.padding = '3px 6px';
+      saveButton.style.marginRight = '5px';
+      saveButton.style.cursor = 'pointer';
+  
+      const cancelButton = document.createElement('button');
+      cancelButton.textContent = 'Cancel';
+      cancelButton.style.backgroundColor = '#F44336';
+      cancelButton.style.color = 'white';
+      cancelButton.style.border = 'none';
+      cancelButton.style.borderRadius = '3px';
+      cancelButton.style.padding = '3px 6px';
+      cancelButton.style.cursor = 'pointer';
+  
+      // Добавляем элементы в DOM
+      messageElement.appendChild(input);
+      messageElement.appendChild(saveButton);
+      messageElement.appendChild(cancelButton);
+  
+      // Ставим фокус на поле ввода
+      input.focus();
+  
+      // Обработчики для кнопок
+      saveButton.addEventListener('click', function() {
+        const newText = input.value.trim();
+        if (newText) {
+          // Восстанавливаем сообщение с новым текстом
+          messageElement.innerHTML = '';
+          messageElement.textContent = newText;
+      
+          // Восстанавливаем все дочерние элементы
+          childElements.forEach(el => {
+            messageElement.appendChild(el.cloneNode(true));
+          });
+      
+          // Переназначаем обработчики событий
+          attachEventHandlers(messageElement);
+
+          const messageId = messageElement.closest('.message-container').getAttribute('data-message-id');
+          fetch('/edit_message', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ message_id: messageId, content: newText })
+          })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              // Обновить UI, если нужно
+            } else {
+              showNotification('Ошибка при редактировании сообщения', true);
+            }
+          });
+        }
+      });
+  
+      cancelButton.addEventListener('click', function() {
+        // Отменяем редактирование, возвращая старое содержимое
+        messageElement.innerHTML = oldContent;
+        // Переназначаем обработчики событий
+        attachEventHandlers(messageElement);
+      });
+    }
+
+    // Функция для переназначения обработчиков событий
+    function attachEventHandlers(messageElement) {
+      const editButton = messageElement.querySelector('.edit-button');
+      const editWidget = messageElement.querySelector('.edit-widget');
+      const editBtn = messageElement.querySelector('.edit-btn');
+      const deleteBtn = messageElement.querySelector('.delete-btn');
+  
+      if (editButton && editWidget) {
+        editButton.addEventListener('click', function(e) {
+          e.stopPropagation();
+          toggleWidget(editWidget);
+        });
+      }
+  
+      if (editBtn) {
+        editBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          const messageText = messageElement.childNodes[0].nodeValue.trim();
+          editMessage(messageElement, messageText);
+          editWidget.classList.remove('visible');
+        });
+      }
+  
+      if (deleteBtn) {
+        deleteBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          const messageId = container.getAttribute('data-message-id');
+          if (messageId) {
+            fetch('/delete_message', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({ message_id: messageId })
+            })
+            .then(res => res.json())
+            .then(data => {
+              if (data.success) {
+                container.remove(); // Удаляем из DOM только после успеха
+              } else {
+                showNotification('Ошибка при удалении сообщения', true);
+              }
+            });
+          }
+        });
+      }
+    }
+
+        // Добавьте этот код в конец скрипта
+    document.addEventListener('DOMContentLoaded', function() {
+      // Добавляем карандаш к существующим сообщениям
+      const sentMessages = document.querySelectorAll('.message.sent');
+  
+      sentMessages.forEach(function(message) {
+        // Проверяем, есть ли уже кнопка редактирования
+        if (!message.querySelector('.edit-button')) {
+          // Создаем виджет с кнопками
+          const editWidget = document.createElement('div');
+          editWidget.className = 'edit-widget';
+      
+          const editBtn = document.createElement('button');
+          editBtn.className = 'widget-button edit-btn';
+          editBtn.innerHTML = `
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path d="M14.06 9L15 9.94L5.92 19H5V18.08L14.06 9Z" stroke="#FDD367" stroke-width="2"/>
+              <path d="M17.66 3C17.41 3 17.15 3.1 16.96 3.29L15.13 5.12L18.88 8.87L20.71 7.04C21.1 6.65 21.1 6.02 20.71 5.63L18.37 3.29C18.17 3.09 17.92 3 17.66 3ZM14.06 6.19L3 17.25V21H6.75L17.81 9.94L14.06 6.19Z" stroke="#FDD367" stroke-width="2"/>
+            </svg>
+          `;
+      
+          const deleteBtn = document.createElement('button');
+          deleteBtn.className = 'widget-button delete-btn';
+          deleteBtn.innerHTML = `
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path d="M3 6h18" stroke="#FDD367" stroke-width="2" stroke-linecap="round"/>
+              <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="#FDD367" stroke-width="2"/>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" stroke="#FDD367" stroke-width="2"/>
+              <path d="M10 11v6M14 11v6" stroke="#FDD367" stroke-width="2"/>
+            </svg>
+          `;
+      
+          editWidget.appendChild(editBtn);
+          editWidget.appendChild(deleteBtn);
+          message.appendChild(editWidget);
+      
+          // Добавляем кнопку-карандаш
+          const editButton = document.createElement('button');
+          editButton.className = 'edit-button';
+          editButton.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+            </svg>
+          `;
+      
+          message.appendChild(editButton);
+      
+          // Назначаем обработчики событий
+          attachEventHandlers(message);
+        }
+      });
+    });
+
+
+
+
+        // Добавьте этот код в раздел <script> в конце документа
+    document.addEventListener('DOMContentLoaded', function() {
+      // Обработчик для желтой кнопки status-circle
+      const statusCircle = document.querySelector('.status-circle');
+      const deleteChatWidget = document.getElementById('deleteChatWidget');
+  
+      if (statusCircle && deleteChatWidget) {
+        // Обработчик нажатия на желтую кнопку
+        statusCircle.addEventListener('click', function(e) {
+          e.stopPropagation(); // Предотвращаем всплытие события
+          toggleDeleteChatWidget(deleteChatWidget);
+        });
+    
+        // Обработчик для кнопки "Delete Chat"
+        const deleteButton = deleteChatWidget.querySelector('.delete-chat-btn');
+        if (deleteButton) {
+          deleteButton.addEventListener('click', function(e) {
+            e.stopPropagation();
+            
+            // Получаем активный чат
+            const activeChat = document.querySelector('.chat-item.active');
+            if (!activeChat) {
+              showNotification('No chat selected', true);
+              deleteChatWidget.classList.remove('visible');
+              return;
+            }
+            
+            // Определяем тип чата (группа или личный)
+            const chatType = activeChat.getAttribute('data-chat-type');
+            
+            if (chatType === 'group') {
+              // Если это групповой чат
+              const groupId = activeChat.getAttribute('data-group-id');
+              if (!groupId) {
+                showNotification('Cannot identify group ID', true);
+                deleteChatWidget.classList.remove('visible');
+                return;
+              }
+              
+                // Отправляем запрос на удаление группы
+                deleteGroup(groupId);
+              
+            } 
+            else if (chatType === 'direct') {
+              // Если это личный чат
+              const friendId = activeChat.getAttribute('data-user-id');
+              if (!friendId) {
+                showNotification('Cannot identify friend ID', true);
+                deleteChatWidget.classList.remove('visible');
+                return;
+              }
+              
+                // Отправляем запрос на удаление личного чата
+                deleteDirectChat(friendId);
+            }
+            
+            // Скрываем виджет после действия
+            deleteChatWidget.classList.remove('visible');
+          });
+        }
+      }
+    });
+
+    // Функция для удаления группы
+    function deleteGroup(groupId) {
+      fetch('/delete_group', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ group_id: groupId })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Показываем уведомление об успехе
+          showNotification('Group deleted successfully');
+          
+          // Удаляем группу из сайдбара
+          const groupChat = document.querySelector(`.chat-item[data-group-id="${groupId}"]`);
+          if (groupChat) {
+            groupChat.remove();
+          }
+          
+          // Очищаем область сообщений
+          document.querySelector('.chat-messages').innerHTML = '';
+          
+          // Удаляем заголовок группы
+          const groupHeader = document.querySelector('.group-header');
+          if (groupHeader) {
+            groupHeader.remove();
+          }
+        } else {
+          // Показываем уведомление об ошибке
+          showNotification('Error: ' + (data.message || 'Failed to delete group'), true);
+        }
+      })
+      .catch(error => {
+        console.error('Error deleting group:', error);
+      });
+    }
+
+    // Функция для показа уведомлений
+    function showNotification(message, isError = false) {
+      const notification = document.createElement('div');
+      notification.textContent = message;
+      notification.style.position = 'fixed';
+      notification.style.top = '20px';
+      notification.style.left = '50%';
+      notification.style.transform = 'translateX(-50%)';
+      notification.style.backgroundColor = isError ? '#F44336' : '#4CAF50';
+      notification.style.color = 'white';
+      notification.style.padding = '10px 20px';
+      notification.style.borderRadius = '5px';
+      notification.style.zIndex = '1000';
+      notification.style.opacity = '0';
+      notification.style.transition = 'opacity 0.3s';
+      
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.style.opacity = '1';
+        setTimeout(() => {
+          notification.style.opacity = '0';
+          setTimeout(() => {
+            document.body.removeChild(notification);
+          }, 300);
+        }, 2000);
+      }, 10);
+    }
+
+    // Функция для переключения видимости виджета удаления чата
+    function toggleDeleteChatWidget(widget) {
+      widget.classList.toggle('visible');
+      
+      // Закрываем виджет при клике в любом месте страницы
+      setTimeout(function() {
+        const clickHandler = function() {
+          widget.classList.remove('visible');
+          document.removeEventListener('click', clickHandler);
+        };
+        document.addEventListener('click', clickHandler);
+      }, 10);
+    }
+    
+    // Функция для удаления личного чата
+    function deleteDirectChat(friendId) {
+      fetch('/delete_direct_chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ friend_id: friendId })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Показываем уведомление об успехе
+          showNotification('Chat deleted successfully');
+          
+          // Очищаем область сообщений
+          document.querySelector('.chat-messages').innerHTML = '';
+        } else {
+          // Показываем уведомление об ошибке
+          showNotification('Error: ' + (data.message || 'Failed to delete chat'), true);
+        }
+      })
+      .catch(error => {
+        console.error('Error deleting chat:', error);
+      });
+    }
+
+        /**
+     * Функция для создания группового сообщения
+     * @param {string} text - текст сообщения
+     * @param {boolean} isSent - это наше сообщение?
+     * @param {boolean} isRead - прочитано ли сообщение
+     * @param {string} senderName - имя отправителя (только для чужих сообщений)
+     * @param {string} senderAvatar - путь к аватару отправителя (только для чужих сообщений)
+     */
+    function createGroupMessage(text, isSent, isRead = false, senderName = '', senderAvatar = '', messageId = null, createdAt = null) {
+      if (!isSent) {
+        console.log('[GROUPCHAT] createGroupMessage senderName:', senderName, 'senderAvatar:', senderAvatar);
+      }
+      const container = document.createElement('div');
+      container.className = isSent 
+        ? 'message-container sent-container' 
+        : 'message-container received-container group-message';
+      if (messageId) {
+        container.setAttribute('data-message-id', messageId);
+      }
+      
+      // Если сообщение от другого участника, добавляем информацию об отправителе
+      if (!isSent) {
+        const senderInfo = document.createElement('div');
+        senderInfo.className = 'sender-info';
+        
+        const avatar = document.createElement('img');
+        avatar.className = 'sender-avatar';
+        avatar.src = senderAvatar || '/static/img/image 12.png';
+        avatar.alt = senderName || 'User';
+        
+        const nameDiv = document.createElement('div');
+        nameDiv.className = 'sender-name';
+        nameDiv.textContent = senderName || 'Unknown User';
+        
+        senderInfo.appendChild(avatar);
+        senderInfo.appendChild(nameDiv);
+        container.appendChild(senderInfo);
+      }
+      
+      // Создаем само сообщение
+      const messageDiv = document.createElement('div');
+      messageDiv.className = isSent ? 'message sent' : 'message received';
+      messageDiv.innerHTML = text;
+      
+      // Если это наше сообщение, добавляем инструменты редактирования
+      if (isSent) {
+        // Создаем виджет с кнопками
+        const editWidget = document.createElement('div');
+        editWidget.className = 'edit-widget';
+        
+        const editBtn = document.createElement('button');
+        editBtn.className = 'widget-button edit-btn';
+        editBtn.innerHTML = `
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M14.06 9L15 9.94L5.92 19H5V18.08L14.06 9Z" stroke="#FDD367" stroke-width="2"/>
+            <path d="M17.66 3C17.41 3 17.15 3.1 16.96 3.29L15.13 5.12L18.88 8.87L20.71 7.04C21.1 6.65 21.1 6.02 20.71 5.63L18.37 3.29C18.17 3.09 17.92 3 17.66 3ZM14.06 6.19L3 17.25V21H6.75L17.81 9.94L14.06 6.19Z" stroke="#FDD367" stroke-width="2"/>
+          </svg>
+        `;
+        
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'widget-button delete-btn';
+        deleteBtn.innerHTML = `
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M3 6h18" stroke="#FDD367" stroke-width="2" stroke-linecap="round"/>
+            <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="#FDD367" stroke-width="2"/>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" stroke="#FDD367" stroke-width="2"/>
+            <path d="M10 11v6M14 11v6" stroke="#FDD367" stroke-width="2"/>
+          </svg>
+        `;
+        
+        editWidget.appendChild(editBtn);
+        editWidget.appendChild(deleteBtn);
+        messageDiv.appendChild(editWidget);
+        
+        // Добавляем кнопку-карандаш
+        const editButton = document.createElement('button');
+        editButton.className = 'edit-button';
+        editButton.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+          </svg>
+        `;
+        
+        // Обработчики событий для инструментов редактирования
+        editButton.addEventListener('click', function(e) {
+          e.stopPropagation();
+          toggleWidget(editWidget);
+        });
+        
+        editBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          editMessage(messageDiv, text);
+          editWidget.classList.remove('visible');
+        });
+        
+        deleteBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          const messageId = container.getAttribute('data-message-id');
+          if (messageId) {
+            fetch('/delete_message', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({ message_id: messageId })
+            })
+            .then(res => res.json())
+            .then(data => {
+              if (data.success) {
+                container.remove(); // Удаляем из DOM только после успеха
+              } else {
+                showNotification('Ошибка при удалении сообщения', true);
+              }
+            });
+          }
+        });
+        
+        messageDiv.appendChild(editButton);
+      }
+      
+      // Создаем футер с временем и статусом прочтения
+      const footer = document.createElement('div');
+      footer.className = 'message-footer';
+      
+      // Добавляем текущее время
+      const time = document.createElement('span');
+      time.className = 'message-time';
+      const now = createdAt ? new Date(createdAt) : new Date();
+      time.textContent = now.getHours().toString().padStart(2, '0') + ':' + 
+                         now.getMinutes().toString().padStart(2, '0');
+      
+      // Если это наше сообщение, добавляем индикатор прочтения
+      if (isSent) {
+        const readStatus = document.createElement('span');
+        readStatus.className = isRead ? 'read-status read' : 'read-status unread';
+        
+        // Создаем SVG-иконку статуса
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('width', '16');
+        svg.setAttribute('height', '11');
+        svg.setAttribute('viewBox', '0 0 16 12');
+        
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        if (isRead) {
+          path.setAttribute('d', 'M15.01 3.316l-.478-.372a.365.365 0 0 0-.51.063L8.666 9.879a.32.32 0 0 1-.484.033l-.358-.325a.319.319 0 0 0-.484.032l-.378.483a.418.418 0 0 0 .036.541l1.32 1.266c.143.14.361.125.484-.033l6.272-8.048a.366.366 0 0 0-.064-.512zm-4.1 0l-.478-.372a.365.365 0 0 0-.51.063L4.566 9.879a.32.32 0 0 1-.484.033L1.891 7.769a.366.366 0 0 0-.515.006l-.423.433a.364.364 0 0 0 .006.514l3.258 3.185c.143.14.361.125.484-.033l6.272-8.048a.365.365 0 0 0-.063-.51z');
+        } else {
+          path.setAttribute('d', 'M10.91 3.316l-.478-.372a.365.365 0 0 0-.51.063L4.566 9.879a.32.32 0 0 1-.484.033L1.891 7.769a.366.366 0 0 0-.515.006l-.423.433a.364.364 0 0 0 .006.514l3.258 3.185c.143.14.361.125.484-.033l6.272-8.048a.365.365 0 0 0-.063-.51z');
+        }
+        path.setAttribute('fill', 'currentColor');
+        
+        svg.appendChild(path);
+        readStatus.appendChild(svg);
+        footer.appendChild(readStatus);
+      }
+      
+      footer.appendChild(time);
+      messageDiv.appendChild(footer);
+      container.appendChild(messageDiv);
+      
+      return container;
+    }
+
+    
+        // Обработчик для клика по чату в списке
+    document.addEventListener('DOMContentLoaded', function() {
+      const chatItems = document.querySelectorAll('.chat-item');
+      
+      chatItems.forEach(item => {
+        item.addEventListener('click', function() {
+          // Выделяем активный чат
+          document.querySelectorAll('.chat-item').forEach(chat => {
+            chat.classList.remove('active');
+          });
+          this.classList.add('active');
+          
+          // Проверяем тип чата
+          const chatType = this.getAttribute('data-chat-type');
+          const userId = this.getAttribute('data-user-id');
+          const userName = this.querySelector('.chat-item-name div').textContent.trim();
+          
+          // Очищаем все сообщения перед загрузкой нового чата
+          document.querySelector('.chat-messages').innerHTML = '';
+          
+          if (chatType === 'group') {
+            // Если это групповой чат, загружаем групповой интерфейс
+            const groupId = this.getAttribute('data-group-id');
+            loadGroupChat(groupId);
+          } else {
+            // Загружаем личный чат
+            loadDirectChat(userId, userName);
+          }
+        });
+      });
+    });
+    
+        // Обновленный обработчик отправки сообщений
+    document.querySelector('.send-button').addEventListener('click', function() {
+      const input = document.querySelector('.input-box input');
+      const text = input.value.trim();
+      
+      if (text) {
+        const activeChat = document.querySelector('.chat-item.active');
+        if (activeChat) {
+          const chatType = activeChat.getAttribute('data-chat-type');
+          const recipientId = chatType === 'group' ? 
+            activeChat.getAttribute('data-group-id') : 
+            activeChat.getAttribute('data-user-id');
+          
+          // Get the user's ID from the page (add this as a data attribute on body)
+          const userId = document.body.getAttribute('data-user-id');
+          
+          // Join the room first (returns a Promise with roomId)
+          let roomPromise;
+          if (chatType === 'group') {
+            roomPromise = joinGroupRoom(recipientId);
+          } else {
+            roomPromise = joinPrivateRoom(userId, recipientId);
+          }
+          
+          // Once in the room, send the message
+          roomPromise.then(roomId => {
+            if (roomId) {
+              // Send message via WebSocket
+              sendMessage(text, roomId, chatType === 'group' ? 'group' : 'user', recipientId)
+                .then(() => {
+                  // Только очищаем поле ввода, не добавляем сообщение вручную!
+                  input.value = '';
+                });
+            }
+          });
+        }
+      }
+    });
+
+// Добавьте этот обработчик после обработчика .send-button
+document.querySelector('.input-box input').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') {
+    document.querySelector('.send-button').click();
+  }
+});
+
+        // Функция для загрузки личного чата
+    function loadDirectChat(userId, userName) {
+      const chatWindow = document.querySelector('.chat-window');
+      const chatMessages = document.querySelector('.chat-messages');
+      
+      // Clear messages and group header
+      chatMessages.innerHTML = '';
+      const groupHeader = document.querySelector('.group-header');
+      if (groupHeader) {
+        groupHeader.remove();
+      }
+      
+      // Show loading indicator
+      const loadingIndicator = document.createElement('div');
+      loadingIndicator.className = 'loading-indicator';
+      loadingIndicator.textContent = 'Loading messages...';
+      chatMessages.appendChild(loadingIndicator);
+      
+      // Get current user ID
+      const currentUserId = document.body.getAttribute('data-user-id');
+      
+      // Join the room via WebSockets
+      joinPrivateRoom(currentUserId, userId).then(roomId => {
+        // Fetch message history
+        fetch(`/get_direct_messages/${userId}`)
+          .then(response => response.json())
+          .then(data => {
+            if (loadingIndicator.parentNode === chatMessages) {
+              chatMessages.removeChild(loadingIndicator);
+            }
+            
+            if (data.success) {
+              // Group messages by date
+              const messagesByDate = groupMessagesByDate(data.messages);
+              
+              // Display messages
+              for (const date in messagesByDate) {
+                // Add date separator
+                if (!chatMessages.querySelector(`.date-label[data-date="${date}"]`)) {
+                  const dateLabel = document.createElement('div');
+                  dateLabel.className = 'date-label';
+                  dateLabel.setAttribute('data-date', date);
+                  dateLabel.textContent = date;
+                  chatMessages.appendChild(dateLabel);
+                }
+                
+                // Add messages for this date
+                messagesByDate[date].forEach(msg => {
+                  // Проверяем, нет ли уже такого сообщения
+                  if (!chatMessages.querySelector(`.message-container[data-message-id="${msg.id}"]`)) {
+                    const isSent = msg.sender_id == currentUserId;
+                    const message = createMessage(
+                      msg.content,
+                      isSent,
+                      msg.is_read || false,
+                      msg.id,
+                      true, // isDelivered
+                      msg.created_at // <-- вот это!
+                    );
+                    chatMessages.appendChild(message);
+                  }
+                });
+              }
+              
+              // Scroll to bottom
+              chatMessages.scrollTop = chatMessages.scrollHeight;
+
+              // После добавления сообщений в чат:
+              Object.keys(messagesByDate).forEach(date => {
+                messagesByDate[date].forEach(msg => {
+                  // Если сообщение не прочитано и оно не ваше — отправляем на сервер
+                  if (!msg.is_read && msg.sender_id != currentUserId) {
+                    markMessageAsRead(msg.id);
+                  }
+                });
+              });
+
+              // Mark unread messages as read
+              if (data.success && data.messages) {
+                const currentUserId = document.body.getAttribute('data-user-id');
+                const unreadMessages = data.messages.filter(msg => 
+                  !msg.is_read && msg.sender_id != currentUserId
+                );
+                
+                // Mark each unread message as read
+                unreadMessages.forEach(msg => {
+                  markMessageAsRead(msg.id);
+                });
+                
+                // Update the unread count in sidebar (remove the badge)
+                const chatItem = document.querySelector(`.chat-item[data-user-id="${userId}"]`);
+                if (chatItem) {
+                  const unreadBadge = chatItem.querySelector('.unread-count');
+                  if (unreadBadge) {
+                    unreadBadge.remove();
+                  }
+                }
+              }
+            } else {
+              showNotification('Error loading messages: ' + data.message, true);
+            }
+          })
+          .catch(error => {
+            console.error('Error loading messages:', error);
+            // Safely remove loading indicator
+            if (loadingIndicator.parentNode === chatMessages) {
+              chatMessages.removeChild(loadingIndicator);
+            }
+            showNotification('Error loading messages. Please try again.', true);
+          });
+      });
+    }
+    
+    // Helper function to group messages by date
+    function groupMessagesByDate(messages) {
+      const groups = {};
+      
+      messages.forEach(msg => {
+        const date = new Date(msg.created_at);
+        const dateStr = date.toLocaleDateString();
+        
+        if (!groups[dateStr]) {
+          groups[dateStr] = [];
+        }
+        
+        groups[dateStr].push(msg);
+      });
+      
+      return groups;
+    }
+    
+    // Similarly update the loadGroupChat function
+    function loadGroupChat(groupId) {
+      const chatWindow = document.querySelector('.chat-window');
+      const chatMessages = document.querySelector('.chat-messages');
+      
+      // Clear messages and group header
+      chatMessages.innerHTML = '';
+      const groupHeader = document.querySelector('.group-header');
+      if (groupHeader) {
+        groupHeader.remove();
+      }
+      
+      // Show loading indicator
+      const loadingIndicator = document.createElement('div');
+      loadingIndicator.className = 'loading-indicator';
+      loadingIndicator.textContent = 'Loading messages...';
+      chatMessages.appendChild(loadingIndicator);
+      
+      // Get current user ID
+      const currentUserId = document.body.getAttribute('data-user-id');
+      
+      // Join the room via WebSockets
+      joinGroupRoom(groupId).then(roomId => {
+        // Fetch message history
+        fetch(`/get_group_messages/${groupId}`)
+          .then(response => response.json())
+          .then(data => {
+            if (loadingIndicator.parentNode === chatMessages) {
+              chatMessages.removeChild(loadingIndicator);
+            }
+            
+            if (data.success) {
+              // Группируем сообщения по дате (если нужно)
+              const messagesByDate = groupMessagesByDate(data.messages);
+              for (const date in messagesByDate) {
+                // Добавляем разделитель даты
+                if (!chatMessages.querySelector(`.date-label[data-date="${date}"]`)) {
+                  const dateLabel = document.createElement('div');
+                  dateLabel.className = 'date-label';
+                  dateLabel.setAttribute('data-date', date);
+                  dateLabel.textContent = date;
+                  chatMessages.appendChild(dateLabel);
+                }
+            
+                // Добавляем сообщения
+                messagesByDate[date].forEach(msg => {
+                  // Проверяем, нет ли уже такого сообщения
+                  if (!chatMessages.querySelector(`.message-container[data-message-id="${msg.id}"]`)) {
+                    const isSent = msg.sender_id == currentUserId;
+                    // Логируем всё, что связано с аватаром
+                    console.log('[GROUPCHAT] msg:', msg);
+                    let senderAvatarPath = '';
+                    if (!isSent && msg.sender_avatar) {
+                      senderAvatarPath = '/static/uploads/' + normalizeAvatarPath(msg.sender_avatar);
+                      console.log('[GROUPCHAT] sender_avatar (raw):', msg.sender_avatar);
+                      console.log('[GROUPCHAT] senderAvatarPath:', senderAvatarPath);
+                    } else if (!isSent) {
+                      console.log('[GROUPCHAT] Нет аватара для пользователя:', msg.sender_name, msg.sender_id);
+                    }
+                    const messageEl = createGroupMessage(
+                      msg.content,
+                      isSent,
+                      msg.is_read || false,
+                      isSent ? '' : msg.sender_name,
+                      isSent ? '' : senderAvatarPath,
+                      msg.id,
+                      msg.created_at
+                    );
+                    chatMessages.appendChild(messageEl);
+                  }
+                });
+              }
+              chatMessages.scrollTop = chatMessages.scrollHeight;
+
+              // Mark unread messages as read
+              if (data.success && data.messages) {
+                const currentUserId = document.body.getAttribute('data-user-id');
+                const unreadMessages = data.messages.filter(msg => 
+                  !msg.is_read && msg.sender_id != currentUserId
+                );
+                
+                // Mark each unread message as read
+                unreadMessages.forEach(msg => {
+                  markMessageAsRead(msg.id);
+                });
+                
+                // Update the unread count in sidebar (remove the badge)
+                const chatItem = document.querySelector(`.chat-item[data-group-id="${groupId}"]`);
+                if (chatItem) {
+                  const unreadBadge = chatItem.querySelector('.unread-count');
+                  if (unreadBadge) {
+                    unreadBadge.remove();
+                  }
+                }
+              }
+            } else {
+              showNotification('Error loading messages: ' + data.message, true);
+            }
+          })
+          .catch(error => {
+            console.error('Error loading messages:', error);
+            // Safely remove loading indicator
+            if (loadingIndicator.parentNode === chatMessages) {
+              chatMessages.removeChild(loadingIndicator);
+            }
+            showNotification('Error loading messages. Please try again.', true);
+          });
+      });
+    }
+    
+    // Load friends list when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      // Add this function call
+      // fetchFriendsList();
+      
+      // Keep the existing DOMContentLoaded code
+      const chatItems = document.querySelectorAll('.chat-item');
+      
+      chatItems.forEach(item => {
+        // ...existing code...
+      });
+    });
+
+    // Function to fetch friends list from API
+    function fetchFriendsList() {
+      fetch('/get_friends')
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            updateFriendsList(data.friends);
+          } else {
+            console.error('Error fetching friends:', data.message);
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching friends:', error);
+        });
+    }
+
+    // Function to update the sidebar with friends
+    function updateFriendsList(friends) {
+      const sidebar = document.querySelector('.sidebar');
+      
+      // Clear existing direct chat items
+      const directChatItems = sidebar.querySelectorAll('.chat-item[data-chat-type="direct"]');
+      directChatItems.forEach(item => item.remove());
+      
+      // Add each friend to the sidebar
+      friends.forEach(friend => {
+        console.log('[DEBUG] friend:', friend);
+        console.log('[DEBUG] friend.avatar path:', friend.avatar ? '/static/uploads/' + friend.avatar : '/static/img/image 12.png');
+        const chatItem = document.createElement('div');
+        chatItem.className = 'chat-item';
+        chatItem.setAttribute('data-chat-type', 'direct');
+        chatItem.setAttribute('data-user-id', friend.id);
+        
+        chatItem.innerHTML = `
+          <div class="chat-item-name">
+            <img src="${friend.avatar ? '/static/uploads/' + normalizeAvatarPath(friend.avatar) : '/static/img/image 12.png'}" alt="avatar" />
+            <div>${friend.nickname || friend.name}</div>
+          </div>
+          <div class="chat-item-time"></div>
+        `;
+        
+const timeElement = chatItem.querySelector('.chat-item-time');
+        if (friend.last_time) {
+          const dateObj = new Date(friend.last_time);
+          timeElement.textContent = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        } else {
+          timeElement.textContent = '';
+        }
+
+// Add click event handler for chat items
+        // chatItem.addEventListener('click', function() {
+        //   document.querySelectorAll('.chat-item').forEach(chat => {
+        //     chat.classList.remove('active');
+        //   });
+        //   this.classList.add('active');
+          
+        //   const userId = this.getAttribute('data-user-id');
+        //   const userName = this.querySelector('.chat-item-name div').textContent.trim();
+          
+        //   document.querySelector('.chat-messages').innerHTML = '';
+        //   loadDirectChat(userId, userName);
+        // });
+        
+        sidebar.appendChild(chatItem);
+      });
+    }
+
+    // Function to fetch groups list from API
+    function fetchGroupsList() {
+      fetch('/get_user_groups')
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            updateGroupsList(data.groups);
+          } else {
+            console.error('Error fetching groups:', data.message);
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching groups:', error);
+        });
+    }
+
+    // Function to update the sidebar with groups
+    function updateGroupsList(groups) {
+      const sidebar = document.querySelector('.sidebar');
+      
+      // Clear existing group chat items
+      const groupChatItems = sidebar.querySelectorAll('.chat-item[data-chat-type="group"]');
+      groupChatItems.forEach(item => item.remove());
+      
+      // Add each group to the sidebar
+      groups.forEach(group => {
+        console.log('[DEBUG] group:', group);
+        console.log('[DEBUG] group.avatar path:', group.avatar ? '/static/uploads/' + group.avatar : '/static/img/image 12.png');
+        const chatItem = document.createElement('div');
+        chatItem.className = 'chat-item group-chat-item';
+        chatItem.setAttribute('data-chat-type', 'group');
+        chatItem.setAttribute('data-group-id', group.id);
+        
+        chatItem.innerHTML = `
+          <div class="chat-item-name">
+            <img src="${group.avatar ? '/static/uploads/' + group.avatar : '/static/img/image 12.png'}" alt="Group Avatar" />
+            <div>${group.name}</div>
+          </div>
+          <div class="chat-item-time"></div>
+        `;
+        
+const timeElement = chatItem.querySelector('.chat-item-time');
+        if (group.last_time) {
+          const dateObj = new Date(group.last_time);
+          timeElement.textContent = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        } else {
+          timeElement.textContent = '';
+        }
+
+        sidebar.appendChild(chatItem);
+      });
+    }
+
+    // Вызовите fetchGroupsList() при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+      // Существующий код загрузки друзей
+      // fetchFriendsList();
+      
+      // Добавляем загрузку групп
+      // fetchGroupsList();
+      
+      // Остальной код...
+    });
+
+    // Добавьте этот код в раздел <script>
+
+    // Функция поиска чатов
+    function searchChatsAndUsers() {
+      const searchInput = document.querySelector('.search-container input');
+      const searchTerm = searchInput.value.trim();
+      
+      if (!searchTerm) {
+        // Если поле поиска пустое, возвращаем обычный список чатов
+        // fetchFriendsList();
+        // fetchGroupsList();
+        return;
+      }
+    
+      // Очистим существующие результаты
+      const sidebar = document.querySelector('.sidebar');
+      sidebar.innerHTML = '';
+      
+      // Создаем индикатор загрузки
+      const loadingIndicator = document.createElement('div');
+      loadingIndicator.textContent = 'Поиск...';
+      loadingIndicator.style.padding = '15px';
+      loadingIndicator.style.textAlign = 'center';
+      sidebar.appendChild(loadingIndicator);
+      
+      // Выполняем запрос к API для поиска пользователей и групп
+      fetch(`/search_users?q=${encodeURIComponent(searchTerm)}`)
+        .then(response => response.json())
+        .then(data => {
+          // Удаляем индикатор загрузки
+          sidebar.removeChild(loadingIndicator);
+          
+          if (data.success) {
+            // Добавляем найденных пользователей в сайдбар
+            if (data.users && data.users.length > 0) {
+              const usersHeading = document.createElement('div');
+              usersHeading.className = 'search-result-heading';
+              usersHeading.style.fontWeight = 'bold';
+              usersHeading.style.backgroundColor = '#f0f0f0';
+              sidebar.appendChild(usersHeading);
+              
+              data.users.forEach(user => {
+                console.log('[DEBUG] search user:', user);
+                console.log('[DEBUG] search user.avatar path:', user.avatar ? '/static/uploads/' + user.avatar : '/static/img/image 12.png');
+                const chatItem = document.createElement('div');
+                chatItem.className = 'chat-item';
+                chatItem.setAttribute('data-chat-type', 'direct');
+                chatItem.setAttribute('data-user-id', user.id);
+                
+                chatItem.innerHTML = `
+                  <div class="chat-item-name">
+                    <img src="${user.avatar ? '/static/uploads/' + user.avatar : '/static/img/image 12.png'}" alt="avatar" />
+                    <div>${user.name}</div>
+                  </div>
+                  <div class="chat-item-time"></div>
+                `;
+                
+const timeElement = chatItem.querySelector('.chat-item-time');
+                if (user.last_time) {
+                  const dateObj = new Date(user.last_time);
+                  timeElement.textContent = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                } else {
+                  timeElement.textContent = '';
+                }
+
+                sidebar.appendChild(chatItem);
+              });
+            }
+            
+            // Добавляем найденные группы в сайдбар, если они есть
+            if (data.groups && data.groups.length > 0) {
+              const groupsHeading = document.createElement('div');
+              groupsHeading.className = 'search-result-heading';
+              groupsHeading.style.fontWeight = 'bold';
+              groupsHeading.style.backgroundColor = '#f0f0f0';
+              sidebar.appendChild(groupsHeading);
+              
+              data.groups.forEach(group => {
+                console.log('[DEBUG] search group:', group);
+                console.log('[DEBUG] search group.avatar path:', group.avatar ? '/static/uploads/' + group.avatar : '/static/img/image 12.png');
+                const chatItem = document.createElement('div');
+                chatItem.className = 'chat-item group-chat-item';
+                chatItem.setAttribute('data-chat-type', 'group');
+                chatItem.setAttribute('data-group-id', group.id);
+                
+                chatItem.innerHTML = `
+                  <div class="chat-item-name">
+                    <img src="${group.avatar ? '/static/uploads/' + group.avatar : '/static/img/image 12.png'}" alt="Group Avatar" />
+                    <div>${group.name}</div>
+                  </div>
+                  <div class="chat-item-time"></div>
+                `;
+
+                const timeElement = chatItem.querySelector('.chat-item-time');
+                if (group.last_time) {
+                  const dateObj = new Date(group.last_time);
+                  timeElement.textContent = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                } else {
+                  timeElement.textContent = '';
+                }
+                sidebar.appendChild(chatItem);
+              });
+            }
+            
+            // Если ничего не найдено
+            if ((!data.users || data.users.length === 0) && (!data.groups || data.groups.length === 0)) {
+              const noResults = document.createElement('div');
+              noResults.textContent = 'Ничего не найдено';
+              noResults.style.padding = '15px';
+              noResults.style.textAlign = 'center';
+              noResults.style.color = '#666';
+              sidebar.appendChild(noResults);
+            }
+          } else {
+            // Показываем сообщение об ошибке
+            showNotification('Ошибка поиска: ' + data.message, true);
+            // Возвращаем исходные списки
+            // fetchFriendsList();
+            // fetchGroupsList();
+          }
+        })
+        .catch(error => {
+          console.error('Search error:', error);
+          showNotification('Ошибка поиска. Пожалуйста, попробуйте позже.', true);
+          sidebar.removeChild(loadingIndicator);
+          // Возвращаем исходные списки
+          // fetchFriendsList();
+          // fetchGroupsList();
+        });
+    }
+    
+    // Добавляем обработчики событий для поиска
+    document.addEventListener('DOMContentLoaded', function() {
+      const searchInput = document.querySelector('.search-container input');
+      const searchButton = document.querySelector('.search-container .all-button');
+      
+      // Добавляем класс к полю поиска (он отсутствует в HTML)
+      searchInput.classList.add('search-input');
+      
+      // Поиск при нажатии на кнопку
+      searchButton.addEventListener('click', function() {
+        searchChatsAndUsers();
+      });
+      
+      // Поиск при нажатии Enter в поле поиска
+      searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          searchChatsAndUsers();
+        }
+      });
+      
+      // Сброс результатов поиска при очистке поля
+      searchInput.addEventListener('input', function() {
+        if (this.value.trim() === '') {
+          // fetchFriendsList();
+          // fetchGroupsList();
+        }
+      });
+    });
+
+    // Add filter dropdown functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterButton = document.getElementById('filterButton');
+      const filterDropdown = document.getElementById('filterDropdown');
+      const filterOptions = document.querySelectorAll('.filter-option');
+      
+      // Toggle dropdown when filter button is clicked
+      filterButton.addEventListener('click', function(e) {
+        e.stopPropagation();
+        filterDropdown.classList.toggle('show');
+      });
+      
+      // Close dropdown when clicking elsewhere
+      document.addEventListener('click', function() {
+        filterDropdown.classList.remove('show');
+      });
+      
+      // Prevent dropdown from closing when clicking inside it
+      filterDropdown.addEventListener('click', function(e) {
+        e.stopPropagation();
+      });
+      
+      // Handle filter option selection
+      filterOptions.forEach(option => {
+        option.addEventListener('click', function() {
+          const filterType = this.getAttribute('data-filter');
+          // Update button text
+          filterButton.textContent = this.textContent;
+          // Close dropdown
+          filterDropdown.classList.remove('show');
+          // Apply filter
+          filterChatList(filterType);
+        });
+      });
+      
+      // Function to filter the chat list
+      function filterChatList(filterType) {
+        const chatItems = document.querySelectorAll('.chat-item');
+        
+        chatItems.forEach(item => {
+          const chatType = item.getAttribute('data-chat-type');
+          
+          if (filterType === 'all') {
+            item.style.display = 'flex'; // Show all items
+          } else if (filterType === 'direct' && chatType === 'direct') {
+            item.style.display = 'flex'; // Show direct messages
+          } else if (filterType === 'group' && chatType === 'group') {
+            item.style.display = 'flex'; // Show group messages
+          } else {
+            item.style.display = 'none'; // Hide other items
+          }
+        });
+      }
+    });
+
+
+  // Function to fetch group details from API
+  function fetchGroupDetails(groupId) {
+    console.log('[DEBUG] fetchGroupDetails called', groupId);
+    fetch(`/get_group_details/${groupId}`)
+      .then(response => {
+        console.log('[DEBUG] fetchGroupDetails response', response);
+        return response.json();
+      })
+      .then(data => {
+        console.log('[DEBUG] fetchGroupDetails data', data);
+        if (data.success) {
+          if (data.group.is_creator) {
+            showGroupInfoAdmin(groupId, data.group);
+          } else {
+            showGroupInfoMember(groupId, data.group);
+          }
+        } else {
+          showNotification(data.message || 'Failed to load group details', true);
+        }
+      })
+      .catch(error => {
+        console.error('[DEBUG] Error fetching group details:', error);
+        showNotification('Error loading group details', true);
+      });
+  }
+
+  // Function to display the group admin info view
+  function showGroupInfoAdmin(groupId, groupData) {
+    const chatWindow = document.querySelector('.chat-window');
+    
+    // Save the current chat content to restore later
+    if (!chatWindow._originalContent) {
+      chatWindow._originalContent = chatWindow.innerHTML;
+    }
+    
+    // Create HTML for member list
+    const membersHTML = groupData.members.map(member => {
+      const isAdmin = member.is_admin ? '<div class="admin-star">★</div>' : '';
+      return `
+        <div class="member" data-user-id="${member.id}">
+          <img class="member-avatar" src="${member.avatar ? '/static/uploads/' + member.avatar : '/static/img/image 12.png'}" alt="User avatar" />
+          <div class="member-name">${member.nickname || member.name}</div>
+          ${isAdmin}
+        </div>
+      `;
+    }).join('');
+    
+    // Create admin view
+    chatWindow.innerHTML = `
+      <div class="container">
+        <img class="bg-image" src="https://placehold.co/849x792" alt="Background" />
+        
+        <div class="edit-button" id="editGroupNameButton">
+          <svg class="pencil-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+            <path fill="none" stroke="#ffffff" stroke-width="2" d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
+          </svg>
+        </div>
+        
+        <div class="header">
+          <h1 class="group-title">${groupData.name}</h1>
+          <p class="group-subtitle">Group: ${groupData.members.length} members</p>
+          
+          <div class="avatar-container">
+            <img class="group-avatar" src="${groupData.avatar ? '/static/uploads/' + groupData.avatar : '/static/img/image 12.png'}" alt="Group Avatar" />
+          </div>
+        </div>
+
+        <!-- Разделительная линия -->
+        <div class="separator"></div>
+        <div class="members-section">
+          <div class="members-title">members:</div>
+          
+          <div class="members-list">
+            ${membersHTML}
+          </div>
+        </div>
+        
+        <div class="controls">
+          <button class="control-button add-member-button">
+            <span class="button-text">+Add member</span>
+          </button>
+          
+          <button class="control-button delete-group-button">
+            <span class="button-text">Delete group</span>
+          </button>
+        </div>
+      </div>
+    `;
+    
+    // Apply admin styles
+    addGroupInfoAdminStyles();
+    
+    // Add event listeners to buttons
+    addGroupInfoButtonListeners(groupId, true);
+    addGroupAvatarChangeHandler(groupId);
+  }
+
+  // Function to display the group member info view
+  function showGroupInfoMember(groupId, groupData) {
+    const chatWindow = document.querySelector('.chat-window');
+    
+    // Save the current chat content to restore later
+    if (!chatWindow._originalContent) {
+      chatWindow._originalContent = chatWindow.innerHTML;
+    }
+    
+    // Create HTML for member list
+    const membersHTML = groupData.members.map(member => {
+      const isAdmin = member.is_admin ? '<div class="admin-star">★</div>' : '';
+      return `
+        <div class="member" data-user-id="${member.id}">
+          <img class="member-avatar" src="${member.avatar ? '/static/uploads/' + member.avatar : '/static/img/image 12.png'}" alt="User avatar" />
+          <div class="member-name">${member.nickname || member.name}</div>
+          ${isAdmin}
+        </div>
+      `;
+    }).join('');
+    
+    // Create member view
+    chatWindow.innerHTML = `
+      <div class="container">
+        <img class="bg-image" src="https://placehold.co/849x792" alt="Background" />
+        
+        <div class="edit-button" id="editGroupNameButton">
+          <svg class="pencil-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+            <path fill="none" stroke="#ffffff" stroke-width="2" d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
+          </svg>
+        </div>
+        
+        <div class="header">
+          <h1 class="group-title">${groupData.name}</h1>
+          <p class="group-subtitle">Group: ${groupData.members.length} members</p>
+          
+          <div class="avatar-container">
+            <img class="group-avatar" src="${groupData.avatar ? '/static/uploads/' + groupData.avatar : '/static/img/image 12.png'}" alt="Group Avatar" />
+          </div>
+        </div>
+        
+        <div class="members-section">
+          <div class="members-title">members:</div>
+          
+          <div class="members-list">
+            ${membersHTML}
+          </div>
+        </div>
+        
+        <div class="controls">
+          <button class="control-button add-member-button">
+            <span class="button-text">+Add member</span>
+          </button>
+        </div>
+      </div>
+    `;
+    
+    // Apply member styles
+    addGroupInfoMemberStyles();
+    
+    // Add event listeners to buttons
+    addGroupInfoButtonListeners(groupId, false);
+    addGroupAvatarChangeHandler(groupId);
+  }
+
+  
+  // Function to add event listeners to group info buttons
+  function addGroupInfoButtonListeners(groupId, isAdmin) {
+    // Edit group name button
+    document.getElementById('editGroupNameButton').addEventListener('click', function() {
+      showEditGroupNameModal(groupId);
+    });
+    
+    // Add member button
+    document.querySelector('.add-member-button').addEventListener('click', function() {
+      showAddMemberModal(groupId);
+    });
+    
+    // Delete group button (only for admin view)
+    if (isAdmin) {
+      document.querySelector('.delete-group-button').addEventListener('click', function() {
+        showDeleteGroupConfirmation(groupId);
+      });
+    }
+  }
+
+  // Function to restore original chat window
+  window.restoreChatWindow = function() {
+    const chatWindow = document.querySelector('.chat-window');
+    if (chatWindow._originalContent) {
+      chatWindow.innerHTML = chatWindow._originalContent;
+      chatWindow._originalContent = null;
+      
+      // Remove any additional styles
+      removeGroupInfoStyles();
+      
+      // Reset the state
+      window.isViewingGroupInfo = false;
+      currentGroupId = null;
+    }
+  };
+
+
+  // Function to show the edit group name modal
+  function showEditGroupNameModal(groupId) {
+    // Create modal if it doesn't exist
+    if (!document.getElementById('editGroupNameModal')) {
+      const modal = document.createElement('div');
+      modal.id = 'editGroupNameModal';
+      modal.className = 'modal';
+      modal.innerHTML = `
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2 class="modal-title">Edit Group Name</h2>
+            <button class="close-button">&times;</button>
+          </div>
+          <div class="modal-body">
+            <input type="text" id="newGroupName" class="input-field" placeholder="Enter new group name">
+          </div>
+          <div class="modal-footer">
+            <button class="modal-button confirm-button" id="saveGroupNameButton">Save</button>
+            <button class="modal-button cancel-button">Cancel</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      
+      // Close button functionality
+      modal.querySelector('.close-button').addEventListener('click', () => {
+        modal.style.display = 'none';
+      });
+      
+      modal.querySelector('.cancel-button').addEventListener('click', () => {
+        modal.style.display = 'none';
+      });
+      
+      // Save button functionality
+      modal.querySelector('#saveGroupNameButton').addEventListener('click', () => {
+        const newName = document.getElementById('newGroupName').value.trim();
+        if (newName) {
+          updateGroupName(groupId, newName);
+          modal.style.display = 'none';
+        } else {
+          showNotification('Group name cannot be empty', true);
+        }
+      });
+    }
+    
+    // Show the modal
+    const modal = document.getElementById('editGroupNameModal');
+    modal.style.display = 'flex';
+    
+    // Focus on the input
+    document.getElementById('newGroupName').focus();
+  }
+  
+  // Function to update group name
+  function updateGroupName(groupId, newName) {
+    fetch('/edit_group_name', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        group_id: groupId,
+        name: newName
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Update the group name in the UI
+        document.querySelector('.group-title').textContent = newName;
+        showNotification('Group name updated successfully');
+        
+        // Also update in the sidebar
+        const groupItem = document.querySelector(`.chat-item[data-group-id="${groupId}"]`);
+        if (groupItem) {
+          groupItem.querySelector('.chat-item-name div').textContent = newName;
+        }
+      } else {
+        showNotification(data.message || 'Failed to update group name', true);
+      }
+    })
+    .catch(error => {
+      console.error('Error updating group name:', error);
+      showNotification('Error updating group name', true);
+    });
+  }
+  
+  // Function to show add member modal
+  function showAddMemberModal(groupId) {
+    // Create modal if it doesn't exist
+    if (!document.getElementById('addMemberModal')) {
+      const modal = document.createElement('div');
+      modal.id = 'addMemberModal';
+      modal.className = 'modal';
+      modal.innerHTML = `
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2 class="modal-title">Add Member</h2>
+            <button class="close-button">&times;</button>
+          </div>
+          <div class="modal-body">
+            <input type="text" id="memberIdentifier" class="input-field" placeholder="Enter friend's name or email">
+          </div>
+          <div class="modal-footer">
+            <button class="modal-button confirm-button" id="addMemberButton">Add</button>
+            <button class="modal-button cancel-button">Cancel</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      
+      // Close button functionality
+      modal.querySelector('.close-button').addEventListener('click', () => {
+        modal.style.display = 'none';
+      });
+      
+      modal.querySelector('.cancel-button').addEventListener('click', () => {
+        modal.style.display = 'none';
+      });
+      
+      // Add button functionality
+      modal.querySelector('#addMemberButton').addEventListener('click', () => {
+        const identifier = document.getElementById('memberIdentifier').value.trim();
+        if (identifier) {
+          addMemberToGroup(groupId, identifier);
+          modal.style.display = 'none';
+        } else {
+          showNotification('Please enter a user name or email', true);
+        }
+      });
+    }
+    
+    // Show the modal
+    const modal = document.getElementById('addMemberModal');
+    modal.style.display = 'flex';
+    
+    // Focus on the input
+    document.getElementById('memberIdentifier').focus();
+  }
+  
+  // Function to add a member to group
+  function addMemberToGroup(groupId, identifier) {
+    // First, search for the user
+    fetch(`/search_users?q=${encodeURIComponent(identifier)}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.success && data.users && data.users.length > 0) {
+          // Found at least one user, try to add the first match
+          const user = data.users[0];
+          
+          // Now call the API to add the user to the group
+          return fetch('/add_group_member', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              group_id: groupId,
+              user_id: user.id
+            })
+          });
+        } else {
+          throw new Error('User not found');
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          showNotification(data.message || 'Member added successfully');
+          // Refresh the group details to show the new member
+          fetchGroupDetails(groupId);
+        } else {
+          showNotification(data.message || 'Failed to add member', true);
+        }
+      })
+      .catch(error => {
+        console.error('Error adding member:', error);
+        showNotification('Error adding member: ' + error.message, true);
+      });
+  }
+  
+      // Function to show delete group confirmation
+      function showDeleteGroupConfirmation(groupId) {
+        // Create modal if it doesn't exist
+        if (!document.getElementById('deleteGroupModal')) {
+          const modal = document.createElement('div');
+          modal.id = 'deleteGroupModal';
+          modal.className = 'modal';
+          modal.innerHTML = `
+            <div class="modal-content">
+              <div class="modal-header">
+                <h2 class="modal-title">Delete Group</h2>
+                <button class="close-button">&times;</button>
+              </div>
+              <div class="modal-body">
+                <p>Are you sure you want to delete this group? This action cannot be undone.</p>
+              </div>
+              <div class="modal-footer">
+                <button class="modal-button confirm-button" id="confirmDeleteGroupButton">Delete</button>
+                <button class="modal-button cancel-button">Cancel</button>
+              </div>
+            </div>
+          `;
+          document.body.appendChild(modal);
+          
+          // Close button functionality
+          modal.querySelector('.close-button').addEventListener('click', () => {
+            modal.style.display = 'none';
+          });
+          
+          modal.querySelector('.cancel-button').addEventListener('click', () => {
+            modal.style.display = 'none';
+          });
+        }
+        
+        // Set up the delete confirmation button for this specific group
+        const confirmButton = document.getElementById('confirmDeleteGroupButton');
+        confirmButton.onclick = () => {
+          deleteGroup(groupId);
+          document.getElementById('deleteGroupModal').style.display = 'none';
+        };
+        
+        // Show the modal
+        document.getElementById('deleteGroupModal').style.display = 'flex';
+      }
+      
+      // Functions to add/remove the required CSS
+      function addGroupInfoAdminStyles() {
+        if (!document.getElementById('groupInfoAdminStyles')) {
+          const style = document.createElement('link');
+          style.id = 'groupInfoAdminStyles';
+          style.rel = 'stylesheet';
+          style.href = '/static/css/groupinfoadmin.css';
+          document.head.appendChild(style);
+        }
+      }
+      
+      function addGroupInfoMemberStyles() {
+        if (!document.getElementById('groupInfoMemberStyles')) {
+          const style = document.createElement('link');
+          style.id = 'groupInfoMemberStyles';
+          style.rel = 'stylesheet';
+          style.href = '/static/css/groupinfomember.css';
+          document.head.appendChild(style);
+        }
+      }
+      
+      function removeGroupInfoStyles() {
+        const adminStyles = document.getElementById('groupInfoAdminStyles');
+        const memberStyles = document.getElementById('groupInfoMemberStyles');
+        
+        if (adminStyles) adminStyles.remove();
+        if (memberStyles) adminStyles.remove();
+      }
+
+    // Add this code to the existing <script> section - replace the existing group info functionality
+document.addEventListener('DOMContentLoaded', function() {
+  // Track if we're currently viewing group info
+  window.isViewingGroupInfo = false;
+  let currentGroupId = null;
+      // Add this to update handlers when group list updates
+      const originalUpdateGroupsList = window.updateGroupsList;
+      if (typeof originalUpdateGroupsList === 'function') {
+        window.updateGroupsList = function(groups) {
+          originalUpdateGroupsList(groups);
+        };
+      }
+    });
+
+        // Add this to your script section in mainWindow.html:
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle missing images gracefully
+        document.querySelectorAll('img').forEach(img => {
+            img.onerror = function() {
+                // Replace with a placeholder if image fails to load
+                this.src = 'https://placehold.co/' + 
+                    (this.width || 50) + 'x' + (this.height || 50) + 
+                    '/306748/FDD367?text=C';
+                this.onerror = null; // Prevent infinite loops
+            };
+        });
+    });
+
+
+
+    
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const statusCircle = document.querySelector('.status-circle');
+      const deleteChatWidget = document.getElementById('deleteChatWidget');
+      const blockBtn = deleteChatWidget.querySelector('.block-user-btn');
+      
+      // Добавляем обработчик для желтого круга
+      if (statusCircle) {
+        statusCircle.addEventListener('click', function(e) {
+          e.stopPropagation();
+          
+          // Проверяем тип активного чата перед показом виджета
+          const activeChat = document.querySelector('.chat-item.active');
+          if (activeChat) {
+            const chatType = activeChat.getAttribute('data-chat-type');
+            
+            // Показываем/скрываем кнопку блокировки в зависимости от типа чата
+            if (chatType === 'direct') {
+              blockBtn.style.display = ''; // Показываем для директ-чатов
+            } else {
+              blockBtn.style.display = 'none'; // Скрываем для групповых чатов
+            }
+          } else {
+            // Если нет активного чата, скрываем кнопку блокировки
+            blockBtn.style.display = 'none';
+          }
+          
+          // Показываем/скрываем виджет
+          deleteChatWidget.classList.toggle('visible');
+        });
+      }
+      
+      if (blockBtn) {
+        blockBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          // Получаем активный чат
+          const activeChat = document.querySelector('.chat-item.active');
+          if (!activeChat) {
+            showNotification('No chat selected', true);
+            deleteChatWidget.classList.remove('visible');
+            return;
+          }
+          const chatType = activeChat.getAttribute('data-chat-type');
+          if (chatType === 'direct') {
+            const userId = activeChat.getAttribute('data-user-id');
+            console.log('Blocking user ID:', userId); // Должен быть числом
+            if (!userId) {
+              showNotification('Cannot identify user ID', true);
+              deleteChatWidget.classList.remove('visible');
+              return;
+            }
+            fetch('/block_user', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({ user_id: userId })
+            })
+            .then(res => res.json())
+            .then(data => {
+              if (data.success) {
+                showNotification('User blocked');
+              } else {
+                showNotification(data.message || 'Failed to block user', true);
+              }
+            })
+            .catch(() => {
+              showNotification('Failed to block user', true);
+            });
+          } else {
+            showNotification('Blocking is only available for direct chats', true);
+          }
+          deleteChatWidget.classList.remove('visible');
+        });
+      }
+    });
+
+    
+
+    document.addEventListener('click', function(event) {
+      // Проверяем, кликнули ли по картинке в сообщении
+      if (event.target.classList.contains('chat-image')) {
+        // Создаем модальное окно
+        let modal = document.getElementById('imageModal');
+        if (!modal) {
+          modal = document.createElement('div');
+          modal.id = 'imageModal';
+          modal.style.position = 'fixed';
+          modal.style.top = 0;
+          modal.style.left = 0;
+          modal.style.width = '100vw';
+          modal.style.height = '100vh';
+          modal.style.background = 'rgba(0,0,0,0.8)';
+          modal.style.display = 'flex';
+          modal.style.alignItems = 'center';
+          modal.style.justifyContent = 'center';
+          modal.style.zIndex = 2000;
+          modal.style.cursor = 'zoom-out';
+    
+          // Картинка для увеличенного просмотра
+          const img = document.createElement('img');
+          img.style.maxWidth = '90vw';
+          img.style.maxHeight = '90vh';
+          img.id = 'modalImage';
+          modal.appendChild(img);
+    
+          // Закрытие по клику
+          modal.addEventListener('click', function() {
+            modal.style.display = 'none';
+          });
+    
+          document.body.appendChild(modal);
+        }
+        // Устанавливаем src выбранной картинки
+        modal.querySelector('#modalImage').src = event.target.src;
+        modal.style.display = 'flex';
+      }
+    });
+
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        // Здесь можно добавить фильтрацию сообщений
+      });
+    });
+
+    function updateChatSidebar(chats) {
+      const sidebar = document.querySelector('.sidebar');
+      if (!sidebar) return;
+      sidebar.innerHTML = '';
+      chats.forEach(chat => {
+        console.log('[DEBUG] chat:', chat);
+        console.log('[DEBUG] chat.avatar path:', chat.avatar ? '/static/uploads/' + chat.avatar : '/static/img/image 12.png');
+        const chatItem = document.createElement('div');
+        chatItem.className = 'chat-item' + (chat.type === 'group' ? ' group-chat-item' : '');
+        chatItem.setAttribute('data-chat-type', chat.type);
+        chatItem.setAttribute(chat.type === 'group' ? 'data-group-id' : 'data-user-id', chat.id);
+        
+        // Делаем содержимое chat-item видимым и кликабельным!
+        chatItem.innerHTML = `
+          <div class="chat-item-name">
+            <img src="${chat.avatar ? '/static/uploads/' + chat.avatar : '/static/img/image 12.png'}" alt="avatar" />
+            <div>${chat.name}</div>
+          </div>
+          <div class="chat-item-right">
+            ${chat.unread_count > 0 ? `<div class="unread-count">${chat.unread_count}</div>` : ''}
+            <div class="chat-item-time"></div>
+          </div>
+        `;
+        
+        const timeElement = chatItem.querySelector('.chat-item-time');
+        if (chat.last_time) {
+          const dateObj = new Date(chat.last_time);
+          timeElement.textContent = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        } else {
+          timeElement.textContent = '';
+        }
+        
+        sidebar.appendChild(chatItem);
+      });
+    }
+
+    // Добавляем в конец существующего обработчика DOMContentLoaded
+    document.addEventListener('DOMContentLoaded', function() {
+      fetchChats('all'); // Загрузить все чаты при старте
+      
+      // Обработчики для фильтра
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          const filter = this.textContent.trim().toLowerCase();
+          fetchChats(filter === 'all' ? 'all' : (filter === 'read' ? 'read' : 'unread'));
+        });
+      });
+    });
+
+    function fetchChats(filter = 'all') {
+      fetch(`/get_chats?filter=${filter}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            updateChatSidebar(data.chats);
+          }
+        });
+    }
+
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        const filter = this.textContent.trim().toLowerCase();
+        fetchChats(filter === 'all' ? 'all' : (filter === 'read' ? 'read' : 'unread'));
+      });
+    });
+
+     
+
+    const statusCircle = document.querySelector('.status-circle');
+    const deleteChatWidget = document.getElementById('deleteChatWidget');
+    if (statusCircle && deleteChatWidget) {
+      statusCircle.addEventListener('click', function(e) {
+        e.stopPropagation();
+        deleteChatWidget.classList.toggle('visible');
+      });
+      document.addEventListener('click', function(e) {
+        if (!deleteChatWidget.contains(e.target) && !statusCircle.contains(e.target)) {
+          deleteChatWidget.classList.remove('visible');
+        }
+      });
+    }
+
+    // Вставьте этот код после создания .sidebar (например, после document.addEventListener('DOMContentLoaded', ...))
+
+const sidebar = document.querySelector('.sidebar');
+
+// Делегирование для click
+sidebar.addEventListener('click', function(e) {
+  console.log('[DEBUG] sidebar click event', e.target);
+  const item = e.target.closest('.chat-item');
+  if (!item) {
+    console.log('[DEBUG] click: not a chat-item');
+    return;
+  }
+
+  // Если сейчас открыт group info, сначала закрываем его
+  if (window.isViewingGroupInfo) {
+    console.log('[DEBUG] click: restoring chat window');
+    restoreChatWindow();
+  }
+
+  document.querySelectorAll('.chat-item').forEach(chat => chat.classList.remove('active'));
+  item.classList.add('active');
+
+  const chatType = item.getAttribute('data-chat-type');
+  console.log('[DEBUG] click: chatType', chatType);
+  if (chatType === 'group') {
+    const groupId = item.getAttribute('data-group-id');
+    console.log('[DEBUG] click: loadGroupChat', groupId);
+    loadGroupChat(groupId);
+  } else if (chatType === 'direct') {
+    const userId = item.getAttribute('data-user-id');
+    const userName = item.querySelector('.chat-item-name div')?.textContent.trim();
+    console.log('[DEBUG] click: loadDirectChat', userId, userName);
+    loadDirectChat(userId, userName);
+  }
+});
+
+// Делегирование для dblclick
+sidebar.addEventListener('dblclick', function(e) {
+  console.log('[DEBUG] sidebar dblclick event', e.target);
+  const item = e.target.closest('.chat-item[data-chat-type="group"]');
+  if (!item) {
+    console.log('[DEBUG] dblclick: not a group chat-item');
+    return;
+  }
+  const groupId = item.getAttribute('data-group-id');
+  window.currentGroupId = groupId;
+  window.isViewingGroupInfo = true;
+  console.log('[DEBUG] dblclick on group chat', groupId);
+  fetchGroupDetails(groupId);
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  const searchInput = document.querySelector('.search-container input');
+  const searchButton = document.querySelector('.search-container .all-button');
+
+  // Поиск при каждом изменении поля
+  searchInput.addEventListener('input', function() {
+    if (this.value.trim() === '') {
+      // Показываем все переписки, если поле пустое
+      fetchChats('all');
+    } else {
+      searchChatsAndUsers();
+    }
+  });
+
+  // Можно оставить обработчик Enter для совместимости
+  searchInput.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      searchChatsAndUsers();
+    }
+  });
+
+  // Поиск по кнопке (если нужно)
+  if (searchButton) {
+    searchButton.addEventListener('click', function() {
+      searchChatsAndUsers();
+    });
+  }
+});
+
+    // ...где происходит смена аватарки пользователя...
+profilePicInput.addEventListener('change', function() {
+  const file = this.files[0];
+  if (!file) return;
+  console.log('[DEBUG] Выбран файл для аватарки:', file.name);
+
+  const formData = new FormData();
+  formData.append('profile_pic', file);
+
+  fetch('/update_profile_pic', {
+    method: 'POST',
+    body: formData
+  })
+  .then(res => res.json())
+  .then(data => {
+    console.log('[DEBUG] Ответ сервера на смену аватарки:', data);
+    if (data.success && data.new_pic_url) {
+      profilePic.src = data.new_pic_url + '?t=' + Date.now();
+      console.log('[DEBUG] Новый src для аватарки:', profilePic.src);
+    } else {
+      showNotification('Error updating profile picture', true);
+    }
+  })
+  .catch((err) => {
+    console.error('[DEBUG] Ошибка при смене аватарки:', err);
+    showNotification('Error updating profile picture', true);
+  });
+});
+
+function normalizeAvatarPath(avatar) {
+  if (!avatar) return null;
+  return avatar.replace(/^uploads\//, '');
+}
+
+function addGroupAvatarChangeHandler(groupId) {
+  // Проверяем, есть ли input, если нет — создаём
+  let fileInput = document.getElementById('groupAvatarInput');
+  if (!fileInput) {
+    fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    fileInput.style.display = 'none';
+    fileInput.id = 'groupAvatarInput';
+    document.body.appendChild(fileInput);
+  }
+
+  // Находим аватар группы
+  const groupAvatar = document.querySelector('.group-avatar');
+  if (!groupAvatar) return;
+
+  groupAvatar.addEventListener('dblclick', () => {
+    fileInput.click();
+  });
+
+  fileInput.onchange = function() {
+    const file = this.files[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append('group_avatar', file);
+
+    fetch(`/update_group_avatar/${groupId}`, {
+      method: 'POST',
+      body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success && data.new_avatar_url) {
+        groupAvatar.src = data.new_avatar_url + '?t=' + Date.now();
+        showNotification('Group avatar updated!');
+      } else {
+        showNotification(data.message || 'Error updating group avatar', true);
+      }
+    })
+    .catch(() => showNotification('Error updating group avatar', true));
+  };
+}
+
+// Inside the socket.on('new_message') handler:
+
+socket.on('new_message', (data) => {
+  console.log('New message received:', data);
+  
+  // Check if message belongs to currently active chat
+  const activeChat = document.querySelector('.chat-item.active');
+  if (activeChat) {
+    // ... existing chat message display logic ...
+    
+    // If this is an active chat, mark the message as read immediately
+    if (messageForActiveChat && !isSentByMe) {
+      markMessageAsRead(data.id);
+    }
+  } else {
+    // Message is for a non-active chat, update unread count
+    updateUnreadCount(data);
+  }
+});
+
+// Function to update unread count for a chat item
+function updateUnreadCount(messageData) {
+  const currentUserId = document.body.getAttribute('data-user-id');
+  
+  // Skip if the message is from the current user
+  if (messageData.sender_id == currentUserId) return;
+  
+  let chatItem;
+  if (messageData.group_id) {
+    chatItem = document.querySelector(`.chat-item[data-group-id="${messageData.group_id}"]`);
+  } else {
+    chatItem = document.querySelector(`.chat-item[data-user-id="${messageData.sender_id}"]`);
+  }
+  
+  if (chatItem) {
+    // Get existing unread count
+    let unreadBadge = chatItem.querySelector('.unread-count');
+    const chatItemRight = chatItem.querySelector('.chat-item-right');
+    
+    if (unreadBadge) {
+      // Increment existing badge
+      let count = parseInt(unreadBadge.textContent) || 0;
+      unreadBadge.textContent = count + 1;
+    } else {
+      // Create new badge
+      unreadBadge = document.createElement('div');
+      unreadBadge.className = 'unread-count';
+      unreadBadge.textContent = '1';
+      
+      // Insert it before the time element
+      const timeElement = chatItem.querySelector('.chat-item-time');
+      if (chatItemRight && timeElement) {
+        chatItemRight.insertBefore(unreadBadge, timeElement);
+      }
+    }
+    
+    // Move the chat to the top of the list
+    const sidebar = chatItem.parentNode;
+    if (sidebar) {
+      sidebar.insertBefore(chatItem, sidebar.firstChild);
+    }
+  }
+}
+
+// Update the existing message_read handler
+
+socket.on('message_read', (data) => {
+  // Update the message read status
+  const messageElement = document.querySelector(`.message-container[data-message-id="${data.message_id}"]`);
+  if (messageElement) {
+    const readStatus = messageElement.querySelector('.read-status');
+    if (readStatus) {
+      readStatus.classList.remove('unread');
+      readStatus.classList.add('read');
+      
+      // Заменить на SVG для двойной галочки
+      readStatus.innerHTML = '';
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('width', '16');
+      svg.setAttribute('height', '11');
+      svg.setAttribute('viewBox', '0 0 16 12');
+      
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', 'M15.01 3.316l-.478-.372a.365.365 0 0 0-.51.063L8.666 9.879a.32.32 0 0 1-.484.033l-.358-.325a.319.319 0 0 0-.484.032l-.378.483a.418.418 0 0 0 .036.541l1.32 1.266c.143.14.361.125.484-.033l6.272-8.048a.366.366 0 0 0-.064-.512zm-4.1 0l-.478-.372a.365.365 0 0 0-.51.063L4.566 9.879a.32.32 0 0 1-.484.033L1.891 7.769a.366.366 0 0 0-.515.006l-.423.433a.364.364 0 0 0 .006.514l3.258 3.185c.143.14.361.125.484-.033l6.272-8.048a.365.365 0 0 0-.063-.51z');
+      path.setAttribute('fill', 'currentColor');
+      
+      svg.appendChild(path);
+      readStatus.appendChild(svg);
+    }
+  }
+  
+  updateChatReadStatus();
+});
+
+function updateChatReadStatus() {
+  // Get current active chat
+  const activeChat = document.querySelector('.chat-item.active');
+  if (!activeChat) return;
+  
+  // Check if all messages are read
+  const unreadMessages = document.querySelectorAll('.message-container .read-status.unread');
+  if (unreadMessages.length === 0) {
+    // All messages read, update the sidebar
+    fetch('/get_chats?filter=all')
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          updateChatSidebar(data.chats);
+        }
+      });
+  }
+}
+
+function markMessageAsRead(messageId) {
+  // Only proceed if the socket is connected
+  if (!socket || !socketConnected) {
+    console.log('Socket not connected, cannot mark message as read');
+    return;
+  }
+  
+  socket.emit('mark_read', { message_id: messageId });
+  
+  // Also update UI immediately
+  const messageElement = document.querySelector(`.message-container[data-message-id="${messageId}"]`);
+  if (messageElement) {
+    const readStatus = messageElement.querySelector('.read-status');
+    if (readStatus) {
+      readStatus.classList.remove('unread');
+      readStatus.classList.add('read');
+      readStatus.innerHTML = '✔✔';
+    }
+  }
+}
+
+// Новая функция поиска - ищет только в существующих чатах пользователя
+function searchChatsAndUsers() {
+  const searchInput = document.querySelector('.search-container input');
+  const searchTerm = searchInput.value.trim().toLowerCase();
+  
+  if (!searchTerm) {
+    // Если поле поиска пустое, показываем все чаты
+    fetchChats('all');
+    return;
+  }
+
+  // Получаем все чаты пользователя, а затем фильтруем их на стороне клиента
+  fetch('/get_chats?filter=all')
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Фильтруем чаты по поисковому запросу
+        const filteredChats = data.chats.filter(chat => 
+          chat.name.toLowerCase().includes(searchTerm)
+        );
+        
+        // Обновляем сайдбар отфильтрованными результатами
+        updateChatSidebar(filteredChats);
+        
+        // Если ничего не найдено
+        if (filteredChats.length === 0) {
+          const sidebar = document.querySelector('.sidebar');
+          const noResults = document.createElement('div');
+          noResults.className = 'no-results';
+          noResults.textContent = 'Ничего не найдено';
+          noResults.style.padding = '15px';
+          noResults.style.textAlign = 'center';
+          noResults.style.color = '#666';
+          sidebar.appendChild(noResults);
+        }
+      } else {
+        showNotification('Ошибка поиска', true);
+      }
+    })
+    .catch(error => {
+      console.error('Search error:', error);
+      showNotification('Ошибка поиска. Пожалуйста, попробуйте позже.', true);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const searchInput = document.querySelector('.search-container input');
+  
+  // Поиск при вводе текста с небольшой задержкой
+  let searchTimeout;
+  searchInput.addEventListener('input', function() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      if (this.value.trim() === '') {
+        fetchChats('all');
+      } else {
+        searchChatsAndUsers();
+      }
+    }, 300); // Задержка в 300 мс для улучшения производительности
+  });
+
+  // Поиск при нажатии Enter
+  searchInput.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      searchChatsAndUsers();
+    }
+  });
+});
+  </script>
+</body>
+</html>

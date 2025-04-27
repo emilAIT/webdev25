@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register</title>
+  <link rel="stylesheet" href="/static/css/register.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Konkhmer+Sleokchher&family=Concert+One&family=Jua&display=swap" rel="stylesheet">
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+</head>
+<body>
+    <div class="register-container">
+        <img class="background-image" src="/static/img/image 86.png" alt="Background" />
+        <div class="logo">capybara</div>
+        
+        <form method="POST" action="/register">
+            <input type="text" class="input-field username-field" name="name" placeholder="User Name" required>
+            <input type="password" class="input-field password-field" name="password" placeholder="Password" required>
+            <input type="password" class="input-field confirm-field" name="confirm_password" placeholder="Confirm" required>
+            <input type="email" class="input-field email-field" name="email" placeholder="Email" required>
+            
+            <div class="g-recaptcha" data-sitekey="{{ config['RECAPTCHA_SITE_KEY'] }}"></div>
+            
+            <button type="submit" class="register-button">
+                <span class="register-text">Register</span>
+            </button>
+        </form>
+        <button type="button" class="back-arrow-btn" onclick="window.location.href='/login'" aria-label="Back to Login">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                <circle cx="24" cy="24" r="24" fill="#FDD367" />
+                <path d="M28 34L18 24L28 14" stroke="#7E453D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Модальное окно с гифкой успешной регистрации -->
+    <div id="success-modal" class="success-modal">
+      <div class="success-content">
+        <img src="/static/img/capybara.gif" alt="Успешная регистрация" id="success-gif">
+        <h2>Регистрация успешна!</h2>
+      </div>
+    </div>
+
+    <!-- Скрипт для обработки успешной регистрации -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Обработка формы регистрации
+        const form = document.querySelector('form');
+        
+        form.addEventListener('submit', function(e) {
+          e.preventDefault(); // Предотвращаем обычную отправку формы
+          
+          // Получаем данные формы
+          const formData = new FormData(form);
+          
+          // Отправляем данные на сервер
+          fetch('/register', {
+            method: 'POST',
+            body: formData
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              // Показываем модальное окно с гифкой
+              const modal = document.getElementById('success-modal');
+              modal.style.display = 'flex';
+              
+              // Запускаем конфетти
+              confetti({
+                particleCount: 150,
+                spread: 180,
+                origin: { y: 0.5 },
+                colors: ['#306748', '#FDD367', '#7E453D']
+              });
+              
+              // Длительные конфетти
+              const duration = 3 * 1000;
+              const end = Date.now() + duration;
+              
+              (function frame() {
+                confetti({
+                  particleCount: 2,
+                  angle: 60,
+                  spread: 55,
+                  origin: { x: 0, y: 0.5 },
+                  colors: ['#306748', '#FDD367', '#7E453D']
+                });
+                
+                confetti({
+                  particleCount: 2,
+                  angle: 120,
+                  spread: 55,
+                  origin: { x: 1, y: 0.5 },
+                  colors: ['#306748', '#FDD367', '#7E453D']
+                });
+                
+                if (Date.now() < end) {
+                  requestAnimationFrame(frame);
+                }
+              })();
+              
+              // Скрываем модальное окно и переходим на страницу входа через 3 секунды
+              setTimeout(function() {
+                window.location.href = '/login';
+              }, 3000);
+            } else {
+              // Обработка ошибок регистрации
+              alert(data.message || 'Ошибка при регистрации');
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            alert('Произошла ошибка при регистрации');
+          });
+        });
+      });
+    </script>
+</body>
+</html>

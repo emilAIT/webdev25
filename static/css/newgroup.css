@@ -1,0 +1,233 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Konkhmer Sleokchher', cursive;
+    color: #76536B;
+  }
+  
+  .container {
+    width: 745px;
+    height: 800px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .main-background {
+    width: 745px;
+    height: 800px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    background: #9F6290;
+    border-radius: 70px;
+    border: none;
+    z-index: 1;
+  }
+  
+  .background-image {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0.10;
+    object-fit: cover;
+    z-index: 2;
+  }
+  
+  .title {
+    position: relative;
+    text-align: center;
+    color: #76536B;
+    font-size: 70px;
+    margin-top: 20px;
+    z-index: 3;
+  }
+  
+  .form-section {
+    position: relative;
+    width: 505px;
+    margin: 25px auto;
+    z-index: 3;
+  }
+  
+  .form-label {
+    font-size: 36px;
+    color: white;
+    margin-bottom: 10px;
+    
+    
+  }
+  
+  .input-field {
+    width: 100%;
+    height: 65px;
+    background: #D9D9D9;
+    border-radius: 38.5px;
+    border: 3px solid black;
+    font-size: 36px;
+    font-family: 'Konkhmer Sleokchher', cursive;
+    color: #76536B;
+    text-align: center;
+  }
+  
+  /* Улучшенная стилизация контейнера с прокруткой */
+  .friends-container {
+    width: 100%;
+    max-height: 230px;
+    background: #D9D9D9;
+    border-radius: 40px;
+    padding: 15px 0;
+    overflow-y: auto;
+    border: 3px solid black;
+    
+    /* Создаем эффект градиентного затенения сверху и снизу */
+    background-image: 
+      linear-gradient(to bottom, #D9D9D9 0%, rgba(217, 217, 217, 0.8) 5%, rgba(217, 217, 217, 0.8) 95%, #D9D9D9 100%);
+    
+    /* Плавность прокрутки */
+    scroll-behavior: smooth;
+    
+    /* Стили для Firefox (не поддерживает webkit) */
+    scrollbar-width: thin;
+    scrollbar-color: #76536B #D9D9D9;
+    scrollbar-width: none;        /* Firefox */
+    -ms-overflow-style: none;     /* IE и Edge */
+  }
+  
+  /* Стилизация скроллбара - основная ширина и цвет */
+  .friends-container::-webkit-scrollbar {
+    width: 10px;
+    background-color: transparent;
+    display: none;                /* Chrome, Safari, Opera */
+  }
+  
+  /* Трек скроллбара (фон) */
+  .friends-container::-webkit-scrollbar-track {
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 20px;
+    margin: 15px 0;
+  }
+  
+  /* Сам скроллбар (ползунок) */
+  .friends-container::-webkit-scrollbar-thumb {
+    background-color: #76536B;
+    border-radius: 20px;
+    border: 3px solid transparent;
+    background-clip: padding-box;
+    transition: background-color 0.3s;
+  }
+  
+  /* Эффект при наведении на скроллбар */
+  .friends-container::-webkit-scrollbar-thumb:hover {
+    background-color: #5a3f51;
+  }
+  
+  /* Нажатый скроллбар */
+  .friends-container::-webkit-scrollbar-thumb:active {
+    background-color: #4a3243;
+  }
+  
+  /* Добавляем эффект тени для списка */
+  .friends-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    position: relative;
+  }
+  
+  /* Эффект при наведении на элемент списка */
+  .friend-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 20px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+    transition: background-color 0.2s;
+  }
+  
+  .friend-item:hover {
+    background-color: rgba(118, 83, 107, 0.1);
+  }
+  
+  .friend-item:last-child {
+    border-bottom: none;
+  }
+  
+  .friend-status {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    border: 1px solid black;
+    margin-left: 15px;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    padding: 0;
+  }
+  
+  /* Выбран для включения в группу - зеленый */
+  .friend-status.selected {
+    background-color: #5BDA68;
+  }
+  
+  /* Не выбран для включения в группу - красный */
+  .friend-status.not-selected {
+    background-color: #DA5B5D;
+  }
+  
+  /* Эффект наведения */
+  .friend-status:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 5px rgba(0,0,0,0.3);
+  }
+  
+  /* Эффект нажатия */
+  .friend-status:active {
+    transform: scale(0.95);
+  }
+  
+  .friend-name {
+    flex-grow: 1;
+    font-size: 32px;
+    text-align: left;
+  }
+  
+  .friend-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    margin-right: 15px;
+  }
+  
+  .create-button {
+    position: relative;
+    display: block;
+    width: 505px;
+    height: 65px;
+    margin: 25px auto;
+    background: #794A6D;
+    border-radius: 38.5px;
+    border: none;
+    color: white;
+    font-size: 42px;
+    font-family: 'Konkhmer Sleokchher', cursive;
+    cursor: pointer;
+    z-index: 3;
+    transition: background-color 0.3s, transform 0.2s;
+  }
+  
+  .create-button:hover {
+    background: #6b3f61;
+    transform: scale(1.02);
+  }
+  
+  .create-button:active {
+    transform: scale(0.98);
+  }
+
+  /* mainWindow.css, newgroup.css, groupinfoadmin.css, groupinfomember.css */
+  @keyframes fadeInList {
+    from { opacity: 0; transform: translateY(20px);}
+    to { opacity: 1; transform: translateY(0);}
+  }
+  .chat-item, .friend-item, .member {
+    animation: fadeInList 0.4s cubic-bezier(.4,0,.2,1);
+  }

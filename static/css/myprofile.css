@@ -1,0 +1,149 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Konkhmer Sleokchher', cursive;
+  }
+  
+  .container {
+    width: 745px;
+    height: 800px;
+    position: relative;
+    font-family: 'Konkhmer Sleokchher', cursive;
+  }
+  
+  .main-background {
+    width: 745px;
+    height: 800px;
+    left: 0px;
+    top: 0px;
+    position: absolute;
+    background: #FDD367;
+    border-radius: 70px;
+    border: none;
+  }
+  
+  .background-image {
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    position: absolute;
+    opacity: 0.08;
+    border-radius: 70px;
+    object-fit: cover; /* Чтобы картинка не искажалась */
+    z-index: 0;
+  }
+  
+  .title {
+    width: 400px;
+    height: 70px;
+    position: absolute;
+    text-align: center;
+    color: #76536B;
+    font-size: 60px;
+    font-family: 'Konkhmer Sleokchher', cursive;
+    font-weight: 400;
+    word-wrap: break-word;
+    top: 20px;
+    left: 170px;
+  }
+  
+  .profile-pic-container {
+    position: absolute;
+    top: 100px;
+    left: 270px;
+  }
+  
+  .profile-pic {
+    width: 200px;
+    height: 200px;
+    border-radius: 100px;
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+  
+  .profile-pic:hover {
+    box-shadow: 0 4px 24px #FDD36788;
+    transform: scale(1.04);
+  }
+  
+  .profile-pic, .group-avatar {
+    animation: pulseGlow 2s infinite alternate;
+  }
+  
+  @keyframes pulseGlow {
+    0% { box-shadow: 0 0 0 0 #FDD36744; }
+    100% { box-shadow: 0 0 24px 8px #FDD36788; }
+  }
+  
+  /* Фиксированное позиционирование для всех меток и значений */
+  .field-label, .field-value {
+    position: absolute;
+    left: 80px; /* Фиксированная позиция слева */
+    text-align: left;
+    width: 400px; /* Зафиксированная ширина */
+  }
+
+    /* Стили для подписей полей */
+  .field-label {
+    font-size: 18px; /* Увеличенный размер текста для подписей */
+    color: #5A3C52; /* Более тёмный оттенок фиолетового */
+    font-weight: bold; /* Жирный текст */
+    top: auto;
+    margin-bottom: 18px;  /* Добавлено больше расстояния */
+    letter-spacing: 0.5px;
+  }
+  
+  /* Стили для значений полей */
+  .field-value {
+    font-size: 38px; /* Значительно увеличенный размер для значений */
+    color: #76536B; /* Оригинальный цвет, можно изменить */
+    font-weight: 500; /* Полужирный текст */
+  }
+
+  .field-value input {
+    width: 100%;
+    box-sizing: border-box;
+    text-align: left;
+  }
+  
+  .nickname-label { top: 300px; }
+  .nickname-value { top: 315px; }
+
+  .name-label { top: 390px; }
+  .name-value { top: 405px; }
+
+  .password-label { top: 480px; }
+  .password-value { top: 495px; }
+
+  .dob-label { top: 570px; }
+  .dob-value { top: 585px; }
+
+  .bio-label { top: 660px; }
+  .bio-value { top: 675px; }
+
+  .email-label { top: 750px; }
+  .email-value { top: 765px; }
+  
+
+  .change-button {
+    position: absolute;
+    top: 250px;
+    right: 40px;
+    background: transparent;
+    border: none;
+    color: #76536B;
+    font-size: 36px;
+    font-family: 'Konkhmer Sleokchher', cursive;
+    cursor: pointer;
+    z-index: 2;
+    padding: 10px 15px;
+    transition: transform 0.2s;
+  }
+
+  .change-button:hover {
+    transform: scale(1.05);
+  }
+
+  .change-button:active {
+    transform: scale(0.95);
+  }

@@ -1,0 +1,283 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Konkhmer Sleokchher', cursive;
+}
+
+.container {
+  width: 100%;
+  height: 100%;
+  background: #A9A9A9;
+  border-radius: 25px;
+  position: relative;
+  overflow: hidden;
+}
+
+.bg-image {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0.10;
+  border-radius: 25px;
+  z-index: 0;
+  object-fit: cover;
+}
+
+.header {
+  position: relative;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding-top: 15px;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  -webkit-text-stroke: 0.1px black;
+}
+
+.group-title {
+  color: white;
+  font-size: 2.5rem;
+  text-align: center;
+  margin: 0;
+  line-height: 1;
+  padding-top: 5px;
+}
+
+.group-subtitle {
+  color: white;
+  font-size: 1.2rem;
+  text-align: left;
+  margin-top: 5px;
+  -webkit-text-stroke: 1px black;
+  text-shadow: 
+    -1px -1px 0 #000,
+    1px -1px 0 #000,
+    -1px 1px 0 #000,
+    1px 1px 0 #000; 
+}
+
+.avatar-container {
+  position: absolute;
+  top: 10px;
+  left: 15px;
+  margin: 0;
+  z-index: 10;
+}
+
+.group-avatar {
+  width: 110px;
+  height: 110px;
+  border-radius: 15px;
+}
+
+.members-section {
+  position: relative;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: 90%;
+  margin: 10px auto;
+}
+
+.members-title {
+  color: white;
+  font-size: 1.5rem;
+  text-align: left;
+  margin-bottom: 10px;
+  padding-left: 15px;
+  -webkit-text-stroke: 1px black !important;
+}
+
+.members-list {
+  background: #D9D9D9;
+  border-radius: 15px;
+  padding: 10px;
+  min-height: 100px;
+  max-height: 30vh;
+  overflow-y: auto;
+  scrollbar-width: none;        /* Firefox */
+  -ms-overflow-style: none;     /* IE и Edge */
+}
+
+.members-list::-webkit-scrollbar {
+  display: none;                /* Chrome, Safari, Opera */
+}
+
+.member {
+  display: flex;
+  align-items: center;
+  padding: 5px 15px;
+  border-bottom: 1px solid black;
+  animation: fadeInList 0.4s cubic-bezier(.4,0,.2,1);
+}
+
+.member:last-child {
+  border-bottom: none;
+}
+
+.member-avatar {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.member-name {
+  color: #76536B;
+  font-size: 1.2rem;
+  flex-grow: 1;
+}
+
+.controls {
+  position: relative;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
+  width: 90%;
+  margin: 10px auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Стили для кнопок управления */
+.control-button {
+  height: 40px;
+  width: 100%;
+  background: #706F70;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: none;
+  font-family: 'Konkhmer Sleokchher', cursive;
+  padding: 0;
+  margin-bottom: 3px;
+  transition: background-color 0.2s;
+}
+
+.control-button:hover {
+  background: #858485;
+}
+
+.control-button:active {
+  background: #5a595a;
+  transform: scale(0.98);
+}
+
+.button-text {
+  color: white;
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+
+/* Стиль для кнопки-карандаша */
+.edit-button {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  width: 48px;  /* Увеличили с 36px до 48px */
+  height: 48px; /* Увеличили с 36px до 48px */
+  background-color: white !important; /* Добавили белый фон */
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 9999 !important;
+  border: 2px solid #333; /* Добавили заметную границу */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3); /* Добавили тень */
+  transition: all 0.2s ease;
+}
+
+/* Эффект при наведении */
+.edit-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 3px 7px rgba(0,0,0,0.4);
+}
+
+/* Эффект при нажатии */
+.edit-button:active {
+  transform: scale(0.95);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+/* Стиль для SVG */
+.edit-button svg {
+  width: 32px; /* Увеличили размер SVG */
+  height: 32px;
+}
+
+.edit-button svg path {
+  fill: #222 !important;
+  stroke: #222 !important;
+}
+
+.separator {
+  position: relative;
+  width: 100%;
+  height: 2px;
+  background-color: rgba(7, 7, 7, 0.5);
+  margin: 10px 0;
+  z-index: 1;
+}
+
+
+/* Стили для пользователя-администратора */
+.admin-user {
+  background-color: rgba(255, 255, 0, 0.05);
+}
+
+/* Стиль для звездочки администратора */
+.admin-star {
+  color: gold;
+  font-size: 1.2rem;
+  margin-left: auto;
+  text-shadow: 0px 0px 2px rgba(0, 0, 0, 0.3);
+}
+
+
+/* Responsive adjustments for chat-window */
+.chat-window .container {
+  height: 100%;
+  width: 100%;
+}
+
+/*.chat-window .members-list {
+  height: calc(100% - 230px);
+  max-height: none;
+} */
+
+@media (max-height: 600px) {
+  .chat-window .members-list {
+    height: calc(100% - 200px);
+  }
+  
+  .chat-window .group-title {
+    font-size: 2rem;
+  }
+  
+  .chat-window .control-button {
+    height: 35px;
+  }
+  
+  .chat-window .button-text {
+    font-size: 1rem;
+  }
+}
+
+/* mainWindow.css, newgroup.css, groupinfoadmin.css, groupinfomember.css */
+@keyframes fadeInList {
+  from { opacity: 0; transform: translateY(20px);}
+  to { opacity: 1; transform: translateY(0);}
+}
+.chat-item, .friend-item, .member {
+  animation: fadeInList 0.4s cubic-bezier(.4,0,.2,1);
+}

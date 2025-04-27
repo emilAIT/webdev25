@@ -1,0 +1,1140 @@
+body {
+    margin: 0;
+    font-family: 'Konkhmer Sleokchher', cursive;
+    background-color: #306748;
+    color: white;
+    overflow: hidden;
+  }
+  
+  .app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+  
+  /* Top search bar */
+ .search-container {
+    display: flex;
+    padding: 10px;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+  }
+  
+  .search-bar {
+    width: 400px;
+    height: 60px;
+    background-color: #FDD367;
+    border-radius: 25px;
+    color: #7E453D;
+    font-size: 32px;
+    font-weight: 400;
+    border: none;
+    padding: 0 20px;
+    text-align: center;
+    font-family: 'Konkhmer Sleokchher', cursive;
+    outline: none;
+  }
+  
+  .search-bar::placeholder {
+    color: #7E453D;
+    opacity: 1;
+  }
+  
+  .all-button {
+    width: 400px;
+    height: 60px;
+    background-color: #FDD367;
+    border-radius: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #7E453D;
+    font-size: 32px;
+    font-weight: 400;
+    border: none;
+    font-family: 'Konkhmer Sleokchher', cursive;
+    cursor: pointer;
+  }
+  
+  .all-button:hover {
+    background-color: #ffcb4f;
+  }
+  
+  .all-button:active {
+    background-color: #ffb81d;
+  }
+  
+  /* Filter tabs */
+  .filter-tabs {
+    display: flex;
+    justify-content: center;
+    padding: 5px 0;
+    gap: 30px;
+    margin-bottom: 10px;
+  }
+  
+  .tab {
+    width: 250px;
+    height: 50px;
+    background-color: #FDD367;
+    border-radius: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #7E453D;
+    font-size: 28px;
+    font-weight: 400;
+    cursor: pointer;
+    border: none;
+    padding: 0;
+    font-family: 'Konkhmer Sleokchher', cursive;
+  }
+  
+  .tab:hover {
+    background-color: #ffcb4f;
+  }
+  
+  .tab:focus {
+    outline: 2px solid #7E453D;
+    outline-offset: 2px;
+  }
+  
+  .tab.active {
+    background-color: #ff9d00;
+  }
+  
+  /* Content area */
+  .content {
+    display: flex;
+    flex-grow: 1;
+    height: calc(100vh - 160px);
+  }
+  
+  /* Chat list sidebar */
+  .sidebar {
+    width: 500px;
+    background-color: #F0FAEF;
+    border-radius: 40px;
+    margin-left: 9px;
+    overflow-y: auto;
+  }
+  
+  .chat-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 15px;
+    border-bottom: 1px solid black;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    align-items: center;
+  }
+  
+  .chat-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .chat-item.active {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-left: 3px solid #FDD367;
+  }
+  
+  .chat-item-name {
+    display: flex;
+    align-items: center;
+    color: #76536B;
+    font-size: 24px;
+    max-width: 70%; /* Ограничиваем ширину для длинных имен */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .chat-item img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+  }
+  
+  .chat-item-time {
+    color: #76536B;
+    font-size: 24px;
+    text-align: right; /* Изменено с center на right */
+    min-width: 48px;
+    margin-left: auto; /* Добавлено для выравнивания по правому краю */
+    opacity: 0.7;
+    padding-right: 10px; /* Добавляем отступ справа */
+  }
+  
+  /* Chat window */
+  .chat-window {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 1000px; /* например, 900px или нужное вам значение */
+    width: 100%;
+    background-color: #A9A9A9;
+    border-radius: 40px;
+    margin-left: 16px;
+    margin-right: 7px;
+    display: flex;
+    flex-direction: column;
+    position: relative; /* Если еще не задано */
+    overflow: hidden; /* Обрезать содержимое по скруглению */
+    min-width: 0; /* Важно для flex! */
+  }
+
+  .status-circle {
+    width: 35px;
+    height: 35px;
+    background: #FDD367;
+    border-radius: 9999px;
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 10;
+    border: none; /* Убираем стандартную границу кнопки */
+    padding: 0; /* Убираем стандартный отступ кнопки */
+    cursor: pointer; /* Курсор-указатель для обозначения интерактивности */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  /* Эффект при наведении */
+  .status-circle:hover {
+    transform: scale(1.05);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Эффект при нажатии */
+  .status-circle:active {
+    transform: scale(0.95);
+  }
+  
+  .chat-messages {
+    flex-grow: 1;
+    padding: 15px;
+    overflow-y: auto;
+    overflow-x: hidden; /* Запретить горизонтальный скролл */
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0; /* Важно для flex! */
+  }
+  
+  .date-label {
+    text-align: center;
+    color: #696868;
+    font-size: 24px;
+    margin: 15px 0;
+  }
+  
+  /* Общий контейнер для сообщений */
+  .message-container {
+    display: flex;
+    margin-bottom: 10px;
+    width: 100%;
+    min-width: 0; /* Важно для flex! */
+  }
+
+  /* Контейнер для отправленных (наших) сообщений */
+  .sent-container {
+    justify-content: flex-end; /* Отправленные справа */
+  }
+  
+
+  /* Контейнер для полученных сообщений */
+  .received-container {
+    justify-content: flex-start; /* Полученные слева */
+  }
+
+  /* Базовый стиль для времени */
+  .message-time {
+    font-size: 11px;
+    color: #1D3557;
+  }
+
+  /* Индикаторы прочтения в стиле WhatsApp */
+  .read-status {
+    display: flex;
+    align-items: center;
+  }
+
+  .read-status svg {
+    width: 16px;
+    height: 11px;
+  }
+
+  /* Стиль для прочитанных сообщений (две галочки) */
+  .read-status.read {
+    color: #040404; /* Голубой цвет как в WhatsApp */
+  }
+  .read-status.read svg {
+    width: 16px;
+    height: 11px;
+  }
+
+  /* Стиль для непрочитанных сообщений (одна галочка) */
+  .read-status.unread {
+    color: #040404;
+  }
+  .read-status.unread svg {
+    width: 14px;
+    height: 11px;
+  }
+
+  /* Время для отправленных (наших) сообщений - слева */
+  .sent-time {
+    left: 10px;
+  }
+
+  /* Время для полученных сообщений - справа */
+  .received-time {
+    right: 10px;
+  }
+
+  /* Сами сообщения */
+  .message {
+    padding: 10px 15px;
+    border-radius: 18px;
+    max-width: 60%;
+    min-width: 60px;
+    word-break: break-all;
+    overflow-wrap: break-word;
+    box-sizing: border-box;
+    display: inline-block;
+    white-space: pre-line;
+    margin-bottom: 5px;
+    position: relative;
+    padding-bottom: 25px;
+  }
+
+  .sent {
+    background: #94F0D3;
+    color: #76536B;
+    border-bottom-right-radius: 5px; /* Эффект пузыря */
+  }
+
+  /* Add this new CSS to create space for edit button */
+.message.sent {
+  padding-right: 35px; /* Add right padding for edit button space */
+}
+
+.message.sent .message-content {
+  max-width: calc(100% - 10px); /* Ensure content doesn't overflow */
+}
+
+  .received {
+    background: #94CCF0;
+    color: #76536B;
+    border-bottom-left-radius: 5px; /* Эффект пузыря */
+  }
+
+  .message-footer {
+    position: absolute;
+    bottom: 5px;
+    right: 10px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  
+  /* Для наших сообщений - справа */
+  .sent .message-footer {
+    right: 10px;
+  }
+  
+  .input-box {
+    padding: 8px;
+    background-color: #F0FAEF;
+    display: flex;
+    margin: 8px;
+    border-radius: 25px;
+  }
+  
+  .input-box input {
+    flex-grow: 1;
+    padding: 10px;
+    border: none;
+    font-size: 16px;
+    background-color: transparent;
+    outline: none;
+  }
+  
+  .profile-pic {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    position: absolute;
+    top: 15px;
+    left: 15px;
+  }
+  
+  .menu-button {
+    cursor: pointer;
+    transition: transform 0.2s;
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .menu-button:hover {
+    opacity: 0.8;
+  }
+  
+  .menu-button:active {
+    transform: scale(0.95);
+  }
+  
+  .menu-line {
+    width: 40px;
+    height: 12px;
+    background: #FDD367;
+    border-radius: 10px;
+  }
+  
+  .input-box {
+    padding: 8px;
+    background-color: #F0FAEF;
+    display: flex;
+    margin: 8px;
+    border-radius: 25px;
+    align-items: center;
+  }
+  
+  .input-box input {
+    flex-grow: 1;
+    padding: 10px;
+    border: none;
+    font-size: 16px;
+    background-color: transparent;
+    outline: none;
+  }
+  
+  .send-button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #FDD367;
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: background-color 0.2s;
+  }
+  
+  .send-button:hover {
+    background-color: #ffcb4f;
+  }
+  
+  .send-button:active {
+    background-color: #ffb81d;
+  }
+
+  .options-container {
+    position: relative;
+  }
+
+  /* Стили для кнопки с тремя точками */
+.options-button {
+  background: transparent;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  margin-right: 10px;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.options-button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 50%;
+}
+
+.dot {
+  width: 5px;
+  height: 5px;
+  background-color: #306748;
+  border-radius: 50%;
+  margin: 2px 0;
+}
+
+/* Стили для выпадающего меню */
+.options-menu {
+  position: absolute;
+  bottom: 54px;
+  left: 0;
+  background: #306748;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px 0 rgba(48, 103, 72, 0.12);
+  padding: 8px 14px;      /* увеличенный внутренний отступ */
+  display: none;
+  flex-direction: row;
+  gap: 10px;              /* больше расстояние между иконками */
+  min-width: 0;
+  min-height: 0;
+  z-index: 100;
+}
+
+.options-menu.visible {
+  display: flex;
+}
+
+.option-btn {
+  background: none;
+  border: none;
+  padding: 2px 4px;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.option-btn svg {
+  width: 28px;
+  height: 28px;
+}
+
+.option-btn:hover {
+  background: #244c36;
+}
+
+
+.option-btn svg * {
+  stroke: #FDD367 !important;
+  fill: none !important;
+}
+
+/* Стиль для кнопки редактирования (карандаш) */
+.edit-button {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  /* opacity: 0; Скрыт по умолчанию */
+  transition: opacity 0.2s, background-color 0.2s;
+  border: none;
+}
+
+.edit-button svg path {
+  fill: #1f4e28 !important;   /* Чёрный цвет карандаша */
+  stroke: #111 !important; /* На случай если используется stroke */
+}
+
+/* Показываем кнопку редактирования при наведении на сообщение */
+.message.sent:hover .edit-button {
+  opacity: 1;
+}
+
+.edit-button:hover {
+  background-color: rgba(20, 77, 24, 0.4);
+}
+
+/* Стиль для всплывающего зеленого виджета */
+.edit-widget {
+  position: absolute;
+  top: -32px;
+  right: 6px;
+  background-color: #306748;
+  border-radius: 6px;
+  padding: 3px 6px;
+  display: flex;
+  gap: 4px;
+  z-index: 100;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.12);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s, visibility 0.2s;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Показываем виджет */
+.edit-widget.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Стрелка для виджета */
+.edit-widget:after {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  right: 10px;
+  border-width: 10px 10px 0;
+  border-style: solid;
+  border-color: #306748 transparent transparent;
+}
+
+/* Стили для кнопок в виджете */
+.widget-button {
+  padding: 2px 4px;
+  border: none;
+  border-radius: 4px;
+  color: #FDD367;
+  background: none;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.edit-btn {
+  background-color: #306748;
+}
+
+.delete-btn {
+  background-color: #306748;
+}
+
+.widget-button:hover {
+  filter: brightness(1.1);
+}
+
+/* Жёлтый круг-кнопка */
+.status-circle {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  width: 42px;
+  height: 42px;
+  background: #FDD367;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 20;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: box-shadow 0.2s;
+}
+.status-circle:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+}
+
+.delete-chat-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.delete-chat-btn svg path {
+  stroke: #FDD367 !important; /* жёлтая иконка */
+}
+.delete-chat-btn:hover svg path {
+  stroke: #ffb81d !important; /* чуть темнее при наведении */
+}
+
+/* Заголовок группы */
+.group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px;
+  border-bottom: 1px solid #ccc;
+  background-color: #f9f9f9;
+  border-top-left-radius: 40px;
+  border-top-right-radius: 40px;
+}
+
+.group-info {
+  display: flex;
+  align-items: center;
+}
+
+.group-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-right: 15px;
+}
+
+.group-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.group-name {
+  font-weight: bold;
+  font-size: 18px;
+  color: #333;
+}
+
+.group-members {
+  font-size: 14px;
+  color: #666;
+}
+
+/* Стили для сообщений с именами и аватарами */
+.sender-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.sender-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.sender-name {
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Контейнер для сообщений в групповом чате */
+.message-container.received-container.group-message {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+
+.chat-item {
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.chat-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.chat-item.active {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-left: 3px solid #FDD367;
+}
+
+/* Иконка группы для группового чата */
+.chat-item.group-chat-item .chat-item-name img {
+  border: 2px solid #FDD367;
+}
+
+.delete-chat-widget {
+  display: none;
+  position: absolute;
+  top: 54px;
+  right: 18px;
+  background: #306748;
+  border-radius: 7px;
+  box-shadow: 0 2px 8px 0 rgba(48, 103, 72, 0.12);
+  padding: 2px 4px;      /* Ещё меньше внутренний отступ */
+  z-index: 30;
+  align-items: center;
+  min-width: 28px;       /* Минимальная ширина */
+  min-height: 28px;      /* Минимальная высота */
+}
+
+.delete-chat-widget.visible {
+  display: flex;
+}
+
+.delete-chat-btn,
+.block-user-btn {
+  background: #306748; /* или ваш зеленый */
+  border: none;
+  border-radius: 50%;
+  padding: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.block-user-btn svg {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.block-user-btn:hover svg circle,
+.block-user-btn:hover svg line {
+  stroke: #ffb81d !important;
+}
+
+/* Стили для поисковой строки */
+.search-container input {
+  width: 400px;
+  height: 60px;
+  background-color: #FDD367;
+  border-radius: 25px;
+  color: #7E453D;
+  font-size: 32px;
+  font-weight: 400;
+  border: none;
+  padding: 0 20px;
+  text-align: center;
+  font-family: 'Konkhmer Sleokchher', cursive;
+  outline: none;
+}
+
+.search-container input::placeholder {
+  color: #7E453D;
+  opacity: 1;
+}
+
+/* Стили для выпадающего фильтра чатов */
+.filter-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+/* Улучшенный стиль для кнопок .filter-option в выпадающем фильтре */
+.filter-dropdown-content {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 110%;
+  background: #fffbe9;
+  min-width: 170px;
+  box-shadow: 0 8px 24px 0 rgba(48, 103, 72, 0.18);
+  border-radius: 18px;
+  z-index: 10;
+  padding: 10px 0;
+  animation: fadeIn 0.2s;
+  border: 2px solid #fdd367;
+}
+
+
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px);}
+  to { opacity: 1; transform: translateY(0);}
+}
+
+.filter-btn {
+  width: 120px;
+  height: 40px;
+  background-color: #FDD367;
+  border-radius: 20px;
+  color: #7E453D;
+  font-size: 20px;
+  font-family: 'Konkhmer Sleokchher', cursive;
+  border: none;
+  margin: 0 8px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.filter-btn.active {
+  background-color: #ffb81d; /* Темнее */
+  color: #7E453D;
+  font-weight: bold;
+}
+
+.filter-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.filter-dropdown-content {
+  display: none;
+  position: absolute;
+  right: 0;
+  background-color: #f9f9f9;
+  min-width: 120px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.filter-dropdown-content.show {
+  display: block;
+  width: 400px;
+  height: auto;
+  min-height: 60px;
+  background-color: transparent;
+  border-radius: 25px;
+  box-shadow: 0 4px 24px 0 rgba(48, 103, 72, 0.18);
+  border: none;
+  padding: 0px 0;
+  margin-top: 8px;
+  z-index: 10;
+  transition: box-shadow 0.2s, background 0.2s;
+  align-items: center;
+  justify-content: center;
+}
+
+.filter-option {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  text-align: left;
+  border: none;
+  background: none;
+  width: 100%;
+  cursor: pointer;
+}
+
+.filter-option:hover {
+  background-color: #f1f1f1;
+}
+
+/* Styles for modal dialogs */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background-color: #306748;
+  padding: 20px;
+  border-radius: 20px;
+  width: 400px;
+  max-width: 80%;
+  color: white;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.modal-title {
+  font-size: 24px;
+  margin: 0;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: white;
+}
+
+.modal-body {
+  margin-bottom: 15px;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.modal-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: 'Konkhmer Sleokchher', cursive;
+}
+
+.confirm-button {
+  background-color: #FDD367;
+  color: #7E453D;
+}
+
+.cancel-button {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+.input-field {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  font-family: 'Konkhmer Sleokchher', cursive;
+}
+
+#imageModal {
+  transition: opacity 0.2s;
+}
+#imageModal img {
+  border-radius: 10px;
+  box-shadow: 0 0 30px #000;
+}
+
+/* Скрыть скроллбар, но оставить прокрутку */
+.chat-messages, .sidebar {
+  scrollbar-width: none;        /* Firefox */
+  -ms-overflow-style: none;     /* IE и Edge */
+}
+
+.chat-messages::-webkit-scrollbar,
+.sidebar::-webkit-scrollbar {
+  display: none;                /* Chrome, Safari, Opera */
+}
+
+.chat-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  /* ... */
+}
+.chat-item-time {
+  color: #76536B;
+  font-size: 24px;
+  text-align: right; /* Изменено с center на right */
+  min-width: 48px;
+  margin-left: auto; /* Добавлено для выравнивания по правому краю */
+  opacity: 0.7;
+  padding-right: 10px; /* Добавляем отступ справа */
+}
+
+/* Добавьте в mainWindow.css или свой файл стилей */
+.chat-upload-spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  width: 200px;
+  margin: 10px auto;
+}
+.chat-upload-spinner .loader {
+  border: 8px solid #f3f3f3;
+  border-top: 8px solid #FDD367;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg);}
+  100% { transform: rotate(360deg);}
+}
+
+/* Add these styles to the end of your CSS file */
+
+.chat-item-right {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.unread-count {
+  background-color: #FDD367;
+  color: #7E453D;
+  border-radius: 50%;
+  min-width: 20px;
+  height: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2px;
+  margin-right: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  transition: transform 0.2s, box-shadow 0.2s;
+  animation: popUnread 0.3s;
+}
+
+@keyframes popUnread {
+  0% { transform: scale(0.5);}
+  70% { transform: scale(1.2);}
+  100% { transform: scale(1);}
+}
+
+/* Стили для кнопок .filter-option в стиле самой filter-dropdown */
+.filter-option {
+  font-family: 'Konkhmer Sleokchher', cursive;
+  color: #7E453D;
+  font-size: 22px;
+  padding: 16px 36px;
+  background: #FDD367;
+  border: none;
+  width: 100%;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, font-weight 0.18s, box-shadow 0.18s;
+  outline: none;
+  border-radius: 25px;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 8px 0 rgba(48, 103, 72, 0.10);
+  width: 400;
+  height: 40;
+}
+
+.filter-option:not(:last-child) {
+  border-bottom: none;
+}
+
+.filter-option:hover,
+.filter-option.active {
+  background: #ffcb4f;
+  color: #306748;
+  font-weight: bold;
+  box-shadow: 0 4px 16px 0 rgba(253, 211, 103, 0.15);
+}
+
+/* mainWindow.css, register.css, settings.css */
+button, .tab, .all-button, .register-button, .create-button, .add-button, .control-button {
+  transition: transform 0.15s cubic-bezier(.4,0,.2,1), box-shadow 0.15s;
+}
+button:hover, .tab:hover, .all-button:hover, .register-button:hover, .create-button:hover, .add-button:hover, .control-button:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 6px 24px 0 rgba(48, 103, 72, 0.13);
+}
+button:active, .tab:active, .all-button:active, .register-button:active, .create-button:active, .add-button:active, .control-button:active {
+  transform: scale(0.97);
+}
+
+/* mainWindow.css */
+.filter-dropdown-content.show {
+  animation: fadeInDropdown 0.25s cubic-bezier(.4,0,.2,1);
+}
+@keyframes fadeInDropdown {
+  from { opacity: 0; transform: translateY(10px);}
+  to { opacity: 1; transform: translateY(0);}
+}
+
+/* mainWindow.css, newgroup.css, groupinfoadmin.css, groupinfomember.css */
+@keyframes fadeInList {
+  from { opacity: 0; transform: translateY(20px);}
+  to { opacity: 1; transform: translateY(0);}
+}
+.chat-item, .friend-item, .member {
+  animation: fadeInList 0.4s cubic-bezier(.4,0,.2,1);
+}
+
+.profile-pic, .group-avatar {
+  animation: pulseGlow 2s infinite alternate;
+}
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 0 0 #FDD36744; }
+  100% { box-shadow: 0 0 24px 8px #FDD36788; }
+}
+

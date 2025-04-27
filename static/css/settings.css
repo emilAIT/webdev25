@@ -1,0 +1,250 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    height: 100%;
+    width: 100%;
+  }
+  
+  .container {
+    width: 1600px;
+    height: 1024px;
+    position: relative;
+    background: #306748;
+    overflow: hidden;
+    margin: 0 auto;
+  }
+  
+  .profile-btn {
+    width: 609px;
+    height: 85px;
+    left: 50px;
+    top: 114px;
+    position: absolute;
+    background: #E39451;
+    border-radius: 35px;
+    border: none;
+    color: white;
+    font-size: 48px;
+    font-family: 'Konkhmer Sleokchher', cursive;
+    font-weight: 400;
+    text-align: left;
+    padding-left: 180px;
+    cursor: pointer;
+  }
+  
+  .invite-btn {
+    width: 621px;
+    height: 85px;
+    left: 38px;
+    top: 225px;
+    position: absolute;
+    background: #E39451;
+    border-radius: 35px;
+    border: none;
+    color: white;
+    font-size: 48px;
+    font-family: 'Konkhmer Sleokchher', cursive;
+    font-weight: 400;
+    text-align: left;
+    padding-left: 59px;
+    cursor: pointer;
+  }
+  
+  .create-group-btn {
+    width: 621px;
+    height: 85px;
+    left: 38px;
+    top: 332px;
+    position: absolute;
+    background: #E39451;
+    border-radius: 35px;
+    border: none;
+    color: white;
+    font-size: 48px;
+    font-family: 'Konkhmer Sleokchher', cursive;
+    font-weight: 400;
+    text-align: left;
+    padding-left: 59px;
+    cursor: pointer;
+  }
+  
+  .back-btn {
+    width: 309px;
+    height: 85px;
+    left: 38px;
+    top: 650px; /* Changed from 848px to make it more visible */
+    position: absolute;
+    background: #FDD367;
+    border-radius: 35px;
+    border: none;
+    color: #7E453D;
+    font-size: 48px;
+    font-family: 'Konkhmer Sleokchher', cursive;
+    font-weight: 400;
+    text-align: center;
+    cursor: pointer;
+    z-index: 10; 
+    display: block; /* Ensure it's displayed */
+    visibility: visible; /* Explicitly set visibility */
+  }
+  
+  .exit-btn {
+    width: 621px;
+    height: 85px;
+    left: 38px;
+    top: 447px;
+    position: absolute;
+    background: #E39451;
+    border-radius: 35px;
+    border: none;
+    color: white;
+    font-size: 48px;
+    font-family: 'Konkhmer Sleokchher', cursive;
+    font-weight: 400;
+    text-align: left;
+    padding-left: 47px;
+    cursor: pointer;
+  }
+  
+  .right-panel {
+    position: absolute;
+    top: -10px; /* Сохраняем то же положение */
+    right: 60px; /* Сохраняем то же положение */
+    width: calc(50% - 0px); /* Сохраняем ту же ширину */
+    height: calc(84% - 0px); /* Сохраняем ту же высоту */
+    background-color: #FDD367;
+    overflow: hidden; /* Меняем overflow-y: auto на overflow: hidden */
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    display: none;
+    z-index: 5;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    margin: 20px; /* Сохраняем те же отступы */
+    opacity: 0;
+    transform: translateX(60px) scale(0.98);
+    transition: opacity 0.35s cubic-bezier(.4,0,.2,1), transform 0.35s cubic-bezier(.4,0,.2,1);
+  }
+  
+  
+  /* Видимость правой панели */
+  .right-panel.visible {
+    display: block;
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  
+    /* Стили для содержимого панели */
+  .right-panel iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 16px;
+    background: transparent;
+    overflow: hidden !important;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE и Edge */
+  }
+  
+  /* Скрываем скроллбары в Webkit браузерах (Chrome, Safari) */
+  .right-panel iframe::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+  
+  .profile-pic-container {
+    width: 185px;
+    height: 176px;
+    left: 4px;
+    top: 23px;
+    position: absolute;
+    background: white;
+    overflow: hidden;
+    border-radius: 100px;
+  }
+  
+  .profile-pic {
+    width: 158px;
+    height: 158px;
+    left: 14px;
+    top: 9px;
+    position: absolute;
+    border-radius: 172px;
+  }
+  
+  .title-text {
+    left: 238px;
+    top: -32px;
+    position: absolute;
+    text-align: center;
+    color: white;
+    font-size: 96px;
+    font-family: 'Konkhmer Sleokchher', cursive;
+    font-weight: 400;
+    word-wrap: break-word;
+  }
+  
+  button:hover {
+    opacity: 0.9;
+  }
+  
+  button:active {
+    transform: scale(0.98);
+  }
+  
+  @font-face {
+    font-family: 'Konkhmer Sleokchher';
+    src: url('https://fonts.googleapis.com/css2?family=Konkhmer+Sleokchher&display=swap');
+  }
+  
+  @media (max-width: 1440px) {
+    .container {
+      transform: scale(calc(100vw / 1440));
+      transform-origin: top left;
+      height: calc(1024px * (100vw / 1440));
+    }
+  }
+
+/* mainWindow.css, register.css, settings.css */
+button, .tab, .all-button, .register-button, .create-button, .add-button, .control-button {
+  transition: transform 0.15s cubic-bezier(.4,0,.2,1), box-shadow 0.15s;
+}
+button:hover, .tab:hover, .all-button:hover, .register-button:hover, .create-button:hover, .add-button:hover, .control-button:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 6px 24px 0 rgba(48, 103, 72, 0.13);
+}
+button:active, .tab:active, .all-button:active, .register-button:active, .create-button:active, .add-button:active, .control-button:active {
+  transform: scale(0.97);
+}
+
+/* settings.css */
+.right-panel {
+  opacity: 0;
+  transform: translateX(60px) scale(0.98);
+  transition: opacity 0.35s cubic-bezier(.4,0,.2,1), transform 0.35s cubic-bezier(.4,0,.2,1);
+}
+.right-panel.visible {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+}
+
+/* mainWindow.css (для .modal) */
+.modal {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.modal[style*="display: flex"], .modal[style*="display: block"] {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.profile-pic-container {
+  animation: pulseGlow 2s infinite alternate;
+}
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 0 0 #FDD36744; }
+  100% { box-shadow: 0 0 24px 8px #FDD36788; }
+}
+

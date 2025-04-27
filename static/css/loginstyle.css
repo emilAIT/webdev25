@@ -1,0 +1,158 @@
+body {
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background-color: #306748;
+    font-family: Arial, sans-serif;
+  }
+  
+  .container {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: #306748;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    position: relative;
+  }
+
+  .login-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 600px; /* Фиксированная ширина для всех элементов формы */
+  }
+  
+  .logo {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    position: absolute;
+    left: 56px;
+    top: 45px;
+  }
+  
+  h1 {
+    width: 721px;
+    height: 171px;
+    font-size: 128px;
+    margin-top: -100px; /* Добавляем отрицательный отступ сверху */
+    margin-bottom: 10px;
+    font-family: 'Konkhmer Sleokchher', cursive;
+  }
+  
+  .input {
+    width: 600px;
+    height: 70px;
+    padding: 15px;
+    margin: 19px 0;
+    border: none;
+    border-radius: 25px;
+    background-color: #E5974F;
+    color: white;
+    font-weight: bold;
+    font-size: 32px;
+    text-align: center;
+    font-family: 'Konkhmer Sleokchher', cursive;
+    box-sizing: border-box; /* Добавлено, чтобы padding не увеличивал ширину */
+  }
+  
+  .input::placeholder {
+    color: white;
+  }
+  
+  .g-recaptcha {
+    width: 600px;
+    height: 80px;
+    margin: 19px 0;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    border-radius: 15px;
+    transform-origin: center;
+    transform: scale(1.1);
+    /* background: rgba(255, 255, 255, 0.8); */
+  }
+  
+  /*
+  .captcha {
+    width: 600px;
+    height: 80px;
+    background: white;
+    color: black;
+    padding: 10px;
+    margin: 19px 0;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 18px;
+    box-sizing: border-box;
+  }
+  */
+  
+  .login-btn {
+    width: 600px;
+    height: 70px;
+    background-color: #FDD367;
+    color: #7E453D;
+    font-size: 32px;
+    font-weight: bold;
+    padding: 8px 20px;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    margin-top: 19px; /* Уменьшил с 20px до 5px */
+    font-family: 'Konkhmer Sleokchher', cursive;
+  }
+  
+  .register-btn {
+    color: #7E453D;
+    margin-top: 19px; /* Уменьшил с 15px до 5px */
+    font-weight: bold;
+    font-size: 32px;
+    background-color: #FDD367;
+    width: 400px;
+    height: 70px;
+    border-radius: 15px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Konkhmer Sleokchher', cursive;
+  }
+  
+  .version {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    color: white;
+    font-size: 24px;
+    font-family: 'Jua', sans-serif;
+  }
+
+/* mainWindow.css, register.css, settings.css */
+button, .tab, .all-button, .register-button, .create-button, .add-button, .control-button {
+  transition: transform 0.15s cubic-bezier(.4,0,.2,1), box-shadow 0.15s;
+}
+button:hover, .tab:hover, .all-button:hover, .register-button:hover, .create-button:hover, .add-button:hover, .control-button:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 6px 24px 0 rgba(48, 103, 72, 0.13);
+}
+button:active, .tab:active, .all-button:active, .register-button:active, .create-button:active, .add-button:active, .control-button:active {
+  transform: scale(0.97);
+}
+
+.logo {
+  animation: pulseGlow 2s infinite alternate;
+}
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 0 0 #FDD36744; }
+  100% { box-shadow: 0 0 24px 8px #FDD36788; }
+}
+

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GroupInfoAdmin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Konkhmer+Sleokchher&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/groupinfoadmin.css">
+</head>
+<body>
+  <div class="container">
+    <img class="bg-image" src="/static/img/image 86.png" alt="Background" />
+    <div class="header">
+      <button class="edit-button">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <path d="M14.06 9L15 9.94L5.92 19H5V18.08L14.06 9Z"/>
+          <path d="M17.66 3C17.41 3 17.15 3.1 16.96 3.29L15.13 5.12L18.88 8.87L20.71 7.04C21.1 6.65 21.1 6.02 20.71 5.63L18.37 3.29C18.17 3.09 17.92 3 17.66 3ZM14.06 6.19L3 17.25V21H6.75L17.81 9.94L14.06 6.19Z"/>
+        </svg>
+      </button>
+      <h1 class="group-title"></h1>
+      <p class="group-subtitle"></p>
+      <div class="avatar-container">
+        <!-- Групповой аватар будет подставлен динамически -->
+      </div>
+    </div>
+    <div class="separator"></div>
+    <div class="members-section">
+      <div class="members-title">members:</div>
+      <div class="members-list">
+        <!-- Список участников будет добавляться динамически -->
+      </div>
+    </div>
+    <div class="controls">
+      <button class="control-button">
+        <span class="button-text">+Add member</span>
+      </button>
+      <button class="control-button">
+        <span class="button-text">Delete group</span>
+      </button>
+    </div>
+  </div>
+</body>
+</html>
