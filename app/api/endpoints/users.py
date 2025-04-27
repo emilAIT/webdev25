@@ -2,11 +2,13 @@ import os
 import uuid
 from fastapi import APIRouter, Depends, Query, UploadFile, File, HTTPException, status, Form
 from typing import List
+from pydantic import BaseModel
 
 from app.core.auth import get_current_user
 from app.core.config import UPLOAD_FOLDER, ALLOWED_EXTENSIONS, MAX_CONTENT_LENGTH
 from app.db import user_crud
 from app.models.schemas import User, UserSearch, ProfileUpdate
+from app.utils.password import verify_password
 
 router = APIRouter()
 
@@ -174,3 +176,23 @@ async def update_profile(
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error updating profile: {str(e)}")
+
+class PasswordChangeRequest(BaseModel):
+    current_password: str
+    new_password: str
+
+@router.post("/change-password", response_model=dict)
+async def change_password(
+    req: PasswordChangeRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    if not verify_password(req.current_password, current_user["password_hash"]):
+        raise HTTPException(status_code=400, detail="Current password is incorrect")
+    if len(req.new_password) < 6:
+        raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+    if req.current_password == req.new_password:
+        raise HTTPException(status_code=400, detail="New password must be different from current")
+    success = user_crud.change_user_password(current_user["id"], req.new_password)
+    if not success:
+        raise HTTPException(status_code=500, detail="Failed to change password")
+    return {"success": True, "message": "Password changed successfully"}

@@ -135,3 +135,21 @@ def search_users(query):
     
     conn.close()
     return users
+
+def change_user_password(user_id, new_password):
+    """Change user's password in the database"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        hashed_password = get_password_hash(new_password)
+        cursor.execute(
+            "UPDATE users SET password_hash = ? WHERE id = ?",
+            (hashed_password, user_id)
+        )
+        conn.commit()
+        return cursor.rowcount > 0
+    except Exception as e:
+        print(f"Error changing user password: {e}")
+        return False
+    finally:
+        conn.close()

@@ -202,6 +202,13 @@
                 <div class="form-group">
                     <label for="changePassword">Change Password</label>
                     <a href="#" id="changePassword">Change</a>
+                    <div id="password-change-block" style="display:none; margin-top:10px;">
+                        <label for="current-password" style="font-size:14px; color:#666; margin-bottom:4px; display:block;">Current password</label>
+                        <input type="password" id="current-password" placeholder="Current password" style="width:100%;padding:10px;margin-bottom:10px;border-radius:8px;border:1px solid #ddd;">
+                        <label for="new-password" style="font-size:14px; color:#666; margin-bottom:4px; display:block;">New password</label>
+                        <input type="password" id="new-password" placeholder="New password" style="width:100%;padding:10px;border-radius:8px; border:1px solid #ddd;">
+                        <button id="saveNewPassword" class="save-btn" style="width:100%; margin-top:10px; border-radius:8px;">Save new password</button>
+                    </div>
                 </div>
                 <div class="form-group">
                     <button id="deleteAccount" class="delete-btn">Delete Account</button>

@@ -14,6 +14,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const emailInput = document.getElementById('email');
     const phoneInput = document.getElementById('phone');
     
+    // Password change logic
+    const changePasswordLink = document.getElementById('changePassword');
+    const passwordChangeBlock = document.getElementById('password-change-block');
+    const saveNewPasswordBtn = document.getElementById('saveNewPassword');
+    const newPasswordInput = document.getElementById('new-password');
+    const currentPasswordInput = document.getElementById('current-password');
+    
     // Load user data on page load
     loadUserData();
     
@@ -188,4 +195,45 @@ document.addEventListener('DOMContentLoaded', function() {
             notificationElement.classList.remove('show');
         }, 3000);
     }
+    
+    // Password change logic
+    changePasswordLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        passwordChangeBlock.style.display = passwordChangeBlock.style.display === 'none' ? 'block' : 'none';
+        newPasswordInput.value = '';
+    });
+
+    saveNewPasswordBtn.addEventListener('click', async function() {
+        const currentPassword = currentPasswordInput.value.trim();
+        const newPassword = newPasswordInput.value.trim();
+        if (!currentPassword) {
+            showNotification('Enter your current password', 'error');
+            return;
+        }
+        if (!newPassword || newPassword.length < 6) {
+            showNotification('New password must be at least 6 characters', 'error');
+            return;
+        }
+        if (currentPassword === newPassword) {
+            showNotification('New password must be different from current', 'error');
+            return;
+        }
+        try {
+            const response = await fetch('/api/users/change-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ current_password: currentPassword, new_password: newPassword })
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.detail || 'Failed to change password');
+            }
+            showNotification('Password changed successfully', 'success');
+            passwordChangeBlock.style.display = 'none';
+            newPasswordInput.value = '';
+            currentPasswordInput.value = '';
+        } catch (error) {
+            showNotification(error.message, 'error');
+        }
+    });
 });
