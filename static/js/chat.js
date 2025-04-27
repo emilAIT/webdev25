@@ -119,11 +119,7 @@ document.addEventListener('DOMContentLoaded', function() {
     async function init() {
         try {
             await loadChats();
-            // Select the first chat by default
-            if (chats.length > 0 && isFirstLoad) {
-                selectChat(chats[0].id);
-                isFirstLoad = false;
-            }
+
             initMessageContextMenu();
         } catch (error) {
             console.error('Error initializing chat:', error);
