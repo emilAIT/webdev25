@@ -651,8 +651,6 @@ function renderChatList(convList) {
         chatItem.addEventListener('click', () => loadConversation(conv.id));
         chatList.appendChild(chatItem);
     });
-
-    console.log('Выбранный ID чата:', currentConversationId, 'Применённый класс:', chatItem.classList);
 }
 
 async function loadConversation(conversationId) {
@@ -925,25 +923,6 @@ document.getElementById('send-btn').addEventListener('click', () => {
     }
 
     console.log('Отправка сообщения:', messageData);
-
-    const messageList = document.getElementById('message-list');
-    const messageDiv = document.createElement('div');
-    messageDiv.classList.add('p-3', 'mb-2', 'rounded-lg', 'self-end');
-
-    if (getReplyingToMessage()) {
-        const replyDiv = document.createElement('div');
-        replyDiv.classList.add('reply-preview', 'text-xs', 'mb-1', 'p-1', 'rounded');
-        replyDiv.textContent = `↩ ${getReplyingToMessage().content.substring(0, 50)}${getReplyingToMessage().content.length > 50 ? '...' : ''}`;
-        messageDiv.appendChild(replyDiv);
-    }
-
-    const contentDiv = document.createElement('div');
-    contentDiv.textContent = content;
-    messageDiv.appendChild(contentDiv);
-
-    messageDiv.dataset.senderId = currentUserId;
-    messageList.appendChild(messageDiv);
-    messageList.scrollTop = messageList.scrollHeight;
 
     socket.emit('message', messageData);
     messageInput.value = '';
