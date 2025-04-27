@@ -27,6 +27,7 @@ class ConversationParticipant(Base):
     id = Column(Integer, primary_key=True, index=True)
     conversation_id = Column(Integer, ForeignKey("conversations.id"))
     user_id = Column(Integer, ForeignKey("users.id"))
+    last_read_timestamp = Column(DateTime, nullable=True)  # Add last read timestamp
     conversation = relationship("Conversation", back_populates="participants")
     user = relationship("User")
 
@@ -38,9 +39,9 @@ class Message(Base):
     sender_id = Column(Integer, ForeignKey("users.id"))
     content = Column(String)
     timestamp = Column(DateTime, default=datetime.utcnow)
-    # Add reply functionality
     replied_to_id = Column(Integer, ForeignKey("messages.id"), nullable=True)
     is_deleted = Column(Boolean, default=False)
+    read_at = Column(DateTime, nullable=True)  # Add read timestamp
 
     conversation = relationship("Conversation", back_populates="messages")
     sender = relationship("User")

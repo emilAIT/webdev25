@@ -1,4 +1,4 @@
-import { currentConversationId, loadConversations, currentUserId, createMessageElement } from './chat.js';
+import { currentConversationId, loadConversations, currentUserId, createMessageElement, updateMessageReadStatus } from './chat.js'; // Import updateMessageReadStatus
 
 // Create socket connection with proper authentication
 function createSocketConnection() {
@@ -288,6 +288,17 @@ function setupSocketEvents() {
     socket.on('update_chat_list', (data) => {
         console.log('Received update_chat_list event:', data);
         loadConversations(); // Refresh the chat list
+    });
+
+    // Add handler for messages_read event
+    socket.on('messages_read', (data) => {
+        console.log('Received messages_read event:', data);
+        if (data.conversation_id === currentConversationId) {
+            // Call function from chat.js to update UI
+            updateMessageReadStatus(data.message_ids);
+        }
+        // Optionally, update unread counts in the main list if needed, 
+        // but mark_read already triggers loadConversations which should handle it.
     });
 }
 

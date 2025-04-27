@@ -12,7 +12,8 @@ export {
     conversations,
     loadConversations,
     loadConversation,
-    createMessageElement
+    createMessageElement,
+    updateMessageReadStatus // Export the new function
 };
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -640,13 +641,16 @@ function renderChatList(convList) {
             chatItem.classList.add('bg-blue-600');
         }
 
+        // Use the actual unread count from the backend
+        const unreadCount = conv.unread_count || 0;
+
         chatItem.innerHTML = `
             <img src="https://picsum.photos/seed/${conv.id}/40" alt="Profile" class="w-10 h-10 rounded-full mr-3">
             <div class="flex-1">
                 <h4 class="font-bold text-gray-800">${conv.name || 'Chat'}</h4>
                 <p class="text-sm text-gray-500">${conv.last_message || 'Сообщений пока нет'}</p>
             </div>
-            <span class="unread-count">1</span>
+            ${unreadCount > 0 ? `<span class="unread-count">${unreadCount}</span>` : ''}
         `;
         chatItem.addEventListener('click', () => loadConversation(conv.id));
         chatList.appendChild(chatItem);
@@ -670,6 +674,7 @@ async function loadConversation(conversationId) {
             throw new Error('Нет токена авторизации');
         }
 
+        // Fetch messages
         const response = await fetch(`/chat/messages/${conversationId}`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -701,11 +706,34 @@ async function loadConversation(conversationId) {
         const conv = conversations.find(c => c.id === conversationId);
         document.getElementById('conversation-name').textContent = conv ? (conv.name || 'Chat') : 'Chat';
 
-        renderChatList(conversations);
+        // Mark conversation as read *after* successfully loading messages
+        try {
+            const markReadResponse = await fetch(`/chat/conversations/${conversationId}/mark_read`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (markReadResponse.ok) {
+                console.log(`Conversation ${conversationId} marked as read.`);
+                // Update the local conversation data immediately
+                const updatedConv = conversations.find(c => c.id === conversationId);
+                if (updatedConv) {
+                    updatedConv.unread_count = 0;
+                }
+                // Re-render the chat list with the updated local data
+                renderChatList(conversations);
+            } else {
+                console.error('Failed to mark conversation as read:', markReadResponse.status);
+            }
+        } catch (markReadError) {
+            console.error('Error marking conversation as read:', markReadError);
+        }
+
+        // Ensure the current chat is highlighted (renderChatList handles this)
 
         document.getElementById('message-input').focus();
     } catch (error) {
         console.error('Ошибка загрузки беседы:', error);
+        // Handle error appropriately, maybe show a toast message
     }
 }
 
@@ -773,17 +801,37 @@ function createMessageElement(msg) {
     }
 
     const contentDiv = document.createElement('div');
-    contentDiv.className = 'message-content mr-10';
+    contentDiv.className = 'message-content mr-10'; // Add margin for status icon
     contentDiv.textContent = msg.is_deleted ? "[Сообщение удалено]" : msg.content;
     messageDiv.appendChild(contentDiv);
 
+    // Add timestamp and read status container
+    const statusContainer = document.createElement('div');
+    statusContainer.className = 'absolute bottom-1 right-2 flex items-center space-x-1';
+
     if (msg.timestamp) {
         const timeSpan = document.createElement('span');
-        timeSpan.className = 'message-timestamp';
+        // Make timestamp slightly smaller
+        timeSpan.className = 'text-xs opacity-70';
         const date = new Date(msg.timestamp);
         timeSpan.textContent = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
-        messageDiv.appendChild(timeSpan);
+        statusContainer.appendChild(timeSpan);
     }
+
+    // Add read status icon for own messages
+    if (isOwnMessage && !msg.is_deleted) {
+        const statusIcon = document.createElement('span');
+        statusIcon.className = 'message-status-icon';
+        statusIcon.innerHTML = msg.read_at
+            ? '&#10004;&#10004;' // Double checkmark for read
+            : '&#10004;'; // Single checkmark for sent/delivered
+        // Style the checkmarks
+        statusIcon.style.fontSize = '0.7rem';
+        statusIcon.style.color = msg.read_at ? '#4ade80' : 'inherit'; // Green for read
+        statusContainer.appendChild(statusIcon);
+    }
+
+    messageDiv.appendChild(statusContainer);
 
     if (!msg.is_deleted) {
         messageDiv.addEventListener('click', (e) => {
@@ -793,6 +841,22 @@ function createMessageElement(msg) {
     }
 
     return messageDiv;
+}
+
+// Function to update read status icons for specific messages
+function updateMessageReadStatus(messageIds) {
+    if (!Array.isArray(messageIds)) return;
+
+    messageIds.forEach(messageId => {
+        const messageElement = document.querySelector(`.message[data-message-id="${messageId}"]`);
+        if (messageElement) {
+            const statusIcon = messageElement.querySelector('.message-status-icon');
+            if (statusIcon) {
+                statusIcon.innerHTML = '&#10004;&#10004;'; // Double checkmark
+                statusIcon.style.color = '#4ade80'; // Green color
+            }
+        }
+    });
 }
 
 document.addEventListener('click', (e) => {
@@ -894,8 +958,6 @@ document.getElementById('send-btn').addEventListener('click', () => {
             position: "right",
             style: { background: "#FFA500" },
         }).showToast();
-
-        socket.connect();
 
         const messageList = document.getElementById('message-list');
         const messageDiv = document.createElement('div');

@@ -5,6 +5,7 @@ from .models import Conversation, ConversationParticipant, Message, User
 from .schemas import ConversationCreate, MessageResponse, MessageCreate
 from .auth import get_current_user
 from sqlalchemy import and_
+from datetime import datetime  # Import datetime
 
 router = APIRouter(prefix="/chat")
 
@@ -32,12 +33,24 @@ def create_conversation(
 def get_conversations(
     user: User = Depends(get_current_user), db: Session = Depends(get_db)
 ):
-    conversations = (
-        db.query(Conversation)
-        .join(ConversationParticipant)
+    # Fetch conversations the user is part of
+    user_participants = (
+        db.query(ConversationParticipant)
         .filter(ConversationParticipant.user_id == user.id)
         .all()
     )
+    conversation_ids = [p.conversation_id for p in user_participants]
+
+    if not conversation_ids:
+        return []
+
+    conversations = (
+        db.query(Conversation).filter(Conversation.id.in_(conversation_ids)).all()
+    )
+
+    # Create a map for quick lookup of participant info
+    participant_map = {p.conversation_id: p for p in user_participants}
+
     result = []
     for conv in conversations:
         participants = (
@@ -49,8 +62,8 @@ def get_conversations(
         participant_usernames = [p.username for p in participants if p.id != user.id]
         display_name = (
             participant_usernames[0]
-            if len(participants) == 2
-            else conv.name or "Group Chat"
+            if len(participants) == 2 and participant_usernames
+            else conv.name or f"Group Chat ({len(participants)} members)"
         )
 
         last_message = (
@@ -60,8 +73,27 @@ def get_conversations(
             .first()
         )
         last_message_content = (
-            last_message.content if last_message else "No messages yet"
+            last_message.content
+            if last_message and not last_message.is_deleted
+            else "No messages yet"
         )
+
+        # Get the participant record for the current user in this conversation
+        current_participant = participant_map.get(conv.id)
+        last_read = (
+            current_participant.last_read_timestamp if current_participant else None
+        )
+
+        # Calculate unread count based on last read timestamp
+        unread_query = db.query(Message).filter(
+            Message.conversation_id == conv.id,
+            Message.sender_id != user.id,
+            Message.is_deleted == False,  # Don't count deleted messages as unread
+        )
+        if last_read:
+            unread_query = unread_query.filter(Message.timestamp > last_read)
+
+        unread_count = unread_query.count()
 
         result.append(
             {
@@ -69,8 +101,25 @@ def get_conversations(
                 "name": display_name,
                 "last_message": last_message_content,
                 "participants": [p.username for p in participants],
+                "unread_count": unread_count,
             }
         )
+
+    # Sort conversations by last message timestamp (descending)
+    # We need to fetch the timestamp for sorting
+    conv_last_timestamps = {
+        c.id: db.query(Message.timestamp)
+        .filter(Message.conversation_id == c.id)
+        .order_by(Message.timestamp.desc())
+        .limit(1)
+        .scalar()
+        or datetime.min
+        for c in conversations
+    }
+    result.sort(
+        key=lambda x: conv_last_timestamps.get(x["id"], datetime.min), reverse=True
+    )
+
     print(
         f"Fetched {len(result)} conversations for user {user.id}: {[conv['name'] for conv in result]}"
     )
@@ -114,16 +163,18 @@ def get_messages(
             "id": msg.id,
             "conversation_id": msg.conversation_id,
             "sender_id": msg.sender_id,
+            # Include sender username for potential future use
+            "sender_username": msg.sender.username,
             "content": msg.content if not msg.is_deleted else "[Message deleted]",
-            "timestamp": msg.timestamp,
-            "replied_to_id": msg.replied_to_id,
+            "timestamp": msg.timestamp.isoformat(),  # Ensure timestamp is ISO format string
             "is_deleted": msg.is_deleted,
-            "replied_to_content": None,
+            "replied_to_id": msg.replied_to_id,
+            "replied_to_content": None,  # Initialize reply fields
             "replied_to_sender": None,
             "replied_to_username": None,
         }
 
-        # If this is a reply, add the parent message content
+        # Fetch replied message details if it exists
         if msg.replied_to_id:
             replied_msg = (
                 db.query(Message).filter(Message.id == msg.replied_to_id).first()
@@ -141,6 +192,34 @@ def get_messages(
         result.append(message_dict)
 
     return result
+
+
+@router.post("/conversations/{conversation_id}/mark_read")
+def mark_conversation_as_read(
+    conversation_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    participant = (
+        db.query(ConversationParticipant)
+        .filter(
+            ConversationParticipant.conversation_id == conversation_id,
+            ConversationParticipant.user_id == user.id,
+        )
+        .first()
+    )
+
+    if not participant:
+        raise HTTPException(
+            status_code=404, detail="Participant not found in this conversation"
+        )
+
+    participant.last_read_timestamp = datetime.utcnow()
+    db.commit()
+    print(
+        f"User {user.id} marked conversation {conversation_id} as read at {participant.last_read_timestamp}"
+    )
+    return {"status": "success", "message": "Conversation marked as read"}
 
 
 @router.delete("/messages/{message_id}")
