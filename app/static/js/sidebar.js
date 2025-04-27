@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const editProfileMenuItem = document.getElementById('editProfileMenuItem');
     const editProfilePopup = document.getElementById('editProfilePopup');
     const closeEditProfilePopup = document.getElementById('closeEditProfilePopup');
+    const cancelProfileEdit = document.getElementById('cancelProfileEdit');
     const editProfileForm = document.getElementById('editProfileForm');
     const plusButton = document.getElementById('plusButton');
     const chatContent = document.getElementById('chatContent');
@@ -59,6 +60,15 @@ document.addEventListener('DOMContentLoaded', function() {
     if (closeEditProfilePopup) {
         closeEditProfilePopup.addEventListener('click', function() {
             editProfilePopup.classList.remove('open');
+            overlay.classList.remove('active');
+        });
+    }
+    
+    // Add event listener for the Cancel button in Edit Profile popup
+    if (cancelProfileEdit) {
+        cancelProfileEdit.addEventListener('click', function() {
+            editProfilePopup.classList.remove('open');
+            editProfileForm.reset(); 
             overlay.classList.remove('active');
         });
     }
