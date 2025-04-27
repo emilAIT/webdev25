@@ -465,3 +465,32 @@
   #menu-modal button:hover {
     background-color: #e0e7ff;
   }
+
+/* New Group Modal - User Chips */
+#new-group-added-users .inline-flex {
+    transition: background-color 0.2s ease;
+}
+
+#new-group-added-users button {
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* New Group Modal - User Suggestions Dropdown */
+#new-group-user-suggestions {
+    border-top: none; /* Remove top border as it connects to input */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+#new-group-user-suggestions > div {
+    border-bottom: 1px solid #e5e7eb; /* Add border between suggestions */
+    transition: background-color 0.15s ease;
+}
+
+#new-group-user-suggestions > div:last-child {
+    border-bottom: none; /* Remove border from last item */
+}
+
+#new-group-user-suggestions > div:hover {
+    background-color: #f0f9ff; /* Lighter blue hover for suggestions */
+}

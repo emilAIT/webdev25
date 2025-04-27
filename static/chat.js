@@ -418,6 +418,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         try {
+            // Clear the message list immediately
+            const messageList = document.getElementById('message-list');
+            if (messageList) {
+                messageList.innerHTML = '<div class="p-3 text-gray-500 text-center w-full system-message">Loading chat...</div>';
+            }
+            // Clear conversation header
+            const conversationName = document.getElementById('conversation-name');
+            if (conversationName) {
+                conversationName.textContent = 'Loading...';
+            }
+
+            const token = localStorage.getItem('token'); // Added token retrieval
             const response = await fetch('/chat/conversations', {
                 method: 'POST',
                 headers: {
@@ -436,10 +448,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             const data = await response.json();
             newChatModal.classList.add('hidden');
-            await loadConversations();
+            await loadConversations(); // Load all conversations first
 
             if (data.conversation_id) {
-                loadConversation(data.conversation_id);
+                // Now load the specific new conversation
+                await loadConversation(data.conversation_id);
             }
 
             Toastify({
@@ -469,10 +482,128 @@ document.addEventListener('DOMContentLoaded', async () => {
     const newGroupCancel = document.getElementById('new-group-cancel');
     const newGroupCreate = document.getElementById('new-group-create');
 
+    // New Group Modal - User Search and Chip Management
+    const newGroupUserSearchInput = document.getElementById('new-group-user-search');
+    const newGroupUserSuggestions = document.getElementById('new-group-user-suggestions');
+    const newGroupAddedUsersContainer = document.getElementById('new-group-added-users');
+    let newGroupSelectedUsers = []; // Array to store {id, username} of added users
+    let groupSearchTimeout;
+
+    if (newGroupUserSearchInput && newGroupUserSuggestions && newGroupAddedUsersContainer) {
+        newGroupUserSearchInput.addEventListener('input', () => {
+            clearTimeout(groupSearchTimeout);
+            const query = newGroupUserSearchInput.value.trim();
+            newGroupUserSuggestions.innerHTML = ''; // Clear previous suggestions
+            newGroupUserSuggestions.classList.add('hidden'); // Hide suggestions initially
+
+            if (query.length > 1) {
+                newGroupUserSuggestions.innerHTML = '<div class="p-2 text-gray-500">Searching...</div>';
+                newGroupUserSuggestions.classList.remove('hidden');
+
+                groupSearchTimeout = setTimeout(async () => {
+                    try {
+                        const token = localStorage.getItem('token');
+                        const response = await fetch(`/auth/users/search?query=${query}`, {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        if (!response.ok) throw new Error('Failed to search users');
+
+                        const users = await response.json();
+                        newGroupUserSuggestions.innerHTML = ''; // Clear "Searching..."
+
+                        if (users.length === 0) {
+                            newGroupUserSuggestions.innerHTML = '<div class="p-2 text-gray-500">No users found.</div>';
+                        } else {
+                            users
+                                .filter(user => user.id !== currentUserId && !newGroupSelectedUsers.some(u => u.id === user.id)) // Exclude self and already added users
+                                .forEach(user => {
+                                    const suggestionDiv = document.createElement('div');
+                                    suggestionDiv.classList.add('p-2', 'hover:bg-gray-100', 'cursor-pointer');
+                                    suggestionDiv.textContent = user.username;
+                                    suggestionDiv.dataset.userId = user.id;
+                                    suggestionDiv.dataset.username = user.username;
+                                    suggestionDiv.addEventListener('click', () => {
+                                        addUserToGroupSelection(user.id, user.username);
+                                        newGroupUserSearchInput.value = ''; // Clear search input
+                                        newGroupUserSuggestions.classList.add('hidden'); // Hide suggestions
+                                        newGroupUserSearchInput.focus(); // Keep focus on input
+                                    });
+                                    newGroupUserSuggestions.appendChild(suggestionDiv);
+                                });
+                        }
+                        // Ensure suggestions are visible if there are results or "No users found" message
+                        if (newGroupUserSuggestions.children.length > 0) {
+                            newGroupUserSuggestions.classList.remove('hidden');
+                        } else {
+                            newGroupUserSuggestions.classList.add('hidden');
+                        }
+
+                    } catch (error) {
+                        console.error('Error searching users for group:', error);
+                        newGroupUserSuggestions.innerHTML = '<div class="p-2 text-red-500">Error searching.</div>';
+                        newGroupUserSuggestions.classList.remove('hidden');
+                    }
+                }, 300); // Debounce search
+            }
+        });
+
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!newGroupUserSearchInput.contains(e.target) && !newGroupUserSuggestions.contains(e.target)) {
+                newGroupUserSuggestions.classList.add('hidden');
+            }
+        });
+    }
+
+    function addUserToGroupSelection(userId, username) {
+        if (newGroupSelectedUsers.some(u => u.id === userId)) return; // Avoid duplicates
+
+        newGroupSelectedUsers.push({ id: userId, username: username });
+        renderGroupUserChips();
+    }
+
+    function removeUserFromGroupSelection(userId) {
+        newGroupSelectedUsers = newGroupSelectedUsers.filter(u => u.id !== userId);
+        renderGroupUserChips();
+    }
+
+    function renderGroupUserChips() {
+        newGroupAddedUsersContainer.innerHTML = ''; // Clear existing chips
+        newGroupSelectedUsers.forEach(user => {
+            const chip = document.createElement('span');
+            // Updated chip styles
+            chip.className = 'inline-flex items-center bg-indigo-100 text-indigo-700 text-sm font-medium px-3 py-1 rounded-full mr-2 mb-2 shadow-sm';
+            chip.innerHTML = `
+                <span class="mr-1">${user.username}</span>
+                <button type="button" class="ml-1 flex-shrink-0 bg-indigo-200 text-indigo-600 hover:bg-indigo-300 hover:text-indigo-800 rounded-full p-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" data-user-id="${user.id}">
+                  <svg class="h-3 w-3" stroke="currentColor" fill="none" viewBox="0 0 8 8">
+                    <path stroke-linecap="round" stroke-width="1.5" d="M1 1l6 6m0-6L1 7" />
+                  </svg>
+                </button>
+            `;
+            chip.querySelector('button').addEventListener('click', (e) => {
+                // Use closest to ensure we get the button's dataset even if svg is clicked
+                const button = e.target.closest('button');
+                if (button) {
+                    removeUserFromGroupSelection(parseInt(button.dataset.userId));
+                }
+            });
+            newGroupAddedUsersContainer.appendChild(chip);
+        });
+    }
+
+
     if (newGroupBtn && newGroupModal) {
         newGroupBtn.addEventListener('click', () => {
             newConversationModal.classList.add('hidden');
             newGroupModal.classList.remove('hidden');
+            // Reset modal state when opening
+            document.getElementById('new-group-name').value = '';
+            newGroupUserSearchInput.value = '';
+            newGroupUserSuggestions.innerHTML = '';
+            newGroupUserSuggestions.classList.add('hidden');
+            newGroupSelectedUsers = [];
+            renderGroupUserChips();
         });
     }
 
@@ -484,69 +615,78 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     newGroupCreate.addEventListener('click', async () => {
         const groupName = document.getElementById('new-group-name').value.trim();
-        const usernames = document.getElementById('new-group-usernames').value.split(',').map(u => u.trim()).filter(u => u);
-        if (!groupName || usernames.length < 1) {
+        // const usernames = document.getElementById('new-group-usernames').value.split(',').map(u => u.trim()).filter(u => u); // OLD WAY
+        const participantIds = newGroupSelectedUsers.map(u => u.id); // Get IDs from chips
+
+        if (!groupName) {
             Toastify({
-                text: "Введите название группы и хотя бы одно имя пользователя.",
+                text: "Please enter a group name.",
                 duration: 3000,
-                close: true,
-                gravity: "top",
-                position: "right",
+                // ... toast styles ...
                 style: { background: "#F44336" },
             }).showToast();
             return;
         }
 
-        const participantIds = [];
-        for (const username of usernames) {
-            const userResponse = await fetch(`/auth/user/${username}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
+        if (participantIds.length < 1) { // Need at least one other member besides self
+            Toastify({
+                text: "Please add at least one other member to the group.",
+                duration: 3000,
+                // ... toast styles ...
+                style: { background: "#F44336" },
+            }).showToast();
+            return;
+        }
+
+        // Add current user ID to the list of participants
+        const allParticipantIds = [currentUserId, ...participantIds];
+
+        // Remove duplicates just in case (shouldn't happen with current logic)
+        const uniqueParticipantIds = [...new Set(allParticipantIds)];
+
+        try { // Added try-catch block
+            const token = localStorage.getItem('token'); // Get token inside try block
+            const response = await fetch('/chat/conversations', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: groupName,
+                    participant_ids: uniqueParticipantIds // Use unique IDs
+                })
             });
-            if (!userResponse.ok) {
+            if (response.ok) {
+                const data = await response.json(); // Get response data
+                newGroupModal.classList.add('hidden');
+                await loadConversations(); // Refresh conversation list
+                // Optionally, load the newly created group conversation
+                if (data.conversation_id) {
+                    loadConversation(data.conversation_id);
+                }
                 Toastify({
-                    text: `Пользователь "${username}" не найден.`,
+                    text: "Group created successfully!",
                     duration: 3000,
-                    close: true,
-                    gravity: "top",
-                    position: "right",
+                    // ... toast styles ...
+                    style: { background: "#4CAF50" },
+                }).showToast();
+            } else {
+                const errorData = await response.json(); // Get error details
+                console.error("Failed to create group:", errorData);
+                Toastify({
+                    text: `Failed to create group: ${errorData.detail || 'Please try again.'}`, // Show specific error if available
+                    duration: 3000,
+                    // ... toast styles ...
                     style: { background: "#F44336" },
                 }).showToast();
-                return;
             }
-            const userData = await userResponse.json();
-            participantIds.push(userData.id);
-        }
-        participantIds.push(currentUserId);
-
-        const response = await fetch('/chat/conversations', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                name: groupName,
-                participant_ids: participantIds
-            })
-        });
-        if (response.ok) {
-            newGroupModal.classList.add('hidden');
-            await loadConversations();
+        } catch (error) { // Catch network or other errors
+            console.error("Error creating group:", error);
             Toastify({
-                text: "Группа успешно создана!",
+                text: "An error occurred while creating the group.",
                 duration: 3000,
-                close: true,
-                gravity: "top",
-                position: "right",
-                style: { background: "#4CAF50" },
-            }).showToast();
-        } else {
-            Toastify({
-                text: "Не удалось создать группу. Попробуйте снова.",
-                duration: 3000,
-                close: true,
-                gravity: "top",
-                position: "right",
+                // ... toast styles ...
                 style: { background: "#F44336" },
             }).showToast();
         }
