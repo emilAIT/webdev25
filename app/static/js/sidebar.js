@@ -120,11 +120,12 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const formData = {
                 username: document.getElementById('profileNickname').value,
-                email: document.getElementById('profileEmail').value,
-                phone_number: document.getElementById('profilePhone').value,
-                country: document.getElementById('profileCountry').value
+                email: document.getElementById('profileEmail').value || undefined,
+                phone_number: undefined,
+                country: undefined, //not implemented yet
             };
-
+            
+            console.log('Form Data:', formData); // Debugging line
             // Only include fields that are not empty
             Object.keys(formData).forEach(key => {
                 if (!formData[key]) delete formData[key];

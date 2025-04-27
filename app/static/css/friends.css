@@ -1,0 +1,234 @@
+/* Friends Modal Styling */
+.friends-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.friends-modal-content {
+    background-color: #1e2733;
+    border-radius: 10px;
+    width: 400px;
+    max-width: 90%;
+    max-height: 80vh;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #8a9ab0;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.close-btn:hover {
+    color: #ffffff;
+}
+
+.friends-modal-content h2 {
+    padding: 20px 25px;
+    margin: 0;
+    color: #ffffff;
+    font-size: 18px;
+    border-bottom: 1px solid #3a4a5e;
+}
+
+.search-bar2 {
+    padding: 15px 25px;
+    border-bottom: 1px solid #3a4a5e;
+}
+
+.search-bar2 input {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #3a4a5e;
+    border-radius: 20px;
+    background-color: #2c3a4a;
+    color: #ffffff;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+.search-bar2 input:focus {
+    border-color: #4CAF50;
+}
+
+.friends-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 50vh;
+    overflow-y: auto;
+}
+
+/* Friend Item Styles */
+.friend-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    overflow: hidden;
+}
+
+.friend-item img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    background-color: #3a4a5e;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.friend-item span {
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Radio Selection Styles */
+.radio-select {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 10px;
+}
+
+.radio-outer {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #8a9ab0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.radio-outer:hover {
+    border-color: #a0b1c5;
+}
+
+.radio-outer.selected {
+    border-color: #4CAF50;
+}
+
+.radio-inner {
+    width: 10px;
+    height: 10px;
+    background-color: #4CAF50;
+    border-radius: 50%;
+    display: none;
+    transition: transform 0.2s ease;
+}
+
+.radio-outer.selected .radio-inner {
+    display: block;
+    animation: radioSelect 0.2s forwards;
+}
+
+/* Parent Container Styles */
+.friends-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    border-bottom: 1px solid #3a4a5e;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.friends-list li:hover {
+    background-color: #3a4a5e;
+}
+
+.friends-list li:last-child {
+    border-bottom: none;
+}
+
+/* Animation for Radio Selection */
+@keyframes radioSelect {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Hover Effects */
+.radio-outer:active {
+    transform: scale(0.95);
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .friend-item {
+        gap: 8px;
+    }
+    
+    .friend-item img {
+        width: 35px;
+        height: 35px;
+    }
+    
+    .friend-item span {
+        font-size: 13px;
+    }
+    
+    .radio-outer {
+        width: 18px;
+        height: 18px;
+    }
+    
+    .radio-inner {
+        width: 9px;
+        height: 9px;
+    }
+    
+    .friends-list li {
+        padding: 10px 12px;
+    }
+}
+
+/* High Contrast / Accessibility Mode */
+@media (prefers-contrast: high) {
+    .radio-outer {
+        border-width: 3px;
+    }
+    
+    .radio-outer.selected {
+        border-color: #ffffff;
+    }
+    
+    .radio-inner {
+        background-color: #ffffff;
+    }
+    
+    .friend-item span {
+        font-weight: bold;
+    }
+}
