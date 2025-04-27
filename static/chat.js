@@ -1,3 +1,10 @@
+// Use CDN import for browser compatibility
+import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2';
+
+// Explicitly disable loading models from local paths
+env.allowLocalModels = false;
+
+import { showToast } from './utils.js'; // Assuming utils.js exists for showToast
 import { setupMessageHandlers, setupReplyUI, hideReplyUI, getReplyingToMessage, handleMessageClick, clearMessageSelection } from './messageHandlers.js';
 import { initializeSocket, joinConversation } from './socket.js';
 import { showProfile } from './profile.js'; // Импортируем showProfile
@@ -7,15 +14,108 @@ let currentConversationId = null;
 let currentUserId = null;
 let conversations = [];
 
-export {
-    currentConversationId,
-    currentUserId,
-    conversations,
-    loadConversations,
-    loadConversation,
-    createMessageElement,
-    updateMessageReadStatus // Export the new function
-};
+// AI Feature Integration
+let grammarFixer = null;
+let textCompleter = null;
+const fixGrammarBtn = document.getElementById('fix-grammar-btn');
+const completeSentenceBtn = document.getElementById('complete-sentence-btn');
+const messageInput = document.getElementById('message-input');
+
+async function initializeAIModels() {
+    console.log('Attempting to initialize AI models...'); // Log start
+    try {
+        showToast('Loading AI models...', 'info');
+        // Load models in parallel
+        [grammarFixer, textCompleter] = await Promise.all([
+            pipeline('text2text-generation', 'Xenova/flan-t5-small'), // Model for grammar correction
+            pipeline('text-generation', 'Xenova/distilgpt2') // Model for text completion
+        ]);
+        console.log('AI models initialized successfully.'); // Log success
+        showToast('AI models loaded successfully!', 'success');
+        // Enable buttons once models are loaded
+        fixGrammarBtn.disabled = false;
+        completeSentenceBtn.disabled = false;
+        // Also enable based on input content immediately after load
+        messageInput.dispatchEvent(new Event('input'));
+    } catch (error) {
+        console.error('Failed to load AI models:', error); // Log error
+        showToast('Failed to load AI models. Features disabled.', 'error');
+        // Keep buttons disabled if loading fails
+        fixGrammarBtn.disabled = true;
+        completeSentenceBtn.disabled = true;
+    }
+}
+
+// Event listener for Fix Grammar button
+fixGrammarBtn.addEventListener('click', async () => {
+    console.log('Fix Grammar button clicked.'); // Log click
+    const text = messageInput.value.trim();
+    if (!text || !grammarFixer) {
+        console.log('Grammar fixer not ready or no text.');
+        return;
+    }
+
+    fixGrammarBtn.disabled = true; // Disable button during processing
+    showToast('Fixing grammar...', 'info');
+    console.log('Calling grammar fixer pipeline...');
+    try {
+        const result = await grammarFixer(`fix grammar: ${text}`, {
+            max_new_tokens: 100, // Adjust as needed
+            no_repeat_ngram_size: 3,
+            num_beams: 2, // Use beam search for potentially better results
+        });
+        console.log('Grammar fixer result:', result); // Log result
+        messageInput.value = result[0].generated_text;
+        showToast('Grammar fixed!', 'success');
+    } catch (error) {
+        console.error('Grammar fixing failed:', error); // Log error
+        showToast('Could not fix grammar.', 'error');
+    } finally {
+        fixGrammarBtn.disabled = false; // Re-enable button
+    }
+});
+
+// Event listener for Complete Sentence button
+completeSentenceBtn.addEventListener('click', async () => {
+    console.log('Complete Sentence button clicked.'); // Log click
+    const text = messageInput.value.trim();
+    if (!text || !textCompleter) {
+        console.log('Text completer not ready or no text.');
+        return;
+    }
+
+    completeSentenceBtn.disabled = true; // Disable button during processing
+    showToast('Completing sentence...', 'info');
+    console.log('Calling text completer pipeline...');
+    try {
+        const result = await textCompleter(text, {
+            max_new_tokens: 50, // Adjust as needed
+            no_repeat_ngram_size: 2,
+            num_beams: 2,
+        });
+        console.log('Text completer result:', result); // Log result
+        // Append the completion carefully
+        const completion = result[0].generated_text.substring(text.length).trim();
+        messageInput.value = `${text} ${completion}`.trim();
+        showToast('Sentence completed!', 'success');
+    } catch (error) {
+        console.error('Sentence completion failed:', error); // Log error
+        showToast('Could not complete sentence.', 'error');
+    } finally {
+        completeSentenceBtn.disabled = false; // Re-enable button
+    }
+});
+
+// Enable/disable AI buttons based on input content
+messageInput.addEventListener('input', () => {
+    const hasText = messageInput.value.trim().length > 0;
+    if (grammarFixer) {
+        fixGrammarBtn.disabled = !hasText;
+    }
+    if (textCompleter) {
+        completeSentenceBtn.disabled = !hasText;
+    }
+});
 
 document.addEventListener('DOMContentLoaded', async () => {
     const token = localStorage.getItem('token');
@@ -94,6 +194,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             setupMessageHandlers();
         } else {
             console.error("setupMessageHandlers function not found!");
+        }
+
+        if (!chatSection.classList.contains('hidden')) {
+            console.log('Chat section is visible, initializing AI models.');
+            initializeAIModels(); // Initialize AI models AFTER chat is shown
         }
 
     } catch (error) {
@@ -508,13 +613,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Updated chip styles
             chip.className = 'inline-flex items-center bg-indigo-100 text-indigo-700 text-sm font-medium px-3 py-1 rounded-full mr-2 mb-2 shadow-sm';
             chip.innerHTML = `
-                <span class="mr-1">${user.username}</span>
-                <button type="button" class="ml-1 flex-shrink-0 bg-indigo-200 text-indigo-600 hover:bg-indigo-300 hover:text-indigo-800 rounded-full p-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" data-user-id="${user.id}">
-                  <svg class="h-3 w-3" stroke="currentColor" fill="none" viewBox="0 0 8 8">
-                    <path stroke-linecap="round" stroke-width="1.5" d="M1 1l6 6m0-6L1 7" />
-                  </svg>
-                </button>
-            `;
+          <span class="mr-1">${user.username}</span>
+          <button type="button" class="ml-1 flex-shrink-0 bg-indigo-200 text-indigo-600 hover:bg-indigo-300 hover:text-indigo-800 rounded-full p-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" data-user-id="${user.id}">
+            <svg class="h-3 w-3" stroke="currentColor" fill="none" viewBox="0 0 8 8">
+              <path stroke-linecap="round" stroke-width="1.5" d="M1 1l6 6m0-6L1 7" />
+            </svg>
+          </button>
+      `;
             chip.querySelector('button').addEventListener('click', (e) => {
                 // Use closest to ensure we get the button's dataset even if svg is clicked
                 const button = e.target.closest('button');
@@ -689,13 +794,13 @@ function renderChatList(convList) {
         const unreadCount = conv.unread_count || 0;
 
         chatItem.innerHTML = `
-            <img src="https://picsum.photos/seed/${conv.id}/40" alt="Profile" class="w-10 h-10 rounded-full mr-3">
-            <div class="flex-1">
-                <h4 class="font-bold text-gray-800">${conv.name || 'Chat'}</h4>
-                <p class="text-sm text-gray-500">${conv.last_message || 'Сообщений пока нет'}</p>
-            </div>
-            ${unreadCount > 0 ? `<span class="unread-count">${unreadCount}</span>` : ''}
-        `;
+        <img src="https://picsum.photos/seed/${conv.id}/40" alt="Profile" class="w-10 h-10 rounded-full mr-3">
+        <div class="flex-1">
+            <h4 class="font-bold text-gray-800">${conv.name || 'Chat'}</h4>
+            <p class="text-sm text-gray-500">${conv.last_message || 'Сообщений пока нет'}</p>
+        </div>
+        ${unreadCount > 0 ? `<span class="unread-count">${unreadCount}</span>` : ''}
+    `;
         chatItem.addEventListener('click', () => loadConversation(conv.id));
         chatList.appendChild(chatItem);
     });
@@ -819,16 +924,16 @@ function createMessageElement(msg) {
         }
 
         replyBox.innerHTML = `
-            <div class="flex items-center gap-1 mb-1 opacity-80">
-                <svg class="w-3 h-3 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
-                </svg>
-                <span class="font-bold">Reply to ${repliedToUserText}:</span>
-            </div>
-            <div class="pl-3">
-                ${msg.replied_to_content || '[deleted message]'}
-            </div>
-        `;
+        <div class="flex items-center gap-1 mb-1 opacity-80">
+            <svg class="w-3 h-3 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
+            </svg>
+            <span class="font-bold">Reply to ${repliedToUserText}:</span>
+        </div>
+        <div class="pl-3">
+            ${msg.replied_to_content || '[deleted message]'}
+        </div>
+    `;
 
         // Add click listener to scroll to original message
         replyBox.addEventListener('click', (e) => {
@@ -986,3 +1091,34 @@ document.getElementById('send-btn').addEventListener('click', () => {
 
     hideReplyUI();
 });
+
+// Make sure initializeAIModels is also called if the chat section is shown later (e.g., after login)
+// Find where you remove the 'hidden' class from chatSection and call initializeAIModels() there too.
+// For example, if it happens in auth.js after successful login:
+/*
+async function handleLoginSuccess(token) {
+  localStorage.setItem('token', token);
+  // ... hide auth forms ...
+  document.getElementById('chat').classList.remove('hidden');
+  // ... load conversations etc ...
+  await initializeChat(); // Assuming you have a function like this
+
+  // Import and call initializeAIModels from chat.js
+  const { initializeAIModels } = await import('./chat.js');
+  initializeAIModels();
+}
+*/
+
+// Ensure initializeAIModels is exported if needed elsewhere
+export {
+    currentConversationId,
+    currentUserId, // Added
+    conversations, // Added
+    loadConversations,
+    loadConversation, // Added
+    createMessageElement, // Added
+    updateMessageReadStatus, // Added
+    initializeAIModels, // Keep AI model initializer export
+    // Removed loadMessages, sendMessage, displayMessage, updateChatList as they weren't in the original first export block and might not be needed externally.
+    // Add them back if they are indeed used by other modules.
+};
