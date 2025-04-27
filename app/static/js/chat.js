@@ -170,6 +170,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const contactInfoEmail = document.getElementById('contactInfoEmail');
     const contactInfoAvatar = document.getElementById('contactInfoAvatar');
     const closeInfoButton = document.getElementById('closeInfoButton');
+    const backToChat = document.getElementById('backToChat');
 
     // DOM Elements - Message Template
     const messageTemplate = document.getElementById('messageTemplate');
@@ -978,6 +979,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (closeContactInfoPopup) {
         closeContactInfoPopup.addEventListener('click', function() {
+            contactInfoPopup.classList.remove('open');
+            overlay.classList.remove('active');
+            contactInfoPopup.removeAttribute('data-user-id');
+        });
+    }
+
+    if (backToChat) {
+        backToChat.addEventListener('click', function() {
             contactInfoPopup.classList.remove('open');
             overlay.classList.remove('active');
             contactInfoPopup.removeAttribute('data-user-id');
