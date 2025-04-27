@@ -265,6 +265,59 @@ async def leave_room(sid, data):
     )
 
 
+@sio.event
+async def edit_message(sid, data):
+    if sid not in connected_users:
+        print(f"Unauthorized edit attempt from {sid}")
+        return
+
+    user_id = connected_users[sid]
+    message_id = data.get("message_id")
+    new_content = data.get("content")
+
+    if not message_id or not new_content:
+        print("Missing message_id or content for edit")
+        return
+
+    db = SessionLocal()
+    try:
+        message = db.query(Message).filter(Message.id == message_id).first()
+
+        if not message:
+            print(f"Message {message_id} not found")
+            return
+
+        if message.sender_id != user_id:
+            print(f"User {user_id} not authorized to edit message {message_id}")
+            return
+
+        if message.is_deleted:
+            print(f"Cannot edit deleted message {message_id}")
+            return
+
+        # Update message content
+        message.content = new_content
+        db.commit()
+
+        # Notify clients about edited message
+        await sio.emit(
+            "message_edited",
+            {
+                "message_id": message_id,
+                "content": new_content,
+                "conversation_id": message.conversation_id,
+            },
+            room=str(message.conversation_id),
+        )
+        print(f"Message {message_id} edited by user {user_id}")
+
+    except Exception as e:
+        print(f"Error editing message: {e}")
+        db.rollback()
+    finally:
+        db.close()
+
+
 if __name__ == "__main__":
     import uvicorn
 

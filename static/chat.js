@@ -1,6 +1,7 @@
 import { setupMessageHandlers, setupReplyUI, hideReplyUI, getReplyingToMessage, handleMessageClick, clearMessageSelection } from './messageHandlers.js';
 import { initializeSocket, joinConversation } from './socket.js';
 import { showProfile } from './profile.js'; // Импортируем showProfile
+import { initMessageInteractions, getReplyData, startReply } from './messageInteractions.js';
 
 let currentConversationId = null;
 let currentUserId = null;
@@ -76,16 +77,25 @@ document.addEventListener('DOMContentLoaded', async () => {
         currentUserId = userData.id;
         console.log('Current user:', userData);
 
+        // --- Show chat section --- 
         welcomeSection.classList.add('hidden');
         signinSection.classList.add('hidden');
         signupSection.classList.add('hidden');
         chatSection.classList.remove('hidden');
 
+        // --- Initialize socket and load data --- 
         if (typeof initializeSocket === 'function') {
             initializeSocket();
         }
-
         await loadConversations();
+
+        // --- Setup message handlers AFTER chat is visible and data loaded --- 
+        if (typeof setupMessageHandlers === 'function') {
+            setupMessageHandlers();
+        } else {
+            console.error("setupMessageHandlers function not found!");
+        }
+
     } catch (error) {
         console.error('Ошибка авторизации:', error);
         localStorage.removeItem('token');
@@ -602,7 +612,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    setupMessageHandlers();
+    // Initialize the message interactions (including reply functionality)
+    // This was called before, let's ensure it's called after setupMessageHandlers if needed
+    // or potentially consolidate setup logic.
+    // For now, let's rely on setupMessageHandlers to initialize everything.
+    // initMessageInteractions(); 
 });
 
 async function loadConversations() {
@@ -791,42 +805,49 @@ function createMessageElement(msg) {
     messageDiv.dataset.senderId = msg.sender_id;
     messageDiv.dataset.messageId = msg.id;
 
+    // --- START: Add Reply Box --- 
     if (msg.replied_to_id && msg.replied_to_content) {
         const replyBox = document.createElement('div');
-        replyBox.className = 'reply-box mb-2 p-2 rounded text-sm';
-        replyBox.classList.add(isOwnMessage ? 'bg-blue-600' : 'bg-gray-400');
+        replyBox.className = 'reply-box'; // Apply CSS class
+        // Add specific background based on sender later if needed
 
-        let repliedToUserText = 'Кто-то';
-        if (msg.replied_to_sender === currentUserId) {
-            repliedToUserText = 'ваше сообщение';
+        let repliedToUserText = 'Someone'; // Default
+        if (msg.replied_to_sender_id === currentUserId) {
+            repliedToUserText = 'your message';
         } else if (msg.replied_to_username) {
             repliedToUserText = msg.replied_to_username;
         }
 
         replyBox.innerHTML = `
-            <div class="flex items-center gap-1 mb-1">
+            <div class="flex items-center gap-1 mb-1 opacity-80">
                 <svg class="w-3 h-3 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
                 </svg>
-                <span class="font-bold">Ответ на ${repliedToUserText}:</span>
+                <span class="font-bold">Reply to ${repliedToUserText}:</span>
             </div>
-            <div class="pl-3 border-l-2 border-white border-opacity-70">
-                "${msg.replied_to_content || '[удалённое сообщение]'}"
+            <div class="pl-3">
+                ${msg.replied_to_content || '[deleted message]'}
             </div>
         `;
 
+        // Add click listener to scroll to original message
         replyBox.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const originalMsg = document.querySelector(`[data-message-id="${msg.replied_to_id}"]`);
-            if (originalMsg) {
-                originalMsg.classList.add('highlight');
-                setTimeout(() => originalMsg.classList.remove('highlight'), 2000);
-                originalMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            e.stopPropagation(); // Prevent triggering message selection
+            const originalMsgEl = document.querySelector(`.message[data-message-id="${msg.replied_to_id}"]`);
+            if (originalMsgEl) {
+                originalMsgEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                originalMsgEl.classList.add('highlight');
+                // Remove highlight after animation duration (1.5s)
+                setTimeout(() => {
+                    originalMsgEl.classList.remove('highlight');
+                }, 1500);
             }
         });
 
-        messageDiv.appendChild(replyBox);
+        // Prepend the reply box to the message div
+        messageDiv.prepend(replyBox);
     }
+    // --- END: Add Reply Box ---
 
     const contentDiv = document.createElement('div');
     contentDiv.className = 'message-content mr-10'; // Add margin for status icon
@@ -859,6 +880,7 @@ function createMessageElement(msg) {
     messageDiv.appendChild(statusContainer);
 
     if (!msg.is_deleted) {
+        // Add click handler for message options menu
         messageDiv.addEventListener('click', (e) => {
             e.stopPropagation();
             handleMessageClick(e, messageDiv);
@@ -877,43 +899,13 @@ function updateMessageReadStatus(messageIds) {
         if (messageElement) {
             const statusIcon = messageElement.querySelector('.message-status-icon');
             if (statusIcon) {
-                statusIcon.innerHTML = '&#10004;&#10004;'; // Double checkmark
+                statusIcon.innerHTML = '&#10004;&#10004;'; // Double checkmark for read
             }
         }
     });
 }
 
-document.addEventListener('click', (e) => {
-    if (!e.target.closest('.message') && !e.target.closest('.floating-actions-menu')) {
-        clearMessageSelection();
-    }
-});
-
-async function deleteMessage(messageId) {
-    try {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`/chat/messages/${messageId}`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
-
-        if (response.ok) {
-            const messageEl = document.querySelector(`[data-message-id="${messageId}"]`);
-            if (messageEl) {
-                messageEl.classList.add('deleted');
-                messageEl.textContent = "[Сообщение удалено]";
-            }
-            if (socket && socket.connected) {
-                socket.emit('delete_message', { message_id: messageId });
-            }
-        }
-    } catch (error) {
-        console.error("Ошибка удаления сообщения:", error);
-    }
-}
-
+// Update the createMessageData function to use our new reply module
 function createMessageData(content) {
     const messageData = {
         conversation_id: currentConversationId,
@@ -921,7 +913,7 @@ function createMessageData(content) {
         content: content
     };
 
-    const replyingTo = getReplyingToMessage();
+    const replyingTo = getReplyData();
     if (replyingTo) {
         messageData.replied_to_id = replyingTo.id;
     }

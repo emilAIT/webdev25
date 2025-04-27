@@ -245,7 +245,26 @@ function setupSocketEvents() {
             const messageElement = document.querySelector(`[data-message-id="${data.message_id}"]`);
             if (messageElement) {
                 messageElement.classList.add('deleted');
-                messageElement.innerHTML = '<div>[Message deleted]</div>';
+                messageElement.innerHTML = '<div class="message-content">[Message deleted]</div>';
+            }
+        }
+    });
+
+    socket.on('message_edited', (data) => {
+        console.log('Received message_edited event:', data);
+
+        // Update UI for edited message
+        if (data.conversation_id === currentConversationId) {
+            const messageElement = document.querySelector(`[data-message-id="${data.message_id}"]`);
+            if (messageElement) {
+                const contentEl = messageElement.querySelector('.message-content');
+                if (contentEl) {
+                    contentEl.textContent = data.content;
+
+                    // Add a subtle highlight animation
+                    messageElement.classList.add('highlight');
+                    setTimeout(() => messageElement.classList.remove('highlight'), 1500);
+                }
             }
         }
     });

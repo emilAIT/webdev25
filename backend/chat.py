@@ -299,3 +299,38 @@ def delete_message(
     db.commit()
 
     return {"status": "success", "message": "Message deleted"}
+
+
+@router.put("/messages/{message_id}")
+def update_message(
+    message_id: int,
+    message_data: dict,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    # Get the message
+    message = db.query(Message).filter(Message.id == message_id).first()
+    if not message:
+        raise HTTPException(status_code=404, detail="Message not found")
+
+    # Check if user is the sender of the message
+    if message.sender_id != user.id:
+        raise HTTPException(
+            status_code=403, detail="Not authorized to edit this message"
+        )
+
+    # Check if the message is already deleted
+    if message.is_deleted:
+        raise HTTPException(status_code=400, detail="Cannot edit a deleted message")
+
+    # Update message content
+    if "content" in message_data:
+        message.content = message_data["content"]
+
+    db.commit()
+
+    return {
+        "status": "success",
+        "message": "Message updated",
+        "content": message.content,
+    }

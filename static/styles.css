@@ -78,8 +78,19 @@
 }
 
 .message.highlight {
-    animation: pulse-highlight 2s ease;
+    animation: pulse-highlight 1.5s ease-out;
     z-index: 10;
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 @keyframes highlight {
@@ -94,11 +105,11 @@
 @keyframes pulse-highlight {
     0% {
         transform: scale(1);
-        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
     }
-    30% {
-        transform: scale(1.05);
-        box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+    50% {
+        transform: scale(1.03);
+        box-shadow: 0 0 0 8px rgba(59, 130, 246, 0);
     }
     100% {
         transform: scale(1);
@@ -124,34 +135,31 @@
     padding-left: 6px;
 }
 
-#reply-container {
+#reply-container, #edit-container {
     display: flex;
     align-items: center;
-    background-color: #f3f4f6;
     padding: 8px 12px;
     border-radius: 8px;
     margin-bottom: 8px;
     animation: slideDown 0.3s ease-out;
 }
 
-#reply-preview {
+#reply-preview, #edit-preview {
     flex: 1;
     margin-right: 12px;
-    color: #4b5563;
-    font-size: 0.9em;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-#cancel-reply {
+#cancel-reply, #cancel-edit {
     padding: 4px;
     border-radius: 50%;
     cursor: pointer;
     transition: all 0.2s;
 }
 
-#cancel-reply:hover {
+#cancel-reply:hover, #cancel-edit:hover {
     background-color: #e5e7eb;
 }
 
@@ -231,119 +239,37 @@
     background-color: rgba(0,0,0,0.05);
 }
 
+/* Styling for the reply box shown above the message content */
 .reply-box {
     position: relative;
     opacity: 0.9;
     cursor: pointer;
     transition: all 0.2s ease;
-    border-left: 3px solid rgba(255, 255, 255, 0.5);
+    border-left: 3px solid rgba(255, 255, 255, 0.5); /* Default for own message */
     margin-bottom: 8px;
+    padding: 6px 8px; /* Adjust padding */
+    border-radius: 6px; /* Slightly rounded corners */
+    font-size: 0.85em; /* Smaller font size */
+}
+
+.message.self-start .reply-box {
+    border-left-color: rgba(0, 0, 0, 0.3); /* Darker border for received messages */
 }
 
 .reply-box:hover {
     opacity: 1;
-    background-color: rgba(0, 0, 0, 0.1);
+    background-color: rgba(0, 0, 0, 0.05); /* Subtle hover effect */
 }
 
-.reply-info {
-    margin-bottom: 4px;
+.reply-box .font-bold {
     opacity: 0.8;
-    cursor: pointer;
 }
 
-.reply-line {
-    width: 2px;
-    height: 16px;
-    background-color: currentColor;
-    margin-left: 8px;
-    margin-bottom: 2px;
-}
-
-.reply-content {
-    font-size: 0.85em;
-    padding: 4px 8px;
-    border-radius: 4px;
-    background-color: rgba(0, 0, 0, 0.1);
-    margin-bottom: 4px;
-}
-
-.reply-to {
-    font-weight: 500;
-    margin-right: 4px;
-}
-
-.reply-text {
-    opacity: 0.8;
+.reply-box .pl-3 {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 200px;
-    display: inline-block;
-    vertical-align: bottom;
-}
-
-.floating-actions-menu {
-    position: fixed;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    z-index: 1000;
-    background-color: white;
-    padding: 8px;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
-    animation: fadeIn 0.2s ease;
-}
-
-.floating-actions-menu.hidden {
-    display: none;
-}
-
-.action-button {
-    width: 40px;
-    height: 40px;
-    padding: 8px;
-    border-radius: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.2s ease;
-    cursor: pointer;
-}
-
-.action-button:hover {
-    transform: scale(1.1);
-}
-
-.action-button.reply {
-    background-color: #4CAF50;
-    color: white;
-}
-
-.action-button.delete {
-    background-color: #F44336;
-    color: white;
-}
-
-.action-button svg {
-    width: 24px;
-    height: 24px;
-}
-
-/* Message animation for new messages */
-@keyframes newMessageAnimation {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.new-message-animation {
-    animation: newMessageAnimation 0.4s ease-out;
+    max-width: 90%; /* Prevent long text overflowing */
 }
 
 /* Adjust read status icon */
