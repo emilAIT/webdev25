@@ -727,11 +727,10 @@ async function loadConversation(conversationId) {
         } else {
             messages.forEach(msg => {
                 const messageDiv = createMessageElement(msg);
-                messageList.appendChild(messageDiv);
+                // Prepend messages because of flex-col-reverse
+                messageList.prepend(messageDiv);
             });
         }
-
-        messageList.scrollTop = messageList.scrollHeight;
 
         const conv = conversations.find(c => c.id === conversationId);
         document.getElementById('conversation-name').textContent = conv ? (conv.name || 'Chat') : 'Chat';
@@ -776,11 +775,9 @@ function createMessageElement(msg) {
     const classes = [
         'message',
         'p-3',
-        'mb-2',
         'rounded-lg',
         isOwnMessage ? 'self-end' : 'self-start',
         'relative',
-        'new-message-animation' // Add animation class to new messages
     ];
 
     if (msg.is_deleted) {
