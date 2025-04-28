@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AsmanLink - Contacts</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/contact.css">
+    <script src="static/scripts/contacts.js"></script>
+    <link rel="stylesheet" href="/static/themes.css">
+    <script src="/static/scripts/theme.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="left">
+            <div class="top">
+                <div class="menu-container">
+                    <button class="menu-button" onclick="toggleMenu()">☰</button>
+                    <div class="menu-dropdown" id="dropdown">
+                        <a href="/main">Chat</a>
+                        <a href="/contacts">Contacts</a>
+                        <!-- <a href="/new_group">New Group</a> -->
+                        <a href="/profile">Profile</a>
+                    </div>
+                </div>
+                <div class="search-div">
+                    <input type="text" class="search-input" placeholder="Search contacts...">
+                    <span class="version">v0.1</span>
+                </div>
+            </div>
+          
+        </div>
+        <div class="right">
+            <div class="contacts-header">
+                <h2>Contacts</h2>
+                <button class="add-contact-btn" onclick="location.href='/addcontact'">Add Contact</button>
+            </div>
+            <div class="contacts-list" id="contactsList">
+                <!-- Contacts will be loaded dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Безопасно передаем данные пользователя из backend в frontend
+        const currentUser = JSON.parse('{{ user | tojson | safe }}');
+
+        async function fetchContacts() {
+            try {
+                const response = await fetch(`/api/user-contacts/${currentUser.id}`);
+                if (response.ok) {
+                    const contacts = await response.json();
+                    renderContacts(contacts);
+                } else {
+                    console.error('Failed to fetch contacts');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function renderContacts(contacts) {
+            const contactsList = document.getElementById('contactsList');
+            if (contacts.length === 0) {
+                contactsList.innerHTML = '<div class="no-contacts">No contacts found</div>';
+                return;
+            }
+
+            contactsList.innerHTML = contacts.map(contact => `
+                <div class="contact">
+                    <div class="contact-avatar">${contact.contact_name[0].toUpperCase()}</div>
+                    <div class="contact-info">
+                        <div class="contact-name">${contact.contact_name}</div>
+                        <div class="contact-status">${contact.status || 'Offline'}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Поиск контактов
+        document.querySelector('.search-input').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const contacts = document.querySelectorAll('.contact');
+            
+            contacts.forEach(contact => {
+                const name = contact.querySelector('.contact-name').textContent.toLowerCase();
+                if (name.includes(searchTerm)) {
+                    contact.style.display = 'flex';
+                } else {
+                    contact.style.display = 'none';
+                }
+            });
+        });
+
+        // Переключение между вкладками
+        function setActive(element) {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            element.classList.add('active');
+            // Здесь можно добавить логику фильтрации контактов
+        }
+
+        // Загружаем контакты при загрузке страницы
+        document.addEventListener('DOMContentLoaded', fetchContacts);
+    </script>
+</body>
+
+</html>

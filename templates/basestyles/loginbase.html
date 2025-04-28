@@ -1,0 +1,24 @@
+<!-- base.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    {% block title %}{% endblock title %}
+    <link rel="stylesheet" href="static/login.css">
+</head>
+<body>
+    <div class="login-container">
+        <h2>{% block page_title %}{% endblock page_title %}</h2>
+        <form>
+            {% block inputs %}{% endblock inputs %}
+            {% block login_button %}{% endblock %}
+            {% block forgot_password %}{% endblock %}
+            {% block links %}{% endblock %}
+        </form>
+    </div>
+    <script src="static/scripts/login.js"></script>
+</body>
+</html>

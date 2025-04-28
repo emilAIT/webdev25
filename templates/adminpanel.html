@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Chat Web App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <script defer src="static/scripts/admin.js"></script>
+</head>
+    
+<body class="bg-gray-900 text-white">
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <!-- Sidebar for Desktop -->
+        <aside class="hidden md:block w-64 bg-gray-800 h-screen p-4 fixed">
+            <h1 class="text-2xl font-bold text-blue-400 mb-8">Admin Panel</h1>
+            <nav>
+                <ul class="space-y-2">
+                    <li><a href="#dashboard" class="block p-2 hover:bg-gray-700 rounded">Dashboard</a></li>
+                    <li><a href="#users" class="block p-2 hover:bg-gray-700 rounded">User Management</a></li>
+                    <!-- <li><a href="#settings" class="block p-2 hover:bg-gray-700 rounded">Settings</a></li> -->
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-4 md:p-8 md:ml-64 pb-16 md:pb-8">
+        <!-- Dashboard Section -->
+        <section id="dashboard">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">Dashboard</h2>
+                <span id="lastUpdated" class="text-gray-400 mt-2 md:mt-0">Last updated: <span id="updateTime"></span></span>
+            </div>
+            <!-- Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+                <div class="bg-gray-800 p-4 rounded-lg flex flex-col justify-between h-28">
+                    <h3 class="text-base font-semibold">Active Users</h3>
+                    <p id="activeUsers" class="text-2xl font-bold text-blue-400">0</p>
+                </div>
+                <div class="bg-gray-800 p-4 rounded-lg flex flex-col justify-between h-28">
+                    <h3 class="text-base font-semibold">Messages Sent (24h)</h3>
+                    <p id="messagesSent" class="text-2xl font-bold text-green-400">0</p>
+                </div>
+                <div class="bg-gray-800 p-4 rounded-lg flex flex-col justify-between h-28">
+                    <h3 class="text-base font-semibold">All Users</h3>
+                    <p id="totalUsers" class="text-2xl font-bold text-yellow-400">0</p>
+                </div>
+            </div>
+            <!-- Chart -->
+            <div class="bg-gray-800 p-4 rounded-lg">
+                <div class="flex flex-col md:flex-row justify-between mb-4">
+                    <h3 class="text-base font-semibold">Message Volume</h3>
+                    <select class="bg-gray-700 p-1 rounded mt-2 md:mt-0">
+                        <option>24h</option>
+                        <option>7d</option>
+                        <option>30d</option>
+                    </select>
+                </div>
+                <canvas id="messageChart"></canvas>
+            </div>
+        </section>
+            <!-- User Management Section -->
+            <section id="users" class="mt-8 hidden">
+                <h2 class="text-2xl font-bold mb-4">User Management</h2>
+                <div class="bg-gray-800 p-4 rounded-lg">
+                    <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-3">
+                        <input type="text" placeholder="Search users..." class="bg-gray-700 p-2 rounded flex-1 w-full">
+                        <select class="bg-gray-700 p-2 rounded w-full md:w-auto">
+                            <option value="all">Filter: All</option>
+                            <option value="active">Active</option>
+                            <option value="banned">Banned</option>
+                        </select>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full min-w-max">
+                            <thead>
+                                <tr class="border-b border-gray-700">
+                                    <th class="p-2 text-left">Email</th>
+                                    <th class="p-2 text-left">Name</th>
+                                    <th class="p-2 text-left">Status</th>
+                                    <th class="p-2 text-left">Last Active</th>
+                                    <th class="p-2 text-left">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userTable">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Chat Room Management Section -->
+            <section id="chat-rooms" class="mt-8 hidden">
+                <h2 class="text-2xl font-bold mb-4">Chat Room Management</h2>
+                <div class="bg-gray-800 p-4 rounded-lg">
+                    <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-3">
+                        <input type="text" placeholder="Search rooms..." class="bg-gray-700 p-2 rounded flex-1 w-full">
+                        <select class="bg-gray-700 p-2 rounded w-full md:w-auto">
+                            <option>Filter: All</option>
+                            <option>Active</option>
+                            <option>Inactive</option>
+                        </select>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full min-w-max">
+                            <thead>
+                                <tr class="border-b border-gray-700">
+                                    <th class="p-2 text-left">Room Name</th>
+                                    <th class="p-2 text-left">Creator</th>
+                                    <th class="p-2 text-left">Participants</th>
+                                    <th class="p-2 text-left">Status</th>
+                                    <th class="p-2 text-left">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="roomTable">
+                                <tr class="border-b border-gray-700">
+                                    <td class="p-2">General Chat</td>
+                                    <td class="p-2">Admin</td>
+                                    <td class="p-2">123</td>
+                                    <td class="p-2 text-green-400">Active</td>
+                                    <td class="p-2 flex flex-wrap gap-2">
+                                        <button
+                                            class="bg-red-500 px-2 py-1 rounded hover:bg-red-600 text-sm">Delete</button>
+                                    </td>
+                                </tr>
+                                <tr class="border-b border-gray-700">
+                                    <td class="p-2">Support Room</td>
+                                    <td class="p-2">SupportTeam</td>
+                                    <td class="p-2">45</td>
+                                    <td class="p-2 text-green-400">Active</td>
+                                    <td class="p-2 flex flex-wrap gap-2">
+                                        <button
+                                            class="bg-red-500 px-2 py-1 rounded hover:bg-red-600 text-sm">Delete</button>
+
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Section -->
+            <section id="settings" class="mt-8 hidden">
+                <h2 class="text-2xl font-bold mb-4">Settings</h2>
+                <div class="bg-gray-800 p-4 rounded-lg">
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="text-base font-semibold mb-2">Chat Settings</h3>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="mr-2"> Enable Message Encryption
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="mr-2"> Allow File Uploads
+                                </label>
+                                <div>
+                                    <label class="block mb-1">Max Message Length</label>
+                                    <input type="number" class="bg-gray-700 p-2 rounded w-24" value="500">
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-semibold mb-2">Appearance</h3>
+                            <select class="bg-gray-700 p-2 rounded w-full md:w-auto">
+                                <option>Dark Theme</option>
+                                <option>Light Theme</option>
+                            </select>
+                        </div>
+                        <button class="bg-blue-500 px-4 py-2 rounded hover:bg-blue-600 w-full md:w-auto">Save
+                            Settings</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Bottom Navigation for Mobile -->
+        <nav
+            class="md:hidden fixed bottom-0 left-0 right-0 bg-gray-800 p-2 flex justify-around items-center border-t border-gray-700 z-50">
+            <a href="#dashboard" class="flex flex-col items-center text-gray-400 hover:text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1-1h-3M7 3h10a1 1 0 011 1v2">
+                    </path>
+                </svg>
+                <span class="text-xs">Dashboard</span>
+            </a>
+            <a href="#users" class="flex flex-col items-center text-gray-400 hover:text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
+                    </path>
+                </svg>
+                <span class="text-xs">Users</span>
+            </a>
+            <a href="#chat-rooms" class="flex flex-col items-center text-gray-400 hover:text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
+                    </path>
+                </svg>
+                <span class="text-xs">Rooms</span>
+            </a>
+            <a href="#settings" class="flex flex-col items-center text-gray-400 hover:text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
+                    </path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+                <span class="text-xs">Settings</span>
+            </a>
+        </nav>
+    </div>
+   
+
+   
+</body>
+
+</html>

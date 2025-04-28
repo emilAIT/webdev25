@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AsmanLink - Create Group</title>
+    <link rel="stylesheet" href="static/newgroup.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container create-group-container">
+        <div class="left-section">
+            <div class="header">
+                <h2>Group Details</h2>
+            </div>
+            <form id="createGroupForm">
+                <div class="form-group">
+                    <div class="group-avatar" id="groupAvatar">G</div>
+                </div>
+                <div class="form-group">
+                    <label for="groupName">Group Name</label>
+                    <input type="text" id="groupName" name="groupName" required placeholder="Enter group name">
+                </div>
+                <div class="form-group">
+                    <label for="groupDescription">Description</label>
+                    <textarea id="groupDescription" name="groupDescription" placeholder="Enter group description (optional)"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="groupType">Group Type</label>
+                    <select id="groupType" name="groupType">
+                        <option value="public">Public</option>
+                        <option value="private">Private</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+        <div class="right-section">
+            <div class="header">
+                <h2>Select Members</h2>
+            </div>
+            <div class="form-group">
+                <input type="text" id="memberSearch" placeholder="Search contacts...">
+            </div>
+            <div class="contact-list" id="contactList">
+                <div class="contact-item" data-id="1">
+                    <div class="contact-avatar">A</div>
+                    <span>Alice Johnson</span>
+                </div>
+                <div class="contact-item" data-id="2">
+                    <div class="contact-avatar">B</div>
+                    <span>Bob Smith</span>
+                </div>
+                <div class="contact-item" data-id="3">
+                    <div class="contact-avatar">C</div>
+                    <span>Charlie Brown</span>
+                </div>
+                <div class="contact-item" data-id="4">
+                    <div class="contact-avatar">D</div>
+                    <span>Diana Lee</span>
+                </div>
+            </div>
+            <div class="buttons">
+                <button class="btn create-btn" onclick="location.href='/main'">Cancel</button>
+                <button class="btn cancel-btn" onclick="createGroup()">Create Group</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.getElementById('groupName').addEventListener('input', function (e) {
+            const preview = document.getElementById('groupAvatar');
+            const value = e.target.value.trim();
+            preview.textContent = value ? value[0].toUpperCase() : 'G';
+        });
+        document.querySelectorAll('.contact-item').forEach(item => {
+            item.addEventListener('click', function () {
+                this.classList.toggle('selected');
+            });
+        });
+        document.getElementById('memberSearch').addEventListener('input', function (e) {
+            const searchTerm = e.target.value.toLowerCase();
+            document.querySelectorAll('.contact-item').forEach(item => {
+                const name = item.querySelector('span').textContent.toLowerCase();
+                item.style.display = name.includes(searchTerm) ? 'flex' : 'none';
+            });
+        });
+        async function createGroup() {
+                const groupName = document.getElementById('groupName').value;
+                const groupDescription = document.getElementById('groupDescription').value;
+                const selectedMembers = Array.from(document.querySelectorAll('.contact-item.selected'))
+                    .map(item => parseInt(item.dataset.id));
+                if (!groupName) {
+                    alert('Please enter a group name');
+                    return;
+                }
+                const response = await fetch('/api/create-group', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: groupName,
+                        description: groupDescription,
+                        members: selectedMembers
+                    })
+                });
+                if (response.ok) {
+                    window.location.href = '/main';
+                } else {
+                    alert('Failed to create group');
+                }
+            }
+    </script>
+</body>
+</html>

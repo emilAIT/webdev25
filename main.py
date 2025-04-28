@@ -1,56 +1,64 @@
+import logging
+from fastapi import FastAPI, Request, HTTPException
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
+from starlette.middleware.sessions import SessionMiddleware
+from routes import auth_required, router
+from db import init_db
+import uvicorn
 
-from flask import Flask, request, render_template, jsonify
-from flask_cors import CORS
-from random import randint
-from collections import defaultdict
-app = Flask(__name__)
-CORS(app)
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
+app = FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
 
-d = {
-    "correct": 0, 
-    "attempt": 0, 
-    "question": "", 
-    "incorrect": 0,
-    "question_count": 0
-}
+app.add_middleware(SessionMiddleware, secret_key="your_secret_key")
 
-ops = "+-"
+# Database initialize
+init_db()
 
-@app.route("/")
-def enterance():
-    return render_template("math.html")
+# Include all routes
+app.include_router(router)
 
-@app.route("/get_question")
-def generate_question():
-    try:
-        first = randint(0, 100)
-        second = randint(0, 100)
-        first, second = max(first, second), min(first, second)
-        op = ops[randint(0, 1)]
-        d["question"] = f'{first}{op}{second}'
-        d["question_count"] += 1
-        return jsonify({"question": d["question"]})
-    except:
-        return "ERROR IN THE SERVER"
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    logger.debug(f"Request path: {request.url.path}")
+    response = await call_next(request)
+    logger.debug(f"Response status: {response.status_code}")
+    return response
 
-@app.route('/check_result')
-def check_result():
-    try:
-        answer = int(request.args.get("answer"))
-        d["attempt"] += 1
-        if answer == eval(d["question"]):
-            d["correct"] += 1
-        else:
-            d["incorrect"] += 1
-        return jsonify(d)   
-    except:
-        return "error in the server"
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"message": exc.detail},
+    )
 
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    return JSONResponse(
+        status_code=500,
+        content={"message": "Внутренняя ошибка сервера"},
+    )
+
+@app.get("/new_group", response_class=HTMLResponse, name="new_group")
+def new_group_page(request: Request):
+    return templates.TemplateResponse("new_group.html", {"request": request})
+
+@app.get("/profile", response_class=HTMLResponse, name="profile")
+def profile_page(request: Request):
+    return templates.TemplateResponse("profile.html", {"request": request})
+
+@app.get("/addcontact", response_class=HTMLResponse, name="addcontact")
+def addcontact_page(request: Request):
+    return templates.TemplateResponse("addcontact.html", {"request": request})
+
+@app.get("/adminpanel", response_class=HTMLResponse, name="adminpanel")
+def adminpanel_page(request: Request):
+    return templates.TemplateResponse("adminpanel.html", {"request": request})
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080)
-
-
-
-    
+    uvicorn.run("main:app", reload=True)

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>AsmanLink - Login</title>
+    <link rel="stylesheet" href="/static/login.css">
+</head>
+
+<body>
+    <div class="login-container">
+        <h2>Welcome to AsmanLink</h2>
+
+        <div class="toast toast-error" id="toast">
+            {% if error %}
+            {{ error }}
+        {% endif %}
+        </div>
+        <form action="/login" method="POST">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="text" id="email" name="email" placeholder="Enter your Email" required>
+            </div>
+            <div class="form-group password-container">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                <i class="fas fa-eye toggle-password" data-target="password"></i>
+            </div>
+            <button type="submit" class="login-btn">Login</button>
+            <div class="forgot-password">
+                <!-- <a href="#">Forgot Password?</a> -->
+            </div>
+            <div class="signup-text">
+                Don't have an account? <a href="/register">Sign Up</a>
+            </div>
+        </form>
+    </div>
+    <script>
+        document.querySelectorAll('.toggle-password').forEach(icon => {
+            icon.addEventListener('click', function () {
+                const targetId = this.getAttribute('data-target');
+                const targetInput = document.getElementById(targetId);
+
+                if (targetInput.type === 'password') {
+                    targetInput.type = 'text';
+                    this.classList.remove('fa-eye');
+                    this.classList.add('fa-eye-slash');
+                } else {
+                    targetInput.type = 'password';
+                    this.classList.remove('fa-eye-slash');
+                    this.classList.add('fa-eye');
+                }
+            });
+        });
+
+        // Toast notification logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const toast = document.getElementById('toast');
+            if (toast && toast.textContent.trim()) { // Проверяем, есть ли текст
+                setTimeout(() => {
+                    toast.classList.add('show');
+                }, 100);
+
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+
+</html>

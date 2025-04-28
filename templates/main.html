@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AsmanLink - Main</title>
+    <link rel="stylesheet" href="/static/index.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/themes.css">
+    <script src="/static/scripts/theme.js"></script>
+    <style>
+        .info-panel:not(.active) { display: none; }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="left">
+            <div class="top">
+                <div class="menu-container">
+                    <button class="menu-button" onclick="toggleMenu()">☰</button>
+                    <div class="menu-dropdown" id="dropdown">
+                        <a href="/contacts">Contacts</a>
+                        <a href="/addcontact">New Contact</a>
+                        <a href="/profile">Profile</a>
+                        <a href="/login">Logout</a>
+                        <!-- <form action="/logout" method="POST" class="logout-form">
+                            <button type="submit" class="menu-link">Logout</button>
+                        </form> -->
+                    </div>
+                </div>
+                <div class="search-div">
+                    <input type="text" 
+                           class="search-input" 
+                           placeholder="Search chats..."
+                           oninput="filterContacts(this.value)">
+                    <span class="version">v1.0</span>
+                </div>
+            </div>
+            <div class="bottom" id="contact-list">
+                <!-- Контакты будут добавлены динамически -->
+               
+            </div>
+        </div>
+        <div class="right">
+            <div class="top-info">
+                <div>
+                    <p class="username" id="username-id" onclick="toggleInfoPanel()">Select a contact</p>
+                    <span class="user-status" id="user-status">Offline</span>
+                </div>
+                <div class="actions">
+                    <!-- <button class="action-btn" title="Call">📞</button>
+                    <button class="action-btn" title="Video Call">📹</button>
+                    <button class="action-btn" title="More">⋯</button> -->
+                </div>
+            </div>
+            <div class="mid-chat-display" id="chat-display">
+                <!-- Messages will be populated dynamically -->
+            </div>
+            <div class="bottom-chat-input">
+                <button class="emoji-btn" onclick="openSystemEmojiPicker()">😊</button>
+                <input type="text" class="chat-input" placeholder="Type a message...">
+                <div class="chat-send-button">
+                    <button onclick="sendMessage()">
+                        <img class="send-button"
+                            src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAAXNSR0IArs4c6QAAAXNJREFUSEvNltFRw0AMRJVOoBOohFBJQiVAJUkn0AnkDSdGEdLpbCc4+vFkrHhXu5LuNrJSbFbClZsDvhORz2uq4SsG8KMBHkXk+VoEPPCDiBxcpRB4ERGeF4vIYyqmch8XJRABv57k3TbUt1OlqGCJQOC9KTC7DyJgQAEn7pvH/PYEAFULJhOIgK3PNBdVa0BqF1hBHkoME8jmWH0GlI/6yAiQjwolgQzY+vzY6WjUIdc3Y0kgA7Y+U23V0RDAAp420l2QAUfzvJTA2S7o7epsnkcJPAWT8NusPeCvzpqqpMdzpNd9oJ8qge3O9p711mfP6yGp942xglYVZoB0t265MwEzqRWYedTlECmPlOqlfT97nNTff10g1l98ofpqZfq8Tl/+vIqktv7qIeE9/9OlJZJL6AHjL03lR0JPJXt4TMUNK87mt+rsSeC9O9foKE0C1OQImDsXDZbO4CykAY9ZBvhYnqlLCNzchX5JMUP/Xa3ibxOVaR/45DsZAAAAAElFTkSuQmCC" />
+                    </button>
+                </div>
+            </div>
+            <!-- Пример info-панели для группы -->
+            <div class="info-panel" id="infoPanel">
+                <div class="info-header">
+                    <span class="info-title" id="infoTitle">Asman Team</span>
+                    <button class="close-btn" onclick="toggleInfoPanel()">✕</button>
+                </div>
+                <div class="info-avatar" id="infoAvatar" style="background:#0288d1;">A</div>
+                <div class="info-detail">
+                    <span class="info-label">Type</span>
+                    <div class="info-value" id="infoStatus">Group Chat</div>
+                </div>
+                <div class="info-detail">
+                    <span class="info-label">Email</span>
+                    <div class="info-value" id="infoEmail">group@asmanlink.local</div>
+                </div>
+                <div class="info-detail">
+                    <span class="info-label">Bio</span>
+                    <div class="info-value" id="infoBio">This is a demo group chat for all users.</div>
+                </div>
+                <!-- <div class="info-detail">
+                    <span class="info-label">Creator</span>
+                    <div class="info-value" id="infoCreator"></div>
+                </div> -->
+                <div class="group-members">
+                    <span class="info-label">Members</span>
+                    <ul class="member-list">
+                        <li class="member-item">
+                            <div class="member-avatar">A</div>
+                            <span>Ali User</span>
+                        </li>
+                        <li class="member-item">
+                            <div class="member-avatar">B</div>
+                            <span>Bob User</span>
+                        </li>
+                        <!-- ... -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Безопасно передаем данные пользователя из backend в frontend
+        const currentUser = JSON.parse('{{ user | tojson | safe }}');
+        
+        let currentContactId = null;
+        let currentIsGroup = false;
+        let ws = null;
+
+        function toggleMenu() {
+            const menu = document.getElementById("dropdown");
+            menu.style.display = menu.style.display === "block" ? "none" : "block";
+        }
+
+        document.addEventListener("click", function (event) {
+            const menu = document.getElementById("dropdown");
+            const button = document.querySelector(".menu-button");
+            if (!button.contains(event.target) && !menu.contains(event.target)) {
+                menu.style.display = "none";
+            }
+        });
+
+       async function fetchContacts() {
+            try {
+                // Получаем группы пользователя
+                const groupsResponse = await fetch("/api/user-groups", {
+                    headers: { "Content-Type": "application/json" }
+                });
+                const groups = groupsResponse.ok ? await groupsResponse.json() : [];
+
+                // Получаем обычные чаты
+                const chatsResponse = await fetch("/api/chats", {
+                    headers: { "Content-Type": "application/json" }
+                });
+                const chats = chatsResponse.ok ? await chatsResponse.json() : [];
+
+                const contactList = document.getElementById("contact-list");
+                if (chats.length === 0 && groups.length === 0) {
+                    contactList.innerHTML = '<div class="no-chats">No chats found</div>';
+                    return;
+                }
+
+                // Сначала группы, потом обычные чаты
+                contactList.innerHTML =
+                    groups.map(group => `
+                <div class="user-info group-chat" onclick="selectContact(${group.id}, '${group.name}', true)"
+                     data-contact-id="${group.id}" data-contact-name="${group.name}" data-is-group="true">
+                    <div class="user-avatar group-avatar" style="background: linear-gradient(135deg, #0288d1, #4fc3f7); color: #fff;">${group.name[0].toUpperCase()}</div>
+                    <div class="user-details">
+                        <div class="user-name">${group.name}</div>
+                        <div class="user-status">Group</div>
+                    </div>
+                </div>
+            `).join("") +
+                    chats.map(contact => `
+                <div class="user-info" onclick="selectContact(${contact.contact_id}, '${contact.contact_name}', false)" 
+                     data-contact-id="${contact.contact_id}" 
+                     data-contact-name="${contact.contact_name}">
+                    <div class="user-avatar">${contact.contact_name[0].toUpperCase()}</div>
+                    <div class="user-details">
+                        <div class="user-name">${contact.contact_name}</div>
+                        <div class="user-status">
+                            ${contact.is_contact ? contact.status || 'Offline' : 'Not in contacts'}
+                        </div>
+                    </div>
+                </div>
+            `).join("");
+
+                // Выбираем первый чат или группу по умолчанию
+                const first = contactList.querySelector('.user-info');
+                if (first) {
+                    const id = parseInt(first.getAttribute('data-contact-id'));
+                    const name = first.getAttribute('data-contact-name');
+                    const isGroup = first.getAttribute('data-is-group') === "true";
+                    selectContact(id, name, isGroup);
+                }
+            } catch (error) {
+                console.error('Error fetching chats:', error);
+            }
+        }
+        async function fetchMessages(contactId) {
+            const response = await fetch(`/messages/${contactId}`, {
+                headers: { "Content-Type": "application/json" }
+            });
+            if (response.ok) {
+                const messages = await response.json();
+                renderMessages(messages);
+            }
+        }
+
+        async function selectContact(contactId, contactName, isGroup = false) {
+            currentContactId = contactId;
+            currentIsGroup = isGroup;
+
+            document.querySelectorAll('.user-info').forEach(el => {
+                el.classList.remove('active');
+            });
+
+            const selectedContact = document.querySelector(`[data-contact-id="${contactId}"]`);
+            if (selectedContact) {
+                selectedContact.classList.add('active');
+            }
+
+            // Используйте contactName для top-info
+            document.getElementById("username-id").textContent = contactName;
+
+            updateContactInfoPanel(contactId, isGroup);
+            fetchMessages(contactId);
+
+            const chatInput = document.querySelector(".chat-input");
+            chatInput.disabled = false;
+            chatInput.placeholder = isGroup
+                ? `Write a message to group "${contactName}"...`
+                : `Write a message to ${contactName}...`;
+        }
+
+        async function updateContactInfoPanel(contactId, isGroup = false) {
+            if (isGroup) {
+                const response = await fetch(`/api/group/${contactId}`);
+                if (response.ok) {
+                    const group = await response.json();
+                    document.getElementById("infoTitle").textContent = group.name;
+                    document.getElementById("infoAvatar").textContent = group.name[0].toUpperCase();
+                    document.getElementById("infoAvatar").style.background = "linear-gradient(135deg, #0288d1, #4fc3f7)";
+                    document.getElementById("infoStatus").textContent = "Group Chat";
+                    document.getElementById("infoEmail").textContent = group.creator.email;
+                    document.getElementById("infoBio").textContent = group.description || "No description";
+                    
+                    if (document.getElementById("infoCreator")) {
+                        document.getElementById("infoCreator").textContent =
+                            (group.creator.first_name || "") + " " + (group.creator.last_name || "") + " (" + group.creator.email + ")";
+                    }
+                    
+                    const memberList = document.querySelector(".group-members .member-list");
+                    if (memberList) {
+                        memberList.innerHTML = group.members.map(m =>
+                            `<li class="member-item">
+                                <div class="member-avatar">${(m.first_name ? m.first_name[0] : m.email[0]).toUpperCase()}</div>
+                                <span>${(m.first_name || "") + " " + (m.last_name || "")}</span>
+                            </li>`
+                        ).join("");
+                        document.querySelector(".group-members").style.display = "block";
+                        memberList.style.maxHeight = "200px";
+                        memberList.style.overflowY = "auto";
+                    }
+                    return;
+                }
+            }
+            
+            // Обычный пользователь
+            try {
+                const response = await fetch(`/api/user/${contactId}`);
+                if (response.ok) {
+                    const user = await response.json();
+                    document.getElementById("infoTitle").textContent =
+                        (user.first_name || "") + (user.last_name ? " " + user.last_name : "") || user.email;
+                    document.getElementById("infoAvatar").textContent =
+                        (user.first_name ? user.first_name[0] : (user.email ? user.email[0] : "-")).toUpperCase();
+                    document.getElementById("user-status").textContent = user.status || "Offline";
+                    document.getElementById("infoStatus").textContent = user.status || "Offline";
+                    document.getElementById("infoEmail").textContent = user.email || "N/A";
+                    document.getElementById("infoBio").textContent = user.bio || "No info available";
+                    if (document.getElementById("infoCreator")) document.getElementById("infoCreator").textContent = "";
+                    if (document.querySelector(".group-members")) document.querySelector(".group-members").style.display = "none";
+                }
+            } catch (error) {
+                console.error("Error loading user info:", error);
+            }
+        }
+
+        function openSystemEmojiPicker() {
+            const input = document.querySelector(".chat-input");
+            input.focus();
+        }
+
+        function formatDate(date) {
+            return new Date(date).toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+        }
+
+        function formatTime(date) {
+            return new Date(date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+        }
+
+        function groupMessagesByDate(messages) {
+            const grouped = {};
+            messages.forEach(msg => {
+                const date = formatDate(msg.timestamp); // Эта строка пропущена
+                if (!grouped[date]) grouped[date] = [];
+                grouped[date].push(msg);
+            });
+            return grouped;
+        }
+
+        function renderMessages(messages) {
+            const chatDisplay = document.getElementById("chat-display");
+            const wasAtBottom = chatDisplay.scrollHeight - chatDisplay.scrollTop - chatDisplay.clientHeight < 10;
+            chatDisplay.innerHTML = "";
+            const groupedMessages = groupMessagesByDate(messages);
+            Object.keys(groupedMessages).forEach(date => {
+                const dateDiv = document.createElement("div");
+                dateDiv.className = "date-separator";
+                dateDiv.textContent = date;
+                chatDisplay.appendChild(dateDiv);
+                groupedMessages[date].forEach(msg => {
+                    const type = msg.sender_id === currentUser.id ? "sent" : "received";
+                    const message = document.createElement("div");
+                    message.className = `message ${type}`;
+                    message.innerHTML = `
+                        <div class="message-content">${msg.content}</div>
+                        <span class="message-timestamp">${formatTime(msg.timestamp)}</span>
+                    `;
+                    chatDisplay.appendChild(message);
+                });
+            });
+            if (wasAtBottom) chatDisplay.scrollTop = chatDisplay.scrollHeight;
+        }
+
+        // Добавьте функцию обновления контактов
+        async function updateContacts() {
+            await fetchContacts();
+        }
+
+        // Обновите функцию sendMessage
+        function sendMessage() {
+            const input = document.querySelector(".chat-input");
+            const message = input.value.trim();
+            
+            if (message && currentContactId && ws && ws.readyState === WebSocket.OPEN) {
+                try {
+                    ws.send(JSON.stringify({
+                        message: message,
+                        receiver_id: currentContactId
+                    }));
+                    input.value = "";
+                    // Обновляем список контактов после отправки сообщения
+                    updateContacts();
+                } catch (error) {
+                    console.error("Error sending message:", error);
+                    alert("Failed to send message. Please try again.");
+                }
+            } else if (ws && ws.readyState !== WebSocket.OPEN) {
+                alert("Connection lost. Reconnecting...");
+                connectWebSocket();
+            }
+        }
+
+        document.querySelector(".chat-input").addEventListener("keypress", function (e) {
+            if (e.key === "Enter" && this.value.trim()) {
+                sendMessage();
+            }
+        });
+
+        function toggleInfoPanel() {
+            const panel = document.getElementById("infoPanel");
+            panel.classList.toggle("active");
+        }
+
+        function connectWebSocket() {
+            ws = new WebSocket(`ws://${window.location.host}/ws/${currentUser.id}`);
+            
+            // Обновите обработчик WebSocket сообщений
+            ws.onmessage = async (event) => {
+                try {
+                    const message = JSON.parse(event.data);
+                    if (currentContactId === message.sender_id || message.sender_id === currentUser.id) {
+                        await fetchMessages(currentContactId);
+                        // Обновляем список контактов при получении нового сообщения
+                        updateContacts();
+                    }
+                } catch (error) {
+                    console.error("Error processing message:", error);
+                }
+            };
+            
+            ws.onclose = () => {
+                console.log("WebSocket connection closed. Reconnecting...");
+                setTimeout(connectWebSocket, 1000);
+            };
+            
+            ws.onerror = (error) => {
+                console.error("WebSocket error:", error);
+            };
+        }
+
+        // Добавьте эту функцию в <script> в main.html после существующего кода:
+        function filterContacts(searchText) {
+            const contactList = document.getElementById("contact-list");
+            const contacts = contactList.getElementsByClassName("user-info");
+            searchText = searchText.toLowerCase();
+
+            for (let contact of contacts) {
+                const name = contact.querySelector(".user-name").textContent.toLowerCase();
+                const status = contact.querySelector(".user-status").textContent.toLowerCase();
+                if (name.includes(searchText) || status.includes(searchText)) {
+                    contact.style.display = "flex";
+                } else {
+                    contact.style.display = "none";
+                }
+            }
+        }
+
+        // Добавьте слушатель события для поля поиска
+        document.querySelector(".search-input").addEventListener("input", function(e) {
+            filterContacts(e.target.value);
+        });
+
+        // Добавляем автоматическое подключение WebSocket при загрузке страницы
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchContacts();
+            connectWebSocket();
+        });
+    </script>
+</body>
+
+</html>

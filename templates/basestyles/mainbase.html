@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AsmanLink - {% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="static/global.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="left">
+            <div class="top">
+                <div class="menu-container">
+                    <button class="menu-button" onclick="toggleMenu()">☰</button>
+                    <div class="menu-dropdown" id="dropdown">
+                        {% block menu_items %}{% endblock %}
+                    </div>
+                </div>
+                <div class="search-div">
+                    <input type="text" class="search-input" placeholder="{% block search_placeholder %}{% endblock %}">
+                    <span class="version">{% block version %}{% endblock %}</span>
+                </div>
+            </div>
+            <div class="bottom">
+                {% block left_bottom %}{% endblock %}
+            </div>
+        </div>
+        <div class="right">
+            {% block right_content %}{% endblock %}
+        </div>
+    </div>
+
+    
+    <script src="./static/scripts/main.js"></script>
+
+    <script src='.static/scripts/contacts.js'></script>
+
+    <script>
+        function toggleMenu() {
+            const menu = document.getElementById("dropdown");
+            menu.style.display = menu.style.display === "block" ? "none" : "block";
+        }
+
+        document.addEventListener("click", function (event) {
+            const menu = document.getElementById("dropdown");
+            const button = document.querySelector(".menu-button");
+            if (!button.contains(event.target) && !menu.contains(event.target)) {
+                menu.style.display = "none";
+            }
+        });
+
+        <!-- {% block extra_scripts %}{% endblock %} -->
+    </script>
+
+    
+    
+</body>
+</html>
+

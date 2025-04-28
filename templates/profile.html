@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ChatSphere - Settings</title>
+    <link rel="stylesheet" href="static/profile.css">
+    <link rel="stylesheet" href="/static/themes.css">
+  </head>
+  <body>
+    <div class="container">
+      <div class="sidebar">
+        <div class="sidebar-item active" onclick="showSection('profile')">
+          Profile
+        </div>
+        <div class="sidebar-item" onclick="showSection('settings')">
+          Settings
+        </div>
+      </div>
+      <div class="content">
+        <div>
+          <div id="profile" class="section active">
+            <h3>Profile Settings</h3>
+            <div class="avatar-container">
+              <div class="avatar-preview" id="avatarPreview">A</div>
+              <div class="form-group">
+                <label for="firstName">First Name</label>
+                <input
+                  type="text"
+                  id="firstName"
+                  name="firstName"
+                  placeholder="Enter first name"
+                />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="lastName">Last Name</label>
+              <input
+                type="text"
+                id="lastName"
+                name="lastName"
+                placeholder="Enter last name"
+              />
+            </div>
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="Enter email"
+              />
+            </div>
+            <div class="form-group">
+              <label for="bio">Bio</label>
+              <textarea id="bio" name="bio" placeholder="Professional bio"></textarea>
+            </div>
+          </div>
+          <div id="settings" class="section">
+            <h3>Settings</h3>
+            <div class="form-group">
+              <label for="currentStatus">Current Status</label>
+              <select id="currentStatus" name="currentStatus">
+                <option value="Online">Online</option>
+                <option value="Away">Away</option>
+                <option value="Busy">Busy</option>
+                <option value="Offline">Offline</option>
+              </select>
+            </div>
+            <p style="color: #555; font-weight: 500; font-size: 14px; margin-bottom: 10px;">
+              Themes
+            </p>
+            <div class="theme-options">
+              <div class="theme-card" data-theme="light" onclick="selectTheme('light')">
+                <div class="theme-preview" style="background: #f5f5f5; border: 1px solid #ccc"></div>
+                <div class="theme-name">Light</div>
+              </div>
+              <div class="theme-card" data-theme="blue" onclick="selectTheme('blue')">
+                <div class="theme-preview" style="background: linear-gradient(135deg, #0288d1, #4fc3f7)"></div>
+                <div class="theme-name">Blue</div>
+              </div>
+              <div class="theme-card" data-theme="dark" onclick="selectTheme('dark')">
+                <div class="theme-preview" style="background: #424242"></div>
+                <div class="theme-name">Dark</div>
+              </div>
+            </div>
+            </div>
+          </div>
+          <div class="buttons">
+            <button class="action-btn save-btn" onclick="saveSettings()">
+              Save Changes
+            </button>
+            <button class="action-btn cancel-btn" onclick="location.href='/main'">
+              Cancel
+            </button>
+          </div>
+        </div>
+        <div id="result" style="margin-top:10px;color:green;"></div>
+      </div>
+    </div>
+    <script>
+      function showSection(section) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.getElementById(section).classList.add('active');
+        document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
+        document.querySelector(`.sidebar-item[onclick*="${section}"]`).classList.add('active');
+      }
+
+      async function loadProfile() {
+        const response = await fetch('/api/profile');
+        if (response.ok) {
+          const user = await response.json();
+          document.getElementById('firstName').value = user.first_name || '';
+          document.getElementById('lastName').value = user.last_name || '';
+          document.getElementById('email').value = user.email || '';
+          document.getElementById('bio').value = user.bio || '';
+          document.getElementById('currentStatus').value = user.status || 'Online';
+          document.getElementById('avatarPreview').textContent = (user.first_name ? user.first_name[0] : (user.email ? user.email[0] : 'U')).toUpperCase();
+          // Highlight the selected theme
+          document.querySelectorAll('.theme-card').forEach(card => card.classList.remove('selected'));
+          const selectedThemeCard = document.querySelector(`.theme-card[data-theme="${user.theme || 'blue'}"]`);
+          if (selectedThemeCard) selectedThemeCard.classList.add('selected');
+          // Apply the theme
+          applyTheme(user.theme || 'blue');
+        }
+      }
+
+      async function saveSettings() {
+        const data = {
+          first_name: document.getElementById('firstName').value,
+          last_name: document.getElementById('lastName').value,
+          email: document.getElementById('email').value,
+          bio: document.getElementById('bio').value,
+          status: document.getElementById('currentStatus').value,
+          theme: document.querySelector('.theme-card.selected')?.dataset.theme || 'blue'
+        };
+        const response = await fetch('/api/profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        if (response.ok) {
+          document.getElementById('result').textContent = "Profile updated!";
+          loadProfile();
+        } else {
+          document.getElementById('result').textContent = "Error updating profile.";
+        }
+      }
+
+      function selectTheme(theme) {
+        document.querySelectorAll('.theme-card').forEach(card => card.classList.remove('selected'));
+        document.querySelector(`.theme-card[data-theme="${theme}"]`).classList.add('selected');
+        applyTheme(theme);
+      }
+
+      function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+      }
+
+      // Initialize
+      document.addEventListener('DOMContentLoaded', loadProfile);
+    </script>
+  </body>
+</html>

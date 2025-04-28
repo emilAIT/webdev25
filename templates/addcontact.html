@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AsmanLink - Add Contact</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/addcontact.css">
+    <link rel="stylesheet" href="/static/themes.css">
+    <script src="/static/scripts/theme.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Add New Contact</h2>
+        </div>
+        <div class="form-container">
+            <form id="addContactForm">
+                <div class="form-group">
+                    <div class="avatar-preview" id="avatarPreview">?</div>
+                </div>
+                <div class="form-group">
+                    <label for="firstName">First Name</label>
+                    <input type="text" id="firstName" name="firstName" required placeholder="Enter first name">
+                </div>
+                <div class="form-group">
+                    <label for="lastName">Last Name</label>
+                    <input type="text" id="lastName" name="lastName" required placeholder="Enter last name">
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required placeholder="Enter email">
+                </div>
+                <div class="buttons">
+                    <button type="submit" class="buttons submit-btn">Save Contact</button>
+                    <button type="button" class="buttons cancel-btn" onclick="location.href='/contacts'">Cancel</button>
+                </div>
+                <div class="error-message" id="errorMessage" style="color: red; display: none;"></div>
+            </form>
+        </div>
+    </div>
+    <script>
+        document.getElementById('addContactForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const email = document.getElementById('email').value;
+            const errorMessage = document.getElementById('errorMessage');
+
+            try {
+                const response = await fetch('/addcontact', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        first_name: firstName, 
+                        last_name: lastName, 
+                        email: email 
+                    })
+                });
+
+                if (response.ok) {
+                    window.location.href = '/contacts';
+                } else {
+                    const error = await response.json();
+                    errorMessage.textContent = error.detail || 'Failed to add contact';
+                    errorMessage.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                errorMessage.textContent = 'An error occurred. Please try again.';
+                errorMessage.style.display = 'block';
+            }
+        });
+
+        document.getElementById('firstName').addEventListener('input', function (e) {
+            const preview = document.getElementById('avatarPreview');
+            const value = e.target.value.trim();
+            preview.textContent = value ? value[0].toUpperCase() : '?';
+        });
+    </script>
+</body>
+</html>

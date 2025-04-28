@@ -1,0 +1,92 @@
+/* General Styling */
+html,
+body {
+    font-family: 'Roboto', sans-serif;
+    height: 100%;
+    /* Ensure full height */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color:rgba(161, 214, 226, 1);
+    /* Light Blue Background */}
+
+/* Login Box */
+.login-container {
+    background:rgba(241, 241, 242, 1);
+    width: 320px;
+    height: 400px;
+    gap: 30px;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    
+}
+
+/* Heading */
+h2,h3 {
+    padding-bottom: 20px;
+    color: rgba(25, 149, 173, 1);
+}
+
+.warning{
+    color: rgba(25, 149, 173, 1);;
+}
+
+/* Input Fields */
+.input-group {
+    width: 100%;
+    margin-bottom: 15px;
+    /* Ensures equal spacing between inputs */
+}
+
+.input-group input,button {
+    width: calc(100% - 20px);
+    /* Ensures even spacing from left and right */
+    padding: 12px;
+    border: none;
+    border-radius: 25px;
+    background: #d3d3d3;
+    /* Light Grey Input Fields */
+    text-align: center;
+    font-size: 16px;
+    outline: none;
+    display: block;
+    margin: 0 auto;
+}
+
+/* Button */
+button {
+    width: 100%;
+    padding: 12px;
+    background: #005f73;
+    /* Dark Teal Button */
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+button:hover {
+    background: rgba(25, 149, 173, 1);
+}
+
+/* Registration Link */
+.register-link {
+    display: block;
+    margin-top: 10px;
+    color: #005f73;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.register-link:hover {
+    text-decoration: underline;
+}
