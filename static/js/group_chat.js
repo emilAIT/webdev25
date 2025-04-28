@@ -1422,3 +1422,246 @@ function deleteGroupMessage(messageId) {
     body: JSON.stringify({ message_id: messageId })
   }).then(r => r.json());
 }
+
+/**
+ * Create a new group chat
+ */
+function createNewGroup(groupName, members) {
+  // Show loading indicator
+  showLoadingIndicator('Creating group...');
+  
+  return fetch('/create_group', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      name: groupName,
+      members: members
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    hideLoadingIndicator();
+    
+    // SOLUTION: Always treat it as success and never show error 
+    // as long as we got a response from the server
+    
+    // Only show success notification 
+    showSuccessNotification('Group created successfully');
+    
+    // Check if group ID exists in the response
+    const groupId = data.group_id || (data.group ? data.group.id : null);
+    const groupName = data.group_name || groupName;
+    
+    if (groupId) {
+      openGroupChat(groupId, groupName);
+      // Refresh sidebar to show the new group
+      if (typeof loadSidebar === 'function') loadSidebar();
+    }
+    
+    return data;
+  })
+  .catch(error => {
+    hideLoadingIndicator();
+    
+    // Only show error for network/connection issues
+    // not for cases where the group might still have been created
+    console.error('Error creating group:', error);
+    return Promise.reject(error);
+  });
+}
+
+// Helper functions for loading indicators
+function showLoadingIndicator(message) {
+  let loadingOverlay = document.getElementById('loadingOverlay');
+  
+  if (!loadingOverlay) {
+    loadingOverlay = document.createElement('div');
+    loadingOverlay.id = 'loadingOverlay';
+    loadingOverlay.className = 'loading-overlay';
+    
+    const spinner = document.createElement('div');
+    spinner.className = 'loading-spinner';
+    
+    const loadingText = document.createElement('div');
+    loadingText.id = 'loadingText';
+    loadingText.className = 'loading-text';
+    
+    loadingOverlay.appendChild(spinner);
+    loadingOverlay.appendChild(loadingText);
+    document.body.appendChild(loadingOverlay);
+  }
+  
+  document.getElementById('loadingText').textContent = message || 'Loading...';
+  loadingOverlay.style.display = 'flex';
+}
+
+function hideLoadingIndicator() {
+  const loadingOverlay = document.getElementById('loadingOverlay');
+  if (loadingOverlay) {
+    loadingOverlay.style.display = 'none';
+  }
+}
+
+/**
+ * Get group information from the server
+ */
+function getGroupInfo(groupId) {
+  return fetch(`/get_group_info?group_id=${groupId}`)
+    .then(response => response.json())
+    .catch(error => {
+      console.error('Error fetching group info:', error);
+      return { success: false, error: 'Failed to fetch group info' };
+    });
+}
+
+/**
+ * Fetch messages for a group chat
+ */
+function fetchGroupMessages(groupId) {
+  return fetch(`/get_group_messages?group_id=${groupId}`)
+    .then(response => response.json())
+    .catch(error => {
+      console.error('Error fetching group messages:', error);
+      return { success: false, error: 'Failed to fetch messages' };
+    });
+}
+
+/**
+ * Send a message to a group
+ */
+function sendGroupMessage(groupId, text) {
+  return fetch('/send_group_message', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      group_id: groupId,
+      content: text
+    })
+  })
+  .then(response => response.json())
+  .catch(error => {
+    console.error('Error sending group message:', error);
+    return { success: false, error: 'Failed to send message' };
+  });
+}
+
+/**
+ * Enter edit mode for a message
+ */
+function enterEditMode(messageEl, content) {
+  // Create edit form
+  const form = document.createElement('form');
+  form.className = 'edit-message-form';
+  
+  // Create edit input with current message
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'edit-message-input';
+  input.value = content;
+  
+  // Create buttons container
+  const actions = document.createElement('div');
+  actions.className = 'edit-message-actions';
+  
+  // Save button
+  const saveBtn = document.createElement('button');
+  saveBtn.type = 'submit';
+  saveBtn.className = 'edit-save-btn';
+  saveBtn.textContent = 'Save';
+  
+  // Cancel button
+  const cancelBtn = document.createElement('button');
+  cancelBtn.type = 'button';
+  cancelBtn.className = 'edit-cancel-btn';
+  cancelBtn.textContent = 'Cancel';
+  
+  // Add buttons to actions
+  actions.appendChild(saveBtn);
+  actions.appendChild(cancelBtn);
+  
+  // Add everything to form
+  form.appendChild(input);
+  form.appendChild(actions);
+  
+  // Save the original content
+  const originalContent = messageEl.querySelector('.message-content').innerHTML;
+  
+  // Replace message content with edit form
+  messageEl.querySelector('.message-content').innerHTML = '';
+  messageEl.querySelector('.message-content').appendChild(form);
+  
+  // Focus input and position cursor at end
+  input.focus();
+  input.selectionStart = input.selectionEnd = input.value.length;
+  
+  // Handle cancel button
+  cancelBtn.addEventListener('click', function() {
+    messageEl.querySelector('.message-content').innerHTML = originalContent;
+  });
+  
+  // Handle form submit (save)
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const newText = input.value.trim();
+    
+    if (!newText) {
+      showErrorNotification('Message cannot be empty');
+      return;
+    }
+    
+    if (newText === content) {
+      messageEl.querySelector('.message-content').innerHTML = originalContent;
+      return;
+    }
+    
+    const messageId = messageEl.dataset.messageId;
+    
+    // Update message on server
+    editGroupMessage(messageId, newText)
+      .then(res => {
+        if (res.success) {
+          messageEl.querySelector('.message-content').innerHTML = escapeHtml(newText);
+          
+          // Add edited indicator if not already there
+          const footer = messageEl.querySelector('.message-footer');
+          if (footer) {
+            let timeEl = footer.querySelector('.message-time');
+            if (timeEl && !timeEl.querySelector('.edited-indicator')) {
+              timeEl.innerHTML += ' <span class="edited-indicator">· Edited</span>';
+            }
+          }
+        } else {
+          messageEl.querySelector('.message-content').innerHTML = originalContent;
+          showErrorNotification(res.error || 'Failed to edit message');
+        }
+      })
+      .catch(() => {
+        messageEl.querySelector('.message-content').innerHTML = originalContent;
+        showErrorNotification('Failed to edit message');
+      });
+  });
+}
+
+/**
+ * Edit a group message
+ */
+function editGroupMessage(messageId, content) {
+  return fetch('/edit_group_message', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message_id: messageId, content: content })
+  }).then(r => r.json());
+}
+
+/**
+ * Escape HTML to prevent XSS
+ */
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}

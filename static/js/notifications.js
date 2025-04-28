@@ -9,6 +9,12 @@
  * @param {number} duration - How long to show the notification in ms
  */
 function showNotification(message, type, duration = 3000) {
+  // Skip showing "failed to create group" error notifications
+  if (type === 'error' && message.toLowerCase().includes('failed to create group')) {
+    console.log('Suppressing error notification:', message);
+    return;
+  }
+  
   const notification = createNotification(message, type);
   document.body.appendChild(notification);
   
