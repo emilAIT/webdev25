@@ -1,0 +1,611 @@
+/* Стили для модальных окон */
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s linear 0.25s, opacity 0.25s 0s;
+}
+
+.modal-overlay.active {
+    visibility: visible;
+    opacity: 1;
+    transition-delay: 0s;
+}
+
+.modal-content {
+    width: 90%;
+    max-width: 450px;
+    background-color: #fff;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    transform: scale(0.8);
+    transition: transform 0.3s ease;
+}
+
+.dark-theme .modal-content {
+    background-color: #1e1e1e;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+}
+
+.modal-overlay.active .modal-content {
+    transform: scale(1);
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 20px;
+    background-color: #128C7E;
+    color: #fff;
+}
+
+.dark-theme .modal-header {
+    background-color: #075E54;
+}
+
+.modal-title {
+    font-size: 18px;
+    font-weight: 500;
+    flex-grow: 1;
+    text-align: center;
+}
+
+.modal-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.modal-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.modal-body {
+    padding: 20px;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+/* Стили для форм внутри модальных окон */
+.search-form {
+    margin-bottom: 20px;
+}
+
+.search-input-container {
+    position: relative;
+    margin-bottom: 15px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 12px 15px 12px 40px;
+    border-radius: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    background-color: #f5f5f5;
+    font-size: 15px;
+    color: #333;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+.dark-theme .search-input {
+    border-color: rgba(255, 255, 255, 0.1);
+    background-color: #272727;
+    color: #f5f5f5;
+}
+
+.search-input:focus {
+    border-color: #25D366;
+}
+
+.search-icon-modal {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #777;
+    font-size: 18px;
+}
+
+.dark-theme .search-icon-modal {
+    color: #aaa;
+}
+
+/* Стили для результатов поиска */
+.search-results {
+    margin-top: 20px;
+}
+
+.no-results {
+    text-align: center;
+    color: #777;
+    padding: 20px 0;
+    font-style: italic;
+}
+
+.dark-theme .no-results {
+    color: #aaa;
+}
+
+.user-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.user-item:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.dark-theme .user-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.user-avatar-small {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 15px;
+    background-color: rgba(224, 224, 224, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dark-theme .user-avatar-small {
+    background-color: rgba(51, 51, 51, 0.7);
+}
+
+.user-avatar-small img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.user-info-compact {
+    flex-grow: 1;
+}
+
+.user-name-compact {
+    font-weight: 500;
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 3px;
+}
+
+.dark-theme .user-name-compact {
+    color: #f5f5f5;
+}
+
+.user-email-compact {
+    font-size: 13px;
+    color: #777;
+}
+
+.dark-theme .user-email-compact {
+    color: #aaa;
+}
+
+.loading-indicator {
+    text-align: center;
+    padding: 20px;
+    color: #777;
+    display: none;
+}
+
+.dark-theme .loading-indicator {
+    color: #aaa;
+}
+
+/* Стили для списка контактов в модальном окне создания группы */
+.participants-section {
+    margin-top: 20px;
+}
+
+.participants-search {
+    margin-bottom: 15px;
+}
+
+.participants-list {
+    max-height: 150px;
+    overflow-y: auto;
+    margin-bottom: 15px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 8px;
+}
+
+.dark-theme .participants-list {
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.selected-participants {
+    margin-bottom: 15px;
+}
+
+.participants-results {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+.dark-theme .participants-results {
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    transition: background-color 0.2s;
+}
+
+.dark-theme .contact-item {
+    border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+
+.contact-item:last-child {
+    border-bottom: none;
+}
+
+.contact-item:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.dark-theme .contact-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.contact-item.selected {
+    background-color: rgba(37, 211, 102, 0.1);
+}
+
+.dark-theme .contact-item.selected {
+    background-color: rgba(37, 211, 102, 0.2);
+}
+
+.contact-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 12px;
+}
+
+.contact-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.contact-info {
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.contact-name {
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.contact-select {
+    width: 20px;
+    height: 20px;
+    color: #25D366;
+    font-weight: bold;
+    text-align: center;
+}
+
+.selected-participant {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    background-color: rgba(37, 211, 102, 0.1);
+    border-radius: 20px;
+    margin: 5px;
+    display: inline-flex;
+}
+
+.dark-theme .selected-participant {
+    background-color: rgba(37, 211, 102, 0.2);
+}
+
+.participant-avatar {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 8px;
+}
+
+.participant-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.participant-name {
+    font-size: 12px;
+    margin-right: 8px;
+}
+
+.remove-participant {
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+    text-align: center;
+    font-size: 12px;
+    cursor: pointer;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.dark-theme .remove-participant {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.remove-participant:hover {
+    background-color: rgba(255, 0, 0, 0.2);
+}
+
+.no-participants, .no-results, .loading, .error {
+    padding: 15px;
+    text-align: center;
+    color: var(--icon-color);
+    font-style: italic;
+}
+
+.error {
+    color: #ff4757;
+}
+
+/* Дополнительные стили для группового чата */
+.group-edit-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.group-photo-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.group-fields {
+    flex-grow: 1;
+}
+
+#group-description {
+    min-height: 80px;
+    resize: vertical;
+}
+
+/* Стили для модального окна информации о группе */
+.group-info-modal {
+    max-width: 500px;
+}
+
+.group-info-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.group-info-photo-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.group-info-fields {
+    flex-grow: 1;
+}
+
+.group-creator-info {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+}
+
+.dark-theme .group-creator-info {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.creator-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 10px;
+    overflow: hidden;
+}
+
+.creator-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.add-member-btn {
+    background: none;
+    border: none;
+    color: #25D366;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.dark-theme .add-member-btn {
+    color: #2bd469;
+}
+
+.group-members-list {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+.dark-theme .group-members-list {
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.member-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.dark-theme .member-item {
+    border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+
+.member-item:last-child {
+    border-bottom: none;
+}
+
+.member-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 10px;
+}
+
+.member-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.member-info {
+    flex-grow: 1;
+}
+
+.member-name {
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.member-role {
+    font-size: 12px;
+    color: #777;
+}
+
+.dark-theme .member-role {
+    color: #aaa;
+}
+
+.member-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.member-action-btn {
+    background: none;
+    border: none;
+    color: #777;
+    cursor: pointer;
+    font-size: 16px;
+    transition: color 0.2s;
+}
+
+.member-action-btn:hover {
+    color: #ff4757;
+}
+
+.member-admin-toggle {
+    color: #25D366;
+}
+
+.group-actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.btn {
+    padding: 10px 15px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.exit-group-btn {
+    background-color: #f1c40f;
+    color: #333;
+}
+
+.delete-group-btn {
+    background-color: #ff4757;
+    color: white;
+}
+
+.selected-members-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 10px;
+    max-height: 100px;
+    overflow-y: auto;
+}
+
+/* Адаптивные стили */
+@media (min-width: 768px) {
+    .group-edit-container {
+        flex-direction: row;
+    }
+    
+    .group-photo-container {
+        margin-bottom: 0;
+        margin-right: 20px;
+    }
+
+    .group-info-container {
+        flex-direction: row;
+    }
+    
+    .group-info-photo-container {
+        margin-right: 20px;
+        margin-bottom: 0;
+    }
+}

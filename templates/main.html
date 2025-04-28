@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsappAIT - Главная страница</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modal.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/chat.css') }}">
+    <script src="{{ url_for('static', filename='js/userSearch.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/newChat.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/profile.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/chat.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/groupChat.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+</head>
+<body class="light-theme">
+    <!-- Предзагрузка изображений для плавной смены темы -->
+    <link rel="preload" href="/static/images/background.jpg" as="image">
+    <link rel="preload" href="/static/images/darkBack.jpg" as="image">
+    <link rel="preload" href="/static/images/sun.png" as="image">
+    <link rel="preload" href="/static/images/moon.png" as="image">
+    
+    <div class="bg-wrapper"></div>
+    
+    <div class="app-container">
+        <!-- Левая панель с списком чатов -->
+        <div class="sidebar">
+            <div class="user-info">
+                <div class="user-avatar" id="profile-photo-btn">
+                    <img src="/api/user/photo?t={{ timestamp }}" alt="{{ username }}" id="userProfileImage" onerror="this.src='/static/images/avatar.png'">
+                </div>
+                <div class="user-details">
+                    <div class="user-name">{{ username }}</div>
+                    <div class="user-email">Онлайн</div>
+                </div>
+                <div class="user-controls">
+                    <button class="theme-toggle" id="themeToggle">
+                        <img src="/static/images/sun.png" id="themeIcon" alt="Сменить тему">
+                    </button>
+
+                </div>
+            </div>
+            
+            <div class="search-container">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="search-input" placeholder="Поиск...">
+            </div>
+            
+            <div class="user-icons">
+                <div class="user-icon" title="Новый чат" id="new-chat-btn">💬</div>
+                <div class="user-icon" title="Новая группа">👥</div>
+            </div>
+            
+            <div class="chat-list">
+                <div class="no-chats">Нет активных чатов</div>
+            </div>
+        </div>
+        
+        <!-- Правая панель с содержимым чата -->
+        <div class="chat-panel">
+            <!-- Содержимое, отображаемое при отсутствии активного чата -->
+            <div class="welcome-screen" id="welcome-screen">
+                <div class="chat-logo">
+                    <span class="chat-logo-icon">💬</span>
+                </div>
+                <div class="chat-title">WhatsappAIT</div>
+                <div class="chat-subtitle">Выберите контакт из списка чатов или создайте новый чат для начала общения</div>
+                <button class="action-button" id="new-chat-main-btn">Начать новый чат</button>
+            </div>
+            
+            <!-- Интерфейс активного чата -->
+            <div id="chat-interface" class="chat-interface">
+                <div class="chat-header">
+                    <div class="chat-header-info">
+                        <div class="chat-header-avatar">
+                            <img src="/static/images/avatar.png" alt="avatar" id="chat-avatar">
+                        </div>
+                        <div class="chat-header-title">Выберите чат</div>
+                    </div>
+                    <div class="chat-header-actions">
+                        <div class="chat-header-icon">📞</div>
+                        <div class="chat-header-icon" id="chat-options-menu-btn">⋮</div>
+                    </div>
+                </div>
+                
+                <div class="messages-container">
+                    <!-- Сообщения будут добавляться здесь -->
+                    <div class="no-chat-selected">Выберите чат, чтобы начать общение</div>
+                </div>
+                
+                <div class="message-form-container">
+                    <div class="selected-file">
+                        <!-- Информация о выбранном файле будет здесь -->
+                    </div>
+                    <form id="message-form">
+                        <button type="button" id="attach-file">📎</button>
+                        <input type="file" id="file-input" accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx,.txt">
+                        <div class="message-input-container">
+                            <textarea id="message-input" placeholder="Введите сообщение..."></textarea>
+                        </div>
+                        <button type="button" id="send-message-btn">➤</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Боковое меню опций -->
+        <div class="side-drawer" id="options-drawer">
+            <div class="drawer-content">
+                <div class="drawer-header">
+                    <div class="drawer-title">Меню</div>
+                    <button class="drawer-close-btn" id="drawer-close-btn">✕</button>
+                </div>
+                <div class="drawer-body">
+                    <div class="drawer-item">
+                        <div class="drawer-item-icon">🖼️</div>
+                        <div class="drawer-item-text">Shared photos</div>
+                        <div class="drawer-item-arrow">›</div>
+                    </div>
+                    <div class="drawer-item">
+                        <div class="drawer-item-icon">📁</div>
+                        <div class="drawer-item-text">Shared files</div>
+                        <div class="drawer-item-arrow">›</div>
+                    </div>
+                    <div class="drawer-item">
+                        <div class="drawer-item-icon">🔗</div>
+                        <div class="drawer-item-text">Shared links</div>
+                        <div class="drawer-item-arrow">›</div>
+                    </div>
+                    <div class="drawer-item red-item">
+                        <div class="drawer-item-icon">🚫</div>
+                        <div class="drawer-item-text">Block user</div>
+                    </div>
+                </div>
+            </div>
+            <div class="drawer-overlay" id="drawer-overlay"></div>
+        </div>
+    </div>
+
+    <!-- Модальное окно для поиска пользователей -->
+    <div class="modal-overlay" id="new-chat-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="modal-btn cancel-btn" id="modal-close-btn">Отмена</button>
+                <div class="modal-title">Новый чат</div>
+                <button class="modal-btn create-btn" id="modal-create-btn">Создать</button>
+            </div>
+            <div class="modal-body">
+                <div class="search-form">
+                    <div class="search-input-container">
+                        <span class="search-icon-modal">🔍</span>
+                        <input type="text" id="user-search-input" class="search-input" 
+                               placeholder="Введите имя для поиска..." autocomplete="off">
+                    </div>
+                </div>
+                <div class="loading-indicator" id="search-loading">Поиск...</div>
+                <div class="search-results" id="search-results">
+                    <div class="no-results">Введите имя пользователя для поиска</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно для редактирования профиля -->
+    <div class="modal-overlay" id="edit-profile-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="modal-btn cancel-btn" id="profile-modal-close-btn">Отмена</button>
+                <div class="modal-title">Редактировать профиль</div>
+                <button class="modal-btn save-btn" id="profile-save-btn">Сохранить</button>
+            </div>
+            <div class="modal-body">
+                <div class="profile-edit-container">
+                    <div class="profile-photo-container">
+                        <div class="profile-photo">
+                            <img src="/api/user/photo?t={{ timestamp }}" alt="{{ username }}" id="profile-preview-image" onerror="this.src='/static/images/avatar.png'">
+                            <div class="photo-overlay">
+                                <span class="photo-upload-icon">📷</span>
+                            </div>
+                            <input type="file" id="profile-photo-input" accept="image/*" style="display: none;">
+                        </div>
+                        <div class="photo-caption">Добавить фото</div>
+                    </div>
+                    
+                    <div class="profile-fields">
+                        <div class="form-group">
+                            <label for="profile-nickname">Имя пользователя</label>
+                            <input type="text" id="profile-nickname" class="input-field" value="{{ username }}" placeholder="Имя пользователя">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="profile-email">Email</label>
+                            <input type="email" id="profile-email" class="input-field" placeholder="Email">
+                        </div>
+                        
+                        <hr class="divider">
+                        
+                        <div class="password-section">
+                            <div class="section-title">Изменить пароль</div>
+                            
+                            <div class="form-group">
+                                <label for="current-password">Текущий пароль</label>
+                                <input type="password" id="current-password" class="input-field" placeholder="Введите текущий пароль">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="new-password">Новый пароль</label>
+                                <input type="password" id="new-password" class="input-field" placeholder="Введите новый пароль">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="confirm-password">Подтверждение пароля</label>
+                                <input type="password" id="confirm-password" class="input-field" placeholder="Подтвердите новый пароль">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="profile-message" class="modal-message"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="create-group-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="modal-btn cancel-btn" id="group-modal-close-btn">Отмена</button>
+                <div class="modal-title">Создать группу</div>
+                <button class="modal-btn create-btn" id="group-create-btn">Создать</button>
+            </div>
+            <div class="modal-body">
+                <div class="group-edit-container">
+                    <div class="group-photo-container">
+                        <div class="profile-photo">
+                            <img src="/static/images/default_group.png" alt="Фото группы" id="group-preview-image">
+                            <div class="photo-overlay">
+                                <span class="photo-upload-icon">📷</span>
+                            </div>
+                            <input type="file" id="group-photo-input" accept="image/*" style="display: none;">
+                        </div>
+                        <div class="photo-caption">Фото группы</div>
+                    </div>
+                    
+                    <div class="group-fields">
+                        <div class="form-group">
+                            <label for="group-name">Название группы</label>
+                            <input type="text" id="group-name" class="input-field" placeholder="Введите название группы" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="group-description">Описание</label>
+                            <textarea id="group-description" class="input-field" placeholder="Описание группы (необязательно)"></textarea>
+                        </div>
+                        
+                        <hr class="divider">
+                        
+                        <div class="participants-section">
+                            <div class="section-title">Участники</div>
+                            <div class="participants-search">
+                                <input type="text" id="participants-search-input" class="input-field" placeholder="Поиск контактов...">
+                            </div>
+                            <div class="selected-participants">
+                                <p>Выбрано участников: <span id="participants-count">0</span></p>
+                                <div id="selected-participants-list" class="participants-list"></div>
+                            </div>
+                            <div class="participants-results" id="participants-results">
+                                <div class="no-results">Здесь появятся ваши контакты</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="group-message" class="modal-message"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно для управления группой -->
+    <div class="modal-overlay" id="group-info-modal">
+        <div class="modal-content group-info-modal">
+            <div class="modal-header">
+                <button class="modal-btn cancel-btn" id="group-info-close-btn">Назад</button>
+                <div class="modal-title">Информация о группе</div>
+                <button class="modal-btn save-btn" id="group-info-save-btn">Сохранить</button>
+            </div>
+            <div class="modal-body">
+                <div class="group-info-container">
+                    <div class="group-info-photo-container">
+                        <div class="profile-photo">
+                            <img src="/static/images/default_group.png" alt="Фото группы" id="group-info-preview-image">
+                            <div class="photo-overlay" id="group-photo-change-overlay" style="display: none;">
+                                <span class="photo-upload-icon">📷</span>
+                            </div>
+                            <input type="file" id="group-info-photo-input" accept="image/*" style="display: none;">
+                        </div>
+                        <div class="photo-caption">Фото группы</div>
+                    </div>
+                    
+                    <div class="group-info-fields">
+                        <div class="form-group">
+                            <label for="group-info-name">Название группы</label>
+                            <input type="text" id="group-info-name" class="input-field" placeholder="Название группы" readonly>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="group-info-description">Описание</label>
+                            <textarea id="group-info-description" class="input-field" placeholder="Описание группы" readonly></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Создатель группы</label>
+                            <div id="group-creator-info" class="group-creator-info"></div>
+                        </div>
+                        
+                        <hr class="divider">
+                        
+                        <div class="group-members-section">
+                            <div class="section-header">
+                                <div class="section-title">Участники группы (<span id="group-members-count">0</span>)</div>
+                                <button class="add-member-btn" id="add-member-btn" style="display: none;">➕ Добавить</button>
+                            </div>
+                            <div id="group-members-list" class="group-members-list"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="group-actions">
+                    <button class="btn exit-group-btn" id="exit-group-btn">Покинуть группу</button>
+                    <button class="btn delete-group-btn" id="delete-group-btn" style="display: none;">Удалить группу</button>
+                </div>
+                
+                <div id="group-info-message" class="modal-message"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно для добавления участников в группу -->
+    <div class="modal-overlay" id="add-members-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="modal-btn cancel-btn" id="add-members-close-btn">Отмена</button>
+                <div class="modal-title">Добавить участников</div>
+                <button class="modal-btn save-btn" id="add-members-save-btn">Добавить</button>
+            </div>
+            <div class="modal-body">
+                <div class="search-form">
+                    <div class="search-input-container">
+                        <span class="search-icon-modal">🔍</span>
+                        <input type="text" id="add-members-search-input" class="search-input" 
+                            placeholder="Найти контакты..." autocomplete="off">
+                    </div>
+                </div>
+                <div class="loading-indicator" id="add-members-loading">Поиск...</div>
+                <div class="search-results" id="add-members-results">
+                    <div class="no-results">Введите имя пользователя для поиска</div>
+                </div>
+                <div class="selected-members">
+                    <p>Выбрано: <span id="selected-add-members-count">0</span></p>
+                    <div id="selected-members-list" class="selected-members-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно для отображения общих фото -->
+    <div class="modal-overlay" id="shared-photos-modal">
+        <div class="modal-content shared-media-modal">
+            <div class="modal-header">
+                <button class="modal-btn cancel-btn" id="shared-photos-close-btn">Закрыть</button>
+                <div class="modal-title">Общие фотографии</div>
+                <div class="empty-btn"></div>
+            </div>
+            <div class="modal-body">
+                <div id="shared-photos-container" class="shared-media-container">
+                    <div class="loading-indicator">Загрузка фотографий...</div>
+                </div>
+                <div class="no-media-message" style="display: none;">В этом чате нет общих фотографий</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно для отображения общих файлов -->
+    <div class="modal-overlay" id="shared-files-modal">
+        <div class="modal-content shared-media-modal">
+            <div class="modal-header">
+                <button class="modal-btn cancel-btn" id="shared-files-close-btn">Закрыть</button>
+                <div class="modal-title">Общие файлы</div>
+                <div class="empty-btn"></div>
+            </div>
+            <div class="modal-body">
+                <div id="shared-files-container" class="shared-media-container">
+                    <div class="loading-indicator">Загрузка файлов...</div>
+                </div>
+                <div class="no-media-message" style="display: none;">В этом чате нет общих файлов</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно для отображения общих ссылок -->
+    <div class="modal-overlay" id="shared-links-modal">
+        <div class="modal-content shared-media-modal">
+            <div class="modal-header">
+                <button class="modal-btn cancel-btn" id="shared-links-close-btn">Закрыть</button>
+                <div class="modal-title">Общие ссылки</div>
+                <div class="empty-btn"></div>
+            </div>
+            <div class="modal-body">
+                <div id="shared-links-container" class="shared-media-container">
+                    <div class="loading-indicator">Загрузка ссылок...</div>
+                </div>
+                <div class="no-media-message" style="display: none;">В этом чате нет общих ссылок</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

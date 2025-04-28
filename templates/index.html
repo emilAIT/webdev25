@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Вход / Регистрация{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Login Form -->
+    <div class="form login-form" id="login-form">
+        <h2>Добро пожаловать!</h2>
+        <input type="email" id="login-email" placeholder="nickname" required />
+        <input type="password" id="login-password" placeholder="Пароль" required />
+        <button id="login-button">Войти</button>
+        <p>Нет аккаунта? <a href="#" class="toggle-link">Регистрация</a></p>
+    </div>
+
+    <!-- Register Form -->
+    <div class="form register-form" id="register-form">
+        <h2>Создать аккаунт</h2>
+        <input type="text" id="register-name" placeholder="Имя" required />
+
+        <div class="email-group">
+            <input type="email" id="register-email" placeholder="Email" required />
+            <a href="#" id="send-code" class="send-code">Отправить код</a>
+        </div>
+
+        <input type="password" id="register-password" placeholder="Пароль" required />
+        <input type="text" id="verification-code" placeholder="Код подтверждения" required />
+
+        <div class="upload-block">
+            <label for="profile-pic">Загрузить фото:</label>
+            <input type="file" id="profile-pic" />
+        </div>
+
+        <button id="register-button">Регистрация</button>
+        <p>Уже есть аккаунт? <a href="#" class="toggle-link">Вход</a></p>
+    </div>
+</div>
+
+<div id="message" class="message"></div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+{% endblock %}
