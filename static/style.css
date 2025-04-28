@@ -1,0 +1,25 @@
+/* themes.css */
+:root {
+    --bg-color: #ffffff;
+    --text-color: #000000;
+    --messages-bg: #f5f5f5;
+  }
+  
+  body.dark-theme {
+    --bg-color: #1e1e1e;
+    --text-color: #e1e1e1;
+    --messages-bg: #2e2e2e;
+  }
+  
+  body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+  }
+  
+  #messagesContainer {
+    background-color: var(--messages-bg);
+    background-size: cover;
+    background-position: center;
+    overflow-y: auto;
+  }
+  
