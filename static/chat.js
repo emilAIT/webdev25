@@ -1181,20 +1181,12 @@ function createMessageElement(msg) {
     messageWrapper.className = `w-full flex mb-2 ${isOwnMessage ? 'justify-end' : 'justify-start'}`;
 
     // --- Message Bubble ---
-    // Remove direct bg-white and dark mode text/bg classes for incoming messages
-    // Rely on CSS (.message.self-start) for styling incoming messages
-    messageDiv.className = `message max-w-[75%] p-3 rounded-lg shadow-sm relative break-words ${isOwnMessage ? 'bg-blue-500 text-white rounded-br-none' : 'rounded-bl-none'}`; // Removed bg-white, dark:* classes for incoming
+    messageDiv.className = `message ${isOwnMessage ? 'self-end' : 'self-start'}`;
     messageDiv.dataset.messageId = msg.id;
     messageDiv.dataset.senderId = msg.sender_id;
 
-    // Explicitly add self-start/self-end for CSS targeting
-    messageDiv.classList.add(isOwnMessage ? 'self-end' : 'self-start');
-
     if (msg.is_deleted) {
-        messageDiv.classList.add('deleted', 'italic', 'text-gray-400', 'dark:text-gray-500');
-        // Reset background if deleted
-        messageDiv.classList.remove('bg-blue-500', 'bg-white', 'dark:bg-gray-700');
-        messageDiv.classList.add('bg-transparent', 'dark:bg-transparent', 'shadow-none');
+        messageDiv.classList.add('deleted', 'italic', 'text-gray-400');
     }
 
     // --- Add Reply Preview Box (if applicable) ---
@@ -1207,13 +1199,13 @@ function createMessageElement(msg) {
             repliedToUserText = 'You';
         }
 
-        replyBox.className = `reply-box mb-1 p-2 rounded-md border-l-4 ${isOwnMessage ? 'border-blue-300 bg-blue-400 bg-opacity-50' : 'border-gray-300 bg-gray-100 dark:bg-gray-600 dark:border-gray-500'} text-xs opacity-90 cursor-pointer`;
+        replyBox.className = `reply-box ${isOwnMessage ? 'self-end' : 'self-start'}`;
         replyBox.innerHTML = `
             <div class="font-semibold flex items-center gap-1">
                 <svg class="w-3 h-3 inline flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
                 Replied to ${repliedToUserText}
             </div>
-            <div class="mt-1 pl-1 truncate ${repliedIsDeleted ? 'italic text-gray-500 dark:text-gray-400' : ''}">
+            <div class="mt-1 pl-1 truncate ${repliedIsDeleted ? 'italic text-gray-500' : ''}">
                 ${repliedContent}
             </div>
         `;
@@ -1240,40 +1232,32 @@ function createMessageElement(msg) {
     contentDiv.textContent = msg.is_deleted ? "[Message deleted]" : msg.content;
     messageDiv.appendChild(contentDiv);
 
-    // --- Timestamp and Read Status ---
-    const statusContainer = document.createElement('div');
-    // Position slightly differently based on sender for better alignment in bubble corners
-    statusContainer.className = `text-xs mt-1 flex items-center space-x-1 ${isOwnMessage ? 'float-right pl-2' : 'float-right pl-2'} ${isOwnMessage ? 'text-blue-100 opacity-80' : 'text-gray-400 dark:text-gray-500'}`;
-
+    // --- Timestamp with Read Status (like in the image) ---
     if (msg.timestamp) {
-        const timeSpan = document.createElement('span');
+        const timestampDiv = document.createElement('div');
+        timestampDiv.className = 'message-timestamp';
+
         try {
-            // Attempt to parse timestamp robustly
+            // Format the timestamp to match the image (HH:MM)
             const date = new Date(msg.timestamp);
-            // Check if date is valid before formatting
             if (!isNaN(date.getTime())) {
-                timeSpan.textContent = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+                timestampDiv.textContent = date.toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false
+                });
+                // The "· Read" part is added through CSS for self-end messages
             } else {
-                timeSpan.textContent = "Invalid time"; // Fallback
+                timestampDiv.textContent = "Invalid time";
                 console.warn("Invalid timestamp format received:", msg.timestamp);
             }
         } catch (e) {
-            timeSpan.textContent = "Time error";
+            timestampDiv.textContent = "Time error";
             console.error("Error parsing timestamp:", msg.timestamp, e);
         }
-        statusContainer.appendChild(timeSpan);
-    }
 
-    // Add read status icon (double checkmark) only for own, non-deleted messages
-    if (isOwnMessage && !msg.is_deleted) {
-        const statusIcon = document.createElement('span');
-        statusIcon.className = 'message-status-icon';
-        // Use brighter color for checks on dark blue background
-        statusIcon.innerHTML = msg.read_at ? '✔✔' : '✔'; // Double or single check
-        statusContainer.appendChild(statusIcon);
+        messageDiv.appendChild(timestampDiv);
     }
-
-    messageDiv.appendChild(statusContainer);
 
     // Add click handler for context menu ONLY if not deleted
     if (!msg.is_deleted) {

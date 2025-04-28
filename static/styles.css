@@ -71,9 +71,13 @@
 }
 
 .message.self-end {
-    background-color: #2563EB;
+    background-color: #0057FF; /* Bright blue from the image */
     color: white;
     margin-left: auto;
+    border-radius: 18px; /* More rounded corners */
+    font-size: 1rem; /* Slightly larger font */
+    box-shadow: none; /* Remove shadow */
+    padding: 12px 16px; /* Adjusted padding */
 }
 
 .message.self-start {
@@ -405,16 +409,22 @@
 }
 
 .message-timestamp {
-    position: absolute;
-    bottom: 4px;
-    right: 8px;
-    font-size: 0.65rem;
-    color: rgba(0, 0, 0, 0.4);
-    opacity: 0.8;
+    position: relative; /* Changed from absolute */
+    font-size: 0.7rem; /* Smaller font size */
+    color: rgba(255, 255, 255, 0.7); /* Light white color */
+    opacity: 0.9;
+    margin-top: 2px; /* Add small margin top */
+    display: block; /* Make it a block element */
+    text-align: right; /* Right align */
 }
 
 .message.self-end .message-timestamp {
-    color: rgba(255, 255,João, 0.7);
+    color: rgba(255, 255, 255, 0.7); /* Light white color */
+}
+
+.message.self-end .message-timestamp:after {
+    content: " · Read"; /* Add "Read" text after timestamp */
+    font-size: 0.7rem;
 }
 
 /* Chat list items */
