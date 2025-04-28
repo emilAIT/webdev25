@@ -1,0 +1,230 @@
+:root {
+    --primary-color: #008069;
+    --secondary-color: #f0f2f5;
+    --text-color: #111b21;
+    --light-text: #FFFFFF;
+    --border-color: #FFFFFF;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Helvetica Neue, Helvetica, Arial, sans-serif;
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.app-container {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+    max-width: 1600px;
+    margin: 0 auto;
+    background-color: #45776C;
+}
+
+.sidebar {
+    width: 30%;
+    min-width: 300px;
+    max-width: 400px;
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    position: relative;
+}
+
+.container {
+    background-color: #386158;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 20px;
+}
+
+/* Header */
+.profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+}
+
+.profile-header h2 {
+    font-size: 30px;
+    font-weight: 500;
+    color: white;
+}
+
+.menu-icon {
+    font-size: 30px;
+    cursor: pointer;
+    color: white;
+}
+
+/* Avatar Section (My Status) */
+.avatar-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 10px 0;
+}
+
+.avatar img {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background-color: #e0e0e0;
+    object-fit: cover;
+    
+}
+
+.add-photo-text {
+    padding: 10px;
+    margin-top: 12px;
+    font-size: 14px;
+    color: white;
+    cursor: pointer;
+    text-align: center;
+}
+
+.add-photo-text:hover {
+    color: #2BDB89;
+}
+
+/* Contacts with Statuses */
+.info-section {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.info-section h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: var(--light-text);
+}
+
+.contact-status {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.contact-status .avatar img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.contact-info p {
+    font-size: 16px;
+    color: white;
+}
+
+.contact-info small {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Status View Page */
+.status-view {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+.status-view img {
+    width: 250px;
+    height: 250px;
+    border-radius: 12px;
+    object-fit: cover;
+    margin-top: 20px;
+}
+
+/* Navigation */
+.nav-icons {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 14px;
+    background-color: #386158;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+
+.nav-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.nav-circle {
+    width: 40px;
+    height: 40px;
+    background-color: #303F3B;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.3s, border 0.3s;
+    border: 1px solid #2bdb89;
+}
+
+.nav-circle i {
+    color: #2BDB89;
+    font-size: 20px;
+}
+
+#nav-status .nav-circle {
+    border: 1px solid white;
+}
+
+#nav-status .nav-circle i {
+    color: white;
+}
+
+/* Hover Effect */
+.nav-circle:hover {
+    background-color: white;
+    border: 2px solid #2bdb89;
+}
+
+.nav-circle:hover i {
+    color: #2bdb89;
+}
+
+/* Main Area */
+.chat-area-con {
+    background-image: url('/static/resourses/background.png');
+    background-position: right center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    flex: 1;
+    position: relative;
+}
+
+.chat-area-con::before {
+    content: "CHATSAPP";
+    position: absolute;
+    top: 45%;
+    left: 65%;
+    transform: translate(-50%, -50%);
+    font-size: 5rem;
+    font-weight: bold;
+    color: white;
+    z-index: 1;
+}

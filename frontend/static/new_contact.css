@@ -1,0 +1,124 @@
+:root {
+    --primary-color: #008069;
+    --secondary-color: #f0f2f5;
+    --chat-bg-color: #e5ddd5;
+    --text-color: #111b21;
+    --light-text: #FFFFFF;
+    --border-color: #FFFFFF;
+    --outgoing-bg: #d9fdd3;
+    --incoming-bg: #ffffff;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Helvetica Neue, Helvetica, Arial, sans-serif;
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.app-container {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+    max-width: 1600px;
+    margin: 0 auto;
+    background-color: #45776C;
+    /* box-shadow: 0 1px 1px rgba(0, 0, 0, 0.06); */
+}
+
+.container {
+    background-color: #45776C;
+    padding: 20px;
+    border-radius: 12px;
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.sidebar {
+    width: 30%;
+    min-width: 300px;
+    max-width: 400px;
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    position: relative;
+}
+
+.back-arrow {
+    color: white;
+    font-size: 22px;
+    text-decoration: none;
+    margin-left: 5px;
+    display: inline-block;
+    cursor: pointer;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    border: 2px solid white;
+    border-radius: 6px;
+    padding: 12px;
+    background-color: transparent;
+    color: white;
+}
+
+.input-group i {
+    margin-right: 12px;
+    font-size: 18px;
+    color: white;
+}
+
+.input-group input {
+    border: none;
+    background: transparent;
+    outline: none;
+    color: white;
+    font-size: 16px;
+    width: 100%;
+}
+
+.add-btn {
+    background-color: #2BDB89;
+    border: 2px solid white;
+    border-radius: 6px;
+    padding: 14px;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.add-btn:hover {
+    background-color: #00d066;
+}
+
+.chat-area-con {
+    background-image: url('/static/resourses/background.png');
+    background-position: right center;
+    /* Позиционируем изображение справа */
+    background-repeat: no-repeat;
+    /* Убираем повторение фона */
+    background-size: cover;
+    /* Подгоняем размер фона под контейнер */
+    flex: 1;
+    /* Чтобы контейнер заполнял пространство */
+}

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Подтверждение</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+    <h1>Введите код подтверждения</h1>
+    <form action="/auth/verify" method="POST">
+        <label for="code">Код:</label>
+        <input type="text" id="code" name="code" required>
+        <button type="submit">Подтвердить</button>
+    </form>
+</body>
+
+</html>

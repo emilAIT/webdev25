@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatsApp</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/dashboard.css">
+    <style>
+        .message-list {
+            padding: 10px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .message {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 10px;
+            max-width: 70%;
+        }
+
+        .message.received {
+            justify-content: flex-start;
+        }
+
+        .message.sent {
+            justify-content: flex-end;
+            margin-left: auto;
+        }
+
+        .message .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+
+        .message.received .avatar {
+            margin-right: 10px;
+        }
+
+        .message.sent .avatar {
+            margin-left: 10px;
+            order: 2;
+        }
+
+        .message-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message.received .message-content {
+            background-color: #2a3e4c;
+            color: white;
+            border-radius: 10px;
+            padding: 8px 12px;
+        }
+
+        .message.sent .message-content {
+            background-color: #3e5c76;
+            color: white;
+            border-radius: 10px;
+            padding: 8px 12px;
+        }
+
+        .message-sender {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .message-text {
+            font-size: 14px;
+            word-wrap: break-word;
+        }
+
+        .message-time {
+            font-size: 12px;
+            color: #b0b0b0;
+            margin-top: 4px;
+            text-align: right;
+        }
+
+        .error {
+            color: red;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <div class="sidebar">
+            <div class="search-container">
+                <div class="search-bar">
+                    <i>
+                        <svg width="20" height="20" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                d="M0 11.2511C0 17.464 5.05263 22.5005 11.3684 22.5005C13.8947 22.5005 16.2406 21.6204 18.2256 20.1422C18.2256 20.294 18.406 20.4349 18.406 20.5614L27.4286 29.5609C27.9699 30.1464 29.0526 30.1464 29.594 29.5609C30.1353 28.9754 30.1353 28.0248 29.594 27.4393L20.5714 18.4399C20.391 18.3134 20.391 18.2158 20.2105 18.1435C21.6541 16.2388 22.5564 13.848 22.5564 11.2511C22.5564 5.03644 17.5038 0 11.3684 0C5.05263 0 0 5.03644 0 11.2511ZM3.06836 11.2511C3.06836 6.69354 6.67738 2.99979 11.3691 2.99979C15.8804 2.99979 19.4894 6.69354 19.4894 11.2511C19.4894 15.8069 15.8804 19.5006 11.3691 19.5006C6.67738 19.5006 3.06836 15.8069 3.06836 11.2511Z"
+                                fill="white" />
+                        </svg>
+                    </i>
+                    <input type="search" placeholder="Search" id="search-input">
+                </div>
+                <div class="search-menu-icon">
+                    <i>
+                        <svg width="40" height="40" viewBox="0 0 50 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M25.0002 20C27.2918 20 29.1668 17.75 29.1668 15C29.1668 12.25 27.2918 10 25.0002 10C22.7085 10 20.8335 12.25 20.8335 15C20.8335 17.75 22.7085 20 25.0002 20ZM25.0002 25C22.7085 25 20.8335 27.25 20.8335 30C20.8335 32.75 22.7085 35 25.0002 35C27.2918 35 29.1668 32.75 29.1668 30C29.1668 27.25 27.2918 25 25.0002 25ZM25.0002 40C22.7085 40 20.8335 42.25 20.8335 45C20.8335 47.75 22.7085 50 25.0002 50C27.2918 50 29.1668 47.75 29.1668 45C29.1668 42.25 27.2918 40 25.0002 40Z"
+                                fill="white" />
+                        </svg>
+                    </i>
+                </div>
+            </div>
+
+            <div class="filter-buttons">
+                <button class="filter-btn active" id="btn-all">Все</button>
+                <button class="filter-btn" id="btn-unread">Непрочитанные</button>
+                <button class="filter-btn" id="btn-groups">Группы</button>
+            </div>
+
+            <div class="contact-list">
+                {% if contacts %}
+                {% for contact in contacts %}
+                {% set room, user = contact %}
+                {% set contact_obj = contact_data_dict.get(user.id) if user else None %}
+                <div class="contact-item {% if selected_contact and user and selected_contact[0].id == user.id %}selected{% endif %}"
+                    data-contact-id="{{ user.id if user else '' }}" data-room-id="{{ room.id if room else '' }}"
+                    data-username="{{ user.username if user else 'No user' }}"
+                    data-avatar="{% if contact_obj and contact_obj.avatar_data %}data:image/png;base64,{{ contact_obj.avatar_data | b64encode }}{% else %}default{% endif %}">
+                    <div class="contact-avatar">
+                        {% if contact_obj and contact_obj.avatar_data %}
+                        <img src="data:image/png;base64,{{ contact_obj.avatar_data | b64encode }}" alt="avatar"
+                            class="contact-avatar-img" width="50" height="50">
+                        {% else %}
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"
+                            fill="currentColor" class="contact-avatar-icon">
+                            <path
+                                d="M12 12c2.21 0 4-1.79 4-4S14.21 4 12 4 8 5.79 8 8s1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                        </svg>
+                        {% endif %}
+                    </div>
+                    <div class="contact-info">
+                        <div class="contact-name">{{ user.username if user else 'No user' }}</div>
+                        <div class="contact-last-msg">—</div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p class="po-umol" style="color: white; padding: 8px 14px; font-size: 18;">У вас пока нет контактов.</p>
+                {% endif %}
+            </div>
+
+            <div class="nav-icons">
+                <div class="nav-item" id="nav-chats">
+                    <div class="nav-circle">
+                        <a href="/dash/"><i class="fas fa-comment-alt"></i></a>
+                    </div>
+                </div>
+                <div class="nav-item" id="nav-status">
+                    <div class="nav-circle">
+                        <a href="/dash/status"><i class="fas fa-video"></i></a>
+                    </div>
+                </div>
+                <div class="nav-item" id="nav-favorites">
+                    <div class="nav-circle">
+                        <a href="/favorites"><i class="fas fa-star"></i></a>
+                    </div>
+                </div>
+                <div class="nav-item" id="nav-new">
+                    <div class="nav-circle">
+                        <a href="/dash/add_con"><i class="fas fa-user-plus"></i></a>
+                    </div>
+                </div>
+                <div class="nav-item" id="nav-profile">
+                    <div class="nav-circle">
+                        <a href="/dash/profile"><i class="fas fa-user"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-area-con" id="chat-area-con"></div>
+
+        <div class="chat-area" id="chat-area">
+            <div class="chat-header">
+                <div class="chat-back" id="chat-back">
+                    <i class="fas fa-arrow-left"></i>
+                </div>
+                <div class="chat-info" style="display: flex; align-items: center; gap: 10px;">
+                    <div class="contact-avatar" style="margin-left: 20px;">
+                        {% if selected_contact_user and selected_contact_user.avatar_data %}
+                        <img src="data:image/png;base64,{{ selected_contact_user.avatar_data | b64encode }}"
+                            alt="avatar" class="contact-avatar-img" width="50" height="50">
+                        {% else %}
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"
+                            fill="currentColor" class="contact-avatar-icon">
+                            <path
+                                d="M12 12c2.21 0 4-1.79 4-4S14.21 4 12 4 8 5.79 8 8s1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                        </svg>
+                        {% endif %}
+                    </div>
+                    <div style="display: flex; flex-direction: column;">
+                        <div class="chat-title" id="current-chat-title" style="font-weight: bold; color: white;">
+                            {% if selected_contact %}
+                            {{ selected_contact[1].username }}
+                            {% else %}
+                            Выберите контакт
+                            {% endif %}
+                        </div>
+                        <div id="chat-status" style="font-size: 12px; color: lightgray;"></div>
+                    </div>
+                </div>
+                <div class="chat-actions">
+                    <i style="margin-top: 8px;">
+                        <svg width="25" height="25" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                d="M0 11.2511C0 17.464 5.05263 22.5005 11.3684 22.5005C13.8947 22.5005 16.2406 21.6204 18.2256 20.1422C18.2256 20.294 18.406 20.4349 18.406 20.5614L27.4286 29.5609C27.9699 30.1464 29.0526 30.1464 29.594 29.5609C30.1353 28.9754 30.1353 28.0248 29.594 27.4393L20.5714 18.4399C20.391 18.3134 20.391 18.2158 20.2105 18.1435C21.6541 16.2388 22.5564 13.848 22.5564 11.2511C22.5564 5.03644 17.5038 0 11.3684 0C5.05263 0 0 5.03644 0 11.2511ZM3.06836 11.2511C3.06836 6.69354 6.67738 2.99979 11.3691 2.99979C15.8804 2.99979 19.4894 6.69354 19.4894 11.2511C19.4894 15.8069 15.8804 19.5006 11.3691 19.5006C6.67738 19.5006 3.06836 15.8069 3.06836 11.2511Z"
+                                fill="white" />
+                        </svg>
+                    </i>
+                    <i>
+                        <svg width="40" height="40" viewBox="0 0 50 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M25.0002 20C27.2918 20 29.1668 17.75 29.1668 15C29.1668 12.25 27.2918 10 25.0002 10C22.7085 10 20.8335 12.25 20.8335 15C20.8335 17.75 22.7085 20 25.0002 20ZM25.0002 25C22.7085 25 20.8335 27.25 20.8335 30C20.8335 32.75 22.7085 35 25.0002 35C27.2918 35 29.1668 32.75 29.1668 30C29.1668 27.25 27.2918 25 25.0002 25ZM25.0002 40C22.7085 40 20.8335 42.25 20.8335 45C20.8335 47.75 22.7085 50 25.0002 50C27.2918 50 29.1668 47.75 29.1668 45C29.1668 42.25 27.2918 40 25.0002 40Z"
+                                fill="white" />
+                        </svg>
+                    </i>
+                </div>
+            </div>
+
+            <div class="message-list" id="message-list">
+                <div class="loading">Select a chat to view messages</div>
+            </div>
+
+            <div class="message-input-area">
+                <div class="message-input">
+                    <i class="far fa-smile icon-left"></i>
+                    <input type="text" id="message-input" placeholder="Enter the message">
+                    <i class="fas fa-paperclip icon-right"></i>
+                </div>
+                <div class="actions">
+                    <i class="fas fa-microphone" id="mic-icon" class="active"></i>
+                    <i class="fas fa-paper-plane" id="send-icon"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const input = document.getElementById("message-input");
+        const micIcon = document.getElementById("mic-icon");
+        const sendIcon = document.getElementById("send-icon");
+        const userId = "{{ request.state.user_id }}";
+
+        document.getElementById('send-icon').addEventListener('click', function () {
+            const messageInput = document.getElementById('message-input');
+            const contactItem = document.querySelector('.contact-item.selected');
+
+            if (!contactItem) {
+                alert("Выберите контакт!");
+                return;
+            }
+
+            const roomId = contactItem.getAttribute('data-room-id');
+            const message = messageInput.value.trim();
+
+            if (!roomId) {
+                alert("Ошибка: ID комнаты не найден!");
+                return;
+            }
+
+            if (!message) {
+                alert("Сообщение не может быть пустым!");
+                return;
+            }
+
+            getToken().then(token => {
+                sendMessage(roomId, message, token);
+            }).catch(error => {
+                alert(error);
+            });
+        });
+
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) {
+                return parts.pop().split(';').shift();
+            }
+        }
+
+        function getTokenFromIndexedDB() {
+            const request = indexedDB.open('userKeysDB', 2);
+
+            return new Promise((resolve, reject) => {
+                request.onupgradeneeded = function (event) {
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains('tokens')) {
+                        db.createObjectStore('tokens', { keyPath: 'id', autoIncrement: true });
+                    }
+                };
+
+                request.onsuccess = function (event) {
+                    const db = event.target.result;
+                    const transaction = db.transaction('tokens', 'readonly');
+                    const store = transaction.objectStore('tokens');
+                    const getRequest = store.get(1);
+
+                    getRequest.onsuccess = function () {
+                        if (getRequest.result) {
+                            resolve(getRequest.result.token);
+                        } else {
+                            reject('Токен не найден в IndexedDB');
+                        }
+                    };
+
+                    getRequest.onerror = function () {
+                        reject('Ошибка при получении токена из IndexedDB');
+                    };
+                };
+
+                request.onerror = function (event) {
+                    reject(`Ошибка при открытии IndexedDB: ${event.target.error}`);
+                };
+            });
+        }
+
+        function getToken() {
+            return new Promise((resolve, reject) => {
+                let token = getCookie('access_token');
+                console.log("Токен из cookies:", token);
+
+                if (token) {
+                    resolve(token);
+                } else {
+                    getTokenFromIndexedDB().then(fetchedToken => {
+                        console.log("Токен из IndexedDB:", fetchedToken);
+                        if (fetchedToken) {
+                            resolve(fetchedToken);
+                        } else {
+                            reject('Токен не действителен');
+                        }
+                    }).catch(error => {
+                        reject(error);
+                    });
+                }
+            });
+        }
+
+        function sendMessage(roomId, message, token) {
+            const socket = new WebSocket(`ws://localhost:8000/ws/send_message/${roomId}`);
+
+            socket.onopen = function () {
+                const payload = {
+                    message: message,
+                    token: token
+                };
+                socket.send(JSON.stringify(payload));
+                document.getElementById('message-input').value = '';
+            };
+
+            socket.onmessage = function (event) {
+                const data = JSON.parse(event.data);
+                if (data.event === "message_sent") {
+                    console.log("Сообщение отправлено:", data.message);
+                } else if (data.event === "error") {
+                    alert(`Ошибка: ${data.message}`);
+                }
+            };
+
+            socket.onclose = function () {
+                console.log("WebSocket закрыт");
+            };
+
+            socket.onerror = function (error) {
+                console.error("Ошибка WebSocket:", error);
+                alert("Ошибка соединения!");
+            };
+        }
+
+        input.addEventListener("input", () => {
+            if (input.value.trim() !== "") {
+                sendIcon.classList.add("active");
+                micIcon.classList.remove("active");
+            } else {
+                sendIcon.classList.remove("active");
+                micIcon.classList.add("active");
+            }
+        });
+
+        micIcon.classList.add("active");
+
+        const onlineUsers = new Set();
+
+        let ws;
+        if (userId) {
+            ws = new WebSocket(`ws://localhost:8000/ws/online/${userId}`);
+
+            ws.onopen = () => {
+                console.log("Соединение установлено, пользователь в сети");
+            };
+
+            ws.onmessage = async function (event) {
+                const data = JSON.parse(event.data);
+                console.log("Получено сообщение: ", data);
+
+                const urlParams = new URLSearchParams(window.location.search);
+                const selectedContactId = urlParams.get('selected_contact_id');
+
+                if (data.event === "online_users_list") {
+                    onlineUsers.clear();
+                    data.users.forEach(id => onlineUsers.add(String(id)));
+                    await updateStatus(selectedContactId);
+                }
+
+                if (data.event === "user_online") {
+                    onlineUsers.add(String(data.user_id));
+                    await updateStatus(selectedContactId);
+                }
+
+                if (data.event === "user_offline") {
+                    onlineUsers.delete(String(data.user_id));
+                    await updateStatus(selectedContactId);
+                }
+            };
+
+            ws.onclose = () => {
+                console.log("Соединение закрыто");
+            };
+        } else {
+            console.log("Ошибка: ID пользователя не найден");
+        }
+
+        async function updateStatus(selectedContactId) {
+            if (selectedContactId) {
+                const selectedContact = document.querySelector(`.contact-item[data-contact-id="${selectedContactId}"]`);
+                const statusElement = document.getElementById('chat-status');
+
+                if (selectedContact && statusElement) {
+                    if (onlineUsers.has(selectedContactId)) {
+                        statusElement.innerText = "в сети";
+                    } else {
+                        statusElement.innerText = "оффлайн";
+                    }
+                }
+            }
+        }
+
+        let selectedContact = null;
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            const btnAll = document.getElementById('btn-all');
+            const btnUnread = document.getElementById('btn-unread');
+            const btnGroups = document.getElementById('btn-groups');
+
+            const chatAreaCon = document.getElementById('chat-area-con');
+            const chatArea = document.getElementById('chat-area');
+            const chatTitle = document.getElementById('current-chat-title');
+            const chatStatus = document.getElementById('chat-status');
+            const messageList = document.getElementById('message-list');
+
+            async function setActiveFilterBtn(activeBtn) {
+                const filterBtns = [btnAll, btnUnread, btnGroups];
+                filterBtns.forEach(btn => btn?.classList.remove('active'));
+                activeBtn?.classList.add('active');
+            }
+
+            btnAll?.addEventListener('click', async () => {
+                await setActiveFilterBtn(btnAll);
+            });
+
+            btnUnread?.addEventListener('click', async () => {
+                await setActiveFilterBtn(btnUnread);
+            });
+
+            btnGroups?.addEventListener('click', async () => {
+                await setActiveFilterBtn(btnGroups);
+            });
+
+            await setActiveFilterBtn(btnAll);
+
+            let currentRoomId = null;
+            let chatSocket = null;
+
+            function createMessageElement(msg, isSent) {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message');
+                messageDiv.classList.add(isSent ? 'sent' : 'received');
+
+                const avatarImg = document.createElement('img');
+                avatarImg.classList.add('avatar');
+                const contactItem = document.querySelector(`.contact-item[data-contact-id="${msg.sender_id}"]`);
+                if (contactItem) {
+                    const avatarSrc = contactItem.getAttribute('data-avatar');
+                    avatarImg.src = avatarSrc !== 'default' ? avatarSrc : 'https://via.placeholder.com/40';
+                } else {
+                    avatarImg.src = 'https://via.placeholder.com/40';
+                }
+                messageDiv.appendChild(avatarImg);
+
+                const contentDiv = document.createElement('div');
+                contentDiv.classList.add('message-content');
+
+                const senderDiv = document.createElement('div');
+                senderDiv.classList.add('message-sender');
+                senderDiv.textContent = contactItem ? contactItem.getAttribute('data-username') : msg.sender_id;
+                contentDiv.appendChild(senderDiv);
+
+                const textDiv = document.createElement('div');
+                textDiv.classList.add('message-text');
+                textDiv.textContent = msg.content || msg.message;
+                contentDiv.appendChild(textDiv);
+
+                const timeDiv = document.createElement('div');
+                timeDiv.classList.add('message-time');
+                timeDiv.textContent = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                contentDiv.appendChild(timeDiv);
+
+                messageDiv.appendChild(contentDiv);
+
+                return messageDiv;
+            }
+
+            async function loadMessages(roomId) {
+                if (chatSocket) {
+                    chatSocket.close();
+                }
+
+                chatSocket = new WebSocket(`ws://localhost:8000/ws/chat/${roomId}`);
+
+                chatSocket.onopen = function () {
+                    console.log("WebSocket для чата открыт:", roomId);
+                    getToken().then(token => {
+                        chatSocket.send(JSON.stringify({ token: token }));
+                    }).catch(error => {
+                        console.error("Ошибка получения токена:", error);
+                        messageList.innerHTML = '<div class="error">Ошибка аутентификации</div>';
+                    });
+                };
+
+                chatSocket.onmessage = function (event) {
+                    const data = JSON.parse(event.data);
+                    if (data.event === "message_history") {
+                        messageList.innerHTML = '';
+                        data.messages.forEach(msg => {
+                            const isSent = String(msg.sender_id) === String(userId);
+                            const messageElement = createMessageElement(msg, isSent);
+                            messageList.appendChild(messageElement);
+                        });
+                        messageList.scrollTop = messageList.scrollHeight;
+                    } else if (data.event === "new_message") {
+                        const isSent = String(data.sender_id) === String(userId);
+                        const messageElement = createMessageElement(data, isSent);
+                        messageList.appendChild(messageElement);
+                        messageList.scrollTop = messageList.scrollHeight;
+                    } else if (data.event === "error") {
+                        messageList.innerHTML = `<div class="error">${data.message}</div>`;
+                    }
+                };
+
+                chatSocket.onclose = function () {
+                    console.log("WebSocket для чата закрыт");
+                };
+
+                chatSocket.onerror = function (error) {
+                    console.error("Ошибка WebSocket для чата:", error);
+                    messageList.innerHTML = '<div class="error">Ошибка загрузки сообщений</div>';
+                };
+            }
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const selectedContactId = urlParams.get('selected_contact_id');
+            if (selectedContactId) {
+                selectedContact = document.querySelector(`.contact-item[data-contact-id="${selectedContactId}"]`);
+                if (selectedContact) {
+                    selectedContact.classList.add('selected');
+                    await updateStatus(selectedContactId);
+                    chatAreaCon.style.display = 'none';
+                    // chatArea.style.display = 'block';
+
+                    const contactName = selectedContact.querySelector('.contact-name').textContent;
+                    chatTitle.textContent = contactName;
+
+                    currentRoomId = selectedContact.getAttribute('data-room-id');
+                    if (currentRoomId) {
+                        await loadMessages(currentRoomId);
+                    }
+                } else {
+                    chatArea.style.display = 'none';
+                }
+            }
+
+            const contactItems = document.querySelectorAll('.contact-item');
+            contactItems.forEach(contactItem => {
+                contactItem.addEventListener('click', async function () {
+                    contactItems.forEach(item => item.classList.remove('selected'));
+
+                    if (selectedContact === contactItem) return;
+
+                    selectedContact = contactItem;
+                    selectedContact.classList.add('selected');
+                    chatAreaCon.style.display = 'none';
+                    // chatArea.style.display = 'block';
+
+                    const contactName = contactItem.querySelector('.contact-name').textContent;
+                    chatTitle.textContent = contactName;
+
+                    const contactId = contactItem.getAttribute('data-contact-id');
+                    if (contactId) {
+                        const chatUrl = `/dash/?selected_contact_id=${contactId}`;
+                        window.location.href = chatUrl;
+                        await updateStatus(contactId);
+
+                        currentRoomId = contactItem.getAttribute('data-room-id');
+                        if (currentRoomId) {
+                            await loadMessages(currentRoomId);
+                        }
+                    }
+                });
+            });
+
+            if (!selectedContact) {
+                chatArea.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+
+</html>

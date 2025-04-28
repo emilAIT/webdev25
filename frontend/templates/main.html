@@ -1,0 +1,493 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat UI Clone</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            background-color: #1a4031;
+            display: flex;
+            color: white;
+        }
+
+        .sidebar {
+            width: 25%;
+            background-color: #2a5d49;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar .search {
+            padding: 10px;
+            background-color: #365f4c;
+        }
+
+        .search input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            background-color: #4d7866;
+            color: white;
+        }
+
+        .chats {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .chat-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .chat-item:hover,
+        .chat-item.active {
+            background-color: #51b48f;
+        }
+
+        .chat-item img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .main {
+            flex: 1;
+            background-color: #2e7e60;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-header {
+            background-color: #275c48;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background-image: url('https://i.imgur.com/vzM1jUK.png');
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+
+        .message {
+            background-color: #1d3026;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            max-width: 60%;
+            position: relative;
+        }
+
+        .message.me {
+            background-color: #4fd196;
+            color: black;
+            margin-left: auto;
+        }
+
+        .message .name {
+            font-weight: bold;
+        }
+
+        .message .time {
+            font-size: 10px;
+            position: absolute;
+            bottom: 5px;
+            right: 10px;
+        }
+
+        .input-area {
+            display: flex;
+            padding: 10px;
+            background-color: #275c48;
+        }
+
+        .input-area input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 20px;
+            border: none;
+            outline: none;
+        }
+
+        .input-area button {
+            margin-left: 10px;
+            padding: 10px 15px;
+            border-radius: 50%;
+            background-color: #4fd196;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar">
+        <div class="search">
+            <input type="text" placeholder="Search">
+        </div>
+        <div class="chats">
+            <div class="chat-item active">
+                <img src="https://i.imgur.com/6VBx3io.png" alt="chat">
+                <div>
+                    <strong>AIT</strong><br>
+                    Эрбол: Привет
+                </div>
+            </div>
+            <div class="chat-item">
+                <img src="https://i.imgur.com/6VBx3io.png" alt="chat">
+                Alymbek<br>
+                Help! I'm in the hole
+            </div>
+            <div class="chat-item">
+                <img src="https://i.imgur.com/6VBx3io.png" alt="chat">
+                Alaman<br>
+                Look at the beauty of this image
+            </div>
+            <!-- Add others as needed -->
+        <!-- </div>
+    </div>
+
+    <div class="main">
+        <div class="main-header">
+            AIT<br>
+            Aktan, Alym, Talant, Gulnura, Salma, Erlan, Daniyar, Daniyal
+        </div>
+        <div class="messages" id="messages">
+            <div class="message"><span class="name" style="color:#ff4d4d;">Alaman</span><br>Who's up for a movie
+                tomorrow?<div class="time">10:56</div>
+            </div>
+            <div class="message"><span class="name" style="color:#fdbd38;">Alymbek</span><br>I'm in! What are we
+                watching?<div class="time">10:56</div>
+            </div>
+            <div class="message"><span class="name" style="color:#4aaaff;">Talant</span><br>Horror?<div class="time">
+                    10:57</div>
+            </div>
+            <div class="message"><span class="name" style="color:#ff77ff;">Emir</span><br>Nope, last time I had
+                nightmares for a week!<div class="time">10:57</div>
+            </div>
+            <div class="message me">Sounds good! What time?<div class="time">10:58</div>
+            </div>
+            <div class="message me">Comedy then?<div class="time">10:58</div>
+            </div>
+        </div>
+        <div class="input-area">
+            <input type="text" id="messageInput" placeholder="Enter the message">
+            <button onclick="sendMessage()">📤</button>
+        </div>
+    </div>
+
+    <script>
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            if (text !== '') {
+                const messages = document.getElementById('messages');
+                const message = document.createElement('div');
+                message.className = 'message me';
+                const now = new Date();
+                const time = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+                message.innerHTML = text + `<div class="time">${time}</div>`;
+                messages.appendChild(message);
+                messages.scrollTop = messages.scrollHeight;
+                input.value = '';
+            }
+        }
+    </script>
+</body>
+
+</html> -->
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat UI</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #1b2d25;
+            color: white;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        .sidebar {
+            width: 30%;
+            background-color: #234034;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background: #2a4c3f;
+            padding: 10px;
+        }
+
+        .search-bar input {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 5px;
+            background: #3a5c4f;
+            color: white;
+        }
+
+        .menu-icon {
+            color: white;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+
+        .filter-tabs {
+            display: flex;
+            justify-content: space-around;
+            background-color: #2a4c3f;
+            padding: 8px 0;
+        }
+
+        .filter-tabs button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+
+        .filter-tabs button.active {
+            background-color: #3a5c4f;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .chat-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .chat-item {
+            padding: 10px;
+            border-bottom: 1px solid #355f50;
+            cursor: pointer;
+        }
+
+        .sidebar-footer {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px;
+            background-color: #1f352b;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .sidebar-footer .material-icons {
+            color: white;
+            cursor: pointer;
+            font-size: 24px;
+        }
+
+        .chat {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #1b2d25;
+        }
+
+        .chat-header {
+            padding: 15px;
+            background-color: #2a4c3f;
+            border-bottom: 1px solid #355f50;
+        }
+
+        .chat-title {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .chat-subtitle {
+            font-size: 12px;
+            color: #ccc;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background: url('https://www.transparenttextures.com/patterns/connected.png');
+            background-color: #1b2d25;
+        }
+
+        .message {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 70%;
+            background-color: #234034;
+            position: relative;
+        }
+
+        .message.self {
+            background-color: #4caf50;
+            align-self: flex-end;
+        }
+
+        .sender {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .sender.Alaman {
+            color: #f44336;
+        }
+
+        .sender.Alymbek {
+            color: #ffeb3b;
+        }
+
+        .sender.Talant {
+            color: #2196f3;
+        }
+
+        .sender.Emir {
+            color: #e91e63;
+        }
+
+        .chat-input {
+            display: flex;
+            padding: 10px;
+            background-color: #2a4c3f;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 20px;
+            border: none;
+            outline: none;
+            background-color: #3a5c4f;
+            color: white;
+        }
+
+        .chat-input button {
+            background: none;
+            border: none;
+            color: white;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="search-bar">
+                <input type="text" placeholder="Search" />
+                <span class="material-icons menu-icon">more_vert</span>
+            </div>
+            <div class="filter-tabs">
+                <button class="active">Все</button>
+                <button>Непрочитанное</button>
+                <button>Группы</button>
+            </div>
+            <div class="chat-list" id="chat-list">
+                <div class="chat-item">AIT<br><small>Эрбол: Привет</small></div>
+                <div class="chat-item">Alymbek<br><small>Help! I'm in the hole</small></div>
+                <div class="chat-item">Alaman<br><small>Look at the beauty of this image</small></div>
+                <div class="chat-item">Azam<br><small>super</small></div>
+                <div class="chat-item">Talant<br><small>When will they finish project?</small></div>
+                <div class="chat-item">Emir<br><small>ldkfjkskskdjlfjkdfld.</small></div>
+                <div class="chat-item">Adilet baike<br><small>Lets do this quick</small></div>
+                <div class="chat-item">2004<br><small>Syimyk: That is how you do it!</small></div>
+            </div>
+            <div class="sidebar-footer">
+                <span class="material-icons">chat</span>
+                <span class="material-icons">photo_camera</span>
+                <span class="material-icons">contacts</span>
+                <span class="material-icons">add_circle</span>
+                <span class="material-icons">settings</span>
+            </div>
+        </div>
+        <div class="chat">
+            <div class="chat-header">
+                <div class="chat-title">AIT</div>
+                <div class="chat-subtitle">Aktan, Alym, Talant, Gulnura, Salma, Erlan, Daniyar, Daniyal</div>
+            </div>
+            <div class="chat-messages" id="messages">
+                <div class="message">
+                    <div class="sender Alaman">Alaman</div>Who's up for a movie tomorrow?
+                </div>
+                <div class="message">
+                    <div class="sender Alymbek">Alymbek</div>I'm in! What are we watching?
+                </div>
+                <div class="message">
+                    <div class="sender Talant">Talant</div>Horror?
+                </div>
+                <div class="message">
+                    <div class="sender Emir">Emir</div>Nope, last time I had nightmares for a week!
+                </div>
+                <div class="message self">Sounds good! What time?</div>
+                <div class="message self">Comedy then?</div>
+            </div>
+            <div class="chat-input">
+                <input type="text" id="messageInput" placeholder="Enter the message" />
+                <button onclick="sendMessage()"><span class="material-icons">send</span></button>
+            </div>
+        </div>
+    </div>
+    <script>
+        function sendMessage() {
+            const input = document.getElementById("messageInput");
+            const text = input.value.trim();
+            if (text) {
+                const msgDiv = document.createElement("div");
+                msgDiv.className = "message self";
+                msgDiv.innerText = text;
+                document.getElementById("messages").appendChild(msgDiv);
+                input.value = "";
+            }
+        }
+    </script>
+</body>
+
+</html>

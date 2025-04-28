@@ -1,0 +1,203 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    overflow-x: hidden;
+    overflow-y: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.background {
+    background-image: url('/static/resourses/background.png');
+    background-size: cover;
+    background-position: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+.form-container {
+    background-color: rgba(15, 15, 15, 0.84);
+    width: 300px;
+    height: 500px;
+    padding: 30px;
+    padding-top: 100px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(43, 219, 137, 0.84);
+    color: white;
+    position: relative;
+    margin: 20px;
+}
+
+.form-container-register {
+    background-color: rgba(15, 15, 15, 0.84);
+    width: 300px;
+    height: 500px;
+    padding: 30px;
+    padding-top: 70px;
+    padding-bottom: 100px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(43, 219, 137, 0.84);
+    color: white;
+    position: relative;
+    margin: 20px;
+}
+
+.title {
+    text-align: center;
+    color: #2BDB89;
+    margin-bottom: 40px;
+    font-size: 36px;
+    font-weight: bold;
+}
+
+.input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    border: 2px solid #2BDB89;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: transparent;
+    color: white;
+    font-size: 20px;
+    height: 30px;
+}
+
+.input-group i.icon {
+    margin-right: 10px;
+    font-size: 20px;
+}
+
+.input-group .icon svg {
+    width: 30px;
+    height: 30px;
+    stroke-width: 2;
+}
+
+.input-group input {
+    border: none;
+    background: transparent;
+    outline: none;
+    color: white;
+    flex: 1;
+    font-size: 20px;
+    padding-right: 30px;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 20px;
+    transition: color 0.3s ease;
+}
+
+.icon-eye,
+.icon-eye-off {
+    fill: transparent;
+    stroke: #32D515;
+    stroke-width: 2;
+    transition: transform 0.3s ease-in-out, stroke 0.3s ease-in-out;
+    width: 40px;
+    height: 30px;
+}
+
+.toggle-password:hover .icon-eye,
+.toggle-password:hover .icon-eye-off {
+    stroke: #28b912;
+    transform: scale(1.1);
+}
+
+.icon-eye-off {
+    display: none;
+}
+
+.login-button {
+    width: 100%;
+    background-color: #2BDB89;
+    color: white;
+    font-weight: bold;
+    border: none;
+    padding: 12px;
+    border-radius: 5px;
+    font-size: 24px;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: 20px;
+    height: 48px;
+    text-align: center;
+}
+
+.login-button:hover {
+    background-color: #1f9f66;
+}
+
+.login-button:active {
+    transform: scale(0.98);
+}
+
+.forgot-link {
+    text-align: right;
+    margin-bottom: 20px;
+    margin-top: -10px;
+    transition: opacity 0.3s ease;
+}
+
+.forgot-link a {
+    font-size: 20px;
+    color: white;
+    text-decoration: none;
+}
+
+.forgot-link a:hover {
+    opacity: 0.7;
+}
+
+.signup-link {
+    text-align: center;
+    margin-top: 20px;
+    transition: opacity 0.3s ease;
+}
+
+.signup-link a {
+    font-size: 20px;
+    color: white;
+    text-decoration: none;
+}
+
+.signup-link a:hover {
+    opacity: 0.7;
+}
+
+body::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+body::-webkit-scrollbar-thumb {
+    background-color: #2BDB89;
+    border-radius: 10px;
+    transition: background-color 0.3s ease;
+}
+
+body::-webkit-scrollbar-thumb:hover {
+    background-color: #1f9f66;
+}
+
+body::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+body::-webkit-scrollbar-horizontal {
+    height: 8px;
+}

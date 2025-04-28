@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+env/
+venv/
+env.bak/
+*.sqlite3
+*.db
+
+# FastAPI + Celery
+celerybeat-schedule
+celerybeat.pid
+
+# Secrets
+.env
+*.pem
+*.key
+
+# Docker
+*.log
+*.pid
+*.sock
+docker-compose.override.yml
+
+# VSCode/PyCharm
+.vscode/
+.idea/
+
+# Redis dumps
+dump.rdb
+appendonly.aof

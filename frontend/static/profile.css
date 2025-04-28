@@ -1,0 +1,276 @@
+/* :root {
+    --primary-color: #0a5e41;
+    --accent-color: #00af9c;
+    --background-color: #111b21;
+    --input-bg: #0a5e41;
+    --input-border: #ffffff50;
+    --input-text: #ffffff;
+} */
+
+:root {
+    --primary-color: #008069;
+    --secondary-color: #f0f2f5;
+    --chat-bg-color: #e5ddd5;
+    --text-color: #111b21;
+    --light-text: #FFFFFF;
+    --border-color: #FFFFFF;
+    --outgoing-bg: #d9fdd3;
+    --incoming-bg: #ffffff;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Helvetica Neue, Helvetica, Arial, sans-serif;
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.app-container {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+    max-width: 1600px;
+    margin: 0 auto;
+    background-color: #45776C;
+    /* box-shadow: 0 1px 1px rgba(0, 0, 0, 0.06); */
+}
+
+.sidebar {
+    width: 30%;
+    min-width: 300px;
+    max-width: 400px;
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    position: relative;
+}
+
+.container {
+    background-color: #386158;
+    /* padding: 10px; */
+    /* border-radius: 12px; */
+    /* width: 320px; */
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 20px;
+    /* gap: 20px; */
+}
+
+/* Header */
+.profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* margin-bottom: 20px; */
+    padding: 15px 20px;
+}
+
+.profile-header h2 {
+    font-size: 30px;
+    font-weight: 500;
+    color: white;
+    /* font-weight: bold; */
+}
+
+.menu-icon {
+    font-size: 30px;
+    cursor: pointer;
+    color: white;
+}
+
+/* Avatar Section */
+.avatar-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 10px 0;
+}
+
+.avatar img {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background-color: #e0e0e0;
+    object-fit: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 48px;
+}
+
+/* .default-avatar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 48px;
+    color: #666;
+} */
+
+.add-photo-text {
+    padding: 10px;
+    margin-top: 12px;
+    margin-left: 38px;
+    font-size: 14px;
+    color: white;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+}
+
+.add-photo-text:hover {
+    color: #2BDB89;
+}
+
+.info-section {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.info-block {
+    display: flex;
+    flex-direction: column;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding-bottom: 10px;
+}
+
+.info-block label {
+    font-size: 13px;
+    color: #cccccc;
+    margin-bottom: 5px;
+}
+
+.info-block input {
+    background: transparent;
+    border: none;
+    font-size: 18px;
+    color: var(--light-text);
+    outline: none;
+}
+
+/* Save Button */
+.save-button {
+    margin-top: 30px;
+    padding: 12px;
+    background-color: #2BDB89;
+    color: var(--light-text);
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.save-button:hover {
+    background-color: #00af9c;
+    transform: translateY(-2px);
+}
+
+/* Navigation */
+.nav-icons {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 14px;
+    background-color: #386158;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+
+.nav-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.nav-circle {
+    width: 40px;
+    height: 40px;
+    background-color: #303F3B;
+    /* Зеленый цвет */
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.3s, border 0.3s;
+    border: 1px solid #2bdb89;
+    /* По умолчанию круг без бордера */
+}
+
+.nav-circle i {
+    color: #2BDB89;
+    font-size: 20px;
+}
+
+#nav-profile .nav-circle {
+    width: 40px;
+    height: 40px;
+    background-color: #303F3B;
+    /* Зеленый цвет */
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.3s, border 0.3s;
+    border: 1px solid #FFFFFF;
+    /* По умолчанию круг без бордера */
+}
+
+/* Иконка внутри "nav-chats" */
+#nav-profile .nav-circle i {
+    color: white;
+    /* Белый цвет иконки */
+    font-size: 20px;
+    /* Измененный размер иконки */
+}
+
+/* Когда элемент наведен, фон круга меняется на белый */
+.nav-circle:hover {
+    background-color: white;
+    border: 2px solid #2bdb89;
+}
+
+.nav-circle:hover i {
+    color: #2bdb89;
+}
+
+.chat-area-con {
+    background-image: url('/static/resourses/background.png');
+    background-position: right center;
+    /* Позиционируем изображение справа */
+    background-repeat: no-repeat;
+    /* Убираем повторение фона */
+    background-size: cover;
+    /* Подгоняем размер фона под контейнер */
+    flex: 1;
+    /* Чтобы контейнер заполнял пространство */
+}
+
+/* Центрируем текст CHATSAPP на фоне */
+.chat-area-con::before {
+    content: "CHATSAPP";
+    position: absolute;
+    top: 45%;
+    left: 65%;
+    transform: translate(-50%, -50%);
+    font-size: 5rem;
+    /* Размер шрифта */
+    font-weight: bold;
+    /* Жирное начертание */
+    color: white;
+    /* Белый цвет текста */
+    z-index: 1;
+    /* Убедимся, что текст поверх фона */
+}
