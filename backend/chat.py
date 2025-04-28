@@ -52,21 +52,30 @@ def get_conversations(
         db.query(Conversation).filter(Conversation.id.in_(conversation_ids)).all()
     )
 
-    # Create a map for quick lookup of participant info
-    participant_map = {p.conversation_id: p for p in user_participants}
+    # Create a map for quick lookup of participant info for the current user
+    user_participant_map = {p.conversation_id: p for p in user_participants}
 
     result = []
     for conv in conversations:
+        # Fetch all participant user objects for this conversation
         participants = (
             db.query(User)
             .join(ConversationParticipant)
             .filter(ConversationParticipant.conversation_id == conv.id)
             .all()
         )
-        participant_usernames = [p.username for p in participants if p.id != user.id]
+
+        # Create participant details list (id and username)
+        participant_details = [
+            {"id": p.id, "username": p.username} for p in participants
+        ]
+
+        # Determine display name
+        other_participants = [p for p in participants if p.id != user.id]
         display_name = (
-            participant_usernames[0]
-            if len(participants) == 2 and participant_usernames
+            other_participants[0].username
+            if len(participants) == 2
+            and other_participants  # Use other user's name for 1-on-1
             else conv.name or f"Group Chat ({len(participants)} members)"
         )
 
@@ -83,7 +92,7 @@ def get_conversations(
         )
 
         # Get the participant record for the current user in this conversation
-        current_participant = participant_map.get(conv.id)
+        current_participant = user_participant_map.get(conv.id)
         last_read = (
             current_participant.last_read_timestamp if current_participant else None
         )
@@ -102,9 +111,12 @@ def get_conversations(
         result.append(
             {
                 "id": conv.id,
-                "name": display_name,
+                "name": display_name,  # Use the determined display name
                 "last_message": last_message_content,
-                "participants": [p.username for p in participants],
+                "participants": [
+                    p.username for p in participants
+                ],  # Keep list of usernames
+                "participant_details": participant_details,  # <-- ADDED participant details
                 "unread_count": unread_count,
             }
         )

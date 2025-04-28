@@ -255,22 +255,31 @@
     opacity: 0.9;
     cursor: pointer;
     transition: all 0.2s ease;
-    border-left: 3px solid rgba(255, 255, 255, 0.5);
+    border-left: 3px solid;
     margin-bottom: 8px;
     padding: 6px 8px;
     border-radius: 12px;
     font-size: 0.85em;
-    background-color: rgba(0, 0, 0, 0.04);
 }
 
+/* Improved reply box styling with better colors */
+.reply-box.self-end {
+    border-color: rgba(255, 255, 255, 0.6);
+    background-color: rgba(255, 255, 255, 0.2);
+}
 
+.reply-box.self-start {
+    border-color: rgba(37, 99, 235, 0.5);
+    background-color: rgba(37, 99, 235, 0.05);
+}
 
 .reply-box:hover {
     opacity: 1;
-    background-color: rgba(0, 0, 0, 0.05);
+    transform: translateY(-1px);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.reply-box .font-bold {
+.reply-box .font-semibold {
     opacity: 0.8;
 }
 
@@ -279,6 +288,80 @@
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 90%;
+}
+
+/* Reply preview in input area styling */
+#reply-container {
+    background-color: #f0f4ff;
+    border-left: 3px solid #2563eb;
+    border-radius: 10px 10px 0 0;
+    transition: all 0.3s ease;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.05);
+    padding: 10px 16px;
+}
+
+#reply-container.hidden {
+    transform: translateY(10px);
+    opacity: 0;
+}
+
+#reply-container:not(.hidden) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    animation: slideDown 0.2s ease-out;
+}
+
+#reply-preview {
+    padding-left: 8px;
+    position: relative;
+    color: #4b5563;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 90%;
+}
+
+#reply-preview::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 2px;
+    height: 70%;
+    background-color: #2563eb;
+}
+
+#cancel-reply {
+    color: #9ca3af;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+#cancel-reply:hover {
+    background-color: #e5e7eb;
+    color: #4b5563;
+}
+
+/* Message being replied to highlight animation */
+.message-being-replied-to {
+    animation: replyHighlight 2s ease infinite;
+}
+
+@keyframes replyHighlight {
+    0%, 100% {
+        box-shadow: 0 0 0 rgba(59, 130, 246, 0);
+    }
+    50% {
+        box-shadow: 0 0 5px 2px rgba(59, 130, 246, 0.3);
+    }
 }
 
 /* Adjust read status icon */
@@ -464,4 +547,63 @@
 
 #new-group-user-suggestions > div:hover {
     background-color: #f0f9ff;
+}
+
+/* --- Add Active Call Modal Styles --- */
+#active-call-modal {
+    /* Base styles are handled by Tailwind classes */
+    /* Add custom transition if needed */
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+#active-call-modal:not(.hidden) {
+    /* Ensure animation runs when shown */
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Optional: Add specific styles for elements if Tailwind isn't enough */
+#active-call-avatar {
+    /* Example: Add a subtle glow */
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+}
+
+#active-hang-up-btn {
+    /* Example: Add slight scale on hover/active */
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+#active-hang-up-btn:hover {
+    transform: scale(1.05);
+}
+
+#active-hang-up-btn:active {
+    transform: scale(0.98);
+}
+
+#mute-call-btn {
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+#mute-call-btn:hover {
+    transform: scale(1.05);
+}
+
+#mute-call-btn:active {
+    transform: scale(0.98);
+}
+
+/* Keyframes for fade-in (if not already defined) */
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* Keyframes for scale animation (if needed and not using Tailwind's animate-fade-scale) */
+@keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.animate-fade-scale {
+    animation: scaleIn 0.2s ease-out;
 }

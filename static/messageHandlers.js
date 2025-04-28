@@ -264,6 +264,7 @@ function setupReplyUI(messageId, content, senderId) {
 
     const replyContainer = document.getElementById('reply-container');
     const replyPreview = document.getElementById('reply-preview');
+    const cancelReply = document.getElementById('cancel-reply');
 
     // Store the message we're replying to
     state.replyingToMessage = {
@@ -273,7 +274,7 @@ function setupReplyUI(messageId, content, senderId) {
     };
 
     if (replyPreview && replyContainer) {
-        // Highlight the original message
+        // Find and highlight the original message
         const originalMessage = document.querySelector(`[data-message-id="${messageId}"]`);
         if (originalMessage) {
             // First remove highlight from any other messages
@@ -282,16 +283,33 @@ function setupReplyUI(messageId, content, senderId) {
 
             // Add highlight to the message being replied to
             originalMessage.classList.add('message-being-replied-to');
+
+            // Scroll to make the message visible if needed
+            originalMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
 
-        // Format the preview content
-        const senderName = senderId === currentUserId ? 'You' : (state.selectedMessage?.senderUsername || 'Someone'); // Try to get username if available
-        const previewContent = `${senderName}: ${content}`;
-        replyPreview.textContent = previewContent.length > 50
-            ? previewContent.substring(0, 47) + '...'
-            : previewContent;
+        // Format the preview content with sender information
+        let senderName = 'Someone';
+        if (senderId === currentUserId) {
+            senderName = 'You';
+        } else {
+            // Try to find username from message element
+            const usernameEl = originalMessage?.querySelector('.message-sender');
+            if (usernameEl) {
+                senderName = usernameEl.textContent || 'Someone';
+            }
+        }
 
-        // --- Explicitly remove hidden class --- 
+        // Create enhanced preview with sender name and truncated content
+        const previewContent = `${senderName}: ${content}`;
+
+        // Set preview content with formatting
+        replyPreview.innerHTML = `
+            <span class="font-medium text-blue-700">${senderName}</span>
+            <span class="text-gray-600">: ${content.length > 50 ? content.substring(0, 47) + '...' : content}</span>
+        `;
+
+        // Explicitly remove hidden class
         replyContainer.classList.remove('hidden');
 
         // Focus the message input

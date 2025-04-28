@@ -2,16 +2,16 @@ from fastapi import FastAPI, Depends
 from fastapi.staticfiles import StaticFiles
 from .auth import router as auth_router, SECRET_KEY, ALGORITHM
 from .chat import router as chat_router
-
-# --- ADD THIS: Import your AI Router ---
 from .ai_routes import router as ai_router
+
+# --- ADD THIS: Import Call model ---
 from .database import engine, Base, SessionLocal
-from .models import Message, User, ConversationParticipant
-from .ws_manager import sio, connected_users  # Import from ws_manager
-import socketio  # Re-add socketio import
+from .models import Message, User, ConversationParticipant, Call
+from .ws_manager import sio, connected_users
+import socketio
 from datetime import datetime
 from jose import JWTError, jwt
-from fastapi.middleware.cors import CORSMiddleware  # Moved import
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
@@ -30,7 +30,6 @@ app.add_middleware(
 # Include Routers
 app.include_router(auth_router)
 app.include_router(chat_router)
-# --- ADD THIS: Register the AI Router ---
 app.include_router(ai_router)
 
 
@@ -41,6 +40,14 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 # Wrap the FastAPI app with the Socket.IO ASGIApp
 # Make sure this is done *after* all routes and middleware are added to 'app'
 socket_app = socketio.ASGIApp(sio, app)
+
+
+# --- Helper to find SID by User ID ---
+def get_sid_by_user_id(user_id):
+    for sid, uid in connected_users.items():
+        if uid == user_id:
+            return sid
+    return None
 
 
 @sio.event
@@ -486,6 +493,186 @@ async def leave_conversation(sid, data):  # Renamed for clarity
     print(
         f"Client {sid} (User ID {connected_users[sid]}) explicitly left room {room_name}"
     )
+
+
+# --- WebRTC Signaling Handlers ---
+
+
+@sio.event
+async def call_request(sid, data):
+    if sid not in connected_users:
+        return print(f"Unauthorized call_request from {sid}")
+
+    caller_id = connected_users[sid]
+    callee_id = data.get("callee_id")
+    if not callee_id:
+        return print(f"call_request from {sid} missing callee_id")
+
+    callee_sid = get_sid_by_user_id(callee_id)
+    if not callee_sid:
+        print(f"User {callee_id} not online for call request from {caller_id}")
+        await sio.emit("call_unavailable", {"callee_id": callee_id}, room=sid)
+        return
+
+    db = SessionLocal()
+    try:
+        caller = db.query(User).filter(User.id == caller_id).first()
+        callee = db.query(User).filter(User.id == callee_id).first()
+        if not caller or not callee:
+            raise Exception("Caller or Callee not found in DB")
+
+        # Create a call record
+        new_call = Call(caller_id=caller_id, callee_id=callee_id, status="initiated")
+        db.add(new_call)
+        db.commit()
+        db.refresh(new_call)
+
+        print(
+            f"Relaying call request from {caller.username} ({sid}) to {callee.username} ({callee_sid})"
+        )
+        await sio.emit(
+            "incoming_call",
+            {
+                "caller_id": caller_id,
+                "caller_username": caller.username,
+                "call_id": new_call.id,  # Include call ID
+            },
+            room=callee_sid,
+        )
+    except Exception as e:
+        print(f"Error processing call_request from {sid}: {e}")
+        db.rollback()
+        await sio.emit("call_error", {"message": "Failed to initiate call"}, room=sid)
+    finally:
+        db.close()
+
+
+@sio.event
+async def call_response(sid, data):
+    if sid not in connected_users:
+        return print(f"Unauthorized call_response from {sid}")
+
+    callee_id = connected_users[sid]
+    caller_id = data.get("caller_id")
+    response = data.get("response")  # 'accepted' or 'rejected'
+    call_id = data.get("call_id")
+
+    if not caller_id or not response or not call_id:
+        return print(f"call_response from {sid} missing data")
+
+    caller_sid = get_sid_by_user_id(caller_id)
+    if not caller_sid:
+        print(f"Caller {caller_id} not online for call response from {callee_id}")
+        # Optionally update call status in DB to 'missed' or similar
+        return
+
+    db = SessionLocal()
+    try:
+        call = db.query(Call).filter(Call.id == call_id).first()
+        if not call or call.callee_id != callee_id or call.caller_id != caller_id:
+            raise Exception("Invalid call record for response")
+
+        call.status = response  # Update status to 'accepted' or 'rejected'
+        if response == "rejected":
+            call.end_time = datetime.utcnow()
+        db.commit()
+
+        print(
+            f"Relaying call response '{response}' from {callee_id} to {caller_id} ({caller_sid})"
+        )
+        await sio.emit(
+            "call_response",
+            {"callee_id": callee_id, "response": response, "call_id": call_id},
+            room=caller_sid,
+        )
+    except Exception as e:
+        print(f"Error processing call_response from {sid}: {e}")
+        db.rollback()
+        # Notify both parties of error?
+    finally:
+        db.close()
+
+
+@sio.event
+async def webrtc_signal(sid, data):
+    if sid not in connected_users:
+        return print(f"Unauthorized webrtc_signal from {sid}")
+
+    sender_id = connected_users[sid]
+    target_id = data.get("target_id")
+    signal_type = data.get("type")  # 'offer', 'answer', 'ice-candidate'
+    signal_data = data.get("data")
+
+    if not target_id or not signal_type or signal_data is None:
+        return print(f"webrtc_signal from {sid} missing data")
+
+    target_sid = get_sid_by_user_id(target_id)
+    if not target_sid:
+        print(f"Target user {target_id} not online for WebRTC signal from {sender_id}")
+        # Maybe notify sender that target is offline?
+        return
+
+    print(
+        f"Relaying WebRTC signal '{signal_type}' from {sender_id} ({sid}) to {target_id} ({target_sid})"
+    )
+    await sio.emit(
+        "webrtc_signal",
+        {
+            "sender_id": sender_id,
+            "type": signal_type,
+            "data": signal_data,
+        },
+        room=target_sid,
+    )
+
+
+@sio.event
+async def hang_up(sid, data):
+    if sid not in connected_users:
+        return print(f"Unauthorized hang_up from {sid}")
+
+    user_id = connected_users[sid]
+    target_id = data.get("target_id")  # The other user in the call
+    call_id = data.get("call_id")
+
+    if not target_id or not call_id:
+        return print(f"hang_up from {sid} missing target_id or call_id")
+
+    target_sid = get_sid_by_user_id(target_id)
+
+    db = SessionLocal()
+    try:
+        call = db.query(Call).filter(Call.id == call_id).first()
+        if call and call.status not in ["ended", "rejected", "missed"]:
+            # Ensure the user hanging up is part of the call
+            if call.caller_id == user_id or call.callee_id == user_id:
+                call.status = "ended"
+                call.end_time = datetime.utcnow()
+                db.commit()
+                print(f"Call {call_id} ended by user {user_id}")
+
+                # Notify the other user if they are online
+                if target_sid:
+                    print(f"Notifying user {target_id} ({target_sid}) of hang_up")
+                    await sio.emit(
+                        "call_ended",
+                        {"call_id": call_id, "ended_by": user_id},
+                        room=target_sid,
+                    )
+            else:
+                print(
+                    f"User {user_id} tried to hang up call {call_id} they are not part of."
+                )
+        elif call:
+            print(f"Call {call_id} already ended/rejected/missed.")
+        else:
+            print(f"Call {call_id} not found for hang_up by user {user_id}")
+
+    except Exception as e:
+        print(f"Error processing hang_up for call {call_id} from {sid}: {e}")
+        db.rollback()
+    finally:
+        db.close()
 
 
 # --- Main Execution ---

@@ -46,3 +46,19 @@ class Message(Base):
     conversation = relationship("Conversation", back_populates="messages")
     sender = relationship("User")
     replied_to = relationship("Message", remote_side=[id], backref="replies")
+
+
+# --- Add Call Model ---
+class Call(Base):
+    __tablename__ = "calls"
+    id = Column(Integer, primary_key=True, index=True)
+    caller_id = Column(Integer, ForeignKey("users.id"))
+    callee_id = Column(Integer, ForeignKey("users.id"))
+    start_time = Column(DateTime, default=datetime.utcnow)
+    end_time = Column(DateTime, nullable=True)
+    status = Column(
+        String, default="initiated"
+    )  # e.g., initiated, answered, rejected, ended
+
+    caller = relationship("User", foreign_keys=[caller_id])
+    callee = relationship("User", foreign_keys=[callee_id])

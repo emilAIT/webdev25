@@ -30,163 +30,109 @@ import { setupMessageHandlers, setupReplyUI, hideReplyUI, handleMessageClick, cl
 import { initializeSocket, joinConversation, socket } from './socket.js'; // Import socket instance
 import { showProfile } from './profile.js';
 import { initMessageInteractions, getReplyData } from './messageInteractions.js'; // Removed startReply import
+// --- ADD WEBRTC IMPORTS ---
+import { initializeWebRTC, startCall, currentCall as webRTCCallState, updateWebRTCUI } from './webrtc.js';
 
-
+// --- Global Variables ---
 let currentConversationId = null;
 let currentUserId = null;
 let conversations = [];
+let userData = null;
+
+// --- DOM Element Variables (Declare here, assign in DOMContentLoaded) ---
+let chatSection = null;
+let profileSection = null;
+let welcomeSection = null;
+let signinSection = null;
+let signupSection = null;
+let messageList = null;
+let messageInput = null;
+let conversationNameEl = null;
+let conversationAvatarEl = null;
+let callBtn = null;
+let localAudioElement = null;
+let remoteAudioElement = null;
+// ... add other frequently used elements if needed ...
 
 // --- AI Feature Integration (Now uses Backend API) ---
 const fixGrammarBtn = document.getElementById('fix-grammar-btn');
 const completeSentenceBtn = document.getElementById('complete-sentence-btn');
 const translateBtn = document.getElementById('translate-btn'); // Added translate button
-const messageInput = document.getElementById('message-input');
-
-// REMOVED: AI Model variables (grammarFixer, textCompleter)
-// REMOVED: initializeAIModels function
-
-// --- Helper function for AI API calls ---
-async function callAIApi(endpoint, payload, buttonElement) {
-    const text = payload.text; // Extract text for validation
-    if (!text || !text.trim()) {
-        showToast('Please enter some text first.', 'warning');
-        return;
-    }
-
-    const token = localStorage.getItem('token');
-    if (!token) {
-        showToast('Authentication error. Please log in again.', 'error');
-        return;
-    }
-
-    // Disable button and show loading state
-    buttonElement.disabled = true;
-    const originalButtonContent = buttonElement.innerHTML; // Store original icon
-    buttonElement.innerHTML = `
-        <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg>
-    `; // Spinner
-    showToast('Processing with AI...', 'info'); // Show loading toast
-
-    try {
-        const response = await fetch(endpoint, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify(payload) // Send the full payload
-        });
-
-        const responseData = await response.json().catch(() => null); // Attempt to parse JSON always
-
-        if (!response.ok) {
-            const errorMsg = responseData?.error || `API Error (${response.status})`;
-            console.error(`AI API Error (${response.status}):`, responseData || response.statusText);
-            showToast(`AI Error: ${errorMsg}`, 'error');
-            return; // Don't clear input on error
-        }
-
-        if (responseData && responseData.result) {
-            messageInput.value = responseData.result;
-            showToast('AI processing complete!', 'success');
-        } else {
-            showToast('AI returned no result or an unexpected response.', 'warning');
-            console.warn("Unexpected AI response:", responseData);
-        }
-
-    } catch (error) {
-        console.error('Failed to call AI API:', error);
-        showToast('Network error during AI request. Please check your connection.', 'error');
-    } finally {
-        // Re-enable button and restore icon
-        buttonElement.disabled = false; // Re-enable regardless of success/failure
-        buttonElement.innerHTML = originalButtonContent;
-        // Re-evaluate button states based on potentially changed input
-        messageInput.dispatchEvent(new Event('input'));
-    }
-}
-
-// Event listener for Fix Grammar button
-fixGrammarBtn.addEventListener('click', () => {
-    console.log('Fix Grammar button clicked.');
-    const text = messageInput.value.trim();
-    callAIApi('/ai/fix-grammar', { text }, fixGrammarBtn);
-});
-
-// Event listener for Complete Sentence button
-completeSentenceBtn.addEventListener('click', () => {
-    console.log('Complete Sentence button clicked.');
-    const text = messageInput.value; // Send potentially incomplete text
-    callAIApi('/ai/complete-sentence', { text }, completeSentenceBtn);
-});
-
-// Event listener for Translate button
-translateBtn.addEventListener('click', () => {
-    console.log('Translate button clicked.');
-    const text = messageInput.value.trim();
-    // Example: Translate to Spanish. You can add UI to select target language.
-    const targetLanguage = 'Spanish'; // Make this dynamic later
-    showToast(`Translating to ${targetLanguage}...`, 'info');
-    callAIApi('/ai/translate', { text, target_language: targetLanguage }, translateBtn);
-});
-
-// Enable/disable AI buttons based on input content
-messageInput.addEventListener('input', () => {
-    const hasText = messageInput.value.trim().length > 0;
-    // Enable all AI buttons if there's text, disable otherwise
-    // Actual API availability is checked server-side, but this provides immediate UI feedback.
-    fixGrammarBtn.disabled = !hasText;
-    completeSentenceBtn.disabled = !hasText;
-    translateBtn.disabled = !hasText;
-});
-
 
 document.addEventListener('DOMContentLoaded', async () => {
+    // --- Assign DOM Elements FIRST --- 
+    chatSection = document.getElementById('chat');
+    profileSection = document.getElementById('profile');
+    welcomeSection = document.getElementById('welcome');
+    signinSection = document.getElementById('signin');
+    signupSection = document.getElementById('signup');
+    messageList = document.getElementById('message-list');
+    messageInput = document.getElementById('message-input');
+    conversationNameEl = document.getElementById('conversation-name');
+    conversationAvatarEl = document.getElementById('conversation-avatar');
+    callBtn = document.getElementById('call-btn');
+    localAudioElement = document.getElementById('local-audio');
+    remoteAudioElement = document.getElementById('remote-audio');
+    // ... assign other elements needed early ...
+    // --- NEW: Assign active call modal elements --- 
+    const activeCallModal = document.getElementById('active-call-modal');
+    const activeCallAvatar = document.getElementById('active-call-avatar');
+    const activeCallUsername = document.getElementById('active-call-username');
+    const activeCallTimer = document.getElementById('active-call-timer');
+    const muteCallBtn = document.getElementById('mute-call-btn');
+    const activeHangUpBtn = document.getElementById('active-hang-up-btn');
+    const micIconUnmuted = document.getElementById('mic-icon-unmuted');
+    const micIconMuted = document.getElementById('mic-icon-muted');
+    // --- Also assign elements needed by WebRTC that were previously assigned elsewhere ---
+    const callStatusDiv = document.getElementById('call-status');
+    const callStatusText = document.getElementById('call-status-text');
+    const hangUpBtn = document.getElementById('hang-up-btn'); // Old status bar hangup
+    const incomingCallModal = document.getElementById('incoming-call-modal');
+    const callerNameEl = document.getElementById('caller-name');
+    const callerAvatarEl = document.getElementById('caller-avatar');
+    const acceptCallBtn = document.getElementById('accept-call-btn');
+    const rejectCallBtn = document.getElementById('reject-call-btn'); // Make sure this ID exists in HTML
+
+    // --- Define hideAllSections AFTER element assignments --- 
+    const hideAllSections = () => {
+        // Uses the variables assigned above
+        welcomeSection?.classList.add('hidden');
+        signinSection?.classList.add('hidden');
+        signupSection?.classList.add('hidden');
+        chatSection?.classList.add('hidden');
+        profileSection?.classList.add('hidden');
+    };
+
     const token = localStorage.getItem('token');
     console.log('Token found in localStorage:', token ? 'Yes' : 'No');
 
-    // Get references to all sections
-    const welcomeSection = document.getElementById('welcome');
-    const signinSection = document.getElementById('signin');
-    const signupSection = document.getElementById('signup');
-    const chatSection = document.getElementById('chat');
-    const profileSection = document.getElementById('profile');
-
-    // Function to hide all main sections
-    const hideAllSections = () => {
-        welcomeSection.classList.add('hidden');
-        signinSection.classList.add('hidden');
-        signupSection.classList.add('hidden');
-        chatSection.classList.add('hidden');
-        profileSection.classList.add('hidden');
-    };
-
-    // Welcome screen button handlers
+    // Welcome screen button handlers (Use variables assigned at the top)
     const welcomeSigninBtn = document.getElementById('welcome-signin-btn');
     const welcomeSignupBtn = document.getElementById('welcome-signup-btn');
 
     if (welcomeSigninBtn) {
         welcomeSigninBtn.addEventListener('click', () => {
-            hideAllSections();
-            signinSection.classList.remove('hidden');
+            hideAllSections(); // Call the function defined above
+            signinSection?.classList.remove('hidden'); // Use variable from top
         });
     }
 
     if (welcomeSignupBtn) {
         welcomeSignupBtn.addEventListener('click', () => {
-            hideAllSections();
-            signupSection.classList.remove('hidden');
+            hideAllSections(); // Call the function defined above
+            signupSection?.classList.remove('hidden'); // Use variable from top
         });
     }
 
     // --- Token Validation and Initialization ---
     if (!token) {
-        hideAllSections();
-        welcomeSection.classList.remove('hidden');
+        // Directly manage visibility using variables assigned at the top
         console.log('No token found, showing welcome page');
+        welcomeSection?.classList.remove('hidden');
+        chatSection?.classList.add('hidden');
+        profileSection?.classList.add('hidden');
+        signinSection?.classList.add('hidden');
+        signupSection?.classList.add('hidden');
         return; // Stop further execution if no token
     }
 
@@ -197,56 +143,95 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
 
         if (!userResponse.ok) {
-            console.error('Token validation failed:', userResponse.status, userResponse.statusText);
-            localStorage.removeItem('token'); // Remove invalid token
-            hideAllSections();
-            welcomeSection.classList.remove('hidden');
-            showToast('Session expired or invalid. Please sign in again.', 'error');
-            return; // Stop execution
+            if (userResponse.status === 401) {
+                console.log('Token is invalid or expired.');
+                localStorage.removeItem('token');
+                throw new Error('Invalid token'); // Throw to trigger catch block
+            } else {
+                throw new Error(`Failed to fetch user data: ${userResponse.statusText}`);
+            }
         }
 
-        const userData = await userResponse.json();
+        userData = await userResponse.json();
         currentUserId = userData.id;
         console.log('Current user:', userData);
 
-        // --- Show chat section and Initialize ---
-        hideAllSections();
-        chatSection.classList.remove('hidden');
+        // --- Initialization successful, NOW hide all and show chat ---
+        hideAllSections(); // Safe to call now
+        chatSection?.classList.remove('hidden');
 
-        // Initialize socket connection (ensure it handles token)
+        // Initialize socket connection
         if (typeof initializeSocket === 'function') {
-            initializeSocket(); // Socket should connect using the token
+            initializeSocket();
         } else {
             console.error("initializeSocket function not found!");
-            // Handle error appropriately, maybe show error toast
         }
 
         // Load initial conversations
         await loadConversations();
 
-        // Setup message handlers and interactions now that chat UI is visible
+        // Setup message handlers and interactions
         if (typeof setupMessageHandlers === 'function') {
             setupMessageHandlers();
         } else {
             console.error("setupMessageHandlers function not found!");
         }
         if (typeof initMessageInteractions === 'function') {
-            initMessageInteractions(); // Initialize double-click reply etc.
+            initMessageInteractions();
         } else {
             console.error("initMessageInteractions function not found!");
         }
 
-        // Check initial input state for AI buttons (they are disabled by default in HTML)
-        messageInput.dispatchEvent(new Event('input'));
+        // --- INITIALIZE WEBRTC (Pass ALL elements in an object) ---
+        if (typeof initializeWebRTC === 'function') {
+            const webrtcInitParams = {
+                localAudioElement,
+                remoteAudioElement,
+                callBtn,
+                callStatusDiv,
+                callStatusText,
+                hangUpBtn,
+                incomingCallModal,
+                callerNameEl,
+                callerAvatarEl,
+                acceptCallBtn,
+                rejectCallBtn, // Ensure this ID exists in HTML
+                activeCallModal,
+                activeCallAvatar,
+                activeCallUsername,
+                activeCallTimer,
+                muteCallBtn,
+                activeHangUpBtn,
+                micIconUnmuted,
+                micIconMuted
+            };
+            // Check if all essential elements were found before initializing
+            const essentialElements = [localAudioElement, remoteAudioElement, callBtn, activeCallModal, muteCallBtn, activeHangUpBtn];
+            if (essentialElements.every(el => el)) {
+                initializeWebRTC(webrtcInitParams);
+            } else {
+                console.error("One or more essential WebRTC UI elements not found in chat.js. Cannot initialize WebRTC.");
+                showToast("Could not initialize audio calling feature (UI error).", "error");
+            }
+        } else {
+            console.error("initializeWebRTC function not found!");
+        }
+
+        // Check initial input state for AI buttons
+        messageInput?.dispatchEvent(new Event('input'));
 
         console.log('Chat initialized successfully.');
 
     } catch (error) {
         console.error('Initialization error:', error);
         localStorage.removeItem('token'); // Clear token on error
-        hideAllSections();
-        welcomeSection.classList.remove('hidden');
-        showToast('An error occurred during initialization. Please try again.', 'error');
+        // Directly manage visibility using variables assigned at the top
+        chatSection?.classList.add('hidden');
+        profileSection?.classList.add('hidden');
+        signinSection?.classList.add('hidden');
+        signupSection?.classList.add('hidden');
+        welcomeSection?.classList.remove('hidden'); // Show welcome on error
+        showToast('Session expired or invalid. Please log in again.', 'error');
         return;
     }
 
@@ -325,7 +310,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 socket.disconnect(); // Disconnect socket on logout
             }
             hideAllSections();
-            welcomeSection.classList.remove('hidden');
+            welcomeSection?.classList.remove('hidden');
             menuModal.classList.add('hidden'); // Close modal
             showToast("You have been logged out.", "success");
             console.log("Logged out successfully.");
@@ -742,6 +727,35 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
+    // --- Call Button Listener (Ensure callBtn exists) ---
+    if (callBtn) {
+        callBtn.addEventListener('click', () => {
+            if (!currentConversationId || !userData) return;
+            const conversation = conversations.find(conv => conv.id === currentConversationId);
+
+            // Use participant_details from the conversation object
+            if (!conversation || !conversation.participant_details || conversation.participant_details.length !== 2) {
+                showToast('Calls are only supported in 1-on-1 chats.', 'warning');
+                return;
+            }
+
+            // Find the other participant using participant_details
+            const otherParticipant = conversation.participant_details.find(p => p.id !== currentUserId);
+
+            if (!otherParticipant) {
+                console.error("Could not find the other participant's details.");
+                showToast('Error finding user to call.', 'error');
+                return;
+            }
+
+            console.log(`Initiating call with User ID: ${otherParticipant.id}, Username: ${otherParticipant.username}`);
+            startCall(otherParticipant.id, otherParticipant.username);
+        });
+    } else {
+        // This log should now appear if the button isn't found during initial load
+        console.error("Call button element not found during listener setup.");
+    }
+
 }); // End DOMContentLoaded
 
 // --- Core Chat Functions ---
@@ -776,6 +790,13 @@ async function loadConversations() {
 
         conversations = await response.json(); // Store conversation list globally
         console.log('Conversations loaded:', conversations);
+
+        // --- ADD participant_details to conversation objects (Example - adjust based on your actual API response) ---
+        // This part is crucial for getting the other user's ID for calling.
+        // You might need to adjust your /chat/conversations endpoint to include participant IDs and usernames.
+        // Example structure assumed for conversations array elements:
+        // { id: 1, name: 'user_b', participants: ['user_a', 'user_b'], participant_details: [{id: 10, username: 'user_a'}, {id: 11, username: 'user_b'}], ... }
+
         renderChatList(conversations); // Update the UI
 
         // Automatically load the first conversation if none is selected,
@@ -857,16 +878,33 @@ function renderChatList(convList) {
 
 async function loadConversation(conversationId) {
     console.log(`Loading conversation ${conversationId}...`);
-    if (!conversationId) {
-        console.warn("loadConversation called with null or undefined ID.");
+    if (!conversationId || !messageList || !conversationNameEl || !callBtn) {
+        console.warn("loadConversation called with null ID or missing essential elements.");
         return;
     }
 
+    // --- Reset WebRTC state if a call is active --- 
+    if (webRTCCallState.state !== 'idle') {
+        console.log("Switching conversation during an active call. Ending the call.");
+        // Simulate hangup without emitting to the other user if connection is already broken
+        // Or call the hangUp function if it handles this gracefully
+        // hangUpCall(); // Assuming hangUpCall resets state correctly
+        // For safety, directly reset state here:
+        if (typeof updateWebRTCUI === 'function') {
+            // Manually reset relevant parts if hangUpCall isn't suitable
+            const hangUpBtn = document.getElementById('hang-up-btn');
+            const callStatusDiv = document.getElementById('call-status');
+            hangUpBtn?.classList.add('hidden');
+            callStatusDiv?.classList.add('hidden');
+            // More comprehensive reset might be needed in webrtc.js
+            console.warn("Call state might need full reset in webrtc.js");
+        }
+    }
+
     // Visually indicate loading
-    const messageList = document.getElementById('message-list');
-    const conversationNameEl = document.getElementById('conversation-name');
-    messageList.innerHTML = '<div class="p-4 text-center text-gray-500">Loading messages...</div>';
     conversationNameEl.textContent = 'Loading...';
+    messageList.innerHTML = '<div class="p-4 text-center text-gray-500">Loading messages...</div>';
+    callBtn.classList.add('hidden'); // Hide call button initially
 
     try {
         // Update current conversation ID state
@@ -919,25 +957,48 @@ async function loadConversation(conversationId) {
             messageList.scrollTop = messageList.scrollHeight;
         }
 
-        // --- Update Conversation Header ---
+        // --- Update Conversation Header --- 
         const convData = conversations.find(c => c.id === conversationId);
-        conversationNameEl.textContent = convData ? convData.name : 'Chat'; // Use fetched name
+        if (convData) {
+            // Use the name provided by the backend (should be correct now)
+            conversationNameEl.textContent = convData.name;
+            // Update avatar based on conversation name (optional)
+            if (conversationAvatarEl) {
+                conversationAvatarEl.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(convData.name)}&background=random&size=40`;
+            }
 
-        // --- Update Chat List Highlighting ---
-        renderChatList(conversations); // Re-render to ensure correct item is highlighted
+            // --- Show/Hide Call Button --- 
+            // Use participant_details to check if it's a 1-on-1 chat
+            if (convData.participant_details && convData.participant_details.length === 2) {
+                // Ensure the other participant is not the current user (handles self-chat case)
+                const otherParticipant = convData.participant_details.find(p => p.id !== currentUserId);
+                if (otherParticipant) {
+                    callBtn.classList.remove('hidden');
+                } else {
+                    callBtn.classList.add('hidden'); // It's a self-chat
+                }
+            } else {
+                callBtn.classList.add('hidden'); // It's a group chat
+            }
+        } else {
+            conversationNameEl.textContent = 'Chat'; // Fallback if convData not found
+            callBtn.classList.add('hidden');
+        }
 
-        // --- Mark Conversation as Read ---
+        // --- Update Chat List Highlighting --- 
+        renderChatList(conversations);
+
+        // --- Mark Conversation as Read --- 
         await markConversationRead(conversationId);
 
         // Focus the message input
-        document.getElementById('message-input').focus();
+        messageInput?.focus();
 
     } catch (error) {
         console.error(`Error loading conversation ${conversationId}:`, error);
         messageList.innerHTML = `<div class="p-4 text-center text-red-500">Error loading messages. Please try again.</div>`;
         conversationNameEl.textContent = 'Error';
-        // Potentially clear currentConversationId if load failed badly
-        // currentConversationId = null;
+        callBtn.classList.add('hidden'); // Ensure button is hidden on error
     }
 }
 
@@ -1197,7 +1258,7 @@ function handleSendMessage() {
 
 
 // --- Exports ---
-// Export functions needed by other modules (like socket.js for message handling)
+// Export functions needed by other modules
 export {
     currentConversationId,
     currentUserId,
@@ -1207,5 +1268,5 @@ export {
     createMessageElement,
     updateMessageReadStatus,
     renderChatList, // Export if needed for socket updates
-    // REMOVED: initializeAIModels (no longer used)
+    showToast // Export showToast if it's defined here
 };

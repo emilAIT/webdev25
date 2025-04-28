@@ -197,9 +197,13 @@
       </div>
       <!-- Conversation -->
       <div class="w-3/4 p-4 flex flex-col">
-        <div id="conversation-header" class="flex items-center mb-4 bg-white">
+        <div
+          id="conversation-header"
+          class="flex items-center justify-between mb-4 bg-white p-3 rounded-lg shadow"
+        >
           <div class="flex items-center">
             <img
+              id="conversation-avatar"
               src="https://picsum.photos/40"
               alt="Profile"
               class="w-[77px] h-[77px] rounded-[16px] mr-3"
@@ -211,6 +215,41 @@
               Chat Name
             </h3>
           </div>
+          <!-- Call Button (Initially hidden) -->
+          <button
+            id="call-btn"
+            class="hidden bg-green-500 text-white p-2 rounded-full hover:bg-green-600 transition"
+            title="Start Audio Call"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+              />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Call Status Display (Initially hidden) -->
+        <div
+          id="call-status"
+          class="hidden bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-3 mb-3 rounded-md shadow-sm flex justify-between items-center"
+        >
+          <span id="call-status-text">Call Status</span>
+          <button
+            id="hang-up-btn"
+            class="hidden bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
+          >
+            Hang Up
+          </button>
         </div>
 
         <div
@@ -368,6 +407,7 @@
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
+              stroke-width="2"
             >
               <path
                 stroke-linecap="round"
@@ -388,6 +428,7 @@
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
+              stroke-width="2"
             >
               <path
                 stroke-linecap="round"
@@ -707,6 +748,136 @@
       </div>
     </div>
 
+    <!-- Incoming Call Modal -->
+    <div
+      id="incoming-call-modal"
+      class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-40"
+    >
+      <div class="bg-white p-6 rounded-lg shadow-md w-full max-w-xs">
+        <h3 class="text-lg font-bold mb-4">Incoming Call</h3>
+        <div class="flex items-center mb-4">
+          <img
+            id="caller-avatar"
+            src="https://ui-avatars.com/api/?name=Caller&background=random&size=60"
+            alt="Caller"
+            class="w-16 h-16 rounded-full mr-4"
+          />
+          <div>
+            <p class="text-md font-semibold" id="caller-name">Username</p>
+          </div>
+        </div>
+        <div class="flex justify-between">
+          <button
+            id="accept-call-btn"
+            class="bg-green-500 text-white p-2 rounded-lg hover:bg-green-600 transition"
+          >
+            Accept
+          </button>
+          <button
+            id="reject-call-btn"
+            class="bg-red-500 text-white p-2 rounded-lg hover:bg-red-600 transition"
+          >
+            Decline
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Call Modal -->
+    <div
+      id="active-call-modal"
+      class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-40"
+    >
+      <div
+        class="bg-gradient-to-br from-blue-500 to-indigo-600 p-6 rounded-2xl shadow-xl w-full max-w-sm text-white animate-fade-scale"
+      >
+        <div class="text-center mb-6">
+          <img
+            id="active-call-avatar"
+            src="https://ui-avatars.com/api/?name=User&background=random&size=80&color=fff"
+            alt="User"
+            class="w-20 h-20 rounded-full mx-auto mb-3 border-2 border-white shadow-md"
+          />
+          <h3 id="active-call-username" class="text-2xl font-bold">
+            Connecting...
+          </h3>
+          <p id="active-call-timer" class="text-lg mt-1 text-indigo-100">
+            00:00
+          </p>
+        </div>
+        <div class="flex justify-center space-x-6 mt-8">
+          <button
+            id="mute-call-btn"
+            class="p-4 bg-white bg-opacity-20 rounded-full hover:bg-opacity-30 transition text-white"
+            title="Mute/Unmute"
+          >
+            <!-- Mic Icon (will change based on mute state) -->
+            <svg
+              id="mic-icon-unmuted"
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4M4 11a7 7 0 1114 0h-2a5 5 0 00-10 0H4z"
+              />
+            </svg>
+            <svg
+              id="mic-icon-muted"
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6 hidden"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4M4 11a7 7 0 1114 0h-2a5 5 0 00-10 0H4zm11.88-2.76l-1.414-1.414M10.12 14.12l-1.414 1.414M4.93 4.93l1.414 1.414M14.12 10.12l1.414 1.414M12 3v2m0 14v2m-7-7h2m10 0h2M4.93 19.07l1.414-1.414M17.66 6.34l1.414-1.414"
+              />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M3 3l18 18"
+              />
+            </svg>
+          </button>
+          <button
+            id="active-hang-up-btn"
+            class="p-4 bg-red-600 rounded-full hover:bg-red-700 transition text-white shadow-lg"
+            title="Hang Up"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                transform="rotate(-135 12 12)"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Audio Elements for Call (Ensure these exist!) -->
+    <audio id="remote-audio" autoplay playsinline class="hidden"></audio>
+    <audio id="local-audio" muted autoplay playsinline class="hidden"></audio>
+
     <!-- Menu Modal -->
     <div
       id="menu-modal"
@@ -738,5 +909,7 @@
     <script src="messageHandlers.js" type="module"></script>
     <script src="messageInteractions.js" type="module"></script>
     <script src="utils.js" type="module"></script>
+    <!-- ADD WEBRTC SCRIPT -->
+    <script src="webrtc.js" type="module"></script>
   </body>
 </html>
