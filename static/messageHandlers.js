@@ -336,11 +336,11 @@ function handleMessageClick(e, messageElement) {
     const viewportHeight = window.innerHeight;
 
     let menuTop = messageRect.top; // Align top with message top initially
-    let menuLeft = messageRect.right + 10; // Position 10px to the right of the message
+    let menuLeft = messageRect.left - menuRect.width - 10; // Position to the left of the message with 10px gap
 
-    // Adjust if menu goes off-screen right
-    if (menuLeft + menuRect.width > viewportWidth - 10) {
-        menuLeft = messageRect.left - menuRect.width - 10; // Position to the left if no space on right
+    // Adjust if menu goes off-screen left
+    if (menuLeft < 10) {
+        menuLeft = 10; // Ensure minimum spacing from left edge
     }
 
     // Adjust if menu goes off-screen bottom
@@ -351,11 +351,6 @@ function handleMessageClick(e, messageElement) {
     // Adjust if menu goes off-screen top
     if (menuTop < 10) {
         menuTop = 10;
-    }
-
-    // Adjust if menu goes off-screen left (when positioned to the left)
-    if (menuLeft < 10) {
-        menuLeft = 10;
     }
 
     actionsMenu.style.position = 'fixed';
