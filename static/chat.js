@@ -54,13 +54,93 @@ let localAudioElement = null;
 let remoteAudioElement = null;
 // ... add other frequently used elements if needed ...
 
-// --- AI Feature Integration (Now uses Backend API) ---
-const fixGrammarBtn = document.getElementById('fix-grammar-btn');
-const completeSentenceBtn = document.getElementById('complete-sentence-btn');
-const translateBtn = document.getElementById('translate-btn'); // Added translate button
+// --- Helper function for AI API calls ---
+async function callAiFeature(endpoint, text, targetLanguage = null) {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        showToast("Authentication error. Please log in again.", "error");
+        return null;
+    }
+
+    const body = targetLanguage ? { text, target_language: targetLanguage } : { text };
+
+    try {
+        const response = await fetch(`/ai/${endpoint}`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(body)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ detail: 'Unknown AI error' }));
+            throw new Error(errorData.detail || `AI request failed: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        return data.result; // Assuming backend returns { "result": "..." }
+
+    } catch (error) {
+        console.error(`Error calling AI feature ${endpoint}:`, error);
+        showToast(`AI Error: ${error.message}`, "error");
+        return null;
+    }
+}
+
+// --- Function to handle AI button clicks ---
+// Needs access to button variables, ensure they are passed or accessible
+async function handleAiButtonClick(button, endpoint, targetLanguage = null) {
+    // Get buttons inside the function or ensure they are accessible from the scope where this is called
+    const fixGrammarBtn = document.getElementById('fix-grammar-btn');
+    const completeSentenceBtn = document.getElementById('complete-sentence-btn');
+    const translateBtn = document.getElementById('translate-btn');
+    const messageInput = document.getElementById('message-input'); // Also get messageInput here
+
+    if (!messageInput || !button) return;
+
+    const originalText = messageInput.value;
+    if (!originalText.trim()) return; // Don't call if input is empty
+
+    // Disable all AI buttons during processing
+    fixGrammarBtn.disabled = true;
+    completeSentenceBtn.disabled = true;
+    translateBtn.disabled = true;
+    button.innerHTML = '<svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>'; // Loading spinner
+
+    const result = await callAiFeature(endpoint, originalText, targetLanguage);
+
+    // Re-enable buttons and restore icon
+    const hasTextNow = messageInput.value.trim().length > 0;
+    if (fixGrammarBtn) fixGrammarBtn.disabled = !hasTextNow; // Re-enable based on current input state
+    if (completeSentenceBtn) completeSentenceBtn.disabled = !hasTextNow;
+    if (translateBtn) translateBtn.disabled = !hasTextNow;
+    // Restore original icon (replace spinner) - requires storing original icons or re-querying
+    // Simple approach: just remove spinner and let CSS handle original icon if it's background/pseudo
+    // Better: Store original innerHTML or use specific classes
+    // For now, let's assume the original SVG is still there but hidden, or we reset it manually
+    // This part needs refinement based on how icons are implemented in index.html
+    // Example reset (assuming SVGs are direct children):
+    if (button === fixGrammarBtn) button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.196-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg>';
+    if (button === completeSentenceBtn) button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>';
+    if (button === translateBtn) button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m0 4V5m0 4v2m0 4v2m3-10v10m0 4v2m4-14v14m0 4v2m4 0h2m-2-4h2m-2-4h2m-2-4h2m-2-4h2" /></svg>';
+
+
+    if (result !== null) {
+        messageInput.value = result; // Update input field with the result
+        messageInput.focus(); // Keep focus on input
+        // Trigger input event to potentially re-enable buttons if needed (e.g., if result is empty)
+        messageInput.dispatchEvent(new Event('input'));
+    } else {
+        // If error, keep original text
+        messageInput.value = originalText;
+    }
+}
+
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // --- Assign DOM Elements FIRST --- 
+    // --- First assign all DOM elements ---
     chatSection = document.getElementById('chat');
     profileSection = document.getElementById('profile');
     welcomeSection = document.getElementById('welcome');
@@ -73,7 +153,65 @@ document.addEventListener('DOMContentLoaded', async () => {
     callBtn = document.getElementById('call-btn');
     localAudioElement = document.getElementById('local-audio');
     remoteAudioElement = document.getElementById('remote-audio');
-    // ... assign other elements needed early ...
+
+    // --- Get AI button elements ---
+    const fixGrammarBtn = document.getElementById('fix-grammar-btn');
+    const completeSentenceBtn = document.getElementById('complete-sentence-btn');
+    const translateBtn = document.getElementById('translate-btn');
+
+    // --- Setup AI buttons state based on input ---
+    if (messageInput && fixGrammarBtn && completeSentenceBtn && translateBtn) {
+        // Function to update button states
+        const updateAIButtonStates = () => {
+            const hasText = messageInput.value.trim().length > 0;
+            fixGrammarBtn.disabled = !hasText;
+            completeSentenceBtn.disabled = !hasText;
+            translateBtn.disabled = !hasText;
+
+            // Add visual indication of disabled state
+            [fixGrammarBtn, completeSentenceBtn, translateBtn].forEach(btn => {
+                if (hasText) {
+                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                } else {
+                    btn.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+            });
+        };
+
+        // Add event listener for input changes
+        messageInput.addEventListener('input', updateAIButtonStates);
+
+        // Initial button state check
+        updateAIButtonStates();
+
+        console.log("AI button listeners configured successfully");
+    } else {
+        console.warn("Failed to initialize AI button listeners - one or more elements not found");
+    }
+
+    // --- Set up AI Button Click Handlers ---
+    if (fixGrammarBtn) {
+        fixGrammarBtn.addEventListener('click', () => {
+            if (!messageInput.value.trim()) return; // Extra safety check
+            handleAiButtonClick(fixGrammarBtn, 'fix-grammar');
+        });
+    }
+
+    if (completeSentenceBtn) {
+        completeSentenceBtn.addEventListener('click', () => {
+            if (!messageInput.value.trim()) return; // Extra safety check
+            handleAiButtonClick(completeSentenceBtn, 'complete-sentence');
+        });
+    }
+
+    if (translateBtn) {
+        translateBtn.addEventListener('click', () => {
+            if (!messageInput.value.trim()) return; // Extra safety check
+            handleAiButtonClick(translateBtn, 'translate', 'English');
+        });
+    }
+
+    // --- Continue with the rest of initialization ---
     // --- NEW: Assign active call modal elements --- 
     const activeCallModal = document.getElementById('active-call-modal');
     const activeCallAvatar = document.getElementById('active-call-avatar');
