@@ -341,20 +341,25 @@
     padding: 8px;
     border-radius: 8px;
     transition: background-color 0.2s ease;
+    background-color: #FFFFFF; /* Add white background */
 }
 
 #chat-list > div:hover, #chat-list-profile > div:hover {
-    background-color: #f3f4f6;
+    background-color: #f3f4f6; /* Light gray on hover */
 }
 
 #chat-list > div.bg-brownish, #chat-list-profile > div.bg-brownish {
-    background-color: #e5e7eb !important;
+    background-color: #e5e7eb !important; /* Override for specific state */
+}
+
+#chat-list > div.bg-blue-600, #chat-list-profile > div.bg-blue-600 {
+    background-color: #2563eb !important; /* Selected state */
 }
 
 #chat-list img, #chat-list-profile img {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
     margin-right: 12px;
 }
 
