@@ -982,9 +982,15 @@ function createMessageElement(msg) {
     messageWrapper.className = `w-full flex mb-2 ${isOwnMessage ? 'justify-end' : 'justify-start'}`;
 
     // --- Message Bubble ---
-    messageDiv.className = `message max-w-[75%] p-3 rounded-lg shadow-sm relative break-words ${isOwnMessage ? 'bg-blue-500 text-white rounded-br-none' : 'bg-white dark:bg-gray-700 dark:text-gray-100 rounded-bl-none'}`;
+    // Remove direct bg-white and dark mode text/bg classes for incoming messages
+    // Rely on CSS (.message.self-start) for styling incoming messages
+    messageDiv.className = `message max-w-[75%] p-3 rounded-lg shadow-sm relative break-words ${isOwnMessage ? 'bg-blue-500 text-white rounded-br-none' : 'rounded-bl-none'}`; // Removed bg-white, dark:* classes for incoming
     messageDiv.dataset.messageId = msg.id;
     messageDiv.dataset.senderId = msg.sender_id;
+
+    // Explicitly add self-start/self-end for CSS targeting
+    messageDiv.classList.add(isOwnMessage ? 'self-end' : 'self-start');
+
     if (msg.is_deleted) {
         messageDiv.classList.add('deleted', 'italic', 'text-gray-400', 'dark:text-gray-500');
         // Reset background if deleted

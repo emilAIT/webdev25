@@ -77,7 +77,7 @@
 }
 
 .message.self-start {
-    background-color: #7d3803;
+    background-color: #FFFFFF !important;
     color: #050505;
     margin-right: auto;
 }
@@ -263,9 +263,7 @@
     background-color: rgba(0, 0, 0, 0.04);
 }
 
-.message.self-start .reply-box {
-    border-left-color: rgba(0, 0, 0, 0.3);
-}
+
 
 .reply-box:hover {
     opacity: 1;
@@ -320,6 +318,7 @@
 
 .message-content {
     word-break: break-word;
+    
 }
 
 .message-timestamp {
