@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ky">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Жаңы контакт кошуу</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #3c86ab; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            flex-direction: column;
+            padding: 20px;
+        }
+        
+        h1 {
+            color: black;
+            font-size: 36px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        
+        .form-container {
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        input[type="text"],
+        input[type="email"] {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            background-color: #DDDDDD; /* Серый фон для полей */
+            font-size: 16px;
+            color: black;
+            border-radius: 0;
+        }
+        
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            background-color: #DDDDDD; /* Серый фон для кнопок */
+            font-size: 16px;
+            color: black;
+            cursor: pointer;
+            width: 48%;
+        }
+        
+        /* Стили для уведомлений */
+        .flash-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            width: 90%;
+            max-width: 400px;
+        }
+        
+        .flash-message {
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .flash-danger {
+            border-left: 4px solid #dc3545;
+        }
+        
+        .flash-success {
+            border-left: 4px solid #28a745;
+        }
+        
+        .flash-warning {
+            border-left: 4px solid #ffc107;
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Контейнер для flash-сообщений -->
+    <div class="flash-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+    
+    <h1>Жаңы контакт</h1>
+    
+    <div class="form-container">
+        <form method="post" action="{{ url_for('new_contact') }}">
+            <!-- <div class="form-group">
+                <input type="text" id="first_name" name="first_name" placeholder="First Name">
+            </div>
+             -->
+            <div class="form-group">
+                <input type="text" id="last_name" name="last_name" placeholder="Аты">
+            </div>
+            
+            <div class="form-group">
+                <input type="email" id="email" name="email" placeholder="Email">
+            </div>
+            
+            <div class="buttons">
+                <button type="button" class="btn" onclick="window.location.href='{{ url_for('chat') }}'">Жокко чыгаруу</button>
+                <button type="submit" class="btn">Сактоо</button>
+            </div>
+        </form>
+    </div>
+    
+    <script>
+        // Автоматическое скрытие flash-сообщений через 5 секунд
+        setTimeout(function() {
+            var flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(function(message) {
+                message.style.opacity = '0';
+                message.style.transition = 'opacity 0.5s';
+                setTimeout(function() {
+                    message.style.display = 'none';
+                }, 500);
+            });
+        }, 5000);
+    </script>
+</body>
+</html>

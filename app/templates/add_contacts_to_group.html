@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ky">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Контакттарды группага кошуу</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f1f1f1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+        .container h2 {
+            margin-bottom: 20px;
+        }
+        .container ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .container li {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .container button {
+            padding: 10px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .container button:hover {
+            background-color: #45a049;
+        }
+        .group-members {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Контакттарды группага кошуу</h2>
+        <form method="POST">
+            <ul id="contactList">
+                {% for contact in contacts %}
+                    <li>
+                        <span>
+                            {% if contact.username %}
+                                {{ contact.username }}
+                            {% elif contact.first_name or contact.last_name %}
+                                {{ contact.first_name or '' }} {{ contact.last_name or '' }}
+                            {% else %}
+                                {{ contact.email }}
+                            {% endif %}
+                        </span>
+                        <input type="checkbox" name="contacts" value="{{ contact.id }}">
+                    </li>
+                {% endfor %}
+            </ul>
+            <div class="group-members">
+                <h3>Группага кошулган контакттар:</h3>
+                <ul>
+                    {% for member in group_members %}
+                        <li>{{ member }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <button type="submit">Сактоо</button>
+        </form>
+    </div>
+</body>
+</html>

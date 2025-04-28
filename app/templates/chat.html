@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="ky">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Чат Колдонуучусу</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f1f1f1;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 300px;
+            background-color: #4a5664;
+            color: white;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .header {
+            padding: 15px;
+            background-color: #3c4653;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h2 {
+            font-size: 18px;
+        }
+
+        .actions {
+            display: flex;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 16px;
+            margin-left: 15px;
+            cursor: pointer;
+        }
+
+        .search-container {
+            padding: 10px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 8px;
+            border: none;
+            border-radius: 20px;
+            background-color: #3c4653;
+            color: white;
+        }
+
+        .search-input::placeholder {
+            color: #aaa;
+        }
+
+        .tabs {
+            display: flex;
+            background-color: #3c4653;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .tab.active {
+            border-bottom: 2px solid #4285f4;
+        }
+
+        .contact-list, .group-list {
+            padding: 10px 0;
+        }
+
+        .contact-item, .group-item {
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .contact-item:hover, .group-item:hover {
+            background-color: #3c4653;
+        }
+
+        .contact-item.active, .group-item.active {
+            background-color: #3c4653;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #4285f4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .contact-info, .group-info {
+            flex: 1;
+        }
+
+        .contact-name, .group-name {
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+
+        .last-message {
+            font-size: 12px;
+            color: #ddd;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .contact-meta {
+            text-align: right;
+            font-size: 12px;
+            color: #ddd;
+        }
+
+        .unread-badge {
+            background-color: #4285f4;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 3px;
+            margin-left: auto;
+        }
+
+        .chat-container .chat-header,
+        .chat-container .messages-container,
+        .chat-container .message-form {
+            display: none;
+        }
+
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #e5e5e5;
+            width: 100%; /* Гарантируем, что контейнер занимает всю доступную ширину */
+        }
+
+        .chat-header {
+            padding: 15px;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .chat-header-info {
+            flex: 1;
+            margin-left: 10px;
+        }
+
+        .chat-header-name {
+            font-weight: bold;
+        }
+
+        .chat-header-status {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .chat-header-actions {
+            display: flex;
+        }
+
+        .header-btn {
+            background: none;
+            border: none;
+            color: #666;
+            font-size: 16px;
+            margin-left: 15px;
+            cursor: pointer;
+        }
+
+        .messages-container {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            width: 100%; /* Гарантируем полную ширину */
+        }
+
+        .message {
+            max-width: 85%; /* Увеличиваем с 70% до 85% */
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .message-received {
+            background-color: white;
+            align-self: flex-start;
+        }
+
+        .message-sent {
+            background-color: #dcf8c6;
+            align-self: flex-end;
+        }
+
+        .message-content {
+            margin-bottom: 5px;
+        }
+
+        .message-time {
+            font-size: 10px;
+            color: #999;
+            text-align: right;
+        }
+
+        .message-form {
+            padding: 10px;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 -1px 3px rgba(0,0,0,0.1);
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 20px;
+            background-color: #f1f1f1;
+            margin: 0 10px;
+        }
+
+        .send-btn {
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .empty-chat {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #999;
+        }
+
+        .empty-chat i {
+            font-size: 50px;
+            margin-bottom: 10px;
+        }
+
+        /* Стили для выпадающего меню */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: white;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            border-radius: 4px;
+        }
+
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        /* Вкладки */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Спиннер загрузки */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: #4285f4;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Updated language modal styles */
+        #languageModal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            width: 300px;
+        }
+
+        #languageModal h3 {
+            margin-bottom: 20px;
+        }
+
+        #languageModal button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #languageModal button:hover {
+            background-color: #357ae8;
+        }
+
+        /* New profile settings modal styles */
+        #profileModal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            width: 300px;
+        }
+
+        #profileModal h3 {
+            margin-bottom: 20px;
+        }
+
+        #profileModal input[type="file"],
+        #profileModal input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        #profileModal button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #profileModal button:hover {
+            background-color: #357ae8;
+        }
+
+        /* Emoji picker styles */
+        #emojiModal {
+            display: none;
+            position: absolute;
+            bottom: 60px;
+            right: 10px;
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            padding: 10px;
+        }
+
+        #emojiModal button {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        #emojiModal button:hover {
+            background-color: #f1f1f1;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="header">
+            <h2>{{ current_user.username }}</h2>
+            <div class="actions">
+                <button class="action-btn" id="newContact" title="Жаңы контакт"><i class="fas fa-user-plus"></i></button>
+                <button class="action-btn" id="newGroup" title="Жаңы группа"><i class="fas fa-users"></i></button>
+                <div class="dropdown">
+                    <button class="action-btn" id="settingsBtn" title="Настройки"><i class="fas fa-cog"></i></button>
+                    <div class="dropdown-content">
+                        <!-- <a href="#" id="profileSettings">Профилди өзгөртүү</a> -->
+                        <a href="{{ url_for('logout') }}">Чыгуу</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="search-container">
+            <input type="text" class="search-input" placeholder="Издөө..." id="searchInput">
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" data-tab="contacts">Контакттар</div>
+            <div class="tab" data-tab="groups">Группалар</div>
+        </div>
+
+        <div class="tab-content active" id="contacts-tab">
+            <div class="contact-list" id="contactList">
+                {% for contact in contacts %}
+                <div class="contact-item" data-id="{{ contact.id }}">
+                    <div class="avatar">{{ contact.username[0] }}</div>
+                    <div class="contact-info">
+                        <div class="contact-name">{{ contact.username }}</div>
+                        <div class="last-message">
+                            {{ contact.get_last_message_with(current_user.id).content if contact.get_last_message_with(current_user.id) else "Акыркы билдирүү жок" }}
+                        </div>
+                    </div>
+                    <div class="contact-meta">
+                        <div class="time"></div>
+                        <div class="unread-badge" style="display: none;">1</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="tab-content" id="groups-tab">
+            <div class="group-list" id="groupList">
+                {% for group in groups %}
+                <div class="group-item" data-id="{{ group.id }}">
+                    <div class="avatar"><i class="fas fa-users"></i></div>
+                    <div class="group-info">
+                        <div class="group-name">{{ group.name }}</div>
+                        <div class="last-message">
+                            {{ group.get_last_message().content if group.get_last_message() else "Акыркы билдирүү жок" }}
+                        </div>
+                    </div>
+                    <div class="contact-meta">
+                        <div class="time"></div>
+                        <div class="unread-badge" style="display: none;">3</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="chat-container" id="chatContainer">
+        <div class="empty-chat" id="emptyChat">
+            <i class="far fa-comments"></i>
+        </div>
+
+        <div id="activeChat" style="display: none; flex: 1; display: flex; flex-direction: column;">
+            <div class="chat-header">
+                <div class="avatar" id="chatAvatar"></div>
+                <div class="chat-header-info">
+                    <div class="chat-header-name" id="chatName"></div>
+                    <!-- <div class="chat-header-status" id="chatStatus"></div> -->
+                </div>
+                <!-- <div class="chat-header-actions"> -->
+
+                    <button class="header-btn" id="chatInfo"><i class="fas fa-info-circle"></i></button>
+                </div>
+            </div>
+
+            <div class="messages-container" id="messagesContainer">
+                <div class="spinner" id="messagesSpinner" style="display: none;"></div>
+            </div>
+
+            <form class="message-form" id="messageForm">
+                <button type="button" class="action-btn" id="emojiPicker"><i class="far fa-smile"></i></button>
+                <input type="text" class="message-input" id="messageInput" placeholder="Билдирүү жазыңыз...">
+                <button type="submit" class="send-btn"><i class="fas fa-paper-plane"></i></button>
+            </form>
+        </div>
+    </div>
+
+    <!-- <div id="languageModal">
+        <h3>Тилди тандаңыз</h3>
+        <button id="selectEnglish">Англис тили</button>
+        <button id="selectRussian">Орус тили</button>
+        <button id="selectKyrgyz">Кыргыз тили</button>
+        <button id="closeModal">Жабуу</button>
+    </div>
+
+    <div id="profileModal">
+        <h3>Профильди өзгөртүү</h3>
+        <input type="file" id="profilePictureInput" accept="image/*">
+        <input type="text" id="usernameInput" placeholder="Жаңы атыңызды жазыңыз">
+        <button id="saveProfileChanges">Сактоо</button>
+        <button id="closeProfileModal">Жабуу</button>
+    </div> -->
+
+    <div id="emojiModal">
+        <button class="emoji" onclick="addEmoji('😊')">😊</button>
+        <button class="emoji" onclick="addEmoji('😂')">😂</button>
+        <button class="emoji" onclick="addEmoji('❤️')">❤️</button>
+        <!-- Добавьте другие смайлики -->
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Элементы DOM
+            const contactList = document.getElementById('contactList');
+            const groupList = document.getElementById('groupList');
+            const emptyChat = document.getElementById('emptyChat');
+            const activeChat = document.getElementById('activeChat');
+            const messagesContainer = document.getElementById('messagesContainer');
+            const messageForm = document.getElementById('messageForm');
+            const messageInput = document.getElementById('messageInput');
+            const chatName = document.getElementById('chatName');
+            const chatAvatar = document.getElementById('chatAvatar');
+            const chatHeader = document.querySelector('.chat-header');
+            const messagesSpinner = document.getElementById('messagesSpinner');
+            const languageModal = document.getElementById('languageModal');
+            const profileModal = document.getElementById('profileModal');
+            const emojiModal = document.getElementById('emojiModal');
+            const emojiPicker = document.getElementById('emojiPicker');
+
+            // Переменные для активного чата
+            let activeContactId = null;
+            let activeGroupId = null;
+            let isGroup = false;
+            let lastMessageTimestamp = 0; // Для отслеживания новых сообщений
+            let messagePollingInterval = null; // Интервал для опроса новых сообщений
+            let unreadCountsInterval = null; // Интервал для обновления счетчиков непрочитанных сообщений
+
+            // Получаем последние сообщения для контактов и групп
+            function updateLastMessages() {
+                const contactItems = document.querySelectorAll('.contact-item');
+                contactItems.forEach(item => {
+                    const contactId = item.getAttribute('data-id');
+
+                    fetch(`/api/get_last_message?contact_id=${contactId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.message) {
+                            const lastMsgElement = item.querySelector('.last-message');
+                            const timeElement = item.querySelector('.time');
+
+                            // Обновляем последнее сообщение    
+                            lastMsgElement.textContent = data.message.content.length > 25
+                                ? data.message.content.substring(0, 25) + '...'
+                                : data.message.content;
+
+                            // Обновляем время
+                            const date = new Date(data.message.created_at);
+                            timeElement.textContent = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+                            // Отображаем непрочитанные сообщения
+                            const unreadBadge = item.querySelector('.unread-badge');
+                            if (data.unread_count > 0) {
+                                unreadBadge.textContent = data.unread_count;
+                                unreadBadge.style.display = 'flex';
+                            } else {
+                                unreadBadge.style.display = 'none';
+                            }
+                        }
+                    })
+                    .catch(error => console.error('Ошибка при получении последнего сообщения:', error));
+                });
+
+                const groupItems = document.querySelectorAll('.group-item');
+                groupItems.forEach(item => {
+                    const groupId = item.getAttribute('data-id');
+
+                    fetch(`/api/get_last_message?group_id=${groupId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.message) {
+                            const lastMsgElement = item.querySelector('.last-message');
+                            const timeElement = item.querySelector('.time');
+
+                            // Обновляем последнее сообщение
+                            const senderPrefix = data.message.sender_name + ': ';
+                            const message = data.message.content.length > 20
+                                ? data.message.content.substring(0, 20) + '...'
+                                : data.message.content;
+                            lastMsgElement.textContent = senderPrefix + message;
+
+                            // Обновляем время
+                            const date = new Date(data.message.created_at);
+                            timeElement.textContent = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+                            // Отображаем непрочитанные сообщения
+                            const unreadBadge = item.querySelector('.unread-badge');
+                            if (data.unread_count > 0) {
+                                unreadBadge.textContent = data.unread_count;
+                                unreadBadge.style.display = 'flex';
+                            } else {
+                                unreadBadge.style.display = 'none';
+                            }
+                        }
+                    })
+                    .catch(error => console.error('Ошибка при получении последнего сообщения:', error));
+                });
+            }
+
+            updateLastMessages();
+
+            setInterval(updateLastMessages, 5000);
+
+            function updateUnreadCounts() {
+                fetch('/api/unread_counts')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.contacts) {
+                            const contactItems = document.querySelectorAll('.contact-item');
+                            contactItems.forEach(item => {
+                                const contactId = item.getAttribute('data-id');
+                                const unreadBadge = item.querySelector('.unread-badge');
+                                
+                                if (data.contacts[contactId] && data.contacts[contactId] > 0) {
+                                    unreadBadge.textContent = data.contacts[contactId];
+                                    unreadBadge.style.display = 'flex';
+                                } else {
+                                    unreadBadge.style.display = 'none';
+                                }
+                            });
+                        }
+                        
+                        if (data.groups) {
+                            const groupItems = document.querySelectorAll('.group-item');
+                            groupItems.forEach(item => {
+                                const groupId = item.getAttribute('data-id');
+                                const unreadBadge = item.querySelector('.unread-badge');
+                                
+                                if (data.groups[groupId] && data.groups[groupId] > 0) {
+                                    unreadBadge.textContent = data.groups[groupId];
+                                    unreadBadge.style.display = 'flex';
+                                } else {
+                                    unreadBadge.style.display = 'none';
+                                }
+                            });
+                        }
+                    })
+                    .catch(error => console.error('Ошибка при получении непрочитанных сообщений:', error));
+            }
+
+            unreadCountsInterval = setInterval(updateUnreadCounts, 3000);
+
+            function checkForNewMessages() {
+                if (!activeContactId && !activeGroupId) return;
+
+                let url;
+                if (isGroup) {
+                    url = `/api/get_messages?group_id=${activeGroupId}`;
+                } else {
+                    url = `/api/get_messages?contact_id=${activeContactId}`;
+                }
+
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            console.error(data.error);
+                            return;
+                        }
+
+                        if (data.messages && data.messages.length > 0) {
+                            const newestMessageTime = new Date(data.messages[data.messages.length - 1].created_at).getTime();
+                            
+                            if (lastMessageTimestamp === 0 || newestMessageTime > lastMessageTimestamp) {
+                                displayMessages(data.messages);
+                                lastMessageTimestamp = newestMessageTime;
+
+                                updateLastMessages();
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Ошибка при проверке новых сообщений:', error);
+                    });
+            }
+
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(tabId + '-tab').classList.add('active');
+                });
+            });
+
+            contactList.addEventListener('click', function(e) {
+                const contactItem = e.target.closest('.contact-item');
+                if (contactItem) {
+                    document.querySelectorAll('.contact-item').forEach(item => {
+                        item.classList.remove('active');
+                    });
+
+                    contactItem.classList.add('active');
+
+                    const contactId = contactItem.getAttribute('data-id');
+
+                    lastMessageTimestamp = 0;
+
+                    if (messagePollingInterval) {
+                        clearInterval(messagePollingInterval);
+                    }
+
+                    messagePollingInterval = setInterval(checkForNewMessages, 1000);
+
+                    showChat(contactId, false);
+
+                    markAsRead(contactId, false);
+                }
+            });
+
+            groupList.addEventListener('click', function(e) {
+                const groupItem = e.target.closest('.group-item');
+                if (groupItem) {
+                    document.querySelectorAll('.group-item').forEach(item => {
+                        item.classList.remove('active');
+                    });
+
+                    groupItem.classList.add('active');
+
+                    const groupId = groupItem.getAttribute('data-id');
+
+                    lastMessageTimestamp = 0;
+
+                    if (messagePollingInterval) {
+                        clearInterval(messagePollingInterval);
+                    }
+
+                    messagePollingInterval = setInterval(checkForNewMessages, 1000);
+
+                    showChat(groupId, true);
+
+                    markAsRead(groupId, true);
+                }
+            });
+
+            function markAsRead(id, isGroupChat) {
+                let url;
+                if (isGroupChat) {
+                    url = `/api/mark_as_read?group_id=${id}`;
+                } else {
+                    url = `/api/mark_as_read?contact_id=${id}`;
+                }
+
+                fetch(url, { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            updateUnreadCounts();
+                        }
+                    })
+                    .catch(error => console.error('Ошибка при отметке сообщений:', error));
+            }
+
+            function showChat(id, isGroupChat) {
+                emptyChat.style.display = 'none';
+                activeChat.style.display = 'flex';
+
+                chatHeader.style.display = 'flex';
+                messagesContainer.style.display = 'flex';
+                messageForm.style.display = 'flex';
+
+                messagesContainer.innerHTML = '';
+                messagesSpinner.style.display = 'block';
+
+                lastMessageTimestamp = 0;
+
+                isGroup = isGroupChat;
+                if (isGroupChat) {
+                    activeGroupId = id;
+                    activeContactId = null;
+
+                    const groupItem = document.querySelector(`.group-item[data-id="${id}"]`);
+                    if (groupItem) {
+                        const groupNameElement = groupItem.querySelector('.group-name');
+                        chatName.textContent = groupNameElement ? groupNameElement.textContent : 'Группа';
+                        chatAvatar.innerHTML = '<i class="fas fa-users"></i>';
+                    }
+                } else {
+                    activeContactId = id;
+                    activeGroupId = null;
+
+                    const contactItem = document.querySelector(`.contact-item[data-id="${id}"]`);
+                    if (contactItem) {
+                        const contactNameElement = contactItem.querySelector('.contact-name');
+                        const avatar = contactItem.querySelector('.avatar');
+                        chatName.textContent = contactNameElement ? contactNameElement.textContent : 'Контакт';
+                        chatAvatar.textContent = avatar ? avatar.textContent : 'A';
+                    }
+                }
+
+                loadMessages();
+            }
+
+            function loadMessages() {
+                let url;
+                if (isGroup) {
+                    url = `/api/get_messages?group_id=${activeGroupId}`;
+                } else {
+                    url = `/api/get_messages?contact_id=${activeContactId}`;
+                }
+
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        messagesSpinner.style.display = 'none';
+                        if (data.error) {
+                            console.error(data.error);
+                            return;
+                        }
+
+                        displayMessages(data.messages);
+
+                        updateLastMessages();
+                    })
+                    .catch(error => {
+                        messagesSpinner.style.display = 'none';
+                        console.error('Ошибка при загрузке сообщений:', error);
+                    });
+            }
+
+            // Функция для отображения сообщений - исправленная для избежания дублирования дат
+            function displayMessages(messages) {
+                const wasScrolledToBottom = messagesContainer.scrollHeight - messagesContainer.scrollTop <= messagesContainer.clientHeight + 50;
+                
+                if (lastMessageTimestamp === 0) {
+                    messagesContainer.innerHTML = '';
+                }
+
+                if (messages.length === 0) {
+                    const emptyMessage = document.createElement('div');
+                    emptyMessage.className = 'empty-messages';
+                    emptyMessage.style.textAlign = 'center';
+                    emptyMessage.style.padding = '20px';
+                    emptyMessage.style.color = '#999';
+                    emptyMessage.textContent = 'Нет сообщений';
+                    messagesContainer.appendChild(emptyMessage);
+                    return;
+                }
+
+                // Получаем существующие даты-разделители
+                const existingDates = {};
+                document.querySelectorAll('.message-date-divider').forEach(div => {
+                    existingDates[div.getAttribute('data-date')] = true;
+                });
+
+                let lastMessageId = messagesContainer.lastChild && messagesContainer.lastChild.classList ? 
+                    parseInt(messagesContainer.lastChild.getAttribute('data-message-id') || 0) : 0;
+                
+                messages.forEach(message => {
+                    // Пропускаем уже отображенные сообщения
+                    if (parseInt(lastMessageId) >= message.id) {
+                        return;
+                    }
+
+                    const msgDate = new Date(message.created_at);
+                    const dateStr = msgDate.toLocaleDateString();
+
+                    // Добавляем разделитель даты только если его еще нет
+                    if (!existingDates[dateStr]) {
+                        existingDates[dateStr] = true;
+                        
+                        const dateDiv = document.createElement('div');
+                        dateDiv.className = 'message-date-divider';
+                        dateDiv.setAttribute('data-date', dateStr);
+                        dateDiv.style.textAlign = 'center';
+                        dateDiv.style.margin = '10px 0';
+                        dateDiv.style.color = '#999';
+                        dateDiv.style.fontSize = '12px';
+
+                        const today = new Date();
+                        const yesterday = new Date(today);
+                        yesterday.setDate(yesterday.getDate() - 1);
+
+                        if (dateStr === today.toLocaleDateString()) {
+                            dateDiv.textContent = 'Сегодня';
+                        } else if (dateStr === yesterday.toLocaleDateString()) {
+                            dateDiv.textContent = 'Вчера';
+                        } else {
+                            dateDiv.textContent = dateStr;
+                        }
+
+                        messagesContainer.appendChild(dateDiv);
+                    }
+
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = `message ${message.is_mine ? 'message-sent' : 'message-received'}`;
+                    messageDiv.setAttribute('data-message-id', message.id);
+
+                    const contentDiv = document.createElement('div');
+                    contentDiv.className = 'message-content';
+
+                    if (isGroup && !message.is_mine) {
+                        const senderName = document.createElement('div');
+                        senderName.className = 'message-sender';
+                        senderName.style.fontSize = '12px';
+                        senderName.style.color = '#666';
+                        senderName.style.fontWeight = 'bold';
+                        senderName.textContent = message.sender_name || 'Unknown';
+                        contentDiv.appendChild(senderName);
+                    }
+
+                    const textContent = document.createElement('div');
+                    textContent.textContent = message.content;
+                    contentDiv.appendChild(textContent);
+
+                    messageDiv.appendChild(contentDiv);
+
+                    const timeDiv = document.createElement('div');
+                    timeDiv.className = 'message-time';
+                    
+                    // Добавляем индикаторы прочтения для всех отправленных сообщений
+                    if (message.is_mine) {
+                        const readStatus = message.is_read ? '✓✓' : '✓';
+                        const readStatusSpan = document.createElement('span');
+                        readStatusSpan.className = 'read-status';
+                        readStatusSpan.style.marginRight = '5px';
+                        readStatusSpan.style.color = message.is_read ? '#4fc3f7' : '#aaa';
+                        readStatusSpan.textContent = readStatus;
+                        timeDiv.appendChild(readStatusSpan);
+                    }
+                    
+                    const timeSpan = document.createElement('span');
+                    timeSpan.textContent = msgDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    timeDiv.appendChild(timeSpan);
+                    
+                    messageDiv.appendChild(timeDiv);
+
+                    messagesContainer.appendChild(messageDiv);
+                });
+
+                if (wasScrolledToBottom || lastMessageTimestamp === 0) {
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }
+            }
+
+            messageForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const content = messageInput.value.trim();
+                if (!content) return;
+
+                let data = {
+                    content: content
+                };
+
+                if (isGroup) {
+                    data.group_id = activeGroupId;
+                } else {
+                    data.recipient_id = activeContactId;
+                }
+
+                messageInput.value = '';
+
+                fetch('/api/send_message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        console.error(data.error);
+                        return;
+                    }
+
+                    checkForNewMessages();
+
+                    updateLastMessages();
+                })
+                .catch(error => {
+                    console.error('Ошибка при отправке сообщения:', error);
+                });
+            });
+
+            document.getElementById('newContact').addEventListener('click', function() {
+                window.location.href = "{{ url_for('new_contact') }}";
+            });
+
+            document.getElementById('newGroup').addEventListener('click', function() {
+                window.location.href = "{{ url_for('new_group') }}";
+            });
+
+            document.getElementById('chatInfo').addEventListener('click', function() {
+                if (isGroup && activeGroupId) {
+                    window.location.href = `/group/${activeGroupId}`;
+                } else if (activeContactId) {
+                    window.location.href = `/contact/${activeContactId}`;
+                }
+            });
+
+            window.addEventListener('beforeunload', function() {
+                if (messagePollingInterval) {
+                    clearInterval(messagePollingInterval);
+                }
+                if (unreadCountsInterval) {
+                    clearInterval(unreadCountsInterval);
+                }
+            });
+
+            window.addEmoji = function(emoji) {
+                messageInput.value += emoji;
+                emojiModal.style.display = 'none';
+            };
+        });
+    </script>
+</body>
+</html>
