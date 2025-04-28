@@ -708,7 +708,7 @@ async def notify_new_group(room_id: int, target_user_ids: list, db: Session):
         "name": room.name,
         "avatar": group_info.avatar or "/static/images/profile_photo.jpg",
         "is_group": True,
-        "last_message": "Group created. Click to start chatting!",
+        "last_message": "Start to chat together!",
         "last_message_time": "Now",
         "unread_count": 0,
         "description": group_info.description,

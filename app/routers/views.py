@@ -164,7 +164,7 @@ async def chat_page(request: Request, db: Session = Depends(get_db)):
                     "last_message": (
                         last_message.content
                         if last_message
-                        else "Group created. Click to start chatting!"
+                        else "Start to chat together!"
                     ),
                     "last_message_time": (
                         last_message.timestamp.strftime("%H:%M")

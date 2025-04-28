@@ -400,7 +400,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 name: data.name,
                                 avatar: data.avatar || '/static/images/profile_photo.jpg',
                                 is_group: true,
-                                last_message: 'Group created. Click to start chatting!',
+                                last_message: 'Start to chat together!',
                                 last_message_time: 'Now'
                             };
                             

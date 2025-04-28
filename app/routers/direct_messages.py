@@ -97,7 +97,7 @@ async def get_rooms(
                     "last_message": (
                         latest_message.content
                         if latest_message
-                        else "Group created. Click to start chatting!"
+                        else "Start to chat together!"
                     ),
                     "last_message_time": (
                         latest_message.timestamp.strftime("%H:%M")
