@@ -141,6 +141,24 @@ function updateLastMessage(roomId, message, time) {
             parentElement.insertBefore(contactElement, parentElement.firstChild);
         }
     }
+    // Use the provided display_name if available, otherwise derive it from content
+    if (message.display_name) {
+        displayContent = message.display_name;
+        wsLog(`Using provided display name for attachment: ${displayContent}`);
+    } else if (isAttachment) {
+        if (message.content.includes('<img-attachment')) displayContent = '📷 Photo';
+        else if (message.content.includes('<video-attachment')) displayContent = '🎥 Video';
+        else if (message.content.includes('<audio-attachment')) displayContent = '🎵 Audio';
+        else if (message.content.includes('<doc-attachment')) displayContent = '📄 Document';
+        else if (message.attachment && message.attachment.type) {
+            const type = message.attachment.type;
+            if (type === 'photo' || type === 'image') displayContent = '📷 Photo';
+            else if (type === 'video') displayContent = '🎥 Video';
+            else if (type === 'audio') displayContent = '🎵 Audio';
+            else displayContent = `📎 ${type.charAt(0).toUpperCase() + type.slice(1)}`;
+        }
+        wsLog(`Derived display content for attachment: ${displayContent}`);
+    }
 }
 
 // Increment the unread message count badge for a room
@@ -203,6 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
 
 // Export all utility functions
 window.BlinkUtils = {

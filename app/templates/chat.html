@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="/static/css/group-chat.css">
     <link rel="stylesheet" href="/static/css/base.css">
     <link rel="stylesheet" href="/static/css/friends.css">
+    <link rel="stylesheet" href="/static/css/attachments.css">
 </head>
 <body>
     <div class="app-container">
@@ -123,9 +124,8 @@
                 
                 <!-- Message Input Area -->
                 <div class="message-input-container">
-                    <button class="attachment-btn">
+                    <button class="attachment-btn" title="Send an attachment">
                         <img src="/static/images/paper_clip.png" alt="Attachment">
-                        <i class="fas fa-paperclip"></i>
                     </button>
                     
                     <div class="message-input">
@@ -134,7 +134,6 @@
                     
                     <button id="sendMessageBtn" class="send-btn">
                         <img src="/static/images/send.png" alt="Send">
-                        <i class="fas fa-paper-plane"></i>
                     </button>
                 </div>
             </div>
@@ -515,6 +514,7 @@
     <script src="/static/js/chatFunc.js"></script>
     <script src="/static/js/groupChat.js"></script>
     <script src="/static/js/validation.js"></script>
+    <script src="/static/js/attachment.js"></script>
     <script type="module" src="/static/js/addFriend.js"></script>
     <script type="module" src="/static/js/alertPopups.js"></script>
     <script type="module" src="/static/js/friends.js"></script>

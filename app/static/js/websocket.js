@@ -378,11 +378,33 @@ function handleChatMessage(data) {
     const isConfirmation = message.sender === "user";
     wsLog("Handling chat message:", message);
 
+    // Check if this is an attachment message
+    const isAttachment = message.content && (
+        message.content.includes('<img-attachment') || 
+        message.content.includes('<video-attachment') || 
+        message.content.includes('<audio-attachment') || 
+        message.content.includes('<doc-attachment')
+    );
+
     if (window.BlinkUtils) {
-        // Update last message and move chat to top of sidebar
+        // Get proper display text for attachments
+        let displayContent = message.content;
+        if (isAttachment) {
+            if (message.content.includes('<img-attachment')) {
+                displayContent = '📷 Photo';
+            } else if (message.content.includes('<video-attachment')) {
+                displayContent = '🎥 Video';
+            } else if (message.content.includes('<audio-attachment')) {
+                displayContent = '🎵 Audio';
+            } else if (message.content.includes('<doc-attachment')) {
+                displayContent = '📄 Document';
+            }
+        }
+        
+        // Always update the last message in the sidebar
         const timeToDisplay = message.time || 
             (message.timestamp ? new Date(message.timestamp).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit', hour12: false}) : null);
-        window.BlinkUtils.updateLastMessage(message.room_id, message.content, timeToDisplay);
+        window.BlinkUtils.updateLastMessage(message.room_id, displayContent, timeToDisplay);
         
         // Move the contact to the top of the sidebar regardless of whether it's the current chat or not
         const contactElement = document.querySelector(`.contact-item[data-room-id="${message.room_id}"]`);
@@ -429,17 +451,39 @@ function handleChatMessage(data) {
                             messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
                     }
                 }
+
+                // If it's an attachment, update the content with proper rendering
+                if (isAttachment) {
+                    const messageContent = tempMessage.querySelector('.message-content');
+                    if (messageContent) {
+                        updateAttachmentContent(messageContent, message.content);
+                    }
+                }
             } else {
                 wsLog("Temp message not found in DOM, displaying as new message");
                 if (window.displayMessage) {
-                    window.displayMessage(message);
+                    // Process the attachment content before displaying
+                    if (isAttachment) {
+                        let processedMessage = {...message};
+                        processedMessage.processedContent = processAttachmentContent(message.content);
+                        window.displayMessage(processedMessage);
+                    } else {
+                        window.displayMessage(message);
+                    }
                     observeMessagesForRead();
                 }
             }
         } else {
             const existingMessage = document.querySelector(`.message[data-message-id="${message.id}"]`);
             if (!existingMessage && window.displayMessage) {
-                window.displayMessage(message);
+                // Process the attachment content before displaying
+                if (isAttachment) {
+                    let processedMessage = {...message};
+                    processedMessage.processedContent = processAttachmentContent(message.content);
+                    window.displayMessage(processedMessage);
+                } else {
+                    window.displayMessage(message);
+                }
                 observeMessagesForRead();
             } else if (existingMessage) {
                 wsLog(`Message ${message.id} already exists in DOM, updating status`);
@@ -463,8 +507,14 @@ function handleChatMessage(data) {
                         }
                     }
                 }
-            } else {
-                wsLog(`Message ${message.id} already exists in DOM but not found, skipping display`);
+                
+                // If it's an attachment, ensure it's properly rendered
+                if (isAttachment) {
+                    const messageContent = existingMessage.querySelector('.message-content');
+                    if (messageContent && !messageContent.querySelector('.attachment-preview') && !messageContent.querySelector('.attachment-document')) {
+                        updateAttachmentContent(messageContent, message.content);
+                    }
+                }
             }
         }
     } else {
@@ -481,6 +531,96 @@ function handleChatMessage(data) {
                 console.log('Failed to play notification sound:', soundError);
             }
         }
+    }
+}
+
+// Process attachment content into HTML
+function processAttachmentContent(content) {
+    if (!content) return '';
+    
+    if (content.includes('<img-attachment')) {
+        const src = content.match(/src='([^']+)'/)[1];
+        const filename = content.match(/filename='([^']+)'/)[1];
+        return `
+            <div class="attachment-preview">
+                <img src="${src}" alt="${filename}" onclick="window.open('${src}', '_blank')">
+            </div>
+        `;
+    } else if (content.includes('<video-attachment')) {
+        const src = content.match(/src='([^']+)'/)[1];
+        const filename = content.match(/filename='([^']+)'/)[1];
+        return `
+            <div class="attachment-preview">
+                <video src="${src}" controls preload="metadata"></video>
+            </div>
+        `;
+    } else if (content.includes('<audio-attachment')) {
+        const src = content.match(/src='([^']+)'/)[1];
+        const filename = content.match(/filename='([^']+)'/)[1];
+        return `
+            <div class="attachment-preview">
+                <audio src="${src}" controls></audio>
+                <div class="attachment-name">${filename}</div>
+            </div>
+        `;
+    } else if (content.includes('<doc-attachment')) {
+        const src = content.match(/src='([^']+)'/)[1];
+        const filename = content.match(/filename='([^']+)'/)[1];
+        return `
+            <div class="attachment-document">
+                <i class="fas fa-file-alt"></i>
+                <div class="attachment-info">
+                    <div class="attachment-name">${filename}</div>
+                    <a href="${src}" target="_blank" class="attachment-download">Download</a>
+                </div>
+            </div>
+        `;
+    }
+    
+    return content;
+}
+
+// Update attachment content in an element
+function updateAttachmentContent(messageContentElement, content) {
+    if (!content || !messageContentElement) return;
+    
+    if (content.includes('<img-attachment')) {
+        const src = content.match(/src='([^']+)'/)[1];
+        const filename = content.match(/filename='([^']+)'/)[1];
+        messageContentElement.innerHTML = `
+            <div class="attachment-preview">
+                <img src="${src}" alt="${filename}" onclick="window.open('${src}', '_blank')">
+            </div>
+        `;
+    } else if (content.includes('<video-attachment')) {
+        const src = content.match(/src='([^']+)'/)[1];
+        const filename = content.match(/filename='([^']+)'/)[1];
+        messageContentElement.innerHTML = `
+            <div class="attachment-preview">
+                <video src="${src}" controls preload="metadata"></video>
+            </div>
+        `;
+    } else if (content.includes('<audio-attachment')) {
+        const src = content.match(/src='([^']+)'/)[1];
+        const filename = content.match(/filename='([^']+)'/)[1];
+        messageContentElement.innerHTML = `
+            <div class="attachment-preview">
+                <audio src="${src}" controls></audio>
+                <div class="attachment-name">${filename}</div>
+            </div>
+        `;
+    } else if (content.includes('<doc-attachment')) {
+        const src = content.match(/src='([^']+)'/)[1];
+        const filename = content.match(/filename='([^']+)'/)[1];
+        messageContentElement.innerHTML = `
+            <div class="attachment-document">
+                <i class="fas fa-file-alt"></i>
+                <div class="attachment-info">
+                    <div class="attachment-name">${filename}</div>
+                    <a href="${src}" target="_blank" class="attachment-download">Download</a>
+                </div>
+            </div>
+        `;
     }
 }
 

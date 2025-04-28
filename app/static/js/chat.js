@@ -798,14 +798,115 @@ document.addEventListener('DOMContentLoaded', function() {
             const messageContent = messageElement.querySelector('.message-content');
             const messageTime = messageElement.querySelector('.message-time');
 
+            let hasAttachment = false;
+            let attachmentContent = '';
+            
+            if (message.content) {
+                // Check for image attachments
+                if (message.content.includes('<img-attachment')) {
+                    hasAttachment = true;
+                    const src = message.content.match(/src='([^']+)'/)[1];
+                    const filename = message.content.match(/filename='([^']+)'/)[1];
+                    attachmentContent = `
+                        <div class="attachment-preview">
+                            <img src="${src}" alt="${filename}" onclick="window.openAttachmentFullscreen('${src}', 'image')">
+                        </div>
+                    `;
+                    messageContent.innerHTML = attachmentContent;
+                }
+                // Check for video attachments
+                else if (message.content.includes('<video-attachment')) {
+                    hasAttachment = true;
+                    const src = message.content.match(/src='([^']+)'/)[1];
+                    const filename = message.content.match(/filename='([^']+)'/)[1];
+                    attachmentContent = `
+                        <div class="attachment-preview">
+                            <video src="${src}" controls preload="metadata"></video>
+                        </div>
+                    `;
+                    messageContent.innerHTML = attachmentContent;
+                }
+                // Check for audio attachments
+                else if (message.content.includes('<audio-attachment')) {
+                    hasAttachment = true;
+                    const src = message.content.match(/src='([^']+)'/)[1];
+                    const filename = message.content.match(/filename='([^']+)'/)[1];
+                    attachmentContent = `
+                        <div class="attachment-preview">
+                            <audio src="${src}" controls></audio>
+                            <div class="attachment-name">${filename}</div>
+                        </div>
+                    `;
+                    messageContent.innerHTML = attachmentContent;
+                }
+                else if (message.content.includes('<doc-attachment')) {
+                    hasAttachment = true;
+                    const src = message.content.match(/src='([^']+)'/)[1];
+                    const filename = message.content.match(/filename='([^']+)'/)[1];
+                    attachmentContent = `
+                        <div class="attachment-document">
+                            <i class="fas fa-file-alt"></i>
+                            <div class="attachment-info">
+                                <div class="attachment-name">${filename}</div>
+                                <a href="${src}" target="_blank" class="attachment-download">Download</a>
+                            </div>
+                        </div>
+                    `;
+                    messageContent.innerHTML = attachmentContent;
+                }
+                // If message has attachment data but no content markers (backward compatibility)
+                else if (message.attachment && message.attachment.url) {
+                    hasAttachment = true;
+                    const { type, url, filename } = message.attachment;
+                    
+                    if (type === 'photo' || type === 'image') {
+                        attachmentContent = `
+                            <div class="attachment-preview">
+                                <img src="${url}" alt="${filename}" onclick="window.openAttachmentFullscreen('${url}', 'image')">
+                            </div>
+                        `;
+                    } else if (type === 'video') {
+                        attachmentContent = `
+                            <div class="attachment-preview">
+                                <video src="${url}" controls preload="metadata"></video>
+                            </div>
+                        `;
+                    } else if (type === 'audio') {
+                        attachmentContent = `
+                            <div class="attachment-preview">
+                                <audio src="${url}" controls></audio>
+                                <div class="attachment-name">${filename}</div>
+                            </div>
+                        `;
+                    } else {
+                        // Default to document
+                        attachmentContent = `
+                            <div class="attachment-document">
+                                <i class="fas fa-file-alt"></i>
+                                <div class="attachment-info">
+                                    <div class="attachment-name">${filename}</div>
+                                    <a href="${url}" target="_blank" class="attachment-download">Download</a>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    messageContent.innerHTML = attachmentContent;
+                } else {
+                    // Regular text message
+                    messageContent.textContent = message.content;
+                }
+            } else {
+                // Empty message content
+                messageContent.textContent = '';
+            }
+
+
             if (messageTime) {
                 // Fallback to provided time or current time
                 messageTime.textContent = message.time || (window.BlinkUtils ?
                     window.BlinkUtils.formatTime(new Date()) :
                     new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }));
             }
-
-            messageContent.textContent = message.content;
 
             if (message.id) {
                 messageDiv.setAttribute('data-message-id', message.id);

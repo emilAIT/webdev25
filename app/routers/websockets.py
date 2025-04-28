@@ -730,3 +730,55 @@ async def notify_group_deleted(room_id: int, target_user_ids: list, db: Session)
         if user and user.username in active_connections:
             for ws in active_connections[user.username]:
                 await ws.send_json({"type": "group_deleted", "room_id": room_id})
+
+
+async def notify_new_message(room_id: int, sender_id: int, message_data: dict):
+    """
+    Notify all users in a room about a new message
+
+    Args:
+        room_id: ID of the room where message was sent
+        sender_id: ID of message sender
+        message_data: Message data to send to clients
+    """
+    if room_id not in room_connections:
+        room_connections[room_id] = {}
+
+    try:
+        # Get database connection
+        db = next(get_db())
+
+        # Get all members of this room excluding sender
+        members = (
+            db.query(User)
+            .join(room_members, User.id == room_members.c.user_id)
+            .filter(
+                and_(
+                    room_members.c.room_id == room_id,
+                    User.id != sender_id,  # Exclude sender
+                )
+            )
+            .all()
+        )
+
+        # Prepare the response message
+        response = {"type": "message", "message": message_data}
+
+        # Send to all connected users in the room
+        for member in members:
+            if member.username in active_connections:
+                for ws in active_connections[member.username]:
+                    try:
+                        await ws.send_json(response)
+                        print(
+                            f"Notified user {member.id} about new message in room {room_id}"
+                        )
+
+                        # Add this connection to room_connections for future messages
+                        room_connections[room_id][member.id] = ws
+                    except Exception as e:
+                        print(
+                            f"Error sending notification to user {member.id}: {str(e)}"
+                        )
+    except Exception as e:
+        print(f"Error in notify_new_message: {str(e)}")

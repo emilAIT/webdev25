@@ -1,0 +1,141 @@
+/* Attachment popup styles */
+.attachments-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: none;
+}
+
+.attachments-overlay.active {
+    display: block;
+}
+
+.attachments-popup {
+    position: absolute;
+    width: 180px;
+    background-color: #213040;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.attachments-popup.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.attachment-option {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    color: #e0e0e0;
+}
+
+.attachment-option:hover {
+    background-color: #2a3c4d;
+}
+
+.attachment-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    color: #aaaaaa;
+}
+
+.attachment-icon i {
+    font-size: 1.1rem;
+}
+
+/* Attachment preview styles */
+.attachment-preview {
+    max-width: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 5px;
+}
+
+.attachment-preview img {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.attachment-preview video {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 6px;
+}
+
+.attachment-preview audio {
+    width: 100%;
+    margin-top: 5px;
+}
+
+.attachment-document {
+    display: flex;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 12px;
+    border-radius: 8px;
+}
+
+.attachment-document i {
+    font-size: 24px;
+    margin-right: 15px;
+    color: #6FCF97;
+}
+
+.attachment-info {
+    flex: 1;
+}
+
+.attachment-name {
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+    word-break: break-all;
+}
+
+.attachment-download {
+    font-size: 0.8rem;
+    color: #6FCF97;
+    text-decoration: none;
+}
+
+.attachment-download:hover {
+    text-decoration: underline;
+}
+
+/* Loading animation for attachments */
+.attachment-loading-bar {
+    width: 100%;
+    height: 4px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    margin-top: 5px;
+    overflow: hidden;
+}
+
+.loading-progress {
+    height: 100%;
+    background-color: #6FCF97;
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+.attachment-loading {
+    opacity: 0.7;
+}

@@ -18,6 +18,7 @@ from app.routers.groups import router as groups_router
 from app.routers.websockets import router as websockets_router
 from app.routers.session import router as session_router
 from app.routers.friends import router as friends_router
+from app.routers.attachment import router as attachment_router
 
 app = FastAPI(title="Blink")
 
@@ -42,6 +43,7 @@ app.include_router(groups_router)
 app.include_router(websockets_router)
 app.include_router(session_router)
 app.include_router(friends_router)
+app.include_router(attachment_router)
 
 
 # Root route redirects to login
