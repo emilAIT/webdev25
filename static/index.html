@@ -11,7 +11,7 @@
       href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css"
     />
   </head>
-  <body class="bg-gray-100 font-sans">
+  <body class="bg-gray-200 font-sans">
     <!-- Welcome Section -->
     <div id="welcome" class="flex items-center justify-center min-h-screen">
       <div
@@ -126,7 +126,7 @@
     </div>
 
     <!-- Chat Section -->
-    <div id="chat" class="hidden flex h-screen">
+    <div id="chat" class="hidden flex h-screen bg-white">
       <!-- Sidebar -->
       <div class="w-1/4 bg-white border-r border-gray-200 p-4 flex flex-col">
         <div class="flex justify-between items-center mb-6">
@@ -196,15 +196,18 @@
         </div>
       </div>
       <!-- Conversation -->
-      <div class="w-3/4 bg-[#E6E6FA] p-4 flex flex-col">
-        <div id="conversation-header" class="flex items-center mb-4">
+      <div class="w-3/4 p-4 flex flex-col">
+        <div id="conversation-header" class="flex items-center mb-4 bg-white">
           <div class="flex items-center">
             <img
               src="https://picsum.photos/40"
               alt="Profile"
-              class="w-10 h-10 rounded-full mr-3"
+              class="w-[77px] h-[77px] rounded-[16px] mr-3"
             />
-            <h3 id="conversation-name" class="text-lg font-bold text-gray-800">
+            <h3
+              id="conversation-name"
+              class="text-[32px] font-semibold text-gray-800"
+            >
               Chat Name
             </h3>
           </div>
@@ -212,13 +215,13 @@
 
         <div
           id="message-list"
-          class="flex-1 overflow-y-auto space-y-2 flex flex-col-reverse"
+          class="flex-1 overflow-y-auto space-y-2 flex flex-col-reverse bg-red-200 rounded-lg p-6 shadow-inner"
         ></div>
 
         <!-- Reply Preview Container -->
         <div
           id="reply-container"
-          class="hidden bg-gray-200 p-2 rounded-t-lg mt-2 border border-b-0 border-gray-300"
+          class="hidden bg-white p-2 rounded-t-lg mt-2 border border-b-0 border-gray-300 shadow-sm"
         >
           <div class="flex justify-between items-center">
             <div class="text-xs text-gray-600">
@@ -235,8 +238,7 @@
         </div>
 
         <!-- Normal message input area -->
-        <div id="normal-message-controls" class="mt-0">
-          <!-- Removed mt-4 to connect with reply container -->
+        <div id="normal-message-controls" class="mt-0 bg-red-200">
           <div
             class="flex items-center bg-white p-2 rounded-b-lg border border-t-0 border-gray-300 shadow-sm"
           >
@@ -245,12 +247,6 @@
               id="message-input"
               placeholder="Type a message"
               class="flex-1 p-2 border-none focus:outline-none focus:ring-0"
-              <!--
-              Simplified
-              input
-              style
-              --
-            />
             />
             <!-- AI Action Buttons -->
             <button
@@ -449,7 +445,7 @@
         <div class="bg-white rounded-lg shadow-md p-6 max-w-2xl mx-auto w-full">
           <div class="flex items-center mb-6">
             <div
-              class="w-24 h-24 rounded-full bg-blue-500 flex items-center justify-center text-white text-3xl mr-6"
+              class="w-[77px] h-[77px] rounded-[16px] bg-blue-500 flex items-center justify-center text-white text-3xl mr-6"
               id="profile-avatar"
             ></div>
             <div>
@@ -735,14 +731,12 @@
     <!-- Подключение внешних скриптов -->
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-    <!-- Removed Transformer.js script -->
     <script src="auth.js" type="module"></script>
     <script src="chat.js" type="module"></script>
     <script src="socket.js" type="module"></script>
     <script src="profile.js" type="module"></script>
     <script src="messageHandlers.js" type="module"></script>
     <script src="messageInteractions.js" type="module"></script>
-    <!-- utils.js might be needed if showToast is used elsewhere -->
     <script src="utils.js" type="module"></script>
   </body>
 </html>
