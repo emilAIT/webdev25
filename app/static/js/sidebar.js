@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize sidebar
     setupProfileSidebar();
     setupThemeToggle();
+    setupInviteFriends();
 
     // Listen for avatar updates from WebSocket
     window.addEventListener('websocket_message', function(event) {
@@ -338,6 +339,40 @@ function setupThemeToggle() {
                 body.classList.remove('dark-theme');
                 localStorage.setItem('theme', 'light');
             }
+        });
+    }
+}
+
+// Setup invite friends functionality
+function setupInviteFriends() {
+    const inviteFriendsMenuItem = document.getElementById('inviteFriendsMenuItem');
+    
+    if (inviteFriendsMenuItem) {
+        inviteFriendsMenuItem.addEventListener('click', function() {
+            const chatUrl = 'https://shrekchat-910587494231.us-central1.run.app/';
+            
+            // Copy to clipboard
+            navigator.clipboard.writeText(chatUrl)
+                .then(() => {
+                    // Show success message
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'Link for the chat copied!',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                })
+                .catch(err => {
+                    console.error('Failed to copy text: ', err);
+                    
+                    // Show error message
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to copy link to clipboard.'
+                    });
+                });
         });
     }
 }
