@@ -172,17 +172,13 @@ async function sendAudioMessage(audioBlob) {
                         <audio src="${audioUrl}" controls></audio>
                         <div class="attachment-info">
                             <span class="attachment-name">audio-message.mp3</span>
-                            <div class="attachment-loading-bar">
-                                <div class="loading-progress"></div>
-                            </div>
                     </div>
                     </div>
                 </div>
                 <div class="message-info">
                     <div class="message-time">${timeStr}</div>
                     <div class="message-status">
-                        <span class="message-status-single sent">✓</span>
-                        <span class="message-status-double">✓✓</span>
+
                     </div>
                 </div>
             `;

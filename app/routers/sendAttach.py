@@ -11,6 +11,7 @@ from pathlib import Path
 from app.database import User, Room, Message, room_members
 from app.routers.session import get_db
 from app.routers.websockets import notify_new_message
+import pytz
 
 router = APIRouter()
 
@@ -113,7 +114,7 @@ async def upload_attachment(
             content=content,
             sender_id=user.id,
             room_id=room_id,
-            timestamp=datetime.now(),
+            timestamp=datetime.now(pytz.timezone('Asia/Bishkek')),
             delivered=True,
             read=False
         )
