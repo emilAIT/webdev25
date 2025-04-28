@@ -1,0 +1,149 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+    background-size: cover;
+    background-position: center;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(34, 61, 85, 0.95);
+}
+
+.verification-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.verification-container {
+    width: 400px;
+    padding: 40px;
+    background: transparent;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-radius: 20px;
+    backdrop-filter: blur(15px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+}
+
+h2 {
+    font-size: 2em;
+    color: #fff;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.code-inputs {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 30px 0;
+}
+
+.code-input {
+    width: 50px;
+    height: 60px;
+    border: 2px solid #fff;
+    border-radius: 10px;
+    background: transparent;
+    font-size: 24px;
+    color: #fff;
+    text-align: center;
+    backdrop-filter: blur(10px);
+}
+
+.code-input:focus {
+    border-color: rgba(212, 214, 201, 1);
+    outline: none;
+}
+
+.verification-message {
+    margin: 20px 0;
+    color: #fff;
+    font-size: 18px;
+    text-align: center;
+}
+
+.resend-btn {
+    background: transparent;
+    color: #fff;
+    border: 1px solid #fff;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+    margin-top: 15px;
+    transition: .5s;
+}
+
+.resend-btn:hover {
+    background-color: rgba(60, 90, 115, 0.95);
+    color: #fff;
+}
+
+#error-message {
+    color: #ff6b6b;
+    margin-top: 10px;
+    min-height: 20px;
+    text-align: center;
+}
+
+.verification-actions {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.action-btn, .resend-btn {
+    width: 300px;
+    height: 80px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 500;
+    margin-bottom: 15px;
+    transition: .5s;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.action-btn {
+    background: rgba(34, 61, 85, 1); /* Чуть темнее основного цвета */
+    border: none;
+    outline: none;
+    color: #fff;
+}
+
+.resend-btn {
+    background: transparent;
+    color: #fff;
+    border: 1px solid #fff;
+}
+
+.action-btn:hover:not(:disabled) {
+    background-color: rgba(60, 90, 115, 0.95); /* Чуть светлее для hover */
+}
+
+.resend-btn:hover {
+    background-color: rgba(60, 90, 115, 0.95); /* Тот же цвет для hover как и основная кнопка */
+    border-color: transparent;
+}
+
+.action-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification</title>
+    <link rel="stylesheet" href="static\css\verification.css">
+</head>
+<body>
+    <div class="verification-wrapper">
+        <div class="verification-container">
+            <h2>Verification</h2>
+            <p class="verification-message">Please enter the 6-digit code sent to your email</p>
+            
+            <div class="code-inputs">
+                <input type="text" maxlength="1" class="code-input" data-index="0" inputmode="numeric" pattern="[0-9]">
+                <input type="text" maxlength="1" class="code-input" data-index="1" inputmode="numeric" pattern="[0-9]">
+                <input type="text" maxlength="1" class="code-input" data-index="2" inputmode="numeric" pattern="[0-9]">
+                <input type="text" maxlength="1" class="code-input" data-index="3" inputmode="numeric" pattern="[0-9]">
+                <input type="text" maxlength="1" class="code-input" data-index="4" inputmode="numeric" pattern="[0-9]">
+                <input type="text" maxlength="1" class="code-input" data-index="5" inputmode="numeric" pattern="[0-9]">
+            </div>
+            
+            <p id="error-message"></p>
+            
+            <div class="verification-actions">
+                <button id="verify-btn" type="button" class="action-btn" disabled>Verify</button>
+                <button id="resend-btn" class="resend-btn">Resend Code</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/verification.js"></script>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</body>
+</html>

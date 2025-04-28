@@ -1,0 +1,1578 @@
+/* Сброс стилей и основные настройки */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Custom scrollbar styling - Messenger style */
+/* For Webkit browsers like Chrome, Safari */
+.messages::-webkit-scrollbar {
+    width: 6px; /* Тоньше полоса прокрутки */
+}
+
+.messages::-webkit-scrollbar-track {
+    background: transparent; /* Прозрачный фон */
+}
+
+.messages::-webkit-scrollbar-thumb {
+    background: rgba(212, 214, 201, 0.5); /* Полупрозрачная полоса прокрутки */
+    border-radius: 3px; /* Меньше скругление для стиля мессенджера */
+}
+
+.messages::-webkit-scrollbar-thumb:hover {
+    background: rgba(212, 214, 201, 0.8); /* Немного ярче при наведении */
+}
+
+/* For Firefox */
+.messages {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(212, 214, 201, 0.5) transparent;
+}
+
+/* Also add styles for contacts-list scrollbar */
+.contacts-list::-webkit-scrollbar {
+    width: 6px; /* Тоньше полоса прокрутки */
+}
+
+.contacts-list::-webkit-scrollbar-track {
+    background: transparent; /* Прозрачный фон */
+}
+
+.contacts-list::-webkit-scrollbar-thumb {
+    background: rgba(212, 214, 201, 0.5); /* Полупрозрачная полоса прокрутки */
+    border-radius: 3px; /* Меньше скругление для стиля мессенджера */
+}
+
+.contacts-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(212, 214, 201, 0.8); /* Немного ярче при наведении */
+}
+
+.contacts-list {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(212, 214, 201, 0.5) transparent;
+}
+
+/* Стили для страницы */
+body {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+/* Основной контейнер чата */
+.container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* Стили для боковой панели (сайдбара) */
+.sidebar {
+    width: 350px;
+    height: 100%;
+    background-color: rgba(34, 61, 85, 0.95);
+    border-right: 1px solid #e9edef;
+    display: flex;
+    flex-direction: column;
+    position: relative; /* Added for proper positioning of menu */
+}
+
+/* Стили для аватара в профиле */
+.avatar img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 10px;
+}
+
+/* Стили для имени пользователя */
+.user-name {
+    font-weight: 500;
+}
+
+/* Стили для блока поиска */
+.search {
+    padding: 10px;
+    background-color: rgba(34, 61, 85, 0.95);
+    display: flex;
+    align-items: center;
+}
+
+/* Стили для обертки поля поиска */
+.search-input-wrapper {
+    position: relative;
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+/* Стили для иконки поиска внутри поля */
+.search-icon {
+    position: absolute;
+    left: 10px;
+    color: #667781;
+    font-size: 20px;
+}
+
+/* Стили для поля ввода поиска с отступом для иконки */
+.search-contact {
+    flex: 1;
+    padding: 8px 12px 8px 35px; /* Добавляем отступ слева для иконки */
+    border: 1px solid #e0e0e0;
+    border-radius: 20px;
+    outline: none;
+    font-size: 14px;
+    width: 100%;
+}
+
+/* Стили для кнопки поиска */
+.search-btn {
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    margin-left: 5px;
+    cursor: pointer;
+    padding: 5px;
+    font-size:28px
+}
+
+/* Стили для кнопки меню */
+.menu-btn {
+    background: transparent;
+    border: none;
+    color:#ffffff;
+    cursor: pointer;
+    padding: 5px;
+    font-size: 28px;
+}
+
+/* Updated menu styles */
+.menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 350px;
+    height: 100%;
+    background-color: rgb(212, 214, 201); /* Removed opacity */
+    z-index: 1000;
+    transition: transform 0.3s ease;
+    transform: translateX(-100%); /* Скрываем меню за пределами экрана */
+}
+
+.menu.active {
+    transform: translateX(0);
+}
+
+/* Add specific style for hidden class */
+.menu.hidden {
+    transform: translateX(-100%);
+    visibility: hidden;
+}
+
+/* Add profile styles */
+.profile {
+    padding: 20px;
+    height: 170px;
+    background-color: rgba(34, 61, 85, 0.95);
+}
+
+.edit-profile-btn {
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    cursor: pointer;
+    padding: 15px;
+    font-size: 26px;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.profile-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 15px;
+}
+
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-info {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.profile-info h3 {
+    font-size: 20px;
+    color: #ffffff;
+    margin-bottom: 5px;
+}
+
+.profile-info p {
+    font-size: 16px;
+    color: #ffffff;
+}
+
+/* Add menu options styles */
+.menu-options {
+    padding: 20px;
+}
+
+.menu-options button {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 18px;
+    margin-bottom: 15px;
+    background-color: rgba(212, 214, 201, 1);
+    /* transition: filter 0.3s ease; */
+    color: rgba(34, 61, 85, 0.95);
+    border-radius: 5px;
+    border: 1px solid rgba(34, 61, 85, 0.95);
+    font-size: 18px;
+    cursor: pointer;
+    text-align: left;
+}
+
+.menu-options button:hover {
+   filter: brightness(0.9);
+}
+
+.menu-icon {
+    font-size: 24px;
+    margin-right: 15px;
+}
+
+/* Стили для списка контактов */
+.contacts-list {
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* Стили для элемента контакта */
+.contactInGroupInfo {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    cursor: pointer;
+    position: relative;
+}
+
+
+.contact {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    position: relative;
+}
+
+/* Стили при наведении на контакт */
+.contact:hover {
+    background-color: rgba(60, 90, 115, 0.95); /* Светлее чем rgba(34, 61, 85, 0.95) */
+}
+
+/* Стили для активного контакта */
+.contact.active {
+    background-color: rgba(60, 90, 115, 0.95);
+}
+
+/* Стили для аватара контакта */
+.contact-avatar img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Стили для информации о контакте */
+.contact-info {
+    margin-left: 15px;
+    flex: 1;
+}
+
+/* Стили для имени контакта */
+.contact-info h3 {
+    font-size: 16px;
+    margin-bottom: 2px;
+    color: #ffffff;
+}
+
+/* Стили для последнего сообщения */
+.contact-info p {
+    font-size: 13px;
+    color: #667781;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+}
+
+/* Стили для индикатора статуса */
+.contact-status {
+    position: absolute;
+    top: 13px;
+    right: 295px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #d1d1d1;
+    border: 1px solid rgba(34, 61, 85, 0.95);
+}
+
+/* Стили для статуса "онлайн" */
+.contact-status.online {
+    background-color: #25d366;
+}
+
+/* Стили для области чата */
+.chat-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: rgba(34, 61, 85, 0.95);
+}
+
+/* Стили для заголовка чата */
+.chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    background-color: rgba(34, 61, 85, 0.95);
+    color: white;
+    border-bottom: 1px solid white;
+    height: 64px; /* Add fixed height */
+    min-height: 64px; /* Ensure minimum height */
+}
+
+/* Стили для текущего контакта в заголовке */
+.current-contact {
+    display: flex;
+    align-items: center;
+    height: 44px; /* Add fixed height */
+}
+
+/* Стили для контакта в заголовке */
+.current-contact .contact-info {
+    height: 40px; /* Fixed height for info container */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* Ensure avatar has fixed dimensions */
+.current-contact .contact-avatar {
+    width: 40px;
+    height: 40px;
+    min-width: 40px; /* Prevent shrinking */
+    margin-right: 15px;
+}
+
+.current-contact .contact-avatar img {
+    width: 100%;
+    height: 100%;
+}
+
+/* Ensure text elements have consistent heights */
+.current-contact .contact-info h3 {
+    font-size: 16px;
+    margin-bottom: 2px;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+}
+
+.current-contact .contact-info p {
+    font-size: 13px;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+/* Стили для кнопок действий в заголовке */
+.chat-actions {
+    display: flex;
+}
+
+/* Стили для отдельных кнопок действий */
+.chat-actions button {
+    background: transparent;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    margin-left: 10px;
+    padding: 5px;
+}
+
+/* Стили для области сообщений */
+.messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Общие стили для сообщений */
+.message {
+    display: flex;
+    margin-bottom: 10px;
+    max-width: 65%;
+}
+
+/* Стиль для входящих сообщений (от собеседника) */
+.message.incoming {
+    align-self: flex-start;
+    flex-direction: row;
+}
+
+/* Стиль для исходящих сообщений (от пользователя) */
+.message.outgoing {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+}
+
+/* Стиль для аватара в сообщении */
+.message-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin: 0 8px;
+    align-self: flex-end;
+}
+
+.message-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Стиль для пузыря сообщения */
+.message-bubble {
+    padding: 8px 12px;
+    border-radius: 10px;
+    position: relative;
+}
+
+/* Add spacing and style for sender name in message bubble */
+.message-sender {
+    font-weight: 600;
+    color: #2b455c;
+    font-size: 13px;
+    margin-bottom: 6px;
+    letter-spacing: 0.01em;
+    display: block;
+}
+
+/* Пузырь для входящих сообщений */
+.incoming .message-bubble {
+    background-color:rgba(212, 214, 201, 1);
+    border-top-left-radius: 0;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+}
+
+/* Пузырь для исходящих сообщений */
+.outgoing .message-bubble {
+    background-color: #dcf8c6;
+    border-top-right-radius: 0;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+}
+
+/* Стиль для текста сообщения */
+.message-bubble p {
+    margin: 0;
+    padding: 0;
+    color: #303030;
+    font-size: 14px;
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+
+/* Стиль для времени отправки */
+.message-time {
+    display: block;
+    font-size: 11px;
+    color: #8c8c8c;
+    margin-top: 3px;
+    text-align: right;
+}
+
+/* Стиль для изображений в сообщениях */
+.message-image {
+    max-width: 250px;
+    max-height: 200px;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    cursor: pointer;
+}
+
+/* Стили для контейнера ввода сообщений */
+.message-input {
+    display: flex; /* Использование flexbox для выравнивания элементов в линию */
+    align-items: center; /* Вертикальное центрирование элементов */
+    background-color: #f0f0f0;
+    padding: 15px 20px;
+    justify-content: space-between; /* Равномерное распределение элементов по горизонтали */
+    gap: 10px; /* Отступ между элементами для визуального разделения */
+    background-color: rgba(34, 61, 85, 0.95);
+    border-top: 1px solid white;
+}
+
+/* Стили для обертки поля ввода - новый элемент для правильного позиционирования */
+.input-wrapper {
+    position: relative; /* Необходимо для абсолютного позиционирования кнопки эмодзи внутри */
+    display: flex;
+    align-items: center;
+    flex-grow: 1; /* Позволяет обертке расширяться и занимать доступное пространство */
+    width: auto;
+}
+
+/* Стили для кнопок в области ввода */
+.message-input button {
+    background: transparent;
+    border: none;
+    color: rgba(212, 214, 201, 1);
+    cursor: pointer;
+    font-size: 24px;
+    padding: 5px;
+    display: flex; /* Использование flexbox для центрирования иконок внутри кнопок */
+    align-items: center; /* Вертикальное центрирование иконок */
+    justify-content: center; /* Горизонтальное центрирование иконок */
+    min-width: 40px; /* Фиксированная минимальная ширина для единообразия кнопок */
+    height: 40px; /* Фиксированная высота для единообразия кнопок */
+}
+
+/* Стили для поля ввода чата */
+.chat-input {
+    flex: 1;
+    padding: 10px 15px;
+    padding-right: 40px; /* Дополнительный отступ справа для кнопки эмодзи */
+    border: 2px solid rgba(212, 214, 201, 1);
+    border-radius: 10px;
+    outline: none;
+    margin: 0;
+    width: 100%; /* Занимает всю ширину обертки */
+    background-color: rgba(34, 61, 85, 0.95);
+    color: #ffffff;
+}
+
+/* Стили для кнопки эмодзи - абсолютное позиционирование в поле ввода */
+.emoji-button {
+    position: absolute; /* Позиционирование относительно .input-wrapper */
+    right: 10px; /* Отступ от правого края */
+    background: transparent;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: 50%; /* Для вертикального центрирования */
+    transform: translateY(-50%); /* Компенсация половины собственной высоты для точного центрирования */
+    padding: 0;
+    font-size: 24px;
+}
+
+/* Стили для кнопки отправки */
+.send-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Styles for modal container */
+.modal-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.modal-container.hidden {
+    display: none;
+}
+
+.modal-content {
+    background-color:rgba(212, 214, 201, 1);
+    width: 400px;
+    padding: 25px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.modal-content h2 {
+    color: rgba(34, 61, 85, 0.95);
+    margin-bottom: 20px;
+    text-align: left;
+    font-size: 20px;
+}
+
+/* Edit Profile Modal Styles */
+.edit-profile-modal {
+    height: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.edit-profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-btn {
+    background: transparent;
+    border: none;
+    color: rgba(34, 61, 85, 0.95);
+    font-size: 24px;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.edit-profile-avatar {
+    display: flex;
+    justify-content: center;
+    margin: 15px 0 25px;
+}
+
+.edit-profile-avatar img {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(34, 61, 85, 0.95);
+}
+
+.edit-profile-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.edit-form-row {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.edit-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+    color: rgba(34, 61, 85, 0.95);
+}
+
+#edit-username,
+#edit-email,
+#edit-password {
+    background-color: transparent;
+    border: 1px solid rgba(34, 61, 85, 0.95);
+    border-radius: 5px;
+    outline: none;
+    color: rgba(34, 61, 85, 0.95);
+    font-size: 16px;
+    width: 100%;
+    padding: 12px 15px;
+}
+
+#edit-username::placeholder,
+#edit-email::placeholder,
+#edit-password::placeholder {
+    color: rgba(34, 61, 85, 0.7);
+}
+
+.new-contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.form-row {
+    display: flex;
+    align-items: center;
+    padding: 5px 10px;
+    border-bottom: 1px solid rgba(34, 61, 85, 0.95);
+}
+
+.contact-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.form-icon {
+    font-size: 28px;
+    color: rgba(34, 61, 85, 0.95);
+}
+
+#new-contact-name {
+    background-color: transparent;
+    border: none;
+    outline: none;
+    color: rgba(34, 61, 85, 0.95);
+    font-size: 16px;
+    width: 100%;
+    padding: 12px 5px;
+}
+
+#new-contact-name::placeholder {
+    color: rgba(34, 61, 85, 0.95);
+}
+
+.form-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.action-btn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.add-btn {
+    background-color: transparent;
+    color: rgba(34, 61, 85, 0.95);;
+}
+
+.cancel-btn {
+    background-color: transparent;
+    color: rgba(34, 61, 85, 0.95);
+}
+
+.add-btn:hover {
+    background-color: rgba(192, 194, 181, 1);
+}
+
+.cancel-btn:hover {
+    background-color: rgba(192, 194, 181, 1);
+}
+
+.user-name {
+    background-color: rgba(24, 47, 67, 1);
+}
+
+.group-user-menu {
+    position: absolute;
+    top: 67px;
+    right: 5px;
+    width: 280px;
+    background-color: rgb(212, 214, 201);
+    z-index: 1000;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+    padding: 0;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateX(20px);
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  
+  .group-user-menu.active {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+  }
+  
+  /* Контейнер кнопок сверху */
+  .group-user-menu .menu-buttons {
+    display: flex;
+    text-align: center;
+    justify-content: space-between;
+    padding-left: 10px;
+    padding-right: 10px;
+    background-color: #ffff;
+  }
+  
+  /* Стиль кнопок - круглые, без текста */
+  .group-user-menu .menu-buttons button {
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background-color: transparent;
+    color: rgba(34, 61, 85, 0.95);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+  }
+  
+  .group-user-menu .menu-buttons button:hover {
+    background-color: rgba(34, 61, 85, 0.15);
+  }
+  
+  /* Иконки */
+  .group-user-menu .menu-icon {
+    font-size: 24px;
+    margin-right: 0px;
+    color: rgba(34, 61, 85, 0.95);
+  }
+  
+  /* Профиль */
+  .group-user-menu .profile {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* горизонтальное центрирование */
+    justify-content: center; /* вертикальное центрирование */
+    height: auto;
+    padding: 1px;
+    padding-bottom: 20px;
+    background-color: #ffffff;
+    color: #182F43;
+}
+  
+  .group-user-menu .profile-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid #d4d6c9;
+    flex-shrink: 0;
+    margin-right: 0px;
+  }
+  
+  .group-user-menu .profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .group-user-menu .profile-info {
+    display: flex;              /* Горизонтальное расположение */
+    align-items: center; 
+    flex-direction: row;       /* Вертикальное выравнивание по центру */
+    gap: 8px;                   /* Отступ между именем и кнопкой */
+    padding: 0 10px; 
+    margin :0%           /* Отступы по бокам, если нужно */
+  }
+  
+  .group-user-menu .profile-info h3 {
+    flex-grow: 1;               /* Имя занимает всё доступное пространство */
+    margin: 0;                  /* Убираем отступы */
+    white-space: nowrap;        /* Запрет переноса */
+    overflow: hidden;           /* Обрезка текста */
+    text-overflow: ellipsis;    /* Троеточие при переполнении */
+    font-size: 18px;
+    font-weight: 100;
+    color: #182F43;
+    text-align: left;
+    padding-left: 50px;
+  }
+  
+  .group-user-menu .profile-info button {
+    flex-shrink: 0;             /* Кнопка не сжимается */
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(34, 61, 85, 0.95);
+    transition: background-color 0.2s ease;
+  }
+  
+  .group-user-menu .profile-info button:hover {
+    background-color: rgba(34, 61, 85, 0.15);
+  }
+  
+  
+  
+  /* Размер иконок */
+  .group-user-menu .menu-icon {
+    font-size: 24px;
+    color: rgba(34, 61, 85, 0.95);
+  }
+  
+  /* Список пользователей */
+  #users-list {
+    max-height: 300px; /* Можно увеличить высоту */
+    overflow-y: auto;
+    padding: 12px 16px;
+    background-color: #182F43; /* Темно-синий фон */
+    color: #ffffff; /* Белый цвет текста */
+    font-size: 16px;
+    border-radius: 0 0 8px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    height: auto;
+  }
+  
+  /* Элемент пользователя в списке */
+  #users-list .user-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: default;
+    transition: background-color 0.2s ease;
+    background-color: transparent;
+  }
+  
+  /* При наведении на пользователя */
+  #users-list .user-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  /* Аватар пользователя */
+  #users-list .user-item .contact-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    margin-right: 12px;
+  }
+  
+  #users-list .user-item .contact-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  /* Имя пользователя */
+  #users-list .user-item .contact-info {
+    color: #ffffff;
+    font-weight: 500;
+    font-size: 16px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+
+
+
+.user-menu {
+    position: absolute;
+    top: 67px;
+    right: 5px;
+    width: 200px;
+    background-color: rgba(24, 47, 67, 1);
+    z-index: 1000;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.user-menu.hidden {
+    display: none;
+}
+
+.user-menu button {
+    display: flex;
+    width: 100%;
+    padding: 12px 15px;
+    text-align: left;
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    align-items: center;
+}
+
+.user-menu-icon {
+    font-size: 20px;
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.user-menu button:hover {
+    background-color: rgba(60, 90, 115, 0.95);  
+}
+
+.user-menu .clear-btn {
+    border-bottom: 1px solid white;
+}
+
+/* Confirmation Modal Styles */
+.confirmation-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.confirmation-modal.hidden {
+    display: none;
+}
+
+.confirmation-content {
+    background-color: rgba(34, 61, 85, 0.95);
+    width: 300px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    text-align: center;
+}
+
+.confirmation-content p {
+    color: white;
+    margin-bottom: 20px;
+    font-size: 18px;
+}
+
+.confirmation-buttons {
+    display: flex;
+    justify-content: space-around;
+}
+
+.confirmation-buttons .action-btn {
+    background-color: transparent;
+    color: white;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-size: 28px;
+}
+
+.confirmation-buttons .action-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Media Preview Styles */
+.media-preview-container {
+    position: absolute;
+    bottom: 71px;
+    left: 0;
+    right: 0;
+    background-color: rgba(34, 61, 85, 0.95);
+    border-top: 1px solid rgba(212, 214, 201, 0.5);
+    z-index: 10;
+    transition: transform 0.3s ease;
+    max-height: 200px;
+    overflow-y: auto;
+    transform: translateY(0);
+    /* Fix для предотвращения выхода за границы чата */
+    width: calc(100% - 350px); /* Вычитаем ширину сайдбара */
+    margin-left: 350px; /* Смещаем вправо на ширину сайдбара */
+}
+
+.media-preview-container.hidden {
+    transform: translateY(100%);
+    display: none;
+}
+
+/* Add styles for media preview header */
+.media-preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid rgba(212, 214, 201, 0.5);
+}
+
+.media-preview-header h3 {
+    color: #ffffff;
+    font-size: 16px;
+    margin: 0;
+}
+
+.close-preview-btn {
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    cursor: pointer;
+    font-size: 24px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+}
+
+/* Add styles for media preview content */
+.media-preview-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 15px;
+}
+
+.preview-item {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.preview-item img,
+.preview-item video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.remove-preview {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 0;
+}
+
+.remove-preview:hover {
+    background: rgba(0, 0, 0, 0.7);
+}
+
+/* Emoji Picker Styles */
+.emoji-picker-container {
+    position: absolute;
+    bottom: 80px;
+    left: 0;
+    right: 0;
+    background-color: rgba(34, 61, 85, 0.95);
+    border-top: 1px solid rgba(212, 214, 201, 0.5);
+    z-index: 10;
+    transition: transform 0.3s ease;
+    max-height: 280px;
+    overflow-y: auto;
+    transform: translateY(0);
+    width: calc(100% - 350px);
+    margin-left: 350px;
+}
+
+.emoji-picker-container.hidden {
+    transform: translateY(100%);
+    display: none;
+}
+
+.emoji-picker-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid rgba(212, 214, 201, 0.5);
+}
+
+.emoji-picker-header h3 {
+    color: #ffffff;
+    font-size: 16px;
+    margin: 0;
+}
+
+.close-picker-btn {
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    cursor: pointer;
+    font-size: 24px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+}
+
+.emoji-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 10px;
+    padding: 15px;
+}
+
+.emoji-item {
+    font-size: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    border-radius: 5px;
+    transition: background-color 0.2s;
+    user-select: none;
+}
+
+.emoji-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.emoji-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 0;
+    color: white;
+}
+
+.emoji-loading-icon {
+    font-size: 32px;
+    animation: spin 2s linear infinite;
+    margin-bottom: 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Media in Messages Styles */
+.message-media {
+    margin-bottom: 5px;
+    max-width: 250px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.message-media img {
+    width: 100%;
+    object-fit: contain;
+    cursor: pointer;
+    border-radius: 8px;
+    max-height: 200px;
+}
+
+.message-media video {
+    width: 100%;
+    max-height: 200px;
+    border-radius: 8px;
+    background-color: #000;
+}
+
+.media-type-icon {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Media Lightbox Styles */
+.media-lightbox {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    transition: opacity 0.3s ease;
+}
+
+.media-lightbox.hidden {
+    display: none;
+}
+
+.lightbox-content {
+    max-width: 90%;
+    max-height: 80%;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.lightbox-content img,
+.lightbox-content video {
+    max-width: 100%;
+    max-height: 80vh;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.lightbox-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.6), transparent);
+    z-index: 3100;
+}
+
+.lightbox-title {
+    color: white;
+    font-size: 18px;
+    max-width: 70%;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.lightbox-controls {
+    margin-top: 20px;
+    display: flex;
+    gap: 20px;
+}
+
+.lightbox-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 24px;
+    padding: 12px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    transition: background 0.3s;
+}
+
+.lightbox-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.lightbox-btn.download-btn {
+    background: rgba(37, 211, 102, 0.8); /* WhatsApp green */
+}
+
+.lightbox-btn.download-btn:hover {
+    background: rgba(37, 211, 102, 1);
+}
+
+.lightbox-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-image: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
+    z-index: 3100;
+}
+
+.media-info {
+    color: white;
+    font-size: 14px;
+}
+
+/* Адаптивные настройки для мобильных устройств */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 80px;
+    }
+    
+    .contact-info, .user-name {
+        display: none;
+    }
+    
+    .contact-avatar {
+        margin: 0 auto;
+    }
+    
+    .media-preview-container {
+        width: calc(100% - 80px); /* Адаптация для мобильных устройств */
+        margin-left: 80px;
+    }
+    
+    .no-chat-placeholder {
+        left: 80px; /* Width of sidebar on mobile */
+    }
+}
+
+/* Styles for the no-chat placeholder */
+.no-chat-placeholder {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 64px; /* Height of chat-header */
+    left: 350px; /* Width of sidebar */
+    right: 0;
+    bottom: 70px; /* Height of message-input */
+    background-color: rgba(34, 61, 85, 0.95);
+    z-index: 5;
+}
+
+.placeholder-content {
+    text-align: center;
+    padding: 30px;
+    max-width: 500px;
+}
+
+.placeholder-icon {
+    font-size: 80px;
+    color: white;
+    margin-bottom: 20px;
+}
+
+.placeholder-content h2 {
+    color: white;
+    font-size: 24px;
+    margin-bottom: 15px;
+}
+
+.placeholder-content p {
+    color: white;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+/* Style for disabled input and buttons */
+.chat-input.disabled,
+.message-input button.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Apply disabled style specifically to the button inside user-menu-btn if needed */
+#user-menu-btn.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.user-menu-btn button.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.notification {
+    position: fixed;
+    bottom: -50px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(34, 61, 85, 0.9);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    transition: bottom 0.3s;
+    z-index: 9999;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+/* Styles for empty contacts message */
+.empty-contacts-message {
+    background: rgba(212, 214, 201, 0.15);
+    border-radius: 14px;
+    padding: 32px 24px;
+    margin: 32px 16px;
+    text-align: center;
+    color: #fff;
+    font-size: 18px;
+    transition: background 0.3s;
+}
+
+.empty-contacts-message p {
+    color: #fff;
+    font-size: 17px;
+    margin: 10px 0;
+    line-height: 1.5;
+    letter-spacing: 0.01em;
+}
+
+.empty-contacts-message p:first-child {
+    font-weight: 600;
+    font-size: 20px;
+    margin-bottom: 8px;
+}
+
+.modal-container {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+  }
+  
+  .modal-container.hidden {
+    display: none;
+  }
+  
+  .confirmation-content {
+    background: #fff;
+    padding: 20px 30px;
+    border-radius: 8px;
+    max-width: 320px;
+    text-align: center;
+  }
+  
+  .confirmation-buttons {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+  }
+  
+  .action-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .cancel-btn {
+    background-color: #ccc;
+    color: #333;
+  }
+  
+  .delete-btn {
+    background-color: #e53e3e;
+    color: #fff;
+  }
+  

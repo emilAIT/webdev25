@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>YUChat</title>
+    <link rel="stylesheet" href="/static/css/main.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+    <script src="https://unpkg.com/@mui/material@latest/umd/material-ui.development.js" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="sidebar">
+        <div class="search">
+          <button id="menu-btn" class="menu-btn">
+            <ion-icon name="menu-outline"></ion-icon>
+          </button>
+          <div class="search-input-wrapper">
+            <i class="material-icons search-icon">search</i>
+            <input type="text" class="search-contact" placeholder="Search here..." />
+          </div>
+        </div>
+        <div id="menu" class="menu hidden">
+          <div id="profile" class="profile">
+            <div class="profile-avatar">
+              <img src="/static/images/avatar.png" alt="Alym" />
+            </div>
+            <div class="profile-info">
+              <button id="edit-profile" class="edit-profile-btn">
+                <ion-icon name="create-outline"></ion-icon>
+              </button>
+              <h3></h3>
+              <p></p>
+            </div>
+          </div>
+          <div class="menu-options">
+            <button id="add-group">
+              <ion-icon name="people-outline" class="menu-icon"></ion-icon> Add Group
+            </button>
+            <button id="add-user">
+              <ion-icon name="person-outline" class="menu-icon"></ion-icon> Add User
+            </button>
+            <button id="logout">
+              <ion-icon name="exit-outline" class="menu-icon"></ion-icon> Logout
+            </button>
+          </div>
+        </div>
+        <div class="contacts-list">
+        </div>
+      </div>
+      <div class="chat-area">
+        <div class="chat-header">
+          <div class="current-contact">
+            <div class="contact-avatar">
+              <img src="/static/images/avatar.png" alt="avatar" />
+            </div>
+            <div class="contact-info">
+              <h3></h3>
+              <p></p>
+            </div>
+          </div>
+          <div class="chat-actions">
+            <button id="user-menu-btn">
+              <ion-icon name="ellipsis-vertical"></ion-icon>
+            </button>
+          </div>
+        </div>
+        <div class="messages" id="message-container"></div>
+        <div id="no-chat-selected" class="no-chat-placeholder">
+          <div class="placeholder-content">
+            <div class="placeholder-icon">
+              <ion-icon name="chatbubble-ellipses-outline"></ion-icon>
+            </div>
+            <h2>Select a contact to start communicating with</h2>
+            <p>Select an existing contact from the list or add a new one using the Add Contact button</p>
+          </div>
+        </div>
+        <div class="message-input">
+          <button id="media-button" class="media-button">
+            <ion-icon name="images-outline"></ion-icon>
+          </button>
+          <input type="file" id="media-input" accept="image/*,video/*" style="display: none;" multiple>
+          <div class="input-wrapper">
+            <input id="message-text" type="text" class="chat-input" placeholder="Enter message..."  autocomplete="off" />
+            <button type="button" class="emoji-button">
+              <ion-icon name="happy-outline" class="emoji-icon"></ion-icon>
+            </button>
+          </div>
+          <button type="submit" id="send-button" class="send-button">
+            <ion-icon name="send-outline"></ion-icon>
+          </button>
+        </div>
+        <div id="emoji-picker-container" class="emoji-picker-container hidden">
+          <div class="emoji-picker-header">
+            <h3>Choose an emoji</h3>
+            <button id="close-emoji-picker" class="close-picker-btn">
+              <ion-icon name="close-outline"></ion-icon>
+            </button>
+          </div>
+          <div class="emoji-loading">
+            <ion-icon name="sync-outline" class="emoji-loading-icon"></ion-icon>
+            <p>Uploading emojis...</p>
+          </div>
+          <div id="emoji-grid" class="emoji-grid"></div>
+        </div>
+        <div id="media-preview-container" class="media-preview-container hidden">
+          <div class="media-preview-header">
+            <h3>Media Preview</h3>
+            <button id="close-preview" class="close-preview-btn">
+              <ion-icon name="close-outline"></ion-icon>
+            </button>
+          </div>
+          <div id="media-preview-content" class="media-preview-content"></div>
+        </div>
+      </div>
+    </div>
+    <div id="add-user-container" class="modal-container hidden">
+      <div class="modal-content">
+        <h2>New Contact</h2>
+        <div class="new-contact-form">
+          <div class="form-row">
+            <div class="contact-icon">
+              <ion-icon name="person-outline" class="form-icon"></ion-icon>
+            </div>
+            <input type="text" id="new-contact-name" placeholder="Name" />
+          </div>
+          <div class="form-buttons">
+            <button id="cancel-add-contact" class="action-btn cancel-btn">Cancel</button>
+            <button id="add-contact-btn" class="action-btn add-btn">Add</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div id="add-group-container" class="modal-container hidden">
+      <div class="modal-content">
+        <h2>New Group</h2>
+        <div class="new-contact-form">
+          <div class="form-row">
+            <div class="contact-icon">
+              <ion-icon name="people-outline" class="form-icon"></ion-icon>
+            </div>
+            <input type="text" id="new-group-name" placeholder="Group name" />
+          </div>
+          <div class="form-buttons">
+            <button id="cancel-add-group" class="action-btn cancel-btn">Cancel</button>
+            <button id="add-group-btn" class="action-btn add-btn">Add</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="edit-group-profile-container" class="modal-container hidden">
+      <div class="modal-content edit-profile-modal">
+        <div class="edit-profile-header">
+          <button id="cancel-edit-group-profile" class="header-btn">
+            <ion-icon name="arrow-back-outline"></ion-icon>
+          </button>
+          <h2>Edit Group Profile</h2>
+          <button id="save-group-profile" class="header-btn">
+            <ion-icon name="checkmark-outline"></ion-icon>
+          </button>
+        </div>
+        <div class="edit-profile-avatar">
+          <img id="edit-group-avatar-img" src="/static/images/group.png" alt="Group Avatar" />
+          <input type="file" id="edit-group-avatar-input" accept="image/*" style="display:none;" />
+        </div>
+        <div class="edit-profile-form">
+          <div class="edit-form-row">
+            <div class="edit-icon">
+              <ion-icon name="people-outline" class="form-icon"></ion-icon>
+            </div>
+            <input type="text" id="edit-group-name" placeholder="Group Name" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="confirm-remove-member-modal" class="modal-container hidden" role="dialog" aria-modal="true" aria-labelledby="confirm-remove-member-title" aria-describedby="confirm-remove-member-desc">
+      <div class="modal-content confirmation-content">
+        <h2 id="confirm-remove-member-title">Подтверждение удаления</h2>
+        <p id="confirm-remove-member-desc">Вы уверены, что хотите удалить пользователя <strong id="remove-member-username"></strong> из группы?</p>
+        <div class="confirmation-buttons">
+          <button id="cancel-remove-member-btn" class="action-btn cancel-btn">Отмена</button>
+          <button id="confirm-remove-member-btn" class="action-btn delete-btn">Удалить</button>
+        </div>
+      </div>
+    </div>
+    
+    <div id="edit-profile-container" class="modal-container hidden">
+      <div class="modal-content edit-profile-modal">
+        <div class="edit-profile-header">
+          <button id="cancel-edit-profile" class="header-btn">
+            <ion-icon name="arrow-back-outline"></ion-icon>
+          </button>
+          <h2>Edit Profile</h2>
+          <button id="save-profile" class="header-btn">
+            <ion-icon name="checkmark-outline"></ion-icon>
+          </button>
+        </div>
+        <div class="edit-profile-avatar">
+          <img id="edit-avatar-img" src="/static/images/avatar.png" alt="User Avatar" />
+          <input type="file" id="edit-avatar-input" accept="image/*" style="display:none;" />
+        </div>
+        <div class="edit-profile-form">
+          <div class="edit-form-row">
+            <div class="edit-icon">
+              <ion-icon name="person-outline" class="form-icon"></ion-icon>
+            </div>
+            <input type="text" id="edit-username" placeholder="Username" />
+          </div>
+          <div class="edit-form-row">
+            <div class="edit-icon">
+              <ion-icon name="mail-outline" class="form-icon"></ion-icon>
+            </div>
+            <input type="email" id="edit-email" placeholder="Email" />
+          </div>
+          <div class="edit-form-row">
+            <div class="edit-icon">
+              <ion-icon name="lock-closed-outline" class="form-icon"></ion-icon>
+            </div>
+            <input type="password" id="edit-password" placeholder="Password" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="user-menu" class="user-menu hidden">
+      <button class="clear-btn">
+        <ion-icon name="trash-outline" class="user-menu-icon"></ion-icon>
+        Clear history
+      </button>
+      <button class="delete-btn">
+        <ion-icon name="close-circle-outline" class="user-menu-icon"></ion-icon>
+        Delete chat
+      </button>
+    </div>
+    <div id="group-user-menu" class="group-user-menu hidden" aria-label="Group members menu" role="dialog" aria-modal="true">
+      <div class="menu-buttons">
+        <button id="leave-group-btn" title="Выйти из группы" aria-label="Leave group">
+          <ion-icon name="log-out-outline" class="menu-icon"></ion-icon>
+        </button>
+        <button id="add-group-member-btn" title="Добавить участника" aria-label="Add member">
+          <ion-icon name="person-add-outline" class="menu-icon"></ion-icon>
+        </button>
+      </div>
+    
+      <div class="profile" aria-label="Group profile">
+        <div class="profile-avatar">
+          <img id="group-avatar" src="/static/images/avatar.png" alt="Group Avatar" />
+        </div>
+        <div class="profile-info">
+          <h3 id="group-name"></h3>
+          <button id="edit-group-profile-btn" title="Edit group profile" aria-label="Edit group profile">
+            <ion-icon name="create-outline" class="menu-icon"></ion-icon>
+          </button>
+          
+
+        </div>
+      </div>
+    
+      <div id="users-list" class="users-list" role="list" aria-label="Group members list">
+        <!-- Участники будут добавлены динамически -->
+      </div>
+    </div>
+    
+    <div id="confirmation-modal" class="confirmation-modal hidden">
+      <div class="confirmation-content">
+        <p>Are you sure you want to delete the chat?</p>
+        <div class="confirmation-buttons">
+          <button id="cancel-confirmation" class="action-btn cancel-btn">
+            <ion-icon name="arrow-back-outline"></ion-icon>
+          </button>
+          <button id="confirmation-deletion" class="action-btn delete-btn">
+            <ion-icon name="checkmark-outline"></ion-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div id="media-lightbox" class="media-lightbox hidden">
+      <div class="lightbox-header">
+        <div class="lightbox-title"></div>
+        <button id="close-lightbox" class="lightbox-btn">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+      <div class="lightbox-content"></div>
+      <div class="lightbox-footer">
+        <div class="media-info">
+          <span class="media-date"></span>
+        </div>
+        <div class="lightbox-controls">
+          <button id="download-media" class="lightbox-btn download-btn" title="Download media">
+            <ion-icon name="download-outline"></ion-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+    <script src="/static/js/main.js"></script>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+  </body>
+</html>
