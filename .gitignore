@@ -2,3 +2,6 @@
 talkflowchat.db
 
 talkflowchat.db
+
+env
+.env
