@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Change Phone Number</title>
+
+  <link rel="stylesheet" href="../css/changeNumber.css">
+</head>
+<body>
+  <div class="container">
+    <div class="back-button" onclick="goBack()">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6z"/>
+      </svg>
+    </div>
+    <div class="title">Change phone number</div>
+    <div class="instruction">Enter your current phone number with the country code</div>
+    <div class="phone-input">
+      <span>+996</span>
+      <span>559 876 456</span> <!-- Текстовый номер -->
+    </div>
+    <div class="instruction">Enter your new phone number with the country code</div>
+    <div class="phone-input">
+      <span>+996</span>
+      <input type="text" id="new-phone" placeholder="Enter new number"> <!-- Поле ввода -->
+    </div>
+    <div class="ok-button" onclick="confirmChange()">OK</div>
+  </div>
+
+  <script>
+    function goBack() {
+      window.location.href = "./account.html"; // Возврат на account.html
+    }
+
+    function confirmChange() {
+      const newPhone = document.getElementById('new-phone').value;
+
+      if (!newPhone) {
+        alert('Please enter your new phone number.');
+        return;
+      }
+
+      // Здесь можно добавить логику для сохранения нового номера
+      alert(`Your new phone number is: ${newPhone}`);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,169 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #112c3c;
+    font-family: 'Roboto', sans-serif;
+}
+
+.iphone-container {
+    position: relative;
+    width: 45%; /* Уменьшено с 90% */
+    max-width: 170px; /* Уменьшено с 340px */
+    height: 25px; /* Уменьшено с 50px */
+    background: #838A98;
+    border-radius: 20px; /* Уменьшено с 40px */
+    box-shadow: 0 5px 12.5px rgba(0, 0, 0, 0.2); /* Уменьшено в 2 раза */
+    overflow: hidden;
+    margin: 0 auto;
+}
+
+.container {
+    width: 340px; /* Уменьшено с 340px */
+    max-width: 95vw; /* Уменьшено с 95vw */
+    height: 700px; /* Уменьшено с 700px */
+    max-height: 95vh; /* Уменьшено с 95vh */
+    background: #838A98;
+    border-radius: 20px; /* Уменьшено с 20px */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); /* Уменьшено в 2 раза */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 10px; /* Уменьшено с 20px */
+    box-sizing: border-box;
+    position: relative;
+}
+
+.back-button {
+    align-self: flex-start;
+    margin-top: 20px; /* Уменьшено с 20px */
+    margin-left: 20px; /* Уменьшено с 20px */
+    width: 40px; /* Уменьшено с 40px */
+    height: 40px; /* Уменьшено с 40px */
+    background: #1D1B20;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.back-button svg {
+    width: 16px; /* Уменьшено с 16px */
+    height: 16px; /* Уменьшено с 16px */
+    fill: white;
+}
+
+.search-bar {
+    margin-top: 20px; /* Уменьшено с 20px */
+    width: 100%;
+    display: flex;
+    align-items: center;
+    background: #CDCFD4;
+    border-radius: 20px; /* Уменьшено с 20px */
+    padding: 10px 15px; /* Уменьшено с 10px 15px */
+}
+
+.search-bar input {
+    flex-grow: 1;
+    border: none;
+    background: transparent;
+    font-size: 16px; /* Уменьшено с 16px */
+    color: #646C7B;
+    outline: none;
+}
+
+.search-bar svg {
+    width: 20px; /* Уменьшено с 20px */
+    height: 20px; /* Уменьшено с 20px */
+    fill: #646C7B;
+}
+
+.member-list {
+    margin-top: 20px; /* Уменьшено с 20px */
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Уменьшено с 15px */
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.member-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: transparent;
+    padding: 10px 15px; /* Уменьшено с 10px 15px */
+    border-radius: 10px; /* Уменьшено с 10px */
+}
+
+.member-info {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Уменьшено с 15px */
+}
+
+.member-avatar {
+    width: 50px; /* Уменьшено с 50px */
+    height: 50px; /* Уменьшено с 50px */
+    background: #D9D9D9;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.member-avatar svg {
+    width: 24px; /* Уменьшено с 24px */
+    height: 24px; /* Уменьшено с 24px */
+    fill: #646C7B;
+}
+
+.member-name {
+    font-size: 19px; /* Уменьшено с 16px */
+    color: black;
+    width: 80%; /* Уменьшено с 100% */
+}
+
+.select-circle {
+    width: 25px; /* Уменьшено с 25px */
+    height: 25px; /* Уменьшено с 25px */
+    background: #7494EC;
+    border-radius: 50%;
+    border: 1px solid black; /* Уменьшено с 1px */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.select-circle.selected {
+    background: #4CAF50; /* Зеленый цвет для выбранного */
+}
+
+.select-circle.selected::after {
+    content: '✔';
+    color: white;
+    font-size: 16px; /* Уменьшено с 16px */
+}
+
+.add-button {
+    width: 100%;
+    height: 45px; /* Уменьшено с 45px */
+    background: #7494EC;
+    border: none;
+    border-radius: 20px; /* Уменьшено с 20px */
+    font-size: 16px; /* Уменьшено с 16px */
+    font-weight: 500;
+    color: black;
+    cursor: pointer;
+    text-align: center;
+    line-height: 45px; /* Уменьшено с 45px */
+    margin-top: 20px; /* Уменьшено с 20px */
+}
+
+.add-button:hover {
+    opacity: 0.9;
+}

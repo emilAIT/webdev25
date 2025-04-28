@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Name Chat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <link rel="stylesheet" href="../css/nameChat.css">
+    <style>
+        /* --- Стили для голосовых сообщений --- */
+        .message .voice-message-controls {
+            display: flex;
+            align-items: center;
+            padding: 5px 10px;
+            background-color: #f0f0f0;
+            border-radius: 15px;
+            min-width: 150px;
+        }
+        .message-right .voice-message-controls {
+             background-color: #dcf8c6;
+        }
+        .voice-message-controls button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            margin-right: 8px;
+            color: #555;
+            flex-shrink: 0;
+        }
+        .voice-message-controls .play-pause-icon {
+            font-size: 24px;
+        }
+        .voice-message-controls .duration {
+            font-size: 0.8em;
+            color: #666;
+            margin-left: auto;
+            padding-left: 8px;
+            flex-shrink: 0;
+        }
+        .voice-waveform {
+            display: flex;
+            align-items: center;
+            height: 24px;
+            overflow: hidden;
+            margin: 0 8px;
+            flex-grow: 1;
+            min-width: 50px;
+        }
+        .waveform-bar {
+            display: inline-block;
+            width: 2px;
+            margin-right: 1px;
+            background-color: #888;
+            border-radius: 1px;
+            height: calc(4px + (16px * var(--bar-height-factor, 0.5)));
+            transition: height 0.2s ease-in-out;
+        }
+        .voice-waveform.playing .waveform-bar {
+            animation: waveform-play 0.8s infinite alternate ease-in-out;
+        }
+        .voice-waveform.playing .waveform-bar:nth-child(1) { animation-delay: 0.0s; }
+        .voice-waveform.playing .waveform-bar:nth-child(2) { animation-delay: 0.1s; }
+        .voice-waveform.playing .waveform-bar:nth-child(3) { animation-delay: 0.2s; }
+        .voice-waveform.playing .waveform-bar:nth-child(4) { animation-delay: 0.05s; }
+        .voice-waveform.playing .waveform-bar:nth-child(5) { animation-delay: 0.15s; }
+        .voice-waveform.playing .waveform-bar:nth-child(6) { animation-delay: 0.25s; }
+        .voice-waveform.playing .waveform-bar:nth-child(7) { animation-delay: 0.1s; }
+        .voice-waveform.playing .waveform-bar:nth-child(8) { animation-delay: 0.0s; }
+        .voice-waveform.playing .waveform-bar:nth-child(9) { animation-delay: 0.2s; }
+        .voice-waveform.playing .waveform-bar:nth-child(10) { animation-delay: 0.15s; }
+        .voice-waveform.playing .waveform-bar:nth-child(11) { animation-delay: 0.05s; }
+        .voice-waveform.playing .waveform-bar:nth-child(12) { animation-delay: 0.25s; }
+        .voice-waveform.playing .waveform-bar:nth-child(13) { animation-delay: 0.0s; }
+        .voice-waveform.playing .waveform-bar:nth-child(14) { animation-delay: 0.1s; }
+        .voice-waveform.playing .waveform-bar:nth-child(15) { animation-delay: 0.2s; }
+
+        @keyframes waveform-play {
+            from { height: calc(4px + (16px * var(--bar-height-factor, 0.5))); }
+            to { height: calc(4px + (16px * (1 - var(--bar-height-factor, 0.5)))); }
+        }
+
+        .mic-button {
+            background: none; border: none; padding: 10px; cursor: pointer; color: #555; display: none;
+        }
+        .mic-button i { font-size: 24px; }
+        .mic-button.recording { color: red; }
+        .footer.input-empty .send-button { display: none; }
+        .footer.input-empty .mic-button { display: inline-flex; align-items: center; justify-content: center; }
+        .footer:not(.input-empty) .send-button { display: inline-flex; align-items: center; justify-content: center; }
+        .footer:not(.input-empty) .mic-button { display: none; }
+
+        .modal {
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0;
+            width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);
+            padding: 20px; box-sizing: border-box;
+        }
+
+        #messageActionModal .modal-content {
+            background-color: #373B44;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            margin: auto;
+            width: auto;
+            max-width: 250px;
+            padding: 5px 0;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        #messageActionModal .modal-option {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: none;
+            color: #ffffff;
+        }
+
+        #messageActionModal .modal-option i {
+            margin-right: 15px;
+            color: #ffffff;
+            font-size: 20px;
+        }
+
+        #messageActionModal .modal-option span {
+            font-size: 0.95em;
+            color: #ffffff;
+        }
+
+        #messageActionModal .modal-option[data-action="delete"] i,
+        #messageActionModal .modal-option[data-action="delete-me-only"] i {
+            color: #FF5252;
+        }
+        #messageActionModal .modal-option[data-action="delete"] span,
+        #messageActionModal .modal-option[data-action="delete-me-only"] span {
+            color: #FF5252;
+        }
+
+        #deleteConfirmModal .modal-content {
+             background-color: #fefefe;
+             margin: 0 auto 10px auto;
+             border-radius: 10px;
+             width: 95%;
+             max-width: 500px;
+             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+             display: flex;
+             flex-direction: column;
+             overflow: hidden;
+             padding: 0;
+        }
+        .delete-header {
+            display: flex; align-items: center; padding: 10px 15px; border-bottom: 1px solid #eee;
+        }
+        .delete-header span { flex-grow: 1; text-align: center; font-weight: bold; }
+        .modal-back-button { background: none; border: none; padding: 5px; cursor: pointer; }
+        .delete-option {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px; cursor: pointer; border-bottom: 1px solid #eee;
+        }
+        .delete-option:last-child { border-bottom: none; }
+        .delete-option i { color: red; }
+
+        #emojiPicker {
+            position: absolute; bottom: 60px; left: 10px; z-index: 100; display: none;
+        }
+        .message img {
+            max-width: 100%; max-height: 200px; display: block; margin-bottom: 5px; border-radius: 5px;
+        }
+        .message.deleted span:not(.message-meta) { font-style: italic; color: #999; }
+        .edited-indicator { font-size: 0.7em; color: #888; margin-left: 4px; }
+    </style>
+</head>
+<body>
+<div class="chat-container">
+    <!-- Header -->
+    <div class="header" id="chatHeader">
+        <button class="back-button"><i class="material-icons">arrow_back</i></button>
+        <div class="avatar"></div>
+        <div class="chat-info">
+            <div class="chat-name">Name</div>
+            <div class="chat-status">online</div>
+        </div>
+        <button class="menu-button"><i class="material-icons">more_vert</i></button>
+    </div>
+
+    <!-- Messages Area -->
+    <div class="messages-area" id="messagesArea">
+        <div class="message message-left" id="msg-1"><span>What should we make?</span><span class="message-meta">10:00</span></div>
+        <div class="message message-left" id="msg-2"><span>Pasta?</span><span class="message-meta">10:01</span></div>
+        <div class="message message-right" id="msg-3" data-status="Прочитано"><span>or we could make this?</span><span class="message-meta">10:02</span></div>
+        <div class="message message-right" id="msg-4" data-status="Прочитано"><span>Yeah, let's do that! Sounds good.</span><span class="message-meta">10:03</span></div>
+        <div class="message message-left" id="msg-5"><span>Okay, I'll get the ingredients.</span><span class="message-meta">10:04</span></div>
+        <div class="message message-right" id="msg-6" data-status="Прочитано"><span>Great! See you soon.</span><span class="message-meta">10:05</span></div>
+        <div class="message message-left" id="msg-7"><span>See ya!</span><span class="message-meta">10:06</span></div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer input-empty" id="chatFooter">
+        <button class="emoji-button"><i class="material-icons">sentiment_satisfied_alt</i></button>
+        <input type="text" class="input-field" id="messageInput" placeholder="Type a message">
+        <input type="file" id="imageFile" accept="image/*" style="display: none;">
+        <button class="attach-button"><i class="material-icons">attach_file</i></button>
+        <button class="send-button" id="sendButton"><i class="material-icons">send</i></button>
+        <button class="mic-button" id="micButton"><i class="material-icons">mic</i></button>
+    </div>
+
+    <emoji-picker id="emojiPicker"></emoji-picker>
+</div>
+
+<!-- Message Action Modal -->
+<div id="messageActionModal" class="modal">
+    <div class="modal-content"></div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteConfirmModal" class="modal">
+    <div class="modal-content delete-modal-content">
+        <div class="delete-header">
+            <button class="modal-back-button" data-action="cancel-delete"><i class="material-icons">arrow_back</i></button>
+            <span>Delete message?</span>
+        </div>
+        <div class="delete-option" data-action="delete-me"><span>Delete for me</span><i class="material-icons">delete_outline</i></div>
+        <div class="delete-option" data-action="delete-all"><span>Delete for everyone</span><i class="material-icons">delete_outline</i></div>
+    </div>
+</div>
+
+
+<script>
+    // Get DOM elements
+    const messagesArea = document.getElementById('messagesArea');
+    const messageInput = document.getElementById('messageInput');
+    const sendButton = document.getElementById('sendButton');
+    const chatHeader = document.getElementById('chatHeader');
+    const backButton = chatHeader.querySelector('.back-button'); // Get the back button
+    const menuButton = chatHeader.querySelector('.menu-button'); // Get the menu button
+    const messageActionModal = document.getElementById('messageActionModal');
+    const messageActionModalContent = messageActionModal.querySelector('.modal-content');
+    const deleteConfirmModal = document.getElementById('deleteConfirmModal');
+    const emojiButton = document.querySelector('.emoji-button');
+    const emojiPicker = document.getElementById('emojiPicker');
+    const attachButton = document.querySelector('.attach-button');
+    const imageFileInput = document.getElementById('imageFile');
+    const micButton = document.getElementById('micButton');
+    const chatFooter = document.getElementById('chatFooter'); 
+
+    let messageCounter = 8;
+    let currentTargetMessage = null;
+    let isEditing = false;
+    let editingMessageElement = null;
+
+    let mediaRecorder;
+    let audioChunks = [];
+    let isRecording = false;
+    let recordingStartTime;
+
+    function addMessage(text, isSent, imageUrl = null, audioUrl = null, duration = null) {
+        if (!text?.trim() && !imageUrl && !audioUrl) return;
+        const messageId = `msg-${messageCounter++}`;
+        const messageDiv = document.createElement('div');
+        messageDiv.id = messageId;
+        messageDiv.classList.add('message', isSent ? 'message-right' : 'message-left');
+
+        if (audioUrl) {
+            const audioContainer = document.createElement('div');
+            audioContainer.classList.add('voice-message-controls');
+            const audio = new Audio(audioUrl);
+            const playPauseButton = document.createElement('button');
+            playPauseButton.classList.add('play-pause-button');
+            playPauseButton.innerHTML = '<i class="material-icons play-pause-icon">play_arrow</i>';
+            const waveformContainer = document.createElement('div');
+            waveformContainer.classList.add('voice-waveform');
+            const numBars = 15;
+            for (let i = 0; i < numBars; i++) {
+                const bar = document.createElement('span');
+                bar.classList.add('waveform-bar');
+                bar.style.setProperty('--bar-height-factor', Math.random());
+                waveformContainer.appendChild(bar);
+            }
+            const durationSpan = document.createElement('span');
+            durationSpan.classList.add('duration');
+            durationSpan.textContent = formatDuration(duration || 0);
+            let isPlaying = false;
+            playPauseButton.onclick = () => { if (isPlaying) audio.pause(); else audio.play(); };
+            audio.onplay = () => { isPlaying = true; playPauseButton.innerHTML = '<i class="material-icons play-pause-icon">pause</i>'; waveformContainer.classList.add('playing'); };
+            audio.onpause = audio.onended = () => { isPlaying = false; playPauseButton.innerHTML = '<i class="material-icons play-pause-icon">play_arrow</i>'; waveformContainer.classList.remove('playing'); audio.currentTime = 0; };
+            audio.onloadedmetadata = () => { if (!duration) durationSpan.textContent = formatDuration(audio.duration); };
+            audioContainer.appendChild(playPauseButton);
+            audioContainer.appendChild(waveformContainer);
+            audioContainer.appendChild(durationSpan);
+            messageDiv.appendChild(audioContainer);
+        } else if (imageUrl) {
+            const img = document.createElement('img');
+            img.src = imageUrl;
+            messageDiv.appendChild(img);
+        }
+
+        if (text?.trim() && !audioUrl) {
+            const textSpan = document.createElement('span');
+            textSpan.textContent = text;
+            messageDiv.appendChild(textSpan);
+        }
+
+        const metaSpan = document.createElement('span');
+        metaSpan.classList.add('message-meta');
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        metaSpan.textContent = `${hours}:${minutes}`;
+        messageDiv.appendChild(metaSpan);
+
+        if (isSent && !audioUrl && !imageUrl) {
+            messageDiv.dataset.status = "Не прочитано";
+            setTimeout(() => {
+                const currentMessage = document.getElementById(messageId);
+                if (currentMessage && !currentMessage.classList.contains('deleted')) {
+                    currentMessage.dataset.status = "Прочитано";
+                }
+            }, 5000);
+        }
+
+        messagesArea.appendChild(messageDiv);
+        messagesArea.scrollTop = messagesArea.scrollHeight;
+    }
+
+    function formatDuration(seconds) {
+        if (isNaN(seconds) || seconds === Infinity) return "0:00";
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = Math.floor(seconds % 60);
+        return `${minutes}:${String(remainingSeconds).padStart(2, '0')}`;
+    }
+
+    async function startRecording() {
+        if (isRecording) return;
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            audioChunks = [];
+            mediaRecorder.ondataavailable = event => audioChunks.push(event.data);
+            mediaRecorder.onstop = () => {
+                if (audioChunks.length === 0 || audioChunks[0].size === 0) {
+                     stream.getTracks().forEach(track => track.stop());
+                     isRecording = false; micButton.classList.remove('recording'); return;
+                }
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                const audioUrl = URL.createObjectURL(audioBlob);
+                const duration = (Date.now() - recordingStartTime) / 1000;
+                addMessage(null, true, null, audioUrl, duration);
+                stream.getTracks().forEach(track => track.stop());
+                isRecording = false; micButton.classList.remove('recording');
+            };
+            mediaRecorder.start();
+            isRecording = true; recordingStartTime = Date.now(); micButton.classList.add('recording');
+        } catch (err) {
+            alert("Не удалось получить доступ к микрофону. Проверьте разрешения.");
+            isRecording = false; micButton.classList.remove('recording');
+        }
+    }
+
+    function stopRecording() {
+        if (!isRecording || !mediaRecorder || mediaRecorder.state !== 'recording') return;
+        mediaRecorder.stop();
+    }
+
+    function showMessageActions(messageElement) {
+        cancelEdit();
+        currentTargetMessage = messageElement;
+        messageActionModalContent.innerHTML = '';
+
+        const isMyMessage = messageElement.classList.contains('message-right');
+        const isTextMessage = !!messageElement.querySelector('span:not(.message-meta)');
+        const isImageMessage = !!messageElement.querySelector('img');
+        const isVoiceMessage = !!messageElement.querySelector('.voice-message-controls');
+        const options = [];
+
+        options.push({ action: 'reply', icon: 'reply', text: 'Reply' });
+        // Только для текстовых сообщений показываем "Copy" и "Edit"
+        if (isTextMessage && !isVoiceMessage) options.push({ action: 'copy', icon: 'content_copy', text: 'Copy' });
+        options.push({ action: 'info', icon: 'info_outline', text: 'Info' });
+
+        if (isMyMessage) {
+            if (isTextMessage && !isVoiceMessage) options.splice(2, 0, { action: 'edit', icon: 'edit', text: 'Edit' });
+            options.push({ action: 'delete', icon: 'delete_outline', text: 'Delete', color: '#FF5252' });
+        } else {
+            options.push({ action: 'delete-me-only', icon: 'delete_outline', text: 'Delete for me', color: '#FF5252' });
+        }
+
+        options.forEach(opt => {
+            const optionDiv = document.createElement('div');
+            optionDiv.classList.add('modal-option');
+            optionDiv.dataset.action = opt.action;
+            const icon = document.createElement('i');
+            icon.classList.add('material-icons');
+            icon.textContent = opt.icon;
+            const span = document.createElement('span');
+            span.textContent = opt.text;
+            optionDiv.appendChild(icon);
+            optionDiv.appendChild(span);
+            messageActionModalContent.appendChild(optionDiv);
+        });
+
+        messageActionModal.style.display = 'flex';
+        messageActionModal.style.justifyContent = 'center';
+        messageActionModal.style.alignItems = 'center';
+    }
+
+    function hideMessageActions() { messageActionModal.style.display = 'none'; }
+    function showDeleteConfirmation() {
+        deleteConfirmModal.style.display = 'flex';
+    }
+    function hideDeleteConfirmation() { deleteConfirmModal.style.display = 'none'; }
+
+    function performDelete(type) {
+        if (!currentTargetMessage) return;
+        if (type === 'me') { currentTargetMessage.remove(); }
+        else if (type === 'all') {
+            currentTargetMessage.innerHTML = '<span>🗑 Сообщение удалено</span>';
+            currentTargetMessage.classList.add('deleted');
+            currentTargetMessage.removeAttribute('data-status');
+            currentTargetMessage.onclick = null;
+        }
+        hideMessageActions(); hideDeleteConfirmation(); currentTargetMessage = null;
+    }
+
+    function startEdit(messageElement) {
+        if (!messageElement || !messageElement.classList.contains('message-right')) return;
+        const textSpan = messageElement.querySelector('span:not(.message-meta)');
+        if (textSpan) {
+            isEditing = true; editingMessageElement = messageElement;
+            messageInput.value = textSpan.textContent; messageInput.focus();
+        } else { cancelEdit(); }
+    }
+
+    function cancelEdit() {
+        if (isEditing) {
+            isEditing = false; editingMessageElement = null; messageInput.value = ''; toggleSendMicButton();
+        }
+    }
+
+    function saveEdit() {
+        if (!isEditing || !editingMessageElement) return;
+        const newText = messageInput.value.trim();
+        const textSpan = editingMessageElement.querySelector('span:not(.message-meta)');
+        if (!newText) { cancelEdit(); return; }
+        if (textSpan) {
+            textSpan.textContent = newText;
+            let metaSpan = editingMessageElement.querySelector('.message-meta');
+            if (metaSpan) {
+                let editedIndicator = metaSpan.querySelector('.edited-indicator');
+                if (!editedIndicator) {
+                    editedIndicator = document.createElement('span');
+                    editedIndicator.classList.add('edited-indicator');
+                    editedIndicator.textContent = '(edited)';
+                    metaSpan.insertBefore(document.createTextNode(' '), metaSpan.firstChild);
+                    metaSpan.insertBefore(editedIndicator, metaSpan.firstChild);
+                }
+            }
+        }
+        isEditing = false; editingMessageElement = null; messageInput.value = ''; toggleSendMicButton();
+    }
+
+    function handleMessageAction(action) {
+        if (!currentTargetMessage) return;
+        const messageTextElement = currentTargetMessage.querySelector('span:not(.message-meta)');
+        const messageText = messageTextElement?.textContent || "";
+        const status = currentTargetMessage.dataset.status || "Status unknown";
+        const time = currentTargetMessage.querySelector('.message-meta')?.textContent.replace('(edited)','').trim() || "Time unknown";
+        const isMyMessage = currentTargetMessage.classList.contains('message-right');
+        hideMessageActions();
+
+        switch (action) {
+            case 'reply': alert(`Reply to message ID: "${currentTargetMessage.id}" (Not implemented)`); currentTargetMessage = null; break;
+            case 'copy':
+                if (messageText) navigator.clipboard.writeText(messageText).then(() => alert('Copied!')).catch(err => alert('Failed.'));
+                else alert('Nothing to copy.');
+                currentTargetMessage = null; break;
+            case 'edit': if (isMyMessage && messageTextElement) startEdit(currentTargetMessage); else currentTargetMessage = null; break;
+            case 'info':
+                let infoText = `Time: ${time}`;
+                if (messageText) infoText += `\nText: "${messageText}"`;
+                if (currentTargetMessage.querySelector('img')) infoText += `\nType: Image`;
+                if (currentTargetMessage.querySelector('.voice-message-controls')) infoText += `\nType: Voice Message`;
+                if (isMyMessage && status !== "Status unknown") infoText += `\nStatus: ${status}`;
+                alert(`Message Info:\n\n${infoText}`); currentTargetMessage = null; break;
+                case 'delete':
+    if (currentTargetMessage.classList.contains('message-right')) {
+        showDeleteConfirmation();
+    } else {
+        currentTargetMessage = null;
+    }
+    break;
+            case 'delete-me-only': if (!isMyMessage) performDelete('me'); else currentTargetMessage = null; break;
+            default: currentTargetMessage = null;
+        }
+    }
+
+    function toggleSendMicButton() {
+        if (messageInput.value.trim() === '') chatFooter.classList.add('input-empty');
+        else chatFooter.classList.remove('input-empty');
+    }
+
+    sendButton.addEventListener('click', () => { if (isEditing) saveEdit(); else { addMessage(messageInput.value, true); messageInput.value = ''; toggleSendMicButton(); } });
+    messageInput.addEventListener('keypress', (event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); if (!chatFooter.classList.contains('input-empty')) sendButton.click(); } });
+    messageInput.addEventListener('input', toggleSendMicButton);
+
+    messagesArea.addEventListener('click', (event) => {
+      const clickedMessage = event.target.closest('.message:not(.deleted)');
+      if (clickedMessage && !event.target.closest('.play-pause-button') && event.target.tagName !== 'A') {
+        if (isEditing && clickedMessage === editingMessageElement) cancelEdit();
+        else showMessageActions(clickedMessage);
+      } else if (!event.target.closest('#messageActionModal .modal-content') && !event.target.closest('.play-pause-button')) {
+          hideMessageActions(); cancelEdit();
+      }
+    });
+
+    messageActionModal.addEventListener('click', (event) => {
+        const targetOption = event.target.closest('.modal-option');
+        if (targetOption) handleMessageAction(targetOption.dataset.action);
+        else if (event.target === messageActionModal) {
+             hideMessageActions(); currentTargetMessage = null;
+        }
+    });
+
+    deleteConfirmModal.addEventListener('click', (event) => {
+    const targetButton = event.target.closest('[data-action]');
+    if (targetButton) {
+        const action = targetButton.dataset.action;
+        if (action === 'delete-me') {
+            performDelete('me');
+        } else if (action === 'delete-all') {
+            performDelete('all');
+        } else if (action === 'cancel-delete') {
+            hideDeleteConfirmation();
+        }
+    } else if (event.target === deleteConfirmModal) {
+        hideDeleteConfirmation();
+    }
+});
+
+    chatHeader.addEventListener('click', (event) => { if (!event.target.closest('button')) { cancelEdit(); alert("User Info:\n\nName: Name\nStatus: online..."); } });
+
+    emojiButton.addEventListener('click', (event) => { event.stopPropagation(); emojiPicker.style.display = emojiPicker.style.display === 'block' ? 'none' : 'block'; });
+    emojiPicker.addEventListener('emoji-click', event => {
+      const emoji = event.detail.unicode; const start = messageInput.selectionStart; const end = messageInput.selectionEnd;
+      messageInput.value = messageInput.value.substring(0, start) + emoji + messageInput.value.substring(end);
+      messageInput.selectionStart = messageInput.selectionEnd = start + emoji.length; messageInput.focus(); toggleSendMicButton();
+    });
+    document.addEventListener('click', (event) => {
+        if (!emojiButton.contains(event.target) && !emojiPicker.contains(event.target)) if (emojiPicker.style.display === 'block') emojiPicker.style.display = 'none';
+    });
+
+    attachButton.addEventListener('click', () => imageFileInput.click());
+    imageFileInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (file && file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = (e) => { addMessage(messageInput.value.trim() || null, true, e.target.result); messageInput.value = ''; toggleSendMicButton(); };
+            reader.onerror = (e) => alert("Failed to read image file.");
+            reader.readAsDataURL(file);
+        } else if (file) alert("Please select an image file.");
+        event.target.value = null;
+    });
+
+    micButton.addEventListener('mousedown', startRecording);
+    micButton.addEventListener('mouseup', stopRecording);
+    micButton.addEventListener('mouseleave', () => { if (isRecording) stopRecording(); });
+    micButton.addEventListener('touchstart', (e) => { e.preventDefault(); startRecording(); });
+    micButton.addEventListener('touchend', (e) => { e.preventDefault(); stopRecording(); });
+
+    // --- Add event listener for the back button ---
+    backButton.addEventListener('click', () => {
+        window.location.href = './dashboard.html'; // Navigate to dashboard.html
+    });
+    // ---------------------------------------------
+
+    // --- Add event listener for the menu button ---
+    menuButton.addEventListener('click', () => {
+        window.location.href = './meminfo.html'; // Navigate to meminfo.html
+    });
+    // ---------------------------------------------
+
+    messagesArea.scrollTop = messagesArea.scrollHeight;
+    toggleSendMicButton();
+
+    // --- Начало кода для Socket.IO и приватного чата ---
+
+    let recipientId = null; // ID или email собеседника
+    let currentUserToken = null; // JWT токен текущего пользователя
+    let socket = null; // Экземпляр Socket.IO
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // 1. Получаем ID собеседника из URL
+        const urlParams = new URLSearchParams(window.location.search);
+        recipientId = urlParams.get('recipient'); // Получаем 'recipient' из ?recipient=...
+
+        // 2. Получаем JWT токен текущего пользователя из localStorage
+        currentUserToken = localStorage.getItem('jwt_token');
+
+        // 3. Проверяем, есть ли токен и ID собеседника
+        if (!currentUserToken) {
+            alert("Ошибка: Вы не авторизованы. Пожалуйста, войдите снова.");
+            window.location.href = 'login.html'; // Перенаправляем на логин
+            return;
+        }
+        if (!recipientId) {
+            alert("Ошибка: Не указан собеседник.");
+            // Можно перенаправить обратно на дашборд или показать ошибку
+            // window.location.href = 'dashboard.html';
+            return;
+        }
+
+        // TODO: Отобразить имя собеседника в заголовке чата (chat-name)
+        // Возможно, потребуется запрос к API для получения имени по recipientId
+        document.querySelector('.chat-name').textContent = recipientId; // Пока показываем ID/email
+
+        // 4. Устанавливаем WebSocket соединение
+        connectWebSocket();
+
+        // 5. Очищаем область сообщений (если не хотим загружать старые)
+        messagesArea.innerHTML = '';
+
+        // TODO: Запросить историю сообщений с этим пользователем у сервера
+    });
+
+    function connectWebSocket() {
+        // Подключаемся к серверу
+        socket = io("http://127.0.0.1:5000");
+
+        // Обработчик успешного подключения
+        socket.on("connect", () => {
+            console.log("Успешно подключено к WebSocket! ID:", socket.id);
+            // --- ОТПРАВКА ТОКЕНА ДЛЯ АУТЕНТИФИКАЦИИ ---
+            if (currentUserToken) {
+                console.log("Отправка токена для аутентификации...");
+                socket.emit('authenticate', { token: currentUserToken });
+            }
+        });
+
+        // Обработчик подтверждения аутентификации (опционально)
+        socket.on("authenticated", () => {
+            console.log("WebSocket аутентифицирован успешно.");
+            // Теперь можно отправлять/получать приватные сообщения
+        });
+
+        // Обработчик ошибки аутентификации (опционально)
+        socket.on("unauthorized", (data) => {
+            console.error("Ошибка аутентификации WebSocket:", data.message);
+            alert("Ошибка аутентификации чата. Попробуйте войти снова.");
+            // Возможно, стоит разорвать соединение или перенаправить на логин
+            socket.disconnect();
+        });
+
+        // Обработчик ошибки подключения
+        socket.on("connect_error", (err) => {
+            console.error("Ошибка подключения к WebSocket:", err.message);
+            // messagesArea.innerHTML += `<div style="text-align: center; color: red;">Не удалось подключиться к чату.</div>`;
+        });
+
+        // Обработчик отключения
+        socket.on("disconnect", (reason) => {
+            console.log("Отключено от WebSocket:", reason);
+        });
+
+        // --- СЛУШАЕМ ПРИВАТНЫЕ СООБЩЕНИЯ ---
+        socket.on('receive_private_message', displayReceivedPrivateMessage);
+    }
+
+    // Функция отображения ПОЛУЧЕННОГО приватного сообщения
+    function displayReceivedPrivateMessage(data) {
+        console.log("Получено приватное сообщение:", data);
+        const messageText = data.message;
+        const senderId = data.sender_id; // ID отправителя от сервера
+
+        // Отображаем сообщение как входящее (isSent = false)
+        // TODO: Получить имя отправителя по senderId и отобразить его
+        addMessage(`${senderId}: ${messageText}`, false); // Используем вашу функцию addMessage
+    }
+
+    // Функция отправки ПРИВАТНОГО сообщения на сервер
+    function sendPrivateMessageToServer() {
+        const messageText = messageInput.value.trim();
+        if (messageText && recipientId && socket && socket.connected) {
+            console.log(`Отправка приватного сообщения для ${recipientId}: ${messageText}`);
+            // Отправляем событие 'send_private_message' с ID получателя
+            socket.emit('send_private_message', {
+                recipient_id: recipientId, // ID или email кому отправляем
+                message: messageText
+            });
+
+            // Отображаем собственное сообщение сразу
+            addMessage(messageText, true); // isSent = true
+
+            messageInput.value = ''; // Очищаем поле ввода
+            toggleSendMicButton(); // Обновляем кнопки
+            // cancelReply(); // Если есть функция ответа
+        } else if (!socket || !socket.connected) {
+             console.error("Не удалось отправить сообщение: нет WebSocket соединения.");
+             // Можно показать ошибку пользователю
+        }
+    }
+
+    // --- Интеграция с существующими обработчиками в nameChat.html ---
+    // Замените обработчики кнопки отправки и Enter, чтобы они вызывали sendPrivateMessageToServer
+
+    // НАЙДИТЕ ваш обработчик для sendButton и ЗАМЕНИТЕ его:
+    sendButton.addEventListener('click', () => {
+        // if (isEditing) { saveEdit(); } // Если есть редактирование
+        // else { sendPrivateMessageToServer(); }
+        sendPrivateMessageToServer(); // Упрощенный вариант без редактирования
+    });
+
+    // НАЙДИТЕ ваш обработчик для Enter и ЗАМЕНИТЕ его:
+    messageInput.addEventListener('keypress', (event) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            if (!chatFooter.classList.contains('input-empty')) {
+                sendButton.click(); // Имитируем клик
+            }
+        }
+    });
+
+    // --- Конец кода для Socket.IO и приватного чата ---
+</script>
+</body>
+</html>

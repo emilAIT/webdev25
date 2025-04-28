@@ -1,0 +1,96 @@
+body {
+    margin: 0;
+    padding: 0;
+    background: #112c3c; /* Фон страницы */
+    font-family: Roboto, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; 
+    border-radius: 40px;/* Центрирование окна */
+}
+
+.blocked-container {
+    position: relative;
+    width: 340px; /* Уменьшенная ширина */
+    height: 450px; /* Уменьшенная высота */
+    background: #838A98; /* Фон окна */
+
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); /* Тень */
+    overflow: hidden;
+    padding: 20px; /* Внутренние отступы */
+    box-sizing: border-box;
+}
+
+.title {
+    position: relative;
+    text-align: center;
+    font-size: 20px; /* Уменьшенный размер текста */
+    font-weight: 500;
+    color: black;
+    margin-bottom: 20px;
+}
+
+.back-button {
+    position: absolute;
+    top: 15px; /* Сдвиг вниз */
+    left: 15px; /* Сдвиг влево */
+    width: 20px; /* Уменьшенная ширина */
+    height: 20px; /* Уменьшенная высота */
+    background: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6z"/></svg>') no-repeat center;
+    background-size: contain;
+    cursor: pointer;
+}
+
+.name-container {
+    position: relative;
+    margin-top: 20px;
+}
+
+.name-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px; 
+    border-bottom: none;/* Уменьшенный отступ между строками */
+}
+
+.profile-icon {
+    width: 40px; /* Уменьшенный размер аватара */
+    height: 40px;
+    background: #D9D9D9;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 15px;
+}
+
+.profile-icon::before {
+    content: '';
+    width: 24px; /* Уменьшенный размер иконки */
+    height: 24px;
+    background: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="gray"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>') no-repeat center;
+    background-size: contain;
+}
+
+.name-box {
+    flex: 1;
+    font-size: 14px; /* Уменьшенный размер текста */
+    font-weight: 400;
+    color: black;
+    text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+.unlock-button {
+    width: 100px; /* Уменьшенная ширина кнопки */
+    height: 35px; /* Уменьшенная высота кнопки */
+    background: #1E1E1E;
+    border-radius: 15px; /* Скругленные углы */
+    color: white;
+    font-size: 14px; /* Уменьшенный размер текста */
+    font-weight: 400;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}

@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Group Chat</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
+  <link rel="stylesheet" href="../css/groupchat.css">
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+</head>
+<body>
+<div class="chat-container">
+    <!-- Header -->
+    <div class="header" id="chatHeader">
+        <button class="back-button"><i class="material-icons">arrow_back</i></button>
+        <div class="avatar"></div>
+        <div class="chat-info">
+            <div class="chat-name">Name group</div>
+
+        </div>
+        <button class="menu-button"><i class="material-icons">more_vert</i></button>
+    </div>
+
+    <div class="messages-area" id="messagesArea">
+      <!-- Изменены существующие сообщения для демонстрации имен -->
+      <div class="message message-left" id="msg-1">
+        <span class="sender-name">Alice</span> <!-- Имя отправителя -->
+        <span>What should we make?</span>
+        <span class="message-meta">10:00</span>
+      </div>
+      <div class="message message-left" id="msg-2">
+        <span class="sender-name">Alice</span>
+        <span>Pasta?</span>
+        <span class="message-meta">10:01</span>
+      </div>
+      <div class="message message-right" id="msg-3" data-status="Прочитано">
+        <span>or we could make this?</span>
+        <span class="message-meta">10:02</span>
+      </div>
+      <div class="message message-right" id="msg-4" data-status="Прочитано">
+        <span>Yeah, let's do that! Sounds good.</span>
+        <span class="message-meta">10:03</span>
+      </div>
+       <div class="message message-left" id="msg-5">
+         <span class="sender-name">Bob</span> <!-- Другой отправитель -->
+         <span>Okay, I'll get the ingredients.</span>
+         <span class="message-meta">10:04</span>
+      </div>
+       <div class="message message-right" id="msg-6" data-status="Прочитано">
+         <span>Great! See you soon.</span>
+         <span class="message-meta">10:05</span>
+      </div>
+       <div class="message message-left" id="msg-7">
+         <span class="sender-name">Alice</span>
+         <span>See ya!</span>
+         <span class="message-meta">10:06</span>
+      </div>
+    </div>
+
+    <!-- Reply Container -->
+    <div class="reply-container" id="replyContainer" style="display: none;">
+        <div class="reply-content">
+            <span id="replyText"></span>
+            <button class="cancel-reply-button" id="cancelReplyButton"><i class="material-icons">close</i></button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer input-empty" id="chatFooter">
+        <button class="emoji-button"><i class="material-icons">sentiment_satisfied_alt</i></button>
+        <input type="text" class="input-field" id="messageInput" placeholder="Type a message">
+        <input type="file" id="imageFile" accept="image/*" style="display: none;">
+        <button class="attach-button"><i class="material-icons">attach_file</i></button>
+        <button class="send-button" id="sendButton"><i class="material-icons">send</i></button>
+        <button class="mic-button" id="micButton"><i class="material-icons">mic</i></button>
+    </div>
+
+    <emoji-picker id="emojiPicker"></emoji-picker>
+</div>
+
+<!-- Message Action Modal -->
+<div id="messageActionModal" class="modal">
+    <div class="modal-content"></div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteConfirmModal" class="modal">
+    <div class="modal-content delete-modal-content">
+        <div class="delete-header">
+            <button class="modal-back-button" data-action="cancel-delete"><i class="material-icons">arrow_back</i></button>
+            <span>Delete message?</span>
+        </div>
+        <div class="delete-option" data-action="delete-me"><span>Delete for me</span><i class="material-icons">delete_outline</i></div>
+        <div class="delete-option" data-action="delete-all"><span>Delete for everyone</span><i class="material-icons">delete_outline</i></div>
+    </div>
+</div>
+
+
+<script>
+    // Get DOM elements
+    const messagesArea = document.getElementById('messagesArea');
+    const messageInput = document.getElementById('messageInput');
+    const sendButton = document.getElementById('sendButton');
+    const chatHeader = document.getElementById('chatHeader');
+    const messageActionModal = document.getElementById('messageActionModal');
+    const messageActionModalContent = messageActionModal.querySelector('.modal-content');
+    const deleteConfirmModal = document.getElementById('deleteConfirmModal');
+    const emojiButton = document.querySelector('.emoji-button');
+    const emojiPicker = document.getElementById('emojiPicker');
+    const attachButton = document.querySelector('.attach-button');
+    const imageFileInput = document.getElementById('imageFile');
+    const micButton = document.getElementById('micButton');
+    const chatFooter = document.getElementById('chatFooter'); 
+    const menuButton = chatHeader.querySelector('.menu-button'); // Получаем кнопку меню
+
+    const replyContainer = document.getElementById('replyContainer');
+    const replyText = document.getElementById('replyText');
+    const cancelReplyButton = document.getElementById('cancelReplyButton');
+    let replyToMessage = null;
+
+    let messageCounter = 8;
+    let currentTargetMessage = null;
+    let isEditing = false;
+    let editingMessageElement = null;
+
+    let mediaRecorder;
+    let audioChunks = [];
+    let isRecording = false;
+    let recordingStartTime;
+
+    function addMessage(text, isSent, imageUrl = null, audioUrl = null, duration = null) {
+        if (!text?.trim() && !imageUrl && !audioUrl) return;
+        const messageId = `msg-${messageCounter++}`;
+        const messageDiv = document.createElement('div');
+        messageDiv.id = messageId;
+        messageDiv.classList.add('message', isSent ? 'message-right' : 'message-left');
+
+        if (audioUrl) {
+            const audioContainer = document.createElement('div');
+            audioContainer.classList.add('voice-message-controls');
+            const audio = new Audio(audioUrl);
+            const playPauseButton = document.createElement('button');
+            playPauseButton.classList.add('play-pause-button');
+            playPauseButton.innerHTML = '<i class="material-icons play-pause-icon">play_arrow</i>';
+            const waveformContainer = document.createElement('div');
+            waveformContainer.classList.add('voice-waveform');
+            const numBars = 15;
+            for (let i = 0; i < numBars; i++) {
+                const bar = document.createElement('span');
+                bar.classList.add('waveform-bar');
+                bar.style.setProperty('--bar-height-factor', Math.random());
+                waveformContainer.appendChild(bar);
+            }
+            const durationSpan = document.createElement('span');
+            durationSpan.classList.add('duration');
+            durationSpan.textContent = formatDuration(duration || 0);
+            let isPlaying = false;
+            playPauseButton.onclick = () => { if (isPlaying) audio.pause(); else audio.play(); };
+            audio.onplay = () => { isPlaying = true; playPauseButton.innerHTML = '<i class="material-icons play-pause-icon">pause</i>'; waveformContainer.classList.add('playing'); };
+            audio.onpause = audio.onended = () => { isPlaying = false; playPauseButton.innerHTML = '<i class="material-icons play-pause-icon">play_arrow</i>'; waveformContainer.classList.remove('playing'); audio.currentTime = 0; };
+            audio.onloadedmetadata = () => { if (!duration) durationSpan.textContent = formatDuration(audio.duration); };
+            audioContainer.appendChild(playPauseButton);
+            audioContainer.appendChild(waveformContainer);
+            audioContainer.appendChild(durationSpan);
+            messageDiv.appendChild(audioContainer);
+        } else if (imageUrl) {
+            const img = document.createElement('img');
+            img.src = imageUrl;
+            messageDiv.appendChild(img);
+        }
+
+        if (text?.trim() && !audioUrl) {
+            const textSpan = document.createElement('span');
+            textSpan.textContent = text;
+            messageDiv.appendChild(textSpan);
+        }
+
+        const metaSpan = document.createElement('span');
+        metaSpan.classList.add('message-meta');
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        metaSpan.textContent = `${hours}:${minutes}`;
+        messageDiv.appendChild(metaSpan);
+
+        if (isSent && !audioUrl && !imageUrl) {
+            messageDiv.dataset.status = "Не прочитано";
+            setTimeout(() => {
+                const currentMessage = document.getElementById(messageId);
+                if (currentMessage && !currentMessage.classList.contains('deleted')) {
+                    currentMessage.dataset.status = "Прочитано";
+                }
+            }, 5000);
+        }
+
+        messagesArea.appendChild(messageDiv);
+        messagesArea.scrollTop = messagesArea.scrollHeight;
+    }
+
+    function formatDuration(seconds) {
+        if (isNaN(seconds) || seconds === Infinity) return "0:00";
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = Math.floor(seconds % 60);
+        return `${minutes}:${String(remainingSeconds).padStart(2, '0')}`;
+    }
+
+    async function startRecording() {
+        if (isRecording) return;
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            audioChunks = [];
+            mediaRecorder.ondataavailable = event => audioChunks.push(event.data);
+            mediaRecorder.onstop = () => {
+                if (audioChunks.length === 0 || audioChunks[0].size === 0) {
+                     stream.getTracks().forEach(track => track.stop());
+                     isRecording = false; micButton.classList.remove('recording'); return;
+                }
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                const audioUrl = URL.createObjectURL(audioBlob);
+                const duration = (Date.now() - recordingStartTime) / 1000;
+                addMessage(null, true, null, audioUrl, duration);
+                stream.getTracks().forEach(track => track.stop());
+                isRecording = false; micButton.classList.remove('recording');
+            };
+            mediaRecorder.start();
+            isRecording = true; recordingStartTime = Date.now(); micButton.classList.add('recording');
+        } catch (err) {
+            alert("Не удалось получить доступ к микрофону. Проверьте разрешения.");
+            isRecording = false; micButton.classList.remove('recording');
+        }
+    }
+
+    function stopRecording() {
+        if (!isRecording || !mediaRecorder || mediaRecorder.state !== 'recording') return;
+        mediaRecorder.stop();
+    }
+
+    function showMessageActions(messageElement) {
+        cancelEdit();
+        currentTargetMessage = messageElement;
+        messageActionModalContent.innerHTML = '';
+
+        const isMyMessage = messageElement.classList.contains('message-right');
+        const isTextMessage = !!messageElement.querySelector('span:not(.message-meta)');
+        const isImageMessage = !!messageElement.querySelector('img');
+        const isVoiceMessage = !!messageElement.querySelector('.voice-message-controls');
+        const options = [];
+
+        // Добавляем кнопку "Reply"
+        options.push({ action: 'reply', icon: 'reply', text: 'Reply' });
+
+        // Только для текстовых сообщений показываем "Copy" и "Edit"
+        if (isTextMessage && !isVoiceMessage) {
+            options.push({ action: 'copy', icon: 'content_copy', text: 'Copy' });
+        }
+
+        options.push({ action: 'info', icon: 'info_outline', text: 'Info' });
+
+        if (isMyMessage) {
+            if (isTextMessage && !isVoiceMessage) {
+                options.splice(2, 0, { action: 'edit', icon: 'edit', text: 'Edit' });
+            }
+            options.push({ action: 'delete', icon: 'delete_outline', text: 'Delete', color: '#FF5252' });
+        } else {
+            options.push({ action: 'delete-me-only', icon: 'delete_outline', text: 'Delete for me', color: '#FF5252' });
+        }
+
+        options.forEach(opt => {
+            const optionDiv = document.createElement('div');
+            optionDiv.classList.add('modal-option');
+            optionDiv.dataset.action = opt.action;
+
+            const icon = document.createElement('i');
+            icon.classList.add('material-icons');
+            icon.textContent = opt.icon;
+
+            const span = document.createElement('span');
+            span.textContent = opt.text;
+
+            optionDiv.appendChild(icon);
+            optionDiv.appendChild(span);
+            messageActionModalContent.appendChild(optionDiv);
+        });
+
+        messageActionModal.style.display = 'flex';
+        messageActionModal.style.justifyContent = 'center';
+        messageActionModal.style.alignItems = 'center';
+    }
+
+    function hideMessageActions() { messageActionModal.style.display = 'none'; }
+    function showDeleteConfirmation() {
+        deleteConfirmModal.style.display = 'flex';
+    }
+    function hideDeleteConfirmation() { deleteConfirmModal.style.display = 'none'; }
+
+    function performDelete(type) {
+        if (!currentTargetMessage) return;
+        if (type === 'me') { currentTargetMessage.remove(); }
+        else if (type === 'all') {
+            currentTargetMessage.innerHTML = '<span>🗑 Сообщение удалено</span>';
+            currentTargetMessage.classList.add('deleted');
+            currentTargetMessage.removeAttribute('data-status');
+            currentTargetMessage.onclick = null;
+        }
+        hideMessageActions(); hideDeleteConfirmation(); currentTargetMessage = null;
+    }
+
+    function startEdit(messageElement) {
+        if (!messageElement || !messageElement.classList.contains('message-right')) return;
+        const textSpan = messageElement.querySelector('span:not(.message-meta)');
+        if (textSpan) {
+            isEditing = true; editingMessageElement = messageElement;
+            messageInput.value = textSpan.textContent; messageInput.focus();
+        } else { cancelEdit(); }
+    }
+
+    function cancelEdit() {
+        if (isEditing) {
+            isEditing = false; editingMessageElement = null; messageInput.value = ''; toggleSendMicButton();
+        }
+    }
+
+    function saveEdit() {
+        if (!isEditing || !editingMessageElement) return;
+        const newText = messageInput.value.trim();
+        const textSpan = editingMessageElement.querySelector('span:not(.message-meta)');
+        if (!newText) { cancelEdit(); return; }
+        if (textSpan) {
+            textSpan.textContent = newText;
+            let metaSpan = editingMessageElement.querySelector('.message-meta');
+            if (metaSpan) {
+                let editedIndicator = metaSpan.querySelector('.edited-indicator');
+                if (!editedIndicator) {
+                    editedIndicator = document.createElement('span');
+                    editedIndicator.classList.add('edited-indicator');
+                    editedIndicator.textContent = '(edited)';
+                    metaSpan.insertBefore(document.createTextNode(' '), metaSpan.firstChild);
+                    metaSpan.insertBefore(editedIndicator, metaSpan.firstChild);
+                }
+            }
+        }
+        isEditing = false; editingMessageElement = null; messageInput.value = ''; toggleSendMicButton();
+    }
+
+    function showReply(messageElement) {
+        const messageTextElement = messageElement.querySelector('span:not(.message-meta)');
+        const messageText = messageTextElement?.textContent || "Сообщение без текста";
+        const senderName = messageElement.classList.contains('message-right') ? 'you' : messageElement.querySelector('.sender-name')?.textContent || 'Unknown';
+
+        replyToMessage = messageElement;
+
+        replyText.innerHTML = `<strong>${senderName}:</strong> ${messageText}`;
+        replyContainer.style.display = 'flex';
+        messageInput.focus();
+    }
+
+    function cancelReply() {
+        replyToMessage = null;
+        replyContainer.style.display = 'none';
+        replyText.textContent = '';
+    }
+
+    function addMessageWithReply(text, isSent, replyTo = null) {
+        if (!text?.trim()) return;
+
+        const messageId = `msg-${messageCounter++}`;
+        const messageDiv = document.createElement('div');
+        messageDiv.id = messageId;
+        messageDiv.classList.add('message', isSent ? 'message-right' : 'message-left');
+
+        // Добавляем блок ответа, если есть сообщение, на которое отвечаем
+        if (replyTo) {
+            const replyDiv = document.createElement('div');
+            replyDiv.classList.add('reply-preview');
+
+            // Получаем имя отправителя и текст сообщения
+            const senderName = replyTo.classList.contains('message-right') ? 'you' : replyTo.querySelector('.sender-name')?.textContent || 'Unknown';
+            const replyTextContent = replyTo.querySelector('span:not(.message-meta)')?.textContent || 'Сообщение без текста';
+
+            replyDiv.innerHTML = `
+                <span class="reply-sender">${senderName}</span>
+                <span class="reply-text">${replyTextContent}</span>
+            `;
+            messageDiv.appendChild(replyDiv);
+        }
+
+        // Добавляем текст нового сообщения
+        const textSpan = document.createElement('span');
+        textSpan.textContent = text;
+        messageDiv.appendChild(textSpan);
+
+        // Добавляем метаинформацию (время)
+        const metaSpan = document.createElement('span');
+        metaSpan.classList.add('message-meta');
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        metaSpan.textContent = `${hours}:${minutes}`;
+        messageDiv.appendChild(metaSpan);
+
+        // Добавляем сообщение в область сообщений
+        messagesArea.appendChild(messageDiv);
+        messagesArea.scrollTop = messagesArea.scrollHeight;
+    }
+
+    function handleMessageAction(action) {
+        if (!currentTargetMessage) return;
+
+        const messageTextElement = currentTargetMessage.querySelector('span:not(.message-meta)');
+        const messageText = messageTextElement?.textContent || "";
+        const isMyMessage = currentTargetMessage.classList.contains('message-right');
+
+        hideMessageActions();
+
+        switch (action) {
+            case 'reply':
+                showReply(currentTargetMessage);
+                break;
+            case 'copy':
+                if (messageText) {
+                    navigator.clipboard.writeText(messageText)
+                        .then(() => alert('Copied!'))
+                        .catch(err => alert('Failed.'));
+                } else {
+                    alert('Nothing to copy.');
+                }
+                break;
+            case 'edit':
+                if (isMyMessage && messageTextElement) {
+                    startEdit(currentTargetMessage);
+                }
+                break;
+            case 'info':
+                alert(`Message Info:\n\nText: "${messageText}"`);
+                break;
+            case 'delete':
+                if (isMyMessage) {
+                    showDeleteConfirmation();
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    function toggleSendMicButton() {
+        if (messageInput.value.trim() === '') chatFooter.classList.add('input-empty');
+        else chatFooter.classList.remove('input-empty');
+    }
+
+    sendButton.addEventListener('click', () => { 
+    if (isEditing) {
+        saveEdit();
+    } else {
+        sendMessageToServer();
+    }
+});
+    messageInput.addEventListener('keypress', (event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); if (!chatFooter.classList.contains('input-empty')) sendButton.click(); } });
+    messageInput.addEventListener('input', toggleSendMicButton);
+
+    messagesArea.addEventListener('click', (event) => {
+      const clickedMessage = event.target.closest('.message:not(.deleted)');
+      if (clickedMessage && !event.target.closest('.play-pause-button') && event.target.tagName !== 'A') {
+        if (isEditing && clickedMessage === editingMessageElement) cancelEdit();
+        else showMessageActions(clickedMessage);
+      } else if (!event.target.closest('#messageActionModal .modal-content') && !event.target.closest('.play-pause-button')) {
+          hideMessageActions(); cancelEdit();
+      }
+    });
+
+    messageActionModal.addEventListener('click', (event) => {
+        const targetOption = event.target.closest('.modal-option');
+        if (targetOption) handleMessageAction(targetOption.dataset.action);
+        else if (event.target === messageActionModal) {
+             hideMessageActions(); currentTargetMessage = null;
+        }
+    });
+
+    deleteConfirmModal.addEventListener('click', (event) => {
+    const targetButton = event.target.closest('[data-action]');
+    if (targetButton) {
+        const action = targetButton.dataset.action;
+        if (action === 'delete-me') {
+            performDelete('me');
+        } else if (action === 'delete-all') {
+            performDelete('all');
+        } else if (action === 'cancel-delete') {
+            hideDeleteConfirmation();
+        }
+    } else if (event.target === deleteConfirmModal) {
+        hideDeleteConfirmation();
+    }
+});
+
+    chatHeader.addEventListener('click', (event) => { if (!event.target.closest('button')) { cancelEdit(); alert("User Info:\n\nName: Name\nStatus: online..."); } });
+
+    emojiButton.addEventListener('click', (event) => { event.stopPropagation(); emojiPicker.style.display = emojiPicker.style.display === 'block' ? 'none' : 'block'; });
+    emojiPicker.addEventListener('emoji-click', event => {
+      const emoji = event.detail.unicode; const start = messageInput.selectionStart; const end = messageInput.selectionEnd;
+      messageInput.value = messageInput.value.substring(0, start) + emoji + messageInput.value.substring(end);
+      messageInput.selectionStart = messageInput.selectionEnd = start + emoji.length; messageInput.focus(); toggleSendMicButton();
+    });
+    document.addEventListener('click', (event) => {
+        if (!emojiButton.contains(event.target) && !emojiPicker.contains(event.target)) if (emojiPicker.style.display === 'block') emojiPicker.style.display = 'none';
+    });
+
+    attachButton.addEventListener('click', () => imageFileInput.click());
+    imageFileInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (file && file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = (e) => { addMessage(messageInput.value.trim() || null, true, e.target.result); messageInput.value = ''; toggleSendMicButton(); };
+            reader.onerror = (e) => alert("Failed to read image file.");
+            reader.readAsDataURL(file);
+        } else if (file) alert("Please select an image file.");
+        event.target.value = null;
+    });
+
+    micButton.addEventListener('mousedown', startRecording);
+    micButton.addEventListener('mouseup', stopRecording);
+    micButton.addEventListener('mouseleave', () => { if (isRecording) stopRecording(); });
+    micButton.addEventListener('touchstart', (e) => { e.preventDefault(); startRecording(); });
+    micButton.addEventListener('touchend', (e) => { e.preventDefault(); stopRecording(); });
+
+    // === Добавляем обработчик события для кнопки меню ===
+    menuButton.addEventListener('click', () => {
+        window.location.href = './groupInfo.html'; // Переходим на groupInfo.html
+    });
+    // ===================================================
+
+    messagesArea.scrollTop = messagesArea.scrollHeight;
+    toggleSendMicButton();
+
+    // Add event listener for back button
+    document.querySelector('.back-button').addEventListener('click', function() {
+        window.location.href = './groups.html';
+    });
+
+    cancelReplyButton.addEventListener('click', cancelReply);
+
+    function cancelReply() {
+        replyToMessage = null;
+        replyContainer.style.display = 'none';
+        replyText.textContent = '';
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const chatNameElement = document.querySelector('.chat-name');
+        const currentGroupName = localStorage.getItem('currentGroupName') || 'Group Name'; // Значение по умолчанию
+        chatNameElement.textContent = currentGroupName;
+
+        /* ---- НАЧАЛО КОММЕНТАРИЯ ----
+        // Загружаем сообщения для текущей группы (Больше не нужно, если хотим пустой чат)
+        const allMessages = JSON.parse(localStorage.getItem('messages')) || {};
+        const groupMessages = allMessages[currentGroupName] || []; // Сообщения только для текущей группы
+
+        groupMessages.forEach(message => {
+            addMessage(message.text, message.isSent, message.imageUrl, message.audioUrl, message.duration);
+        });
+        ---- КОНЕЦ КОММЕНТАРИЯ ---- */
+
+        // Очищаем область сообщений при загрузке (дополнительная гарантия)
+        messagesArea.innerHTML = ''; // Добавьте эту строку, чтобы точно очистить
+
+    }); // Конец обработчика DOMContentLoaded
+    // --- Начало кода для Socket.IO ---
+
+    // Подключаемся к серверу Socket.IO (укажите правильный URL вашего бэкенда)
+    const socket = io("http://127.0.0.1:5000");
+
+    // Обработчик успешного подключения
+    socket.on("connect", () => {
+        console.log("Успешно подключено к WebSocket серверу! ID:", socket.id);
+        // TODO: Отправить JWT токен для аутентификации на сервере
+        // const token = localStorage.getItem('jwt_token');
+        // if (token) {
+        //     socket.emit('authenticate', { token: token });
+        // }
+    });
+
+    // Обработчик ошибки подключения
+    socket.on("connect_error", (err) => {
+        console.error("Ошибка подключения к WebSocket:", err.message);
+        // Можно показать сообщение пользователю
+        // messagesArea.innerHTML += `<div style="text-align: center; color: red;">Не удалось подключиться к чату.</div>`;
+    });
+
+    // Обработчик отключения
+    socket.on("disconnect", (reason) => {
+        console.log("Отключено от WebSocket:", reason);
+    });
+
+    // Функция для добавления ПОЛУЧЕННОГО сообщения в интерфейс
+    // Адаптируем вашу функцию addMessage или используем новую логику
+    function displayReceivedMessage(data) {
+        console.log("Получено сообщение:", data);
+        const messageText = data.message;
+        const senderSid = data.sender_sid; // ID отправителя от Socket.IO
+
+        // Определяем, является ли сообщение "своим" (сравнивая SID)
+        // В реальном приложении лучше использовать user_id или username, полученные после аутентификации
+        const isSent = false; // Сообщение получено от другого клиента
+
+        // Вызываем вашу существующую функцию addMessage, передавая нужные параметры
+        // Возможно, потребуется передать имя отправителя (пока используем SID)
+        // Если ваша addMessage не принимает имя отправителя, нужно будет его модифицировать
+        // или создать новую функцию для отображения
+        addMessage(`${senderSid}: ${messageText}`, isSent); // Передаем текст и флаг isSent=false
+    }
+
+    // Слушаем событие 'receive_message' от сервера
+    socket.on('receive_message', displayReceivedMessage);
+
+    // Функция отправки сообщения на сервер (ЗАМЕНЯЕТ часть логики в вашем обработчике sendButton)
+    function sendMessageToServer() {
+        const messageText = messageInput.value.trim();
+        if (messageText) {
+            console.log("Отправка сообщения:", messageText);
+            // Отправляем событие 'send_message' на сервер
+            socket.emit('send_message', { message: messageText });
+
+            // Отображаем собственное сообщение сразу (используя вашу функцию addMessage)
+            addMessage(messageText, true); // Отображаем как исходящее (isSent = true)
+
+            messageInput.value = ''; // Очищаем поле ввода
+            toggleSendMicButton(); // Обновляем состояние кнопок
+            cancelReply(); // Сбрасываем режим ответа, если он был активен
+        }
+    }
+
+    // --- Интеграция с существующими обработчиками ---
+
+    // НАЙДИТЕ ваш существующий обработчик для sendButton:
+    // sendButton.addEventListener('click', () => { ... });
+    // И ЗАМЕНИТЕ его на этот:
+    sendButton.addEventListener('click', () => {
+        if (isEditing) {
+            saveEdit(); // Логика редактирования остается
+        } else {
+            // Вместо прямого вызова addMessage или addMessageWithReply,
+            // вызываем функцию отправки на сервер
+            sendMessageToServer();
+        }
+        // Очистка поля и обновление кнопок уже внутри sendMessageToServer
+    });
+
+    // НАЙДИТЕ ваш существующий обработчик для Enter:
+    // messageInput.addEventListener('keypress', (event) => { ... });
+    // И ЗАМЕНИТЕ его на этот:
+    messageInput.addEventListener('keypress', (event) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault(); // Предотвращаем перенос строки
+            if (!chatFooter.classList.contains('input-empty')) {
+                sendButton.click(); // Имитируем клик по кнопке отправки (которая теперь вызывает sendMessageToServer)
+            }
+        }
+    });
+
+    // УДАЛИТЕ эту функцию из вашего старого кода, так как отправка теперь идет через sendMessageToServer
+    // function sendMessage(text) { ... }
+
+    // --- Конец кода для Socket.IO ---
+</script>
+</body>
+</html>

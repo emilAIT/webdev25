@@ -1,0 +1,121 @@
+body {
+    font-family: Roboto, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #112c3c;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    width: 340px;
+    max-width: 95vw;
+    height: 700px;
+    max-height: 95vh;
+    position: relative;
+    background: #838A98;
+    border-radius: 20px;
+    overflow: auto;
+    color: black;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 20px 20px 20px;
+    box-sizing: border-box;
+}
+
+.back-button {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: black;
+    font-size: 16px;
+    z-index: 2;
+}
+
+.back-button .material-icons {
+    font-size: 24px;
+    color: black;
+}
+
+.header {
+    width: 100%;
+    text-align: center;
+    margin-top: 80px;
+    margin-bottom: 30px;
+    font-size: 32px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+.sections {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+    overflow-y: auto;
+    padding-bottom: 10px;
+}
+
+.section {
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 24px;
+    text-align: center;
+    width: 90%;
+    /* background: #fff; */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    transition: background 0.3s;
+}
+
+.section:hover {
+    background: #f0f0f0;
+}
+
+  /* Добавим базовые стили для иконок и секций прямо здесь,
+           но лучше перенести их в privary.css */
+           .section {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+          }
+          .section .material-icons {
+            margin-right: 15px; /* Отступ справа от иконки */
+            color: #555; /* Цвет иконки */
+          }
+          .back-button {
+              background: none;
+              border: none;
+              cursor: pointer;
+              padding: 10px;
+              position: absolute; /* Или другое позиционирование */
+              top: 10px;
+              left: 10px;
+          }
+          .header {
+              text-align: center; /* Или left, если нужно слева */
+              padding-top: 15px; /* Отступ сверху */
+              padding-bottom: 15px;
+              font-size: 1.2em;
+              font-weight: bold;
+              /* Убедитесь, что здесь нет background-color: white; */
+          }
+          .container {
+              position: relative; /* Для позиционирования кнопки "Назад" */
+              padding-top: 50px; /* Добавим отступ сверху, чтобы кнопка и заголовок не накладывались */
+          }

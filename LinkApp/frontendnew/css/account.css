@@ -1,0 +1,110 @@
+body {
+  margin: 0;
+    font-family: 'Roboto', sans-serif;
+    background-color: #112c3c;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+  width: 340px;
+  max-width: 95vw;
+  height: 700px;
+  max-height: 95vh;
+  background: #838A98;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  box-sizing: border-box;
+  overflow: auto; /* Если содержимое выходит за пределы — появляется скролл */
+  position: relative;
+}
+
+
+.icon-container {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #fff;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.icon-container:hover {
+  background: #fff;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.text-title {
+  font-size: 20px;
+  font-weight: bol;
+  color: #110303;
+  margin-left: 15px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  width: 100%;           /* Добавьте это */
+  justify-content: flex-start; 
+}
+
+.circle {
+  width: 40px;
+  height: 40px;
+  background: #fff;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 15px;
+  cursor: pointer;
+}
+
+.circle:hover {
+  background: #0d0c0c;
+}
+
+.text {
+  font-size: 14px;
+  font-weight: 400;
+  color: black;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.text:hover {
+  text-decoration: underline;
+}
+@media (max-width: 1290px) {
+  .iphone-container {
+      max-width: 90%; /* Уменьшение ширины для небольших экранов */
+      height: auto; /* Автоматическая высота */
+  }
+}
+
+@media (max-width: 768px) {
+  .iphone-container {
+      max-width: 100%; /* Использовать всю ширину экрана */
+      height: auto; /* Автоматическая высота */
+      margin-top: 20px; /* Уменьшение отступа сверху */
+  }
+}

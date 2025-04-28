@@ -1,0 +1,37 @@
+/* Set the background color for the entire page */
+body {
+    background-color: #112c3c;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+/* Style for the div */
+div {
+    background-color: #838A98;
+    height: 100vh; /* Full height of the browser window */
+    width: 100%; /* Full width of the screen */
+    max-width: 440px; /* Maximum width of 440px */
+    margin: 0 auto; /* Center the div horizontally */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Style for buttons */
+button {
+    background-color: #7494EC;
+    width: 300px;
+    height: 40px;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #5a7bd1; /* Slightly darker shade on hover */
+}
+
+/* Центрирование контейнера */

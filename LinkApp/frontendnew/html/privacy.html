@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ru"> <!-- Укажем язык как русский -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Конфиденциальность</title> <!-- Заголовок на русском -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Убедитесь, что путь к CSS правильный. Возможно, 'privary.css' должно быть 'privacy.css' -->
+    <link rel="stylesheet" href="../css/privary.css">
+</head>
+<body>
+
+<div class="container">
+    <!-- Кнопка "Назад" -->
+    <button onclick="goBack()" class="back-button">
+        <span class="material-icons">arrow_back</span>
+    </button>
+
+    <!-- Заголовок -->
+    <!-- Убедитесь, что у этого div нет инлайн-стиля background -->
+    <div class="header">Конфиденциальность</div> <!-- Текст на русском -->
+
+    <!-- Секции -->
+    <div class="sections">
+        <div class="section" onclick="openGroups()">
+            <span class="material-icons">group</span> <!-- Иконка группы -->
+            <span>Группы</span> <!-- Текст на русском -->
+        </div>
+        <div class="section" onclick="openBlockedContacts()">
+            <span class="material-icons">block</span> <!-- Иконка заблокированных -->
+            <span>Заблокированные контакты</span> <!-- Текст на русском -->
+        </div>
+    </div>
+</div>
+
+<script>
+    function goBack() {
+        window.history.back(); // Возвращает пользователя на предыдущую страницу
+    }
+
+    function openGroups() {
+        // Логика для открытия раздела Группы
+        alert("Открытие раздела Группы..."); // Сообщение на русском
+    }
+
+    function openBlockedContacts() {
+        // Логика для открытия раздела Заблокированные контакты
+        alert("Открытие раздела Заблокированные контакты..."); // Сообщение на русском
+    }
+</script>
+
+</body>
+</html>

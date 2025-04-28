@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Message Info</title>
+    <link rel="stylesheet" href="../css/messageinfo.css"> <!-- Подключение CSS -->
+    
+</head>
+<body>
+    <div class="container">
+        <!-- Кнопка "Назад" -->
+        <button class="back-button" onclick="goBack()">
+            <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 96 960 960" width="24" fill="black">
+                <path d="M560 976 160 576l400-400 56 56-344 344 344 344-56 56Z"/>
+            </svg>
+        </button>
+
+        <!-- Заголовок -->
+        <div class="header">Message info</div>
+
+        <!-- Разделитель -->
+        <div class="divider"></div>
+
+        <!-- Дата -->
+        <div class="date">Yesterday</div>
+
+        <!-- Сообщение -->
+        <div class="message">
+            <div class="message-text">or we could make this?</div>
+        </div>
+
+        <!-- Статусы -->
+        <div class="status-container">
+            <!-- Статус "Прочитано" -->
+            <div class="status">
+                <div class="status-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 96 960 960" width="24" fill="#247D98">
+                        <path d="M378 792 174 588l43-43 161 161 365-365 43 43-408 408Z"/>
+                    </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 96 960 960" width="24" fill="#247D98" style="margin-left: -12px;">
+                        <path d="M378 792 174 588l43-43 161 161 365-365 43 43-408 408Z"/>
+                    </svg>
+                </div>
+                <div class="status-text">Read</div>
+                <div class="status-time">
+                    <span class="status-date">yesterday</span>
+                    <span class="status-hour">18:19</span>
+                </div>
+            </div>
+
+            <!-- Статус "Доставлено" -->
+            <div class="status">
+                <div class="status-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 96 960 960" width="24" fill="#79747E">
+                        <path d="M378 792 174 588l43-43 161 161 365-365 43 43-408 408Z"/>
+                    </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 96 960 960" width="24" fill="#79747E" style="margin-left: -12px;">
+                        <path d="M378 792 174 588l43-43 161 161 365-365 43 43-408 408Z"/>
+                    </svg>
+                </div>
+                <div class="status-text">Delivered</div>
+                <div class="status-time">
+                    <span class="status-date">yesterday</span>
+                    <span class="status-hour">18:19</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function goBack() {
+            window.history.back(); // Возвращает пользователя на предыдущую страницу
+        }
+    </script>
+</body>
+</html>

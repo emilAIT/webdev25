@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account</title>
+  
+    <link rel="stylesheet" href="../css/account.css">
+</head>
+<body>
+<div class="container">
+ 
+  <div class="header">
+    <div class="icon-container" onclick="goBack()">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20">
+        <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6z"/>
+      </svg>
+    </div>
+    <div class="text-title">Аккаунт</div>
+  </div>
+  <div class="row">
+    <div class="circle" onclick="editEmail()">📧</div>
+    <div class="text" onclick="editEmail()">Адрес электронной почты</div>
+  </div>
+  <div class="row">
+    <div class="circle" onclick="editPhone()">📞</div>
+    <div class="text" onclick="editPhone()">Изменить номер телефона</div>
+  </div>
+  <div class="row">
+    <div class="circle" onclick="deleteAccount()">🗑️</div>
+    <div class="text" onclick="deleteAccount()">Удалить аккаунт</div>
+  </div>
+</div>
+
+<script>
+  function goBack() {
+    window.location.href = "../html/settings.html"; // Возврат на groupInfo.html
+  }
+
+  function editEmail() {
+    window.location.href = "./emailAdress.html"; // Переход на emailAdress.html
+  }
+
+  function editPhone() {
+    window.location.href = "./changeNumber.html"; // Переход на changeNumber.html
+  }
+
+  function deleteAccount() {
+    if (confirm('Are you sure you want to delete your account?')) {
+      alert('Account deleted.');
+      // Здесь можно добавить логику для удаления аккаунта
+    }
+  }
+</script>
+</body>
+</html>

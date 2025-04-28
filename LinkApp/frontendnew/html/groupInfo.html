@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group Info</title>
+    <link rel="stylesheet" href="../css/groupInfo.css">
+    <style>
+        /* Add CSS for the confirmation modal */
+        .modal-confirm {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-confirm .modal-content {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 300px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .modal-text {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            justify-content: space-around;
+        }
+        
+        .modal-buttons button {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        #clear-yes-btn {
+            background-color: #ff4d4d;
+            color: white;
+        }
+        
+        #clear-no-btn {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="group-info">
+        <div class="header">
+            <div class="back-arrow" onclick="goBack()">←</div>
+            <div class="title">Информация о группе</div>         
+            <button class="edit-button">Изменить</button>
+        </div>
+        <div class="profile-pic">
+            <img src="https://via.placeholder.com/80" alt="Profile Icon">
+        </div>
+        <div class="group-details">
+            <div class="group-name">Group: <span id="member-count">0</span> members</div>
+        </div>
+        <div class="buttons">
+            <button id="add-members-btn">
+                <span class="icon">+</span> Добавить участников
+            </button>
+            <button id="remove-members-btn">
+                <span class="icon">🗑️</span> Удалить участников
+            </button>
+        </div>
+        <div class="members" id="members-list">
+            <!-- Участники будут добавлены динамически -->
+        </div>
+        <div class="footer-buttons">
+            <button id="clear-chat-btn">Очистка чата</button>
+            <button id="leave-group-btn">Выйти из группы</button>
+        </div>
+    </div>
+
+    <!-- Add confirmation modal -->
+    <div id="clear-chat-modal" class="modal-confirm">
+        <div class="modal-content">
+            <div class="modal-text">Вы уверены, что хотите очистить чат?</div>            <div class="modal-buttons">
+                <button id="clear-yes-btn">Да</button>
+                <button id="clear-no-btn">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="leave-group-modal" class="modal-confirm">
+        <div class="modal-content">
+            <div class="modal-text">Вы уверены, что хотите выйти из группы?</div>
+            <div class="modal-buttons">
+                <button id="leave-yes-btn">Да</button>
+                <button id="leave-no-btn">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно для добавления участников -->
+    <div id="add-members-modal" class="modal-confirm">
+        <div class="modal-content">
+            <div class="modal-text">Добавить участников</div>
+            <div class="member-list" id="add-member-list">
+                <!-- Список контактов будет добавлен динамически -->
+            </div>
+            <div class="modal-buttons">
+                <button id="add-members-save-btn">Сохранить</button>
+                <button id="add-members-cancel-btn">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно для удаления участников -->
+    <div id="remove-members-modal" class="modal-confirm">
+        <div class="modal-content">
+            <div class="modal-text">Удалить участников</div>
+            <div class="member-list" id="remove-member-list">
+                <!-- Список участников будет добавлен динамически -->
+            </div>
+            <div class="modal-buttons">
+                <button id="remove-members-save-btn">Удалить</button>
+                <button id="remove-members-cancel-btn">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Массив участников
+        const members = [
+            { name: "Alice", phone: "+9991111111" },
+            { name: "Bob", phone: "+9992222222" },
+            { name: "Charlie", phone: "+9993333333" },
+            { name: "David", phone: "+9994444444" },
+            { name: "Eve", phone: "+9995555555" },
+            { name: "Frank", phone: "+9996666666" },
+        ];
+
+        // Обновление количества участников
+        document.getElementById("member-count").textContent = members.length;
+
+        // Контейнер для списка участников
+        const membersList = document.getElementById("members-list");
+
+        // Генерация участников
+        members.forEach(member => {
+            const userData = JSON.parse(localStorage.getItem(member.phone)); // Проверяем, есть ли обновленные данные
+            const displayName = userData ? `${userData.name} ${userData.lastName || ''}`.trim() : member.name;
+
+            const memberItem = document.createElement("div");
+            memberItem.className = "member-item";
+            memberItem.onclick = () => {
+                openMemInfo(member.phone);
+            };
+
+            memberItem.innerHTML = `
+                <div class="member-icon"></div>
+                <div class="member-name">${displayName}</div>
+                <div class="arrow">></div>
+            `;
+
+            membersList.appendChild(memberItem);
+        });
+
+        function openMemInfo(phone) {
+            window.location.href = `./meminfo.html?phone=${encodeURIComponent(phone)}`;
+        }
+
+        function goBack() {
+            // --- Change the target file here ---
+            window.location.href = "./groupchan.html"; // Navigate to groupchan.html
+            // ------------------------------------
+        }
+
+        function setDynamicName() {
+            const currentGroupName = localStorage.getItem('currentGroupName') || 'Group Name'; // Значение по умолчанию
+            document.querySelector('.group-name').textContent = currentGroupName;
+        }
+
+        // Вызов функции при загрузке страницы
+        setDynamicName();
+
+        // --- Add event listeners for buttons (if not already done) ---
+        const addMembersButton = document.getElementById('add-members-btn');
+        const removeMembersButton = document.getElementById('remove-members-btn');
+        const editButton = document.querySelector(".edit-button");
+
+        if (addMembersButton) {
+            addMembersButton.addEventListener('click', () => {
+                window.location.href = './addmems.html';
+            });
+        }
+
+        if (editButton) {
+            editButton.addEventListener('click', () => {
+                window.location.href = './editgroup.html';
+            });
+        }
+
+        // Add ID to the clear chat button and get modal elements
+        const clearChatBtn = document.getElementById("clear-chat-btn");
+        const clearChatModal = document.getElementById("clear-chat-modal");
+        const clearYesBtn = document.getElementById("clear-yes-btn");
+        const clearNoBtn = document.getElementById("clear-no-btn");
+
+        // Show modal when Clear chat is clicked
+        clearChatBtn.addEventListener('click', function() {
+            clearChatModal.style.display = 'flex';
+        });
+
+        // Close modal when No is clicked
+        clearNoBtn.addEventListener('click', function() {
+            clearChatModal.style.display = 'none';
+        });
+
+        // Clear chat and close modal when Yes is clicked
+        clearYesBtn.addEventListener('click', function () {
+            // Получаем название текущей группы
+            const currentGroupName = localStorage.getItem('currentGroupName');
+
+            // Загружаем все сообщения из localStorage
+            const allMessages = JSON.parse(localStorage.getItem('messages')) || {};
+
+            // Удаляем сообщения только для текущей группы
+            if (currentGroupName && allMessages[currentGroupName]) {
+                delete allMessages[currentGroupName];
+            }
+
+            // Сохраняем обновленные сообщения обратно в localStorage
+            localStorage.setItem('messages', JSON.stringify(allMessages));
+
+            // Уведомляем пользователя
+            alert(`Чат группы "${currentGroupName}" успешно очищен!`);
+
+            // Закрываем модальное окно
+            clearChatModal.style.display = 'none';
+
+            // Обновляем интерфейс (очищаем сообщения на странице)
+            const messagesArea = document.getElementById('messagesArea');
+            if (messagesArea) {
+                messagesArea.innerHTML = ''; // Очищаем сообщения на странице
+            }
+        });
+
+        // Получаем элементы модального окна для выхода из группы
+        const leaveGroupBtn = document.getElementById('leave-group-btn'); // Кнопка "Выйти из группы"
+        const leaveGroupModal = document.getElementById('leave-group-modal');
+        const leaveYesBtn = document.getElementById('leave-yes-btn');
+        const leaveNoBtn = document.getElementById('leave-no-btn');
+
+        // Показать модальное окно при нажатии на "Выйти из группы"
+        leaveGroupBtn.addEventListener('click', function () {
+            leaveGroupModal.style.display = 'flex';
+        });
+
+        // Закрыть модальное окно при нажатии на "Отмена"
+        leaveNoBtn.addEventListener('click', function () {
+            leaveGroupModal.style.display = 'none';
+        });
+
+        // Удалить группу и выйти при нажатии на "Да"
+        leaveYesBtn.addEventListener('click', function () {
+            // Получаем список групп из localStorage
+            const groups = JSON.parse(localStorage.getItem('groups')) || [];
+            const currentGroupName = localStorage.getItem('currentGroupName'); // Имя текущей группы
+
+            // Фильтруем список групп, исключая текущую группу
+            const updatedGroups = groups.filter(group => group.name !== currentGroupName);
+
+            // Сохраняем обновлённый список групп в localStorage
+            localStorage.setItem('groups', JSON.stringify(updatedGroups));
+
+            // Удаляем текущую группу из localStorage
+            localStorage.removeItem('currentGroupName');
+
+            // Переход на страницу groups.html
+            window.location.href = './groups.html';
+        });
+
+        // Получаем элементы модальных окон
+        const addMembersModal = document.getElementById('add-members-modal');
+        const removeMembersModal = document.getElementById('remove-members-modal');
+
+        // Кнопки для добавления участников
+        const addMembersSaveBtn = document.getElementById('add-members-save-btn');
+        const addMembersCancelBtn = document.getElementById('add-members-cancel-btn');
+
+        // Кнопки для удаления участников
+        const removeMembersSaveBtn = document.getElementById('remove-members-save-btn');
+        const removeMembersCancelBtn = document.getElementById('remove-members-cancel-btn');
+
+        // Список участников группы
+        let groupMembers = JSON.parse(localStorage.getItem('currentGroupMembers')) || [];
+
+        // Список всех контактов
+        const allContacts = [
+            { name: "Alice", phone: "+9991111111" },
+            { name: "Bob", phone: "+9992222222" },
+            { name: "Charlie", phone: "+9993333333" },
+            { name: "David", phone: "+9994444444" },
+            { name: "Eve", phone: "+9995555555" },
+            { name: "Frank", phone: "+9996666666" },
+        ];
+
+        // Открыть модальное окно для добавления участников
+        addMembersButton.addEventListener('click', () => {
+            const addMemberList = document.getElementById('add-member-list');
+            addMemberList.innerHTML = '';
+
+            allContacts.forEach(contact => {
+                const isMember = groupMembers.some(member => member.phone === contact.phone);
+                const memberItem = document.createElement('div');
+                memberItem.className = 'member-item';
+                memberItem.innerHTML = `
+                    <div class="member-name">${contact.name}</div>
+                    <div class="select-circle ${isMember ? 'disabled' : ''}" data-phone="${contact.phone}"></div>
+                `;
+                if (!isMember) {
+                    memberItem.querySelector('.select-circle').addEventListener('click', function () {
+                        groupMembers.push(contact);
+                        localStorage.setItem('currentGroupMembers', JSON.stringify(groupMembers));
+                        this.classList.add('disabled');
+                    });
+                }
+                addMemberList.appendChild(memberItem);
+            });
+
+            addMembersModal.style.display = 'flex';
+        });
+
+        // Закрыть модальное окно для добавления участников
+        addMembersCancelBtn.addEventListener('click', () => {
+            addMembersModal.style.display = 'none';
+        });
+
+        // Открыть модальное окно для удаления участников
+        removeMembersButton.addEventListener('click', () => {
+            const removeMemberList = document.getElementById('remove-member-list');
+            removeMemberList.innerHTML = '';
+
+            groupMembers.forEach(member => {
+                const memberItem = document.createElement('div');
+                memberItem.className = 'member-item';
+                memberItem.innerHTML = `
+                    <div class="member-name">${member.name}</div>
+                    <div class="select-circle" data-phone="${member.phone}"></div>
+                `;
+                memberItem.querySelector('.select-circle').addEventListener('click', function () {
+                    groupMembers = groupMembers.filter(m => m.phone !== member.phone);
+                    localStorage.setItem('currentGroupMembers', JSON.stringify(groupMembers));
+                    this.parentElement.remove();
+                });
+                removeMemberList.appendChild(memberItem);
+            });
+
+            removeMembersModal.style.display = 'flex';
+        });
+
+        // Закрыть модальное окно для удаления участников
+        removeMembersCancelBtn.addEventListener('click', () => {
+            removeMembersModal.style.display = 'none';
+        });
+    </script>
+</body>
+</html>

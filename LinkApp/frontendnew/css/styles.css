@@ -1,0 +1,167 @@
+/* Общие стили для всех страниц */
+body {
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+    background: #112c3c;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    width: 100%;
+    max-width: 440px;
+    height: auto;
+    background: #838A98;
+    border-radius: 20px;
+    padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Кнопка "Назад" */
+.back-button {
+    align-self: flex-start;
+    margin-top: 20px;
+    margin-left: 20px;
+    width: 40px;
+    height: 40px;
+    background: #1D1B20;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.back-button svg {
+    width: 16px;
+    height: 16px;
+    fill: white;
+}
+
+/* Заголовок */
+.title {
+    margin-top: 20px;
+    font-size: 24px;
+    font-weight: 700;
+    color: black;
+    text-align: center;
+}
+
+/* Поля ввода */
+.input-group input {
+    width: 100%;
+    height: 45px;
+    border: none;
+    border-radius: 20px;
+    background: #CDCFD4;
+    padding: 0 15px;
+    font-size: 16px;
+    color: #646C7B;
+    outline: none;
+    margin-top: 20px;
+}
+
+/* Кнопки */
+.button {
+    width: 100%;
+    height: 45px;
+    background: #7494EC;
+    border: none;
+    border-radius: 20px;
+    font-size: 16px;
+    font-weight: 500;
+    color: black;
+    cursor: pointer;
+    text-align: center;
+    line-height: 45px;
+    margin-top: 20px;
+}
+
+.button:hover {
+    opacity: 0.9;
+}
+
+/* Список участников */
+.member-list {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.member-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #D9D9D9;
+    padding: 10px 15px;
+    border-radius: 10px;
+}
+
+.member-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.member-avatar {
+    width: 50px;
+    height: 50px;
+    background: #D9D9D9;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.member-avatar svg {
+    width: 24px;
+    height: 24px;
+    fill: #646C7B;
+}
+
+.member-name {
+    font-size: 16px;
+    color: black;
+}
+
+/* Навигационная панель */
+.bottom-nav {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 60px;
+    background: #D9D9D9;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    border-top: 1px solid #ccc;
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+}
+
+.nav-item.active .material-icons {
+    color: #7494EC;
+}
+
+.nav-item .material-icons {
+    font-size: 24px;
+    color: #333;
+}
+
+.nav-item span {
+    font-size: 12px;
+    color: #333;
+}

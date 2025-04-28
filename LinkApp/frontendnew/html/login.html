@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login/Signup Form</title>
+    <link rel="stylesheet" href="../css/login.css"> <!-- Убедитесь, что путь к CSS верный -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body>
+    <div class="container">
+        <div class="form-box login">
+            <form id="login-form">
+                <h1>Логин</h1>
+                <div class="input-box">
+                    <!-- ИЗМЕНЕНО: type="email" и id/placeholder на email -->
+                    <input type="email" id="login-email" placeholder="Email" required>
+                    <i class='bx bxs-envelope'></i> <!-- ИЗМЕНЕНО: иконка на конверт -->
+                </div>
+                <div class="input-box">
+                    <input type="password" id="login-password" placeholder="Password" required>
+                    <i class='bx bxs-lock-alt'></i>
+                </div>
+                <div id="login-error" class="error-message"></div>
+                <div class="forgot-link">
+                    <a href="#">Забыли пароль?</a>
+                </div>
+                <!-- Используем type="submit" и обработаем отправку формы -->
+                <button type="submit" class="btn">Логин</button>
+            </form>
+        </div>
+
+        <div class="form-box register">
+            <form id="register-form">
+                <h1>Регистрация</h1>
+                <div class="input-box">
+                    <input type="text" id="register-username" placeholder="Username" required>
+                    <i class='bx bxs-user'></i>
+                </div>
+                <div class="input-box">
+                    <input type="email" id="register-email" placeholder="Email" required>
+                    <i class='bx bxs-envelope'></i>
+                </div>
+                <div class="input-box">
+                    <input type="tel" id="register-phone" placeholder="Phone Number" required>
+                    <i class='bx bxs-phone'></i>
+                </div>
+                <div class="input-box">
+                    <input type="password" id="register-password" placeholder="Password" required minlength="8">
+                    <i class='bx bxs-lock-alt'></i>
+                </div>
+                 <!-- Используем type="submit" и обработаем отправку формы -->
+                <button type="submit" class="btn">Регистрация</button>
+                <div id="register-error" class="error-message"></div>
+            </form>
+        </div>
+
+        <div class="toggle-box">
+            <div class="toggle-panel toggle-left">
+                <h1>Добро пожаловать!</h1>
+                <p>Нет аккаунта?</p>
+                <button type="button" class="btn register-btn">Регистрация</button>
+            </div>
+            <div class="toggle-panel toggle-right">
+                <h1>С возвращением!</h1>
+                <p>Уже есть аккаунт?</p>
+                <button type="button" class="btn login-btn">Логин</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const container = document.querySelector('.container');
+            const registerBtn = document.querySelector('.register-btn');
+            const loginBtn = document.querySelector('.login-btn');
+            const loginForm = document.getElementById('login-form');
+            const registerForm = document.getElementById('register-form');
+
+            if (registerBtn) {
+                registerBtn.addEventListener('click', () => {
+                    container.classList.add('active');
+                    clearErrors(); // Очищаем ошибки при переключении
+                });
+            }
+
+            if (loginBtn) {
+                loginBtn.addEventListener('click', () => {
+                    container.classList.remove('active');
+                    clearErrors(); // Очищаем ошибки при переключении
+                });
+            }
+
+            if (loginForm) {
+                loginForm.addEventListener('submit', handleLogin);
+            }
+
+            if (registerForm) {
+                registerForm.addEventListener('submit', handleRegister);
+            }
+        });
+
+        // Функция очистки сообщений об ошибках
+        function clearErrors() {
+            const errorElements = document.querySelectorAll('.error-message');
+            errorElements.forEach(el => el.textContent = '');
+        }
+
+        // Функция отображения ошибки
+        function displayError(formType, message) {
+            const errorElement = document.getElementById(`${formType}-error`);
+            if (errorElement) {
+                errorElement.textContent = message;
+            }
+        }
+
+        // Логин пользователя через API
+        async function handleLogin(event) {
+            event.preventDefault(); // Предотвращаем стандартную отправку формы
+            clearErrors(); // Очищаем предыдущие ошибки
+
+            // ИЗМЕНЕНО: читаем email вместо username
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value.trim();
+
+            if (!email || !password) { // ИЗМЕНЕНО: проверяем email
+                displayError('login', 'Пожалуйста, введите email и пароль.');
+                return;
+            }
+
+            try {
+                // ***ВАЖНО: Убедитесь, что URL эндпоинта /login правильный***
+                const response = await fetch('http://127.0.0.1:5000/auth/login', { // ИЗМЕНЕНО: порт 5000 и префикс /auth
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    // ИЗМЕНЕНО: отправляем email
+                    body: JSON.stringify({ email, password }),
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.access_token) { // Проверяем наличие токена
+                    localStorage.setItem('jwt_token', result.access_token); // Сохраняем токен
+                    alert('Вход выполнен успешно! Перенаправление...');
+                    window.location.href = 'dashboard.html'; // Переход в следующее окно
+                } else {
+                    // --- ИЗМЕНЕНИЕ: Улучшенное сообщение об ошибке ---
+                    displayError('login', result.detail || result.message || 'Неверный email или пароль.');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                displayError('login', 'Ошибка подключения к серверу. Попробуйте позже.');
+            }
+        }
+
+        // Регистрация пользователя через API
+        async function handleRegister(event) {
+            event.preventDefault(); // Предотвращаем стандартную отправку формы
+            clearErrors(); // Очищаем предыдущие ошибки
+
+            const username = document.getElementById('register-username').value.trim();
+            const email = document.getElementById('register-email').value.trim();
+            const phone = document.getElementById('register-phone').value.trim();
+            const password = document.getElementById('register-password').value.trim();
+
+            // Простая валидация на клиенте
+            if (!username || !email || !phone || !password) {
+                 displayError('register', 'Пожалуйста, заполните все поля.');
+                 return;
+            }
+            if (password.length < 8) {
+                 displayError('register', 'Пароль должен содержать не менее 8 символов.');
+                 return;
+            }
+            if (!/\S+@\S+\.\S+/.test(email)) {
+                 displayError('register', 'Пожалуйста, введите корректный email.');
+                 return;
+            }
+             // Можно добавить валидацию телефона, если нужно
+
+            try {
+                // ***ВАЖНО: Убедитесь, что URL эндпоинта /register правильный***
+                const response = await fetch('http://127.0.0.1:5000/auth/register', { // ИЗМЕНЕНО: порт 5000 и префикс /auth
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    // ИЗМЕНЕНО: отправляем только email и password, если бэкенд ожидает только их
+                    body: JSON.stringify({ email, password }), // Отправляем только то, что ожидает бэкенд
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert(result.message || 'Регистрация прошла успешно! Пожалуйста, войдите.');
+                    // Опционально: переключить на панель логина
+                    document.querySelector('.container').classList.remove('active');
+                    // Очистить форму регистрации
+                    document.getElementById('register-form').reset();
+                } else {
+                    // Отображаем ошибку от сервера (например, "пользователь уже существует")
+                    displayError('register', result.detail || 'Ошибка регистрации.');
+                }
+            } catch (error) {
+                console.error('Registration error:', error);
+                displayError('register', 'Ошибка подключения к серверу. Попробуйте позже.');
+            }
+        }
+    </script>
+</body>
+</html>

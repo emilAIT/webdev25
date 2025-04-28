@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Email Address</title>
+  <link rel="stylesheet" href="../css/emailAdress.css">
+</head>
+<body>
+  <div class="container">
+    <div class="back-button" onclick="goBack()">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6z"/>
+      </svg>
+    </div>
+    <div class="title">Email Address</div>
+    <div class="email" id="user-email">Loading...</div>
+  </div>
+
+  <script>
+    // Функция для возврата на предыдущую страницу
+    function goBack() {
+      window.location.href = "./account.html"; // Возврат на account.html
+    }
+
+    // Функция для установки email из localStorage
+    function setEmail() {
+      // Получаем email из localStorage
+      const email = localStorage.getItem('userEmail'); // Ключ 'userEmail' должен быть установлен заранее
+      const emailElement = document.getElementById('user-email');
+
+      if (email) {
+        emailElement.textContent = email; // Устанавливаем email в элемент
+      } else {
+        emailElement.textContent = 'Email not found'; // Если email не найден
+      }
+    }
+
+    // Вызов функции при загрузке страницы
+    setEmail();
+  </script>
+</body>
+</html>

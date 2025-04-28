@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Members</title>
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/addMem.css">
+</head>
+<body>
+  <div class="container">
+    <div class="back-button" onclick="goBack()">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6z"/>
+      </svg>
+    </div>
+    <div class="search-bar">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C8.01 14 6 11.99 6 9.5S8.01 5 10.5 5 15 7.01 15 9.5 12.99 14 10.5 14z"/>
+      </svg>
+      <input type="text" placeholder=" Поиск" id="search-input" oninput="filterMembers()">
+    </div>
+    <div class="member-list" id="member-list">
+      <!-- Пример участников -->
+      <div class="member-item" data-name="John Doe">
+        <div class="member-info">
+          <div class="member-avatar">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            </svg>
+          </div>
+          <div class="member-name">John Doe</div>
+        </div>
+        <div class="select-circle" onclick="toggleSelection(this, 'John Doe')"></div>
+      </div>
+      <div class="member-item" data-name="Jane Smith">
+        <div class="member-info">
+          <div class="member-avatar">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            </svg>
+          </div>
+          <div class="member-name">Jane Smith</div>
+        </div>
+        <div class="select-circle" onclick="toggleSelection(this, 'Jane Smith')"></div>
+      </div>
+    </div>
+    <button class="add-button" onclick="addToGroup()">Добавить</button>
+  </div>
+
+  <script>
+    const selectedMembers = new Set();
+
+    function goBack() {
+      window.location.href = './groupinfo.html'; // Возврат на newgroup.html
+    }
+
+    function toggleSelection(element, name) {
+      if (selectedMembers.has(name)) {
+        selectedMembers.delete(name);
+        element.classList.remove('selected');
+      } else {
+        selectedMembers.add(name);
+        element.classList.add('selected');
+      }
+      console.log('Selected members:', Array.from(selectedMembers));
+    }
+
+    function filterMembers() {
+      const searchInput = document.getElementById('search-input').value.toLowerCase();
+      const members = document.querySelectorAll('.member-item');
+      members.forEach(member => {
+        const name = member.getAttribute('data-name').toLowerCase();
+        if (name.includes(searchInput)) {
+          member.style.display = 'flex';
+        } else {
+          member.style.display = 'none';
+        }
+      });
+    }
+
+    function addToGroup() {
+      if (selectedMembers.size === 0) {
+        alert('No members selected!');
+        return;
+      }
+      const membersArray = Array.from(selectedMembers);
+      localStorage.setItem('selectedMembers', JSON.stringify(membersArray)); // Сохраняем выбранных участников
+      alert(`Added members: ${membersArray.join(', ')}`);
+      window.location.href = './groupinfo.html'; // Возврат на newgroup.html
+    }
+  </script>
+</body>
+</html>

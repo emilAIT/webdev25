@@ -1,0 +1,208 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #112c3c;
+    font-family: 'Roboto', sans-serif;
+}
+
+/* Контейнер устройства */
+.iphone-container {
+    position: relative;
+    width: 900%;
+    max-width: 340px;
+    height: 756px;
+    background: #838A98;
+    border-radius: 40px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    margin: 0 auto;
+}
+
+/* Заголовок */
+.header {
+    position: absolute;
+    width: 100%;
+    top: 20px;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.header h2 {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 24px;
+    color: #000;
+}
+
+.contacts-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.contacts-button .material-icons {
+    font-size: 32px;
+    color: #1D1B20;
+}
+
+/* Поле поиска */
+.search-bar {
+    position: absolute;
+    width: 90%;
+    /* height: 30px; / / Убрано для автовысоты */
+    height: 36px; /* Явно зададим высоту для input */
+    top: 80px;
+    left: 5%;
+    background: #CDCFD4;
+    border-radius: 18px; /* Скорректировано */
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    box-sizing: border-box; /* Добавлено */
+}
+
+.search-bar .material-icons {
+    color: #646C7B;
+    margin-right: 10px;
+}
+
+/* Убираем стили для span, если были */
+/* .search-bar span { ... } */
+
+/* Стиль для поля ввода */
+.search-bar input[type="text"] {
+    flex-grow: 1; /* Занимает доступное место */
+    border: none; /* Без рамки */
+    background: transparent; /* Прозрачный фон */
+    outline: none; /* Без обводки при фокусе */
+    color: #1D1B20; /* Цвет текста */
+    font-size: 16px; /* Размер шрифта */
+    font-family: 'Roboto', sans-serif; /* Шрифт */
+    height: 100%; /* Занимает всю высоту родителя */
+    padding: 5px 0; /* Небольшие вертикальные отступы */
+}
+
+/* Стиль для плейсхолдера */
+.search-bar input[type="text"]::placeholder {
+    color: #646C7B; /* Цвет подсказки */
+    font-size: 16px; /* Размер шрифта подсказки */
+}
+
+
+/* Состояние пустого чата */
+.empty-state {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 80%;
+}
+
+.empty-state-icon {
+    width: 120px;
+    height: 120px;
+    background: #D9D9D9;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.empty-state-icon .material-icons {
+    font-size: 70px;
+    color: #7494EC;
+}
+
+.empty-state h3 {
+    font-size: 20px;
+    font-weight: 500;
+    color: #000;
+    margin-bottom: 10px;
+}
+
+.empty-state p {
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.start-chat-btn {
+    background: #7494EC;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: 500;
+    box-shadow: 0 4px 10px rgba(116, 148, 236, 0.3);
+}
+
+/* Нижняя панель навигации */
+.bottom-nav {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 60px;
+    background: #D9D9D9;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    border-top: 1px solid #ccc;
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+}
+
+.nav-item.active .material-icons {
+    color: #7494EC;
+}
+
+.nav-item .material-icons {
+    font-size: 24px;
+    color: #333;
+}
+
+.nav-item span {
+    font-size: 12px;
+    color: #333;
+}
+
+/* Адаптивные стили */
+@media (max-width: 768px) {
+    .iphone-container {
+        width: 100%;
+        max-width: 300px;
+        height: auto;
+    }
+
+    .bottom-nav {
+        height: 50px;
+    }
+
+    .start-chat-btn {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+}

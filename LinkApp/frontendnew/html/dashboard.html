@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Чаты</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+   
+    <link rel="stylesheet" href="../css/dashboard.css"> <!-- Подключение CSS -->
+</head>
+<body>
+    <div class="iphone-container">
+        <!-- Header -->
+        <div class="header">
+            <h2>Чаты</h2>
+            <button class="contacts-button">
+                <!-- <span class="material-icons">group_add</span> -->
+            </button>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-bar">
+            <span class="material-icons">search</span>
+            <input type="text" id="searchInput" placeholder="Поиск пользователя">
+            <button class="start-chat-btn">Начать чат</button> <!-- ИЗМЕНЕНО: Текст кнопки -->
+        </div>
+        <div id="searchError" class="error-message" style="display: none;"></div> <!-- Место для ошибок поиска -->
+
+        <!-- --- НАЧАЛО: Контейнер для списка чатов (изначально пустой) --- -->
+        <div id="chatList" class="chat-list" style="display: none;">
+            <!-- Сюда JavaScript добавит элементы чатов -->
+        </div>
+        <!-- --- КОНЕЦ: Контейнер для списка чатов --- -->
+
+        <!-- Empty State (остается, но будет скрываться) -->
+        <div class="empty-state">
+            <div class="empty-state-icon">
+                <span class="material-icons">chat</span>
+            </div>
+            <h3>Нет активных чатов</h3>
+            <p>Начните общение с друзьями и близкими прямо сейчас. Найдите контакты в поиске выше.</p>
+            <!-- Кнопка "Начать чат" здесь больше не нужна, так как поиск всегда доступен -->
+            <!-- <button class="start-chat-btn">Начать чат</button> -->
+        </div>
+
+        <!-- Новый нижний навигатор -->
+        <div class="bottom-nav">
+            <div class="nav-item active" onclick="navigateTo('dashboard.html')">
+                <span class="material-icons">chat</span>
+                <span>Чаты</span>
+            </div>
+            <div class="nav-item" onclick="navigateTo('groups.html')">
+                <span class="material-icons">group</span>
+                <span>Группы</span>
+            </div>
+            <div class="nav-item" onclick="navigateTo('settings.html')">
+                <span class="material-icons">settings</span>
+                <span>Настройки</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="sidebar"> <!-- Или другое подходящее место -->
+        <h2>Пользователи</h2>
+        <ul id="user-list">
+            <!-- Сюда будет добавляться список пользователей -->
+            <li>Загрузка...</li>
+        </ul>
+    </div>
+
+    <script>
+        // Функция для навигации (оставляем вашу)
+        function navigateTo(page) {
+            if (!window.location.pathname.endswith('/' + page) && !(window.location.pathname === '/' && page === 'dashboard.html')) {
+                 window.location.href = page;
+            }
+        }
+
+        // --- НАЧАЛО: Код для загрузки и отображения чатов ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            const chatListDiv = document.getElementById('chatList');
+            const emptyStateDiv = document.querySelector('.empty-state'); // Находим блок empty-state
+            const token = localStorage.getItem('jwt_token');
+
+            if (!token) {
+                console.error('Токен не найден. Пользователь не аутентифицирован.');
+                emptyStateDiv.querySelector('h3').textContent = 'Ошибка';
+                emptyStateDiv.querySelector('p').textContent = 'Вы не вошли в систему. Пожалуйста, войдите снова.';
+                emptyStateDiv.style.display = 'block'; // Убедимся, что empty-state виден
+                chatListDiv.style.display = 'none'; // Скрываем список чатов
+                // window.location.href = 'login.html';
+                return;
+            }
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/api/chats', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const chats = await response.json();
+                    console.log('Получены чаты:', chats);
+
+                    if (chats.length > 0) {
+                        chatListDiv.innerHTML = ''; // Очищаем список
+                        chats.forEach(chat => {
+                            const chatItem = document.createElement('div');
+                            chatItem.classList.add('chat-item');
+
+                            const lastMessageText = chat.last_message.text.length > 30
+                                ? chat.last_message.text.substring(0, 30) + '...'
+                                : chat.last_message.text;
+                            const messagePrefix = chat.last_message.is_sender ? 'Вы: ' : '';
+
+                            // Добавляем аватар (можно заменить на реальный)
+                            const avatarInitial = chat.partner_email.charAt(0).toUpperCase();
+
+                            chatItem.innerHTML = `
+                                <div class="chat-avatar">${avatarInitial}</div>
+                                <div class="chat-info">
+                                    <div class="chat-partner-name">${chat.partner_email}</div>
+                                    <div class="chat-last-message">${messagePrefix}${lastMessageText}</div>
+                                </div>
+                                <!-- Можно добавить время последнего сообщения справа -->
+                                <!-- <div class="chat-timestamp">${new Date(chat.last_message.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div> -->
+                            `;
+
+                            chatItem.addEventListener('click', () => {
+                                window.location.href = `./nameChat.html?recipient=${encodeURIComponent(chat.partner_email)}`;
+                            });
+                            chatListDiv.appendChild(chatItem);
+                        });
+                        chatListDiv.style.display = 'block'; // Показываем список чатов
+                        emptyStateDiv.style.display = 'none'; // Скрываем empty-state
+                    } else {
+                        // Если чатов нет, оставляем empty-state видимым
+                        chatListDiv.style.display = 'none';
+                        emptyStateDiv.style.display = 'block'; // Убедимся, что empty-state виден
+                    }
+                } else if (response.status === 401) {
+                     console.error('Ошибка аутентификации при получении чатов.');
+                     emptyStateDiv.querySelector('h3').textContent = 'Ошибка';
+                     emptyStateDiv.querySelector('p').textContent = 'Ошибка аутентификации. Попробуйте войти снова.';
+                     emptyStateDiv.style.display = 'block';
+                     chatListDiv.style.display = 'none';
+                } else {
+                    const errorData = await response.json().catch(() => ({ detail: 'Не удалось получить список чатов' }));
+                    console.error('Ошибка при получении чатов:', response.status, errorData);
+                    emptyStateDiv.querySelector('h3').textContent = 'Ошибка загрузки';
+                    emptyStateDiv.querySelector('p').textContent = `Не удалось загрузить чаты: ${errorData.detail || response.statusText}`;
+                    emptyStateDiv.style.display = 'block';
+                    chatListDiv.style.display = 'none';
+                }
+
+            } catch (error) {
+                console.error('Сетевая ошибка или ошибка выполнения запроса чатов:', error);
+                emptyStateDiv.querySelector('h3').textContent = 'Ошибка сети';
+                emptyStateDiv.querySelector('p').textContent = 'Не удалось загрузить список чатов. Проверьте подключение.';
+                emptyStateDiv.style.display = 'block';
+                chatListDiv.style.display = 'none';
+            }
+        });
+        // --- КОНЕЦ: Код для загрузки и отображения чатов ---
+
+        // --- НАЧАЛО: Код для поиска пользователя ---
+        document.querySelector('.start-chat-btn').addEventListener('click', async function() {
+            const searchInput = document.getElementById('searchInput');
+            const searchErrorDiv = document.getElementById('searchError');
+            const searchTerm = searchInput.value.trim();
+            searchErrorDiv.style.display = 'none'; // Скрыть предыдущие ошибки
+
+            if (!searchTerm) {
+                searchErrorDiv.textContent = 'Пожалуйста, введите email пользователя для поиска.';
+                searchErrorDiv.style.display = 'block';
+                searchInput.focus();
+                return;
+            }
+
+            try {
+                const findUserUrl = `http://127.0.0.1:5000/auth/find_user?email=${encodeURIComponent(searchTerm)}`;
+                const token = localStorage.getItem('jwt_token');
+                const headers = { 'Content-Type': 'application/json' };
+
+                console.log(`Ищем пользователя: ${findUserUrl}`);
+                const response = await fetch(findUserUrl, { method: 'GET', headers: headers });
+
+                if (response.ok) {
+                    const foundUser = await response.json();
+                    console.log('Пользователь найден:', foundUser);
+                    window.location.href = `./nameChat.html?recipient=${encodeURIComponent(foundUser.email)}`;
+                } else if (response.status === 404) {
+                    console.log('Пользователь не найден.');
+                    searchErrorDiv.textContent = `Пользователь с email "${searchTerm}" не найден.`;
+                    searchErrorDiv.style.display = 'block';
+                    searchInput.focus();
+                } else {
+                    const errorData = await response.json().catch(() => ({ detail: 'Не удалось обработать ответ сервера' }));
+                    console.error('Ошибка при поиске пользователя:', response.status, errorData);
+                    searchErrorDiv.textContent = `Ошибка при поиске: ${errorData.detail || response.statusText}`;
+                    searchErrorDiv.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Сетевая ошибка при поиске:', error);
+                searchErrorDiv.textContent = 'Не удалось связаться с сервером. Проверьте подключение.';
+                searchErrorDiv.style.display = 'block';
+            }
+        });
+
+        // Обработка Enter в поиске (оставляем ваш код)
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    document.querySelector('.start-chat-btn').click();
+                }
+            });
+        }
+        // --- КОНЕЦ: Код для поиска пользователя ---
+
+        const userListElement = document.getElementById('user-list');
+        let currentUserId = null; // Мы можем получить ID текущего пользователя из токена, если нужно
+
+        // Функция для запроса списка пользователей с сервера
+        async function fetchUsers() {
+            const token = localStorage.getItem('jwt_token');
+            if (!token) {
+                console.error('No token found, redirecting to login.');
+                // window.location.href = 'login.html'; // Раскомментируйте для перенаправления
+                return;
+            }
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/api/users', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const users = await response.json();
+                    displayUsers(users);
+                } else if (response.status === 401) {
+                    // Ошибка авторизации (например, токен истек)
+                    console.error('Authorization error fetching users.');
+                    localStorage.removeItem('jwt_token');
+                    // window.location.href = 'login.html'; // Раскомментируйте для перенаправления
+                }
+                 else {
+                    console.error('Error fetching users:', response.status, await response.text());
+                    userListElement.innerHTML = '<li>Ошибка загрузки пользователей</li>';
+                }
+            } catch (error) {
+                console.error('Network error fetching users:', error);
+                userListElement.innerHTML = '<li>Ошибка сети при загрузке пользователей</li>';
+            }
+        }
+
+        // Функция для отображения списка пользователей в HTML
+        function displayUsers(users) {
+            userListElement.innerHTML = ''; // Очищаем предыдущий список
+
+            if (users.length === 0) {
+                userListElement.innerHTML = '<li>Нет других пользователей</li>';
+                return;
+            }
+
+            users.forEach(user => {
+                const listItem = document.createElement('li');
+                listItem.textContent = user.email; // Отображаем email (или user.name, если есть)
+                listItem.dataset.userId = user.id; // Сохраняем ID пользователя для дальнейшего использования
+                listItem.style.cursor = 'pointer'; // Делаем элемент кликабельным
+                listItem.addEventListener('click', () => {
+                    // TODO: Обработать клик по пользователю (начать чат)
+                    console.log(`Clicked on user: ${user.email} (ID: ${user.id})`);
+                    // Здесь будет код для загрузки сообщений с этим пользователем
+                    // selectChat(user.id, user.email);
+                });
+                userListElement.appendChild(listItem);
+            });
+        }
+
+        // --- Вызов функции загрузки пользователей ---
+        // Вызовите эту функцию после того, как убедитесь, что пользователь вошел в систему
+        // и токен есть в localStorage. Например, после успешного подключения Socket.IO
+        // или просто при загрузке скрипта, если вы уверены, что токен уже там.
+
+        // Пример вызова (можно поместить в конец вашего скрипта или в обработчик 'connect' Socket.IO):
+        document.addEventListener('DOMContentLoaded', () => {
+            // Проверяем наличие токена перед загрузкой
+            if (localStorage.getItem('jwt_token')) {
+                fetchUsers();
+                // Здесь же можно декодировать токен, чтобы получить ID текущего пользователя, если нужно
+                // const token = localStorage.getItem('jwt_token');
+                // const payload = JSON.parse(atob(token.split('.')[1]));
+                // currentUserId = payload.sub; // ID текущего пользователя
+            } else {
+                 console.log("No token found on page load.");
+                 // Возможно, перенаправить на login.html
+                 // window.location.href = 'login.html';
+            }
+
+            // ... ваш остальной код инициализации ...
+        });
+
+        // TODO: Добавить функцию selectChat(userId, userName)
+        // function selectChat(userId, userName) {
+        //    console.log(`Selecting chat with ${userName} (ID: ${userId})`);
+        //    // 1. Визуально выделить выбранного пользователя в списке
+        //    // 2. Очистить область сообщений
+        //    // 3. Запросить историю сообщений с этим пользователем (/api/messages/<userId>)
+        //    // 4. Отобразить историю сообщений
+        //    // 5. Сохранить ID выбранного пользователя (selectedUserId) для отправки сообщений
+        // }
+    </script>
+</body>
+</html>

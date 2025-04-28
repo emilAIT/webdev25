@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Группы</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/groups.css">
+
+</head>
+<body>
+    <div class="iphone-container">
+        <!-- Header -->
+        <div class="header">
+            <h2>Группы</h2>
+            <button class="add-group-icon">
+                <span class="material-icons">add</span>
+            </button>
+        </div>
+
+
+        
+        
+
+        <div class="search-container">
+            <span class="material-icons search-icon">search</span>
+            <input type="text" id="search-bar" class="search-bar" placeholder="Поиск">
+        </div>
+
+        <!-- Список групп -->
+        <div class="group-list"></div>
+
+        <!-- Modal для создания группы -->
+        <div class="modal" id="create-group-modal">
+            <h3>Создать новую группу</h3>
+            <input type="text" id="group-name" placeholder="Введите имя группы" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; margin-bottom: 20px;">
+            <button id="create-group-btn" style="padding: 10px 20px; background-color: #7494EC; color: white; border: none; border-radius: 5px;">Создать</button>
+            <button id="close-create-modal" style="padding: 10px 20px; background-color: #ccc; color: black; border: none; border-radius: 5px;">Закрыть</button>
+        </div>
+
+        <!-- Modal для добавления участников -->
+        <div class="modal" id="add-member-modal">
+            <h3>Добавить участника в группу</h3>
+            <input type="text" id="member-name" placeholder="Введите имя участника" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; margin-bottom: 20px;">
+            <button id="add-member-btn" style="padding: 10px 20px; background-color: #7494EC; color: white; border: none; border-radius: 5px;">Добавить</button>
+            <button id="close-member-modal" style="padding: 10px 20px; background-color: #ccc; color: black; border: none; border-radius: 5px;">Закрыть</button>
+        </div>
+
+        <!-- Новый нижний навигатор -->
+        <div class="bottom-nav">
+            <div class="nav-item" onclick="navigateTo('dashboard.html')">
+                <span class="material-icons">chat</span>
+                <span>Чаты</span>
+            </div>
+            <div class="nav-item active" onclick="navigateTo('groups.html')">
+                <span class="material-icons">group</span>
+                <span>Группы</span>
+            </div>
+            <div class="nav-item" onclick="navigateTo('settings.html')">
+                <span class="material-icons">settings</span>
+                <span>Настройки</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function goBack() {
+            window.location.href = './dashboard.html';
+        }
+
+        function navigateTo(page) {
+            window.location.href = page;
+        }
+
+        // Открытие страницы "New Group"
+        document.querySelector('.add-group-icon').addEventListener('click', function() {
+            window.location.href = './newgroup.html'; // Переход на newgroup.html
+        });
+
+        function displayGroups(groups) {
+            const groupListContainer = document.querySelector('.group-list'); // Контейнер для списка групп
+            groupListContainer.innerHTML = ''; // Очищаем список перед добавлением новых групп
+          
+            if (groups.length === 0) {
+              groupListContainer.innerHTML = '<p>Нет доступных групп</p>';
+              return;
+            }
+          
+            groups.forEach(group => {
+              const groupItem = document.createElement('div');
+              groupItem.classList.add('group-item');
+              groupItem.innerHTML = `
+                <div class="group-icon">
+                  <span class="material-icons">groups</span>
+                </div>
+                <div class="group-details">
+                  <h3>${group.name}</h3>
+                  <p class="last-message">${group.lastMessage || 'Нет сообщений'}</p>
+                </div>
+                <div class="group-time">
+                  <span>${group.lastMessageTime || ''}</span>
+                </div>
+              `;
+          
+              // Добавляем обработчик клика для перехода на groupchan.html
+              groupItem.addEventListener('click', () => {
+                localStorage.setItem('currentGroupName', group.name); // Сохраняем название текущей группы
+                window.location.href = './groupchan.html'; // Переход на страницу чата
+              });
+          
+              groupListContainer.appendChild(groupItem);
+            });
+          }
+          
+          // Загружаем группы из localStorage при загрузке страницы
+          document.addEventListener('DOMContentLoaded', () => {
+            const groups = JSON.parse(localStorage.getItem('groups')) || [];
+            console.log('Загруженные группы:', groups); // Отладочный вывод
+            displayGroups(groups);
+          });
+    </script>
+
+    <script>
+        // Инициализация данных групп
+        // const groups = [
+        //     {
+        //         name: "Group 1",
+        //         lastMessage: "Hello",
+        //         lastMessageTime: "10:30",
+        //         members: ["Alice", "Bob"]
+        //     },
+        //     {
+        //         name: "Group 2",
+        //         lastMessage: "How are you?",
+        //         lastMessageTime: "11:15",
+        //         members: ["Charlie", "David"]
+        //     }
+        // ];
+        localStorage.setItem('groups', JSON.stringify(groups));
+    </script>
+</body>
+</html>

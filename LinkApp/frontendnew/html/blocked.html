@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blocked</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/blocked.css">
+
+</head>
+<body>
+    <div class="blocked-container">
+        <div class="back-button"></div>
+        <div class="title">Blocked</div>
+        <div class="name-container" id="nameContainer"></div>
+    </div>
+    <script>
+        const nameContainer = document.getElementById('nameContainer');
+        const names = ['Name1', 'Name2', 'Name3', 'Name4', 'Name5', 'Name6'];
+
+        names.forEach(name => {
+            const row = document.createElement('div');
+            row.className = 'name-row';
+
+            const profileIcon = document.createElement('div');
+            profileIcon.className = 'profile-icon';
+
+            const nameBox = document.createElement('div');
+            nameBox.className = 'name-box';
+            nameBox.textContent = name;
+
+            const unlockButton = document.createElement('div');
+            unlockButton.className = 'unlock-button';
+            unlockButton.textContent = 'Unlock';
+
+            row.appendChild(profileIcon);
+            row.appendChild(nameBox);
+            row.appendChild(unlockButton);
+            nameContainer.appendChild(row);
+        });
+    </script>
+</body>
+</html>

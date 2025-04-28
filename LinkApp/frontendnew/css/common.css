@@ -1,0 +1,38 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Roboto', sans-serif;
+    background: #112c3c;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  /* Смартфон‑рамка, как в dashboard */
+  .container {
+    width: 340px;
+    height: 756px;
+    max-width: 100%;
+    background: #838A98;               /* цвет фона рамки */
+    border-radius: 40px;               /* скруглённые углы */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    overflow: hidden;
+    position: relative;                /* для абсолютного позиционирования внутри */
+  }
+  
+  /* Внутренний контент внутри рамки */
+  .container > *:not(.header):not(.footer) {
+    position: relative;
+    z-index: 1;
+  }
+  
+  /* Header/rows/etc. оставляем как есть... */
+  .header {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    background: #fafafa;
+    border-bottom: 1px solid #eee;
+  }
+  /* … остальные правила … */

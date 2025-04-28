@@ -1,0 +1,223 @@
+body {
+    margin: 0;
+    padding: 0;
+    background: #112c3c;
+    font-family: 'Roboto', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    width: 340px;
+    max-width: 95vw;
+    height: 700px;
+    max-height: 95vh;
+    background: #838A98;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 0 0 0;
+    box-sizing: border-box;
+    overflow: hidden;
+    position: relative;
+}
+
+.header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 24px;
+    font-size: 22px;
+    font-weight: 400;
+    margin-bottom: 16px;
+    box-sizing: border-box;
+}
+
+.title {
+    width: 100%;
+    text-align: center;
+    font-size: 22px;
+    font-weight: 500;
+    color: #111;
+    margin-bottom: 24px;
+}
+
+.form-group {
+    width: 90%;
+    margin: 0 auto 16px auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-size: 15px;
+    color: #222;
+    margin-bottom: 6px;
+    font-weight: 400;
+}
+
+.form-group input[type="text"] {
+    width: 100%;
+    height: 45px;
+    border: none;
+    border-radius: 12px;
+    background: #CDCFD4;
+    font-size: 16px;
+    padding: 0 15px;
+    box-sizing: border-box;
+    margin-bottom: 0;
+    color: #222;
+}
+
+.form-group input[readonly] {
+    color: #222;
+    background: #CDCFD4;
+}
+
+.delete-contact {
+    width: 90%;
+    margin: 24px auto 0 auto;
+    height: 45px;
+    background: #CDCFD4;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #EF2F2F;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: background 0.2s;
+    box-sizing: border-box;
+}
+
+.delete-contact:hover {
+    background: #f8d7da;
+}
+
+@media (max-width: 400px) {
+    .container {
+        width: 98vw;
+        padding: 16px 0 0 0;
+    }
+    .form-group, .delete-contact {
+        width: 98%;
+    }
+}body {
+    margin: 0;
+    padding: 0;
+    background: #f8fafe;
+    font-family: 'Roboto', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    width: 340px;
+    max-width: 95vw;
+    height: 700px;
+    max-height: 95vh;
+    background: #838A98;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 0 0 0;
+    box-sizing: border-box;
+    overflow: hidden;
+    position: relative;
+}
+
+.header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 24px;
+    font-size: 22px;
+    font-weight: 400;
+    margin-bottom: 16px;
+    box-sizing: border-box;
+}
+
+.title {
+    width: 100%;
+    text-align: center;
+    font-size: 22px;
+    font-weight: 500;
+    color: #111;
+    margin-bottom: 24px;
+}
+
+.form-group {
+    width: 90%;
+    margin: 0 auto 16px auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-size: 15px;
+    color: #222;
+    margin-bottom: 6px;
+    font-weight: 400;
+}
+
+.form-group input[type="text"] {
+    width: 100%;
+    height: 45px;
+    border: none;
+    border-radius: 12px;
+    background: #CDCFD4;
+    font-size: 16px;
+    padding: 0 15px;
+    box-sizing: border-box;
+    margin-bottom: 0;
+    color: #222;
+}
+
+.form-group input[readonly] {
+    color: #222;
+    background: #CDCFD4;
+}
+
+.delete-contact {
+    width: 90%;
+    margin: 24px auto 0 auto;
+    height: 45px;
+    background: #CDCFD4;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #EF2F2F;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: background 0.2s;
+    box-sizing: border-box;
+}
+
+.delete-contact:hover {
+    background: #f8d7da;
+}
+
+@media (max-width: 400px) {
+    .container {
+        width: 98vw;
+        padding: 16px 0 0 0;
+    }
+    .form-group, .delete-contact {
+        width: 98%;
+    }
+}

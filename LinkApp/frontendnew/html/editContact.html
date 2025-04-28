@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Contact</title>
+
+    
+    <link rel="stylesheet" href="../css/editContact.css">
+   
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div id="cancel-btn">Cancel</div>
+            <div id="save-btn">Save</div>
+        </div>
+        <div class="title">Edit contact</div>
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" id="name" placeholder="Enter name">
+        </div>
+        <div class="form-group">
+            <label for="last-name">Last name</label>
+            <input type="text" id="last-name" placeholder="Enter last name">
+        </div>
+        <div class="form-group">
+            <label for="phone">Phone:</label>
+            <input type="text" id="phone" value="+999 999 999 999" readonly>
+        </div>
+        <div class="delete-contact" id="delete-btn">Delete contact</div>
+    </div>
+    <script>
+        // Cancel button functionality
+        document.getElementById('cancel-btn').addEventListener('click', function() {
+            window.history.back(); // Возвращает на предыдущую страницу
+        });
+
+        // Save button functionality
+        document.getElementById('save-btn').addEventListener('click', function() {
+            const name = document.getElementById('name').value;
+            const lastName = document.getElementById('last-name').value;
+            const phone = document.getElementById('phone').value; // Уникальный идентификатор
+
+            if (name.trim() === '') {
+                alert('Please enter a name.');
+                return;
+            }
+
+            // Сохраняем данные пользователя в localStorage с использованием номера телефона как ключа
+            const userData = {
+                name: name,
+                lastName: lastName,
+            };
+            localStorage.setItem(phone, JSON.stringify(userData));
+
+            // Перенаправляем обратно на meminfo.html
+            window.location.href = 'meminfo.html?phone=' + encodeURIComponent(phone);
+        });
+
+        // Delete contact functionality
+        document.getElementById('delete-btn').addEventListener('click', function() {
+            const confirmDelete = confirm('Are you sure you want to delete this contact?');
+            if (confirmDelete) {
+                alert('Contact deleted.');
+                window.location.href = 'done/meminfo.html'; // Redirect to meminfo page
+            }
+        });
+    </script>
+</body>
+</html>

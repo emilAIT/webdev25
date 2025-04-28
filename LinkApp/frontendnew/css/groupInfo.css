@@ -1,0 +1,301 @@
+/* Основные стили для страницы */
+body {
+    margin: 0;
+    padding: 0;
+    background: #112c3c; /* Фон страницы */
+    font-family: Roboto, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; /* Центрирование окна */
+}
+
+/* Основной контейнер */
+.group-info {
+    position: relative;
+    width: 340px; /* Ширина окна */
+    height: 700px; /* Высота окна */
+    background: #838A98; /* Цвет фона окна */
+    border-radius: 20px; /* Скруглённые углы */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); /* Тень для эффекта */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Содержимое начинается сверху */
+    align-items: center; /* Центрирование содержимого по горизонтали */
+    padding: 15px;
+    box-sizing: border-box;
+}
+
+/* Заголовок */
+.header {
+    width: 100%;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+}
+
+.header .back-arrow {
+    font-size: 24px;
+    color: black;
+    cursor: pointer;
+}
+
+.header .edit-button {
+    font-size: 16px;
+    font-weight: 600;
+    color: black;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.header .title {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 24px;
+    font-weight: 700;
+    color: black;
+}
+
+.title {
+    font-size: 20px; /* Увеличиваем размер текста */
+    font-weight: bold; /* Делаем текст жирным */
+    text-align: center; /* Выравниваем текст по центру */
+}
+
+/* Аватар группы */
+.profile-pic {
+    width: 132px;
+    height: 132px;
+    margin: 20px auto;
+    background: #D9D9D9;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-pic img {
+    width: 80px;
+    height: 80px;
+}
+
+/* Информация о группе */
+.group-details {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.group-details .group-name {
+    font-size: 24px;
+    font-weight: 700;
+    color: #243A93;
+}
+
+/* Кнопки */
+.buttons {
+    margin: 20px auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.buttons button {
+    width: 300px;
+    height: 40px;
+    background: #D9D9D9;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.buttons button .icon {
+    font-size: 18px;
+}
+
+/* Список участников */
+.members {
+    flex: 1;
+    margin: 20px auto;
+    padding: 0 20px;
+    overflow-y: auto; /* Добавляем прокрутку */
+    max-height: 150px; /* Ограничиваем высоту для отображения участников */
+}
+
+/* Кастомная полоса прокрутки */
+.members::-webkit-scrollbar {
+    width: 8px; /* Ширина полосы прокрутки */
+}
+
+.members::-webkit-scrollbar-thumb {
+    background: #79747E; /* Цвет ползунка */
+    border-radius: 8px; /* Закругленные края */
+}
+
+.members::-webkit-scrollbar-track {
+    background: #D9D9D9; /* Цвет фона полосы прокрутки */
+    border-radius: 8px; /* Закругленные края */
+}
+
+/* Для Firefox */
+.members {
+    scrollbar-width: thin; /* Устанавливаем тонкую полосу прокрутки */
+    scrollbar-color: #79747E #D9D9D9; /* Цвет ползунка и фона */
+}
+
+/* Элемент участника */
+.member-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #D9D9D9;
+    border-radius: 8px;
+    padding: 0 10px;
+    margin-bottom: 10px;
+    width: 230px;
+    height: 40px; /* Высота каждого участника */
+    margin: 0 auto 10px;
+}
+
+.member-item .member-icon {
+    width: 24px;
+    height: 24px;
+    background: #79747E;
+    border-radius: 50%;
+}
+
+.member-item .member-name {
+    flex: 1;
+    margin-left: 10px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.member-item .arrow {
+    font-size: 20px;
+    color: #000;
+}
+
+/* Кнопки внизу */
+.footer-buttons {
+    display: flex;
+    justify-content: space-around;
+    padding: 20px;
+    background: #838A98;
+    gap:20px
+}
+
+.footer-buttons button {
+    width: 120px;
+    height: 40px;
+    background: #FF5C5C; /* Красный цвет */
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: white; /* Белый текст */
+    cursor: pointer;
+}
+
+.footer-buttons button:hover {
+    background: #E04B4B; /* Темнее при наведении */
+}
+
+.edit-button {
+    position: absolute; /* Устанавливаем абсолютное позиционирование */
+    top: 20px; /* Отступ сверху */
+    right: 20px; /* Отступ справа */
+    font-size: 8px; /* Размер текста кнопки */
+    padding: 8px 16px; /* Внутренние отступы */
+    border-radius: 5px; /* Закругляем углы кнопки */
+    background-color: #7494EC; /* Цвет фона кнопки */
+    color: white; /* Цвет текста */
+    border: none; /* Убираем границу */
+    cursor: pointer; /* Указываем, что это кнопка */
+}
+
+.modal-confirm {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-confirm .modal-content {
+    background-color: white;
+    padding: 15px;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 400px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.modal-text {
+    text-align: center;
+    margin-bottom: 15px;
+    font-size: 16px;
+}
+
+.member-list {
+    max-height: 200px;
+    overflow-y: auto;
+    margin-bottom: 15px;
+}
+
+.member-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+.member-item .member-name {
+    font-size: 14px;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: space-around;
+}
+
+.modal-buttons button {
+    padding: 8px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#add-members-save-btn, #remove-members-save-btn {
+    background-color: #4CAF50;
+    color: white;
+}
+
+#add-members-cancel-btn, #remove-members-cancel-btn {
+    background-color: #f0f0f0;
+}
+
+#leave-yes-btn {
+    background-color: #ff4d4d;
+    color: white;
+}
+
+#leave-no-btn {
+    background-color: #f0f0f0;
+}

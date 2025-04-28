@@ -1,0 +1,95 @@
+body {
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+  background: #112c3c; /* Фон страницы */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Высота экрана */
+}
+
+.container {
+  position: relative; /* Для позиционирования кнопки "Назад" */
+  width: 340px; /* Ограничение ширины окна */
+  height: 700px; /* Ограничение высоты окна */
+  background: #838A98; /* Цвет фона окна */
+  border-radius: 20px; /* Скруглённые углы */
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); /* Тень для эффекта */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* Содержимое начинается сверху */
+  align-items: center; /* Центрирование содержимого по горизонтали */
+  padding: 15px; /* Внутренние отступы */
+  box-sizing: border-box;
+}
+
+.back-button {
+  position: absolute; /* Позиционирование относительно контейнера */
+  top: 15px; /* Расстояние от верхнего края */
+  left: 15px; /* Расстояние от левого края */
+  width: 40px; /* Ширина кнопки */
+  height: 40px; /* Высота кнопки */
+  background: #1D1B20; /* Цвет кнопки */
+  border-radius: 50%; /* Скруглённые углы */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 10; /* Убедитесь, что кнопка выше других элементов */
+}
+
+.back-button svg {
+  width: 16px; /* Размер иконки */
+  height: 16px;
+  fill: white; /* Цвет иконки */
+}
+
+.title {
+  font-size: 20px; /* Размер текста заголовка */
+  font-weight: 700;
+  color: black;
+  margin-top: 70px; /* Отступ сверху */
+  margin-bottom: 20px; /* Отступ снизу */
+  text-align: center;
+}
+
+.instruction {
+  font-size: 14px; /* Размер текста инструкции */
+  font-weight: 400;
+  color: black;
+  margin-bottom: 10px; /* Отступ снизу */
+  text-align: center;
+}
+
+.phone-input {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Промежуток между элементами */
+  margin-bottom: 15px; /* Отступ между полями ввода */
+}
+
+.phone-input input {
+  flex-grow: 1;
+  height: 25px; /* Высота поля ввода */
+  border: none;
+  border-bottom: 1px solid #D9D9D9;
+  background: transparent;
+  font-size: 14px; /* Размер текста */
+  color: black;
+  outline: none;
+}
+
+.ok-button {
+  width: 80px; /* Ширина кнопки */
+  height: 40px; /* Высота кнопки */
+  background: #D9D9D9; /* Цвет кнопки */
+  border-radius: 15px; /* Скруглённые углы */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 14px; /* Размер текста */
+  font-weight: 500;
+  color: black;
+  cursor: pointer;
+  margin-top: 20px; /* Отступ сверху */
+}

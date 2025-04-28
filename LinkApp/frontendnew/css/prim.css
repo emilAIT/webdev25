@@ -1,0 +1,17 @@
+.image-container {
+    display: flex;
+    flex-direction: column; /* Расположить элементы вертикально */
+    justify-content: center; /* Центрировать по вертикали */
+    align-items: center; /* Центрировать по горизонтали */
+    height: 100vh; /* Высота контейнера равна высоте окна браузера */
+}
+
+/* Стили для текста под логотипом */
+.logo-text {
+    margin-top: 10px; /* Отступ сверху от изображения */
+    font-size: 46px; /* Размер текста */
+    color: #3856A9; /* Синий цвет текста */
+    font-family: Arial, sans-serif; /* Шрифт текста */
+    font-weight: bold; /* Сделать текст жирным (если нужно) */
+    text-align: center; /* Центрирование текста */
+}

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Group</title>
+  <link rel="stylesheet" href="../css/newgroup.css">
+</head>
+<body>
+  <div class="container">
+    <div class="back-button" onclick="goBack()">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6z"/>
+      </svg>
+    </div>
+    <div class="title">New Group</div>
+    <div class="input-group">
+      <input type="text" id="group-name" placeholder="Название группы">
+    </div>
+    <button class="button" onclick="addMembers()">Add members</button>
+    <button class="button" onclick="createGroup()">Create group</button>
+  </div>
+
+  <script>
+    function goBack() {
+      window.location.href = './groups.html'; // Возврат на groups.html
+    }
+
+    // Сохраняем название группы перед переходом на addMem.html
+    function addMembers() {
+      const groupName = document.getElementById('group-name').value.trim();
+      if (!groupName) {
+        alert('Введите название группы!');
+        return;
+      }
+      localStorage.setItem('groupName', groupName); // Сохраняем название группы
+      window.location.href = './addMem.html'; // Переход на addMem.html
+    }
+
+    function createGroup() {
+      const groupName = document.getElementById('group-name').value.trim();
+      if (!groupName) {
+        alert('Введите название группы!');
+        return;
+      }
+
+      // Проверяем, есть ли участники для этой группы
+      const members = JSON.parse(localStorage.getItem('selectedMembers')) || [];
+      if (members.length === 0) {
+        alert('Добавьте хотя бы одного участника!');
+        return;
+      }
+
+      // Создаем новую группу
+      const groups = JSON.parse(localStorage.getItem('groups')) || [];
+      const newGroup = {
+        name: groupName,
+        lastMessage: 'Нет сообщений',
+        lastMessageTime: '',
+        members: members
+      };
+
+      groups.push(newGroup);
+      localStorage.setItem('groups', JSON.stringify(groups));
+
+      // Удаляем временные данные
+      localStorage.removeItem('groupName');
+      localStorage.removeItem('selectedMembers');
+
+      alert(`Группа "${groupName}" успешно создана!`);
+      window.location.href = './groups.html'; // Переход обратно на страницу групп
+    }
+
+    // Восстанавливаем название группы при загрузке страницы
+    document.addEventListener('DOMContentLoaded', () => {
+      const savedGroupName = localStorage.getItem('groupName');
+      if (savedGroupName) {
+        document.getElementById('group-name').value = savedGroupName;
+      }
+    });
+  </script>
+</body>
+</html>

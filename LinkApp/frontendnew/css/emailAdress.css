@@ -1,0 +1,65 @@
+body {
+  margin: 0;
+  padding: 0;
+  background: #112c3c; /* Фон страницы */
+  font-family: Roboto, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh; 
+  }
+
+  .container {
+    position: relative; /* Для позиционирования кнопки "Назад" */
+    width: 340px; /* Ограничение ширины окна */
+    height: 700px; /* Ограничение высоты окна */
+    background: #838A98; /* Цвет фона окна */
+    border-radius: 20px; /* Скруглённые углы */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); /* Тень для эффекта */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Центрирование содержимого по вертикали */
+    align-items: center; /* Центрирование содержимого по горизонтали */
+    padding: 15px; /* Внутренние отступы */
+    box-sizing: border-box;
+  }
+
+  .back-button {
+    width: 40px;
+    height: 40px;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: #1D1B20;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  .back-button svg {
+    width: 16px;
+    height: 16px;
+    fill: white;
+  }
+
+  .title {
+    position: absolute;
+    top: 150px;
+    width: 100%;
+    text-align: center;
+    font-size: 24px;
+    font-weight: 700;
+    color: black;
+  }
+
+  .email {
+    position: absolute;
+    top: 250px;
+    width: 100%;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 500;
+    color: black;
+  }

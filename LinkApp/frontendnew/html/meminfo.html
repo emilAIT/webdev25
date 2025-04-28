@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MemInfo</title>
+  <link rel="stylesheet" href="../css/meminfo.css">
+</head>
+<body>
+  <div class="container">
+    <div class="back-button" onclick="goBack()">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6z"/>
+      </svg>
+    </div>
+    <div class="edit-button" onclick="editProfile()">Edit</div>
+    <div class="profile-pic">
+      <div class="profile-icon"></div>
+    </div>
+    <div class="name">Name</div>
+    <div class="phone">+999 999 999 999</div>
+    <div class="button clear-chat" onclick="clearChat()">Clear chat</div>
+    <div class="button block-name" onclick="blockName()">Block Name</div>
+  </div>
+  <div class="member-item" onclick="openMemInfo()">
+    <div class="member-icon"></div>
+    <div class="member-name"></div>
+    <div class="arrow"></div>
+  </div>
+  <script>
+    function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+    }
+
+    // Устанавливаем имя пользователя из localStorage
+    function setDynamicName() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const phone = urlParams.get('phone'); // Получаем номер телефона из URL
+
+        if (phone) {
+            const userData = JSON.parse(localStorage.getItem(phone));
+            if (userData) {
+                const name = userData.name || 'Name';
+                const lastName = userData.lastName || '';
+                document.querySelector('.name').textContent = `${name} ${lastName}`.trim();
+            }
+        }
+    }
+
+    // Вызов функции при загрузке страницы
+    setDynamicName();
+
+    function editProfile() {
+        window.location.href = "./editContact.html"; // Укажите путь к editcontact.html
+    }
+
+    function goBack() {
+        window.location.href = "./nameChat.html"; // Redirect back to nameChat.html
+    }
+
+    function clearChat() {
+        alert('Chat cleared!');
+    }
+
+    function blockName() {
+        alert('Name blocked!');
+    }
+
+    function openMemInfo() {
+        window.location.href = "./meminfo.html"; // Укажите путь к meminfo.html
+    }
+  </script>
+</body>
+</html>

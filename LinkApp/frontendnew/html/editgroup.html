@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактировать группу</title>
+    <!-- <link rel="stylesheet" href="../css/common.css"> -->
+
+    <link rel="stylesheet" href="../css/editgroup.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Кнопка "Назад" -->
+        <button class="back-button" onclick="goBack()">
+            <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 96 960 960" width="24" fill="black">
+                <path d="M560 976 160 576l400-400 56 56-344 344 344 344-56 56Z"/>
+            </svg>
+        </button>
+
+        <!-- Заголовок -->
+        <div class="header">Редактировать группу</div>
+
+        <!-- Поле для ввода названия группы -->
+        <div class="input-container">
+            <input type="text" id="group-name" class="input-field" placeholder="Новое название группы">
+        </div>
+
+        <!-- Кнопка "Edit" -->
+        <button class="edit-button" onclick="editGroup()">Изменить</button>
+    </div>
+
+    <script>
+        function goBack() {
+            window.history.back(); // Возвращает пользователя на предыдущую страницу
+        }
+
+        function editGroup() {
+            const groupName = document.getElementById('group-name').value.trim();
+            if (groupName === '') {
+                alert('Название группы не может быть пустым!');
+                return;
+            }
+
+            // Получаем список групп из localStorage
+            const groups = JSON.parse(localStorage.getItem('groups')) || [];
+            const currentGroupName = localStorage.getItem('currentGroupName'); // Текущее название группы
+
+            // Обновляем название группы
+            const updatedGroups = groups.map(group => {
+                if (group.name === currentGroupName) {
+                    group.name = groupName; // Изменяем название группы
+                }
+                return group;
+            });
+
+            // Сохраняем обновлённый список групп в localStorage
+            localStorage.setItem('groups', JSON.stringify(updatedGroups));
+
+            // Обновляем текущее название группы в localStorage
+            localStorage.setItem('currentGroupName', groupName);
+
+            alert(`Название группы изменено на: ${groupName}`);
+
+            // Перенаправляем пользователя обратно на страницу информации о группе
+            window.location.href = './groupInfo.html';
+        }
+    </script>
+</body>
+</html>

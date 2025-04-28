@@ -1,0 +1,98 @@
+body {
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+  background: #112c3c;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+  width: 340px;
+  max-width: 95vw;
+  height: 700px;
+  max-height: 95vh;
+  background: #838A98;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  box-sizing: border-box;
+  overflow: auto; /* Если содержимое выходит за пределы — появляется скролл */
+  position: relative;
+}
+
+.back-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 40px;
+  height: 40px;
+  background: #1D1B20;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border: none;
+  z-index: 2;
+}
+
+.back-button svg {
+  width: 16px;
+  height: 16px;
+  fill: white;
+}
+
+.title {
+  margin-top: 40px;
+  margin-bottom: 20px;
+  font-size: 32px;
+  font-weight: 700;
+  color: black;
+  text-align: center;
+  width: 100%;
+}
+
+.input-group {
+  margin-top: 20px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.input-group input {
+  width: 90%;
+  height: 45px;
+  border: none;
+  border-radius: 20px;
+  background: #CDCFD4;
+  padding: 0 15px;
+  font-size: 16px;
+  color: #646C7B;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.button {
+  margin-top: 30px;
+  width: 90%;
+  height: 45px;
+  background: #7494EC;
+  border: none;
+  border-radius: 20px;
+  font-size: 16px;
+  font-weight: 500;
+  color: black;
+  cursor: pointer;
+  text-align: center;
+  line-height: 45px;
+  transition: opacity 0.2s;
+}
+
+.button:hover {
+  opacity: 0.9;
+}
