@@ -158,7 +158,7 @@ def get_chats(request: Request, db: Session = Depends(get_db)):
         })
     
     result.sort(
-        key=lambda x: x.get("last_message_time", "00:00"),
+        key=lambda x: (x.get("last_message_time") is not None, x.get("last_message_time", "00:00"), x.get("id", 0)),
         reverse=True
     )
     
