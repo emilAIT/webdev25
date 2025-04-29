@@ -5,14 +5,74 @@
     <meta charset="UTF-8">
     <title>BlipChat - Друзья</title>
     <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .full-container {
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .logo {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            margin-top: 0;
+            font-size: 1.3em;
+            color: #333;
+        }
+
+        #friends-list {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 20px;
+        }
+
+        #friends-list li {
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #ddd;
+        }
+
+        #friends-list li button {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #friends-list li button:hover {
+            background-color: #c82333;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #007bff;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 
 <body>
-    <div class="container">
+    <div class="full-container">
         <div class="logo">BlipChat</div>
         <h2>Ваши друзья</h2>
         <ul id="friends-list"></ul>
-        <a href="/main">Назад</a>
+        <a href="/main">← Назад</a>
     </div>
     <script src="/static/script.js"></script>
 </body>

@@ -5,10 +5,42 @@
     <meta charset="UTF-8">
     <title>BlipChat</title>
     <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .full-container {
+            width: 100%;
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .logo {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .logout-btn {
+            text-decoration: none;
+            color: #007bff;
+            font-weight: 500;
+        }
+
+        .logout-btn:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 
 <body>
-    <div class="container">
+    <div class="full-container">
         <div class="header">
             <div class="logo">BlipChat</div>
             <a href="/logout" class="logout-btn">Выйти</a>

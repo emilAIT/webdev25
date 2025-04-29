@@ -5,25 +5,135 @@
     <meta charset="UTF-8">
     <title>BlipChat - Главная</title>
     <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .full-container {
+            width: 100%;
+            margin: 0;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .logo {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .logout-btn {
+            text-decoration: none;
+            color: #007bff;
+        }
+
+        .logout-btn:hover {
+            text-decoration: underline;
+        }
+
+        .actions {
+            margin: 20px 0;
+            text-align: right;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        h2 {
+            margin-top: 30px;
+            font-size: 1.3em;
+            color: #333;
+        }
+
+        .chat-item {
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border: 1px solid #ddd;
+        }
+
+        .chat-item:hover {
+            background-color: #f1f1f1;
+        }
+
+        .chat-info h3 {
+            margin: 0;
+            font-size: 1em;
+            font-weight: bold;
+        }
+
+        .chat-info p {
+            margin: 5px 0 0;
+            font-size: 0.9em;
+            color: #555;
+        }
+
+        .chat-info small {
+            color: #999;
+            font-size: 0.8em;
+        }
+
+        .nav-links {
+            margin-top: 30px;
+            font-size: 0.95em;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #007bff;
+            margin: 0 10px;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        .no-chats {
+            margin-top: 20px;
+            color: #777;
+            font-style: italic;
+        }
+    </style>
 </head>
 
 <body>
-    <div class="container">
+    <div class="full-container">
         <div class="header">
             <div class="logo">BlipChat</div>
             <a href="/logout" class="logout-btn">Выйти</a>
         </div>
+
         <div class="actions">
             <button id="createGroupBtn" class="btn btn-primary">Создать группу</button>
         </div>
+
         <h2>Ваши чаты</h2>
         <div id="chats-list"></div>
+
         <div class="nav-links">
             <a href="/users">Пользователи</a> |
             <a href="/friends">Друзья</a> |
             <a href="/profile">Профиль</a>
         </div>
     </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', async function () {
             // Обработчик кнопки создания группы

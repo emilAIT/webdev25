@@ -1,11 +1,9 @@
 {% extends "base.html" %}
-
 {% block content %}
-<div class="container mt-4">
+<div class="full-container mt-4">
     <a href="/main" class="btn btn-secondary mb-3">
         <i class="bi bi-arrow-left"></i> Назад
     </a>
-
     <input type="hidden" id="groupId" value="{{ group.id }}">
     <h2>Управление группой (ID: {{ group.id }})</h2>
 
@@ -15,24 +13,23 @@
             <form id="groupInfoForm" enctype="multipart/form-data">
                 <div class="mb-3">
                     <label for="groupName" class="form-label">Название группы</label>
-                    <input type="text" class="form-control" id="groupName" name="name" value="{{ group.name }}"
-                        required>
+                    <input type="text" class="form-control" id="groupName" name="name" value="{{ group.name }}" required
+                        style="max-width: 600px;">
                 </div>
-
                 <div class="mb-3">
                     <label for="groupDescription" class="form-label">Описание группы</label>
-                    <textarea class="form-control" id="groupDescription" name="description"
-                        rows="3">{{ group.description }}</textarea>
+                    <textarea class="form-control" id="groupDescription" name="description" rows="3"
+                        style="max-width: 600px;">{{ group.description }}</textarea>
                 </div>
-
                 <div class="mb-3">
                     <label for="groupAvatar" class="form-label">Аватар группы</label>
-                    <input type="file" class="form-control" id="groupAvatar" name="avatar" accept="image/*">
+                    <input type="file" class="form-control" id="groupAvatar" name="avatar" accept="image/*"
+                        style="max-width: 600px;">
                     {% if group.avatar %}
-                    <img src="{{ group.avatar }}" alt="Аватар группы" class="mt-2" style="max-width: 100px;">
+                    <img src="{{ group.avatar }}" alt="Аватар группы" class="mt-2"
+                        style="max-width: 100px; border-radius: 50%;">
                     {% endif %}
                 </div>
-
                 <button type="submit" class="btn btn-primary">Сохранить изменения</button>
             </form>
         </div>
@@ -41,16 +38,14 @@
     <div class="card mb-4">
         <div class="card-body">
             <h5 class="card-title">Участники группы</h5>
-
             <div class="mb-3">
-                <div class="input-group">
+                <div class="input-group" style="max-width: 600px;">
                     <input type="text" class="form-control" id="userSearch" placeholder="Поиск пользователей...">
                     <button class="btn btn-outline-secondary" type="button" id="searchButton">Поиск</button>
                 </div>
-                <div id="searchResults" class="list-group mt-2"></div>
+                <div id="searchResults" class="list-group mt-2" style="max-width: 600px;"></div>
             </div>
-
-            <div id="groupMembers" class="list-group">
+            <div id="groupMembers" class="list-group" style="max-width: 600px;">
                 {% for member in group.members %}
                 <div class="list-group-item">
                     <div class="d-flex justify-content-between align-items-center">
@@ -79,6 +74,90 @@
     {% endif %}
 </div>
 
+<style>
+    .full-container {
+        width: 100%;
+        padding: 0 20px;
+        box-sizing: border-box;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+        text-decoration: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        display: inline-block;
+        margin-bottom: 20px;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+    }
+
+    .card {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        max-width: 800px;
+    }
+
+    .card-title {
+        font-size: 1.1em;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+
+    .form-control,
+    textarea {
+        padding: 10px;
+        font-size: 1em;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        width: 100%;
+    }
+
+    .list-group-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .list-group-item:last-child {
+        border-bottom: none;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        padding: 4px 8px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .btn-danger:hover {
+        background-color: #c82333;
+    }
+</style>
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const groupId = parseInt(document.getElementById('groupId').value);
@@ -88,7 +167,6 @@
         const groupMembers = document.getElementById('groupMembers');
 
         console.log('Group ID:', groupId, typeof groupId);
-
         if (!groupId || isNaN(groupId)) {
             console.error('Invalid group ID:', groupId);
             alert('Ошибка: неверный ID группы');
@@ -98,15 +176,12 @@
         // Обновление информации о группе
         document.getElementById('groupInfoForm').addEventListener('submit', async function (e) {
             e.preventDefault();
-
             const formData = new FormData(this);
-
             try {
                 const response = await fetch(`/api/groups/${groupId}`, {
                     method: 'PUT',
                     body: formData
                 });
-
                 if (response.ok) {
                     alert('Изменения сохранены');
                     location.reload();
@@ -140,7 +215,6 @@
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const users = await response.json();
-
                 searchResults.innerHTML = '';
                 users.forEach(user => {
                     const div = document.createElement('div');
@@ -180,16 +254,13 @@
             if (e.target.classList.contains('add-member')) {
                 const userId = e.target.dataset.id;
                 console.log('Adding user:', userId, 'to group:', groupId); // Для отладки
-
                 try {
                     const formData = new FormData();
                     formData.append('user_ids', JSON.stringify([userId]));
-
                     const response = await fetch(`/api/groups/${groupId}/members`, {
                         method: 'POST',
                         body: formData
                     });
-
                     if (response.ok) {
                         location.reload();
                     } else {
@@ -209,16 +280,13 @@
             if (e.target.classList.contains('remove-member')) {
                 if (confirm('Вы уверены, что хотите удалить этого участника?')) {
                     const userId = e.target.dataset.id;
-
                     try {
                         const formData = new FormData();
                         formData.append('user_ids', JSON.stringify([userId]));
-
                         const response = await fetch(`/api/groups/${groupId}/members`, {
                             method: 'DELETE',
                             body: formData
                         });
-
                         if (response.ok) {
                             location.reload();
                         } else {
@@ -241,7 +309,6 @@
                     const response = await fetch(`/api/groups/${groupId}`, {
                         method: 'DELETE'
                     });
-
                     if (response.ok) {
                         window.location.href = '/main';
                     } else {

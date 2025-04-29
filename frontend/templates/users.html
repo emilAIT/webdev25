@@ -5,10 +5,119 @@
     <meta charset="UTF-8">
     <title>BlipChat - Пользователи</title>
     <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .full-container {
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            background-color: #ffffff;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .logo {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .logout-btn {
+            text-decoration: none;
+            color: #007bff;
+        }
+
+        .logout-btn:hover {
+            text-decoration: underline;
+        }
+
+        input[name="search"] {
+            width: 100%;
+            max-width: 600px;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        ul#users-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        li.user-item {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .user-email {
+            color: #666;
+        }
+
+        .user-actions button {
+            margin-left: 10px;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .chat-btn {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .chat-btn:hover {
+            background-color: #218838;
+        }
+
+        .friend-btn.add {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .friend-btn.remove {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .nav-links {
+            margin-top: 20px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #007bff;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 
 <body>
-    <div class="container">
+    <div class="full-container">
         <div class="header">
             <div class="logo">BlipChat</div>
             <a href="/logout" class="logout-btn">Выйти</a>
@@ -16,7 +125,7 @@
         <input type="text" name="search" placeholder="Поиск пользователей...">
         <ul id="users-list"></ul>
         <div class="nav-links">
-            <a href="/main">Назад</a>
+            <a href="/main">← Назад</a>
         </div>
     </div>
     <script>
@@ -55,7 +164,7 @@
                 });
             }
 
-            // Добавим функцию для создания чата
+            // Функция для создания чата
             window.startChat = async function (userId, userName) {
                 const resp = await fetch('/api/chats/create', {
                     method: 'POST',

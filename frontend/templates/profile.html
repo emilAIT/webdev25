@@ -5,10 +5,68 @@
     <meta charset="UTF-8">
     <title>BlipChat - Профиль</title>
     <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .full-container {
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .logo {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        form#profile-form {
+            max-width: 600px;
+        }
+
+        form#profile-form label {
+            display: block;
+            margin-top: 15px;
+            font-weight: 500;
+        }
+
+        form#profile-form input[type="text"],
+        form#profile-form input[type="email"],
+        form#profile-form input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            margin-top: 5px;
+        }
+
+        form#profile-form button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        form#profile-form button:hover {
+            background-color: #0056b3;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #007bff;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 
 <body>
-    <div class="container">
+    <div class="full-container">
         <div class="logo">BlipChat</div>
         <form id="profile-form">
             <label>Имя:</label>
@@ -21,7 +79,7 @@
             <input type="password" name="new_password">
             <button type="submit">Сохранить</button>
         </form>
-        <a href="/main">Назад</a>
+        <a href="/main">← Назад</a>
     </div>
     <script src="/static/script.js"></script>
 </body>

@@ -63,6 +63,7 @@
     padding: 10px;
     margin-bottom: 10px;
     border-radius: 8px;
+    width: auto;
     max-width: 70%;
 }
 
@@ -74,4 +75,4 @@
 .message.received {
     background-color: #f5f5f5;
     margin-right: auto;
-} 
+}

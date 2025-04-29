@@ -1,29 +1,39 @@
 body {
     background: #aab6f7;
     font-family: 'Montserrat', sans-serif;
+    margin: 0;
+    padding: 0;
 }
+
 .container {
-    width: 350px;
+    max-width: 1200px;
     margin: 40px auto;
     background: #aab6f7;
     border-radius: 10px;
     padding: 30px 20px;
     box-shadow: 0 0 10px #bfcfff;
+    width: 95%;
 }
+
 .logo {
     background: #dde6fa;
     border-radius: 40px;
     text-align: center;
-    font-size: 2.5em;
+    font-size: 3em;
     margin-bottom: 30px;
     font-family: 'Comic Sans MS', cursive;
     padding: 20px 0;
+    max-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
 }
+
 form label {
     display: block;
     margin-top: 10px;
     font-weight: bold;
 }
+
 form input {
     width: 100%;
     padding: 10px;
@@ -34,17 +44,22 @@ form input {
     color: #fff;
     font-size: 1em;
 }
+
 button {
-    width: 100%;
+    width: auto;
     margin-top: 20px;
-    padding: 12px;
+    padding: 12px 20px;
     background: #a34d5d;
     color: #fff;
     border: none;
     border-radius: 20px;
     font-size: 1.2em;
     cursor: pointer;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }
+
 a {
     display: block;
     text-align: center;
@@ -53,7 +68,6 @@ a {
     text-decoration: none;
 }
 
-/* Стили для чата */
 .chat-container {
     height: 90vh;
     display: flex;
@@ -73,21 +87,22 @@ a {
     margin: 10px 0;
     padding: 10px;
     border-radius: 10px;
-    max-width: 70%;
+    max-width: 60%;
 }
 
 .message.sent {
     background: #a34d5d;
     color: white;
     margin-left: auto;
+    text-align: right;
 }
 
 .message.received {
     background: #dde6fa;
     margin-right: auto;
+    text-align: left;
 }
 
-/* Стили для списков */
 ul {
     list-style: none;
     padding: 0;
@@ -103,7 +118,6 @@ li {
     align-items: center;
 }
 
-/* Поиск */
 input[name="search"] {
     width: 100%;
     padding: 10px;
@@ -140,11 +154,20 @@ input[name="search"] {
 }
 
 .nav-links a {
-    display: inline;
+    display: inline-block;
     margin: 0 10px;
+    background: white;
+    padding: 8px 16px;
+    border-radius: 10px;
+    color: #333;
+    text-decoration: none;
+    font-weight: bold;
 }
 
-/* Стили для списка пользователей */
+.nav-links a:hover {
+    background: #f0f0f0;
+}
+
 .user-item {
     display: flex;
     justify-content: space-between;
@@ -188,6 +211,7 @@ input[name="search"] {
 .friend-btn.remove {
     background: #f44336;
     color: white;
+    width: auto;
 }
 
 .friend-btn:hover {
@@ -215,7 +239,6 @@ input[name="search"] {
     opacity: 0.9;
 }
 
-/* Стили для списка чатов */
 .chat-item {
     display: flex;
     justify-content: space-between;
@@ -270,11 +293,13 @@ input[name="search"] {
 }
 
 .back-btn {
-    position: absolute;
-    left: 10px;
-    top: 10px;
+    display: inline-block;
+    padding: 6px 12px;
+    background: white;
     color: #a34d5d;
+    border-radius: 10px;
     text-decoration: none;
+    margin-bottom: 10px;
 }
 
 .chat-time {
@@ -283,7 +308,6 @@ input[name="search"] {
     margin-left: 10px;
 }
 
-/* Стили для групповых чатов */
 .actions {
     margin: 20px 0;
     text-align: right;
@@ -303,16 +327,15 @@ input[name="search"] {
 }
 
 .settings-btn {
-    color: #007bff;
+    color: white;
+    background: #4CAF50;
+    padding: 6px 12px;
+    border-radius: 10px;
     text-decoration: none;
     margin-left: 20px;
+    font-weight: bold;
 }
 
-.settings-btn:hover {
-    text-decoration: underline;
-}
-
-/* Стили для страницы создания группы */
 #createGroupForm {
     max-width: 600px;
     margin: 0 auto;
@@ -323,11 +346,10 @@ input[name="search"] {
 }
 
 #createGroupForm .list-group {
-    max-height: 200px;
+    max-height: 300px;
     overflow-y: auto;
 }
 
-/* Стили для страницы настроек группы */
 .group-settings {
     max-width: 800px;
     margin: 0 auto;
@@ -339,6 +361,12 @@ input[name="search"] {
 
 .group-settings .card-title {
     margin-bottom: 20px;
+    background: #4CAF50;
+    padding: 10px;
+    color: white;
+    border-radius: 10px;
+    text-align: center;
+    font-weight: bold;
 }
 
 .group-settings .list-group-item {
@@ -360,7 +388,6 @@ input[name="search"] {
     background-color: #c82333;
 }
 
-/* Стили для аватара группы */
 .group-avatar {
     width: 100px;
     height: 100px;
@@ -369,9 +396,8 @@ input[name="search"] {
     margin-bottom: 10px;
 }
 
-/* Стили для участников группы */
 .member-list {
-    max-height: 300px;
+    max-height: 400px;
     overflow-y: auto;
 }
 
@@ -392,4 +418,21 @@ input[name="search"] {
     color: #666;
     font-size: 0.9em;
     margin-left: 10px;
+}
+
+.profile-form {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+/* Для адаптивности */
+@media (max-width: 768px) {
+    .container {
+        width: 95%;
+        padding: 20px 10px;
+    }
+
+    .message {
+        max-width: 80%;
+    }
 }
