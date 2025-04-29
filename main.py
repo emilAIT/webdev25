@@ -1,56 +1,69 @@
+from flask import Flask, jsonify, render_template, redirect, url_for, flash, session, request, send_file
+from dbinit import init_db
+import bcrypt
+import os
+from api.auth import auth_bp
+from api.user import user_bp, get_user_photo
+from api.chat import chat_bp
+from io import BytesIO
 
-from flask import Flask, request, render_template, jsonify
-from flask_cors import CORS
-from random import randint
-from collections import defaultdict
+# Инициализация БД
+init_db()
+
+# Создаем Flask приложение
 app = Flask(__name__)
-CORS(app)
+app.secret_key = os.urandom(24)  # Для работы с сессиями
 
+# Регистрируем блюпринты
+app.register_blueprint(auth_bp)
+app.register_blueprint(user_bp)
+app.register_blueprint(chat_bp)
 
-d = {
-    "correct": 0, 
-    "attempt": 0, 
-    "question": "", 
-    "incorrect": 0,
-    "question_count": 0
-}
+@app.route('/ping')
+def index():
+    return jsonify({"message": "pong"})
 
-ops = "+-"
+@app.route('/')
+def home():
+    # Проверяем, авторизован ли пользователь
+    if 'user_id' in session:
+        return redirect(url_for('chat'))
+    return render_template('index.html')
 
-@app.route("/")
-def enterance():
-    return render_template("math.html")
+@app.route('/profile')
+def profile():
+    # Проверяем, авторизован ли пользователь
+    if 'user_id' not in session:
+        return redirect(url_for('home'))
+    return render_template('profile.html')
 
-@app.route("/get_question")
-def generate_question():
-    try:
-        first = randint(0, 100)
-        second = randint(0, 100)
-        first, second = max(first, second), min(first, second)
-        op = ops[randint(0, 1)]
-        d["question"] = f'{first}{op}{second}'
-        d["question_count"] += 1
-        return jsonify({"question": d["question"]})
-    except:
-        return "ERROR IN THE SERVER"
-
-@app.route('/check_result')
-def check_result():
-    try:
-        answer = int(request.args.get("answer"))
-        d["attempt"] += 1
-        if answer == eval(d["question"]):
-            d["correct"] += 1
-        else:
-            d["incorrect"] += 1
-        return jsonify(d)   
-    except:
-        return "error in the server"
-
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080)
-
-
-
+@app.route('/chat')
+def chat():
+    # Проверяем, авторизован ли пользователь
+    if 'user_id' not in session:
+        return redirect(url_for('home'))
     
+    # Передаем имя пользователя в шаблон
+    username = session.get('nickname', 'Пользователь')
+    return render_template('main.html', username=username)
+
+@app.route('/main')
+def main_route():
+    # Перенаправляем на /chat для совместимости
+    return redirect(url_for('chat'))
+
+@app.route('/get_user_photo')
+def get_user_photo_route():
+    """Маршрут для получения фото профиля пользователя в шаблонах"""
+    if 'user_id' not in session:
+        return redirect(url_for('home'))
+    return redirect('/api/user/photo')
+
+@app.route('/logout')
+def logout():
+    session.pop('user_id', None)
+    session.pop('nickname', None)
+    return redirect(url_for('home'))
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0')
