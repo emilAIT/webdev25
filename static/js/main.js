@@ -243,6 +243,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 showNotification(`Пользователь "${username}" успешно удалён из группы`);
                 await loadGroupMembers(currentChatId);
+
             } catch (e) {
                 showNotification(`Ошибка: ${e.message}`);
             } finally {
@@ -395,6 +396,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 `;
                 contactsList.appendChild(emptyMessage);
+                await loadGroups();
                 return;
             }
     
@@ -472,16 +474,20 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log("No chat ID available, skipping WebSocket connection");
             return;
         }
-        
         if (ws) {
-            ws.onclose = null;  // disable onclose handler to avoid loop
+            ws.onclose = null;
             ws.close();
         }
-        
         ws = new WebSocket(`ws://${window.location.host}/ws/${currentChatId}?token=${token}`);
-        
         ws.onopen = () => {
             console.log("WebSocket connection established for chat:", currentChatId);
+            // После открытия ws отправляем read для всех входящих непрочитанных сообщений
+            if (unreadToMark && unreadToMark.length > 0) {
+                unreadToMark.forEach(mid => {
+                    ws.send(JSON.stringify({ type: "read", message_id: mid }));
+                });
+                unreadToMark = [];
+            }
         };
         
         ws.onmessage = (event) => {
@@ -497,9 +503,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     isOutgoing ? currentUser.avatar : currentContactAvatar,
                     isOutgoing,
                     data.timestamp,
-                    'message'
+                    'message',
+                    data.status
                 );
-                
+                // NEW: если входящее сообщение и чат открыт, сразу отправить read
+                if (!isOutgoing && ws && ws.readyState === WebSocket.OPEN && data.id) {
+                    ws.send(JSON.stringify({ type: "read", message_id: data.id }));
+                }
+
                 // For both sender and receiver, move the chat up and update preview
                 const contactId = isOutgoing ? data.receiver_id : data.sender_id;
                 const contactEl = document.querySelector(`.contact[data-id="${contactId}"]`);
@@ -508,6 +519,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     contactsList.prepend(contactEl);
                     // Fetch and update preview to include this new message
                     fetchAndUpdateContactPreview(contactEl, contactId);
+                }
+            } else if (data.type === 'message_read') {
+                // Обновить статус сообщения на галочку (прочитано)
+                const msgElem = messageContainer.querySelector(`[data-message-id="${data.message_id}"]`);
+                if (msgElem) {
+                    const statusSpan = msgElem.querySelector('.message-status');
+                    if (statusSpan) {
+                        statusSpan.innerHTML = '<ion-icon name="checkmark-done" style="color: #25d366; font-size: 18px; vertical-align: middle;"></ion-icon>';
+                        statusSpan.title = 'Read';
+                    }
                 }
             } else if (data.type === 'user_list') {
                 // Update online status of contacts
@@ -626,7 +647,7 @@ document.addEventListener('DOMContentLoaded', function() {
             displayedMessages.clear();
     
             const currentUserId = getCurrentUserId();
-            
+            unreadToMark = [];
             messages.forEach(msg => {
                 const isOutgoing = msg.sender_id === currentUserId;
                 displayMessage(
@@ -636,15 +657,28 @@ document.addEventListener('DOMContentLoaded', function() {
                     msg.sender_avatar || (isOutgoing ? currentUser.avatar : currentContactAvatar),
                     isOutgoing,
                     msg.timestamp,
-                    "message"
+                    "message",
+                    msg.status
                 );
+                // Если входящее и не прочитано — добавить в список для отметки
+                if (!isOutgoing && msg.status === 0) {
+                    unreadToMark.push(msg.id);
+                }
             });
+            // Отправить событие read для всех непрочитанных
+            if (ws && ws.readyState === WebSocket.OPEN && unreadToMark.length > 0) {
+                unreadToMark.forEach(mid => {
+                    ws.send(JSON.stringify({ type: "read", message_id: mid }));
+                });
+                unreadToMark = [];
+            }
         } catch (error) {
             console.error("Error loading messages:", error);
         }
     }
 
     let ws = null;
+    let unreadToMark = [];
     sendButton.addEventListener("click", async () => {
         const content = messageInput.value.trim();
         
@@ -746,7 +780,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function displayMessage(messageId, message, senderName, senderAvatar, isOutgoing, timestamp, type) {
+    function displayMessage(messageId, message, senderName, senderAvatar, isOutgoing, timestamp, type, status) {
         if (messageId && displayedMessages.has(messageId)) {
             console.log("Message already displayed, skipping:", messageId);
             return;
@@ -785,6 +819,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
             const textHTML = textContent.trim() ? `<p>${textContent}</p>` : '';
+            let statusIcon = '';
+            if (isOutgoing) {
+                if (status === 1) {
+                    statusIcon = `<span class="message-status" title="Read"><ion-icon name="checkmark-done" style="color: #25d366; font-size: 18px; vertical-align: middle;"></ion-icon></span>`;
+                } else {
+                    statusIcon = `<span class="message-status" title="Delivered"><ion-icon name="checkmark-outline" style="color: #b0b0b0; font-size: 18px; vertical-align: middle;"></ion-icon></span>`;
+                }
+            }
             messageElement.innerHTML = `
                 <div class="message-avatar">
                     <img src="${senderAvatar}" alt="${senderName}">
@@ -793,9 +835,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="message-sender">${senderName}</div>
                     ${mediaHTML}
                     ${textHTML}
-                    <span class="message-time">${formatTimestamp(timestamp)}</span>
+                    <div style="display: flex; align-items: center; justify-content: flex-end; gap: 4px;">
+                        <span class="message-time">${formatTimestamp(timestamp)}</span>
+                        ${statusIcon}
+                    </div>
                 </div>
             `;
+            if (messageId) messageElement.setAttribute('data-message-id', messageId);
         }
         messageContainer.appendChild(messageElement);
         messageContainer.scrollTop = messageContainer.scrollHeight;
@@ -1201,6 +1247,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
             // Обновляем список контактов и групп
             await loadContacts();
+            loadMessages();
     
             // Сбрасываем текущий чат
             currentChatId = null;
@@ -1243,13 +1290,28 @@ document.addEventListener('DOMContentLoaded', function() {
     const cancelConfirmationBtn = document.getElementById('cancel-confirmation');
     const confirmationDeletionBtn = document.getElementById('confirmation-deletion');
 
-    clearHistoryBtn.addEventListener('click', function() {
+    clearHistoryBtn.addEventListener('click', async function() {
+        if (!currentChatId) return;
+        const response = await fetch(`/messages/${currentChatId}/clear`, {
+            method: 'DELETE',
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+        if (!response.ok) {
+            const err = await response.json();
+            showNotification(`Ошибка очистки истории: ${err.detail || 'Unknown error'}`);
+            return;
+        }
+        if (!userMenu.classList.contains('hidden')) {
+            userMenu.classList.remove('active');
+            setTimeout(() => {
+                userMenu.classList.add('hidden');
+            }, 300);
+        }
         messageContainer.innerHTML = '';
-        userMenu.classList.remove('active');
-        setTimeout(() => {
-            userMenu.classList.add('hidden');
-        }, 300);
-    });
+        showNotification('История чата очищена');
+        await loadMessages();
+        
+    }); 
 
     deleteChatBtn.addEventListener('click', function() {
         confirmationModal.classList.remove('hidden');
@@ -1263,10 +1325,72 @@ document.addEventListener('DOMContentLoaded', function() {
         confirmationModal.classList.add('hidden');
     });
 
-    confirmationDeletionBtn.addEventListener('click', function() {
-        messageContainer.innerHTML = '';
+    confirmationDeletionBtn.addEventListener('click', async function() {
+        if (!currentChatId) return;
+    
+        try {
+            const activeContact = document.querySelector('.contact.active');
+            const isGroupChat = activeContact && activeContact.classList.contains('group');
+    
+            let url, method;
+            if (isGroupChat) {
+                url = `/chats/${currentChatId}`;
+                method = 'DELETE';
+            } else {
+                url = `/chats/${currentChatId}/leave`;
+                method = 'DELETE';
+            }
+    
+            const response = await fetch(url, {
+                method,
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+    
+            if (!response.ok) {
+                const err = await response.json();
+                throw new Error(err.detail || 'Failed to delete chat');
+            }
+    
+            // Clear message container
+            messageContainer.innerHTML = '';
+    
+            // Reset header
+            document.querySelector('.current-contact .contact-info h3').textContent = '';
+            document.querySelector('.current-contact .contact-info p').textContent = '';
+            const headerAvatar = document.querySelector('.current-contact .contact-avatar img');
+            if (headerAvatar) {
+                headerAvatar.src = '/static/images/avatar.png'; // Default avatar
+                headerAvatar.style.visibility = 'hidden'; // Already done in disableMessaging, but ensure consistency
+            }
+    
+            // Reset chat state
+            currentChatId = null;
+            currentContactUsername = null;
+            currentContactAvatar = null;
+    
+            // Close WebSocket if open
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.close();
+                ws = null;
+            }
+    
+            // Remove active class from contact
+            if (activeContact) {
+                activeContact.classList.remove('active');
+            }
+    
+            // Update UI
+            showNotification('Чат удалён');
+            disableMessaging();
+            await loadContacts();
+    
+        } catch (error) {
+            showNotification(`Ошибка удаления чата: ${error.message}`);
+        }
+    
         confirmationModal.classList.add('hidden');
     });
+    
 
     confirmationModal.addEventListener('click', function(e) {
         if (e.target === confirmationModal) {
@@ -1536,7 +1660,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     emojiButton.addEventListener('click', function() {
         if (!mediaPreviewContainer.classList.contains('hidden')) {
-            mediaPreviewContainer.classList.add('hidden');
+            emojiPickerContainer.classList.add('hidden');
         }
         emojiPickerContainer.classList.remove('hidden');
         if (!emojisLoaded) {

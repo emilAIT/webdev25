@@ -687,6 +687,7 @@ body {
 
 #edit-username,
 #edit-email,
+#edit-group-name,
 #edit-password {
     background-color: transparent;
     border: 1px solid rgba(34, 61, 85, 0.95);
@@ -729,6 +730,15 @@ body {
 }
 
 #new-contact-name {
+    background-color: transparent;
+    border: none;
+    outline: none;
+    color: rgba(34, 61, 85, 0.95);
+    font-size: 16px;
+    width: 100%;
+    padding: 12px 5px;
+}
+#new-group-name {
     background-color: transparent;
     border: none;
     outline: none;
@@ -927,7 +937,6 @@ body {
     background-color: #182F43; /* Темно-синий фон */
     color: #ffffff; /* Белый цвет текста */
     font-size: 16px;
-    border-radius: 0 0 8px 8px;
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -1022,6 +1031,7 @@ body {
 }
 
 /* Confirmation Modal Styles */
+/* Confirmation Modal Styles */
 .confirmation-modal {
     position: fixed;
     top: 0;
@@ -1040,35 +1050,59 @@ body {
 }
 
 .confirmation-content {
-    background-color: rgba(34, 61, 85, 0.95);
-    width: 300px;
-    padding: 20px;
+    background-color: rgba(212, 214, 201, 1); /* Matches .modal-content */
+    width: 320px;
+    max-width: 90%;
+    padding: 20px 30px;
+    border-radius: 8px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     text-align: center;
 }
 
+.confirmation-content h2 {
+    color: rgba(34, 61, 85, 0.95);
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
 .confirmation-content p {
-    color: white;
+    color: rgba(34, 61, 85, 0.95); /* Dark text for readability */
+    font-size: 16px;
     margin-bottom: 20px;
-    font-size: 18px;
 }
 
 .confirmation-buttons {
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
 }
 
 .confirmation-buttons .action-btn {
-    background-color: transparent;
-    color: white;
     padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.2s;
-    font-size: 28px;
+    font-size: 16px;
+    transition: background-color 0.3s;
 }
 
-.confirmation-buttons .action-btn:hover {
-    background-color: rgba(255, 255, 255, 0.2);
+.confirmation-buttons .cancel-btn {
+    background-color: #ccc;
+    color: #333;
+}
+
+.confirmation-buttons .cancel-btn:hover {
+    background-color: #b3b3b3;
+}
+
+.confirmation-buttons .delete-btn {
+    background-color: #e53e3e;
+    color: #fff;
+}
+
+.confirmation-buttons .delete-btn:hover {
+    background-color: #c53030;
 }
 
 /* Media Preview Styles */
@@ -1567,8 +1601,8 @@ body {
   }
   
   .cancel-btn {
-    background-color: #ccc;
-    color: #333;
+    background-color: transparent;
+    color: rgba(34, 61, 85, 0.95);
   }
   
   .delete-btn {

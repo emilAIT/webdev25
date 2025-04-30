@@ -47,6 +47,7 @@ def init_db():
             receiver_id INTEGER,
             content TEXT NOT NULL,
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+            status INTEGER DEFAULT 0,
             FOREIGN KEY (chat_id) REFERENCES chats(id),
             FOREIGN KEY (sender_id) REFERENCES users(id),
             FOREIGN KEY (receiver_id) REFERENCES users(id)
@@ -76,17 +77,13 @@ def init_db():
     cursor.execute("PRAGMA table_info(messages)")
     columns = [col[1] for col in cursor.fetchall()]
     
-    if 'user_id' in columns and 'sender_id' not in columns:
-        # Run migration if old column name exists
-        migrate_messages_table()
-    
         # Seed default users: admin и q с паролем "1"
-    default_users = [("w", "1"), ("q", "1")]
-    for username, raw_pwd in default_users:
+    default_users = [("Daniyar", "1", "w@gmail.com"), ("Alymbek", "1", "q@gmail.com"), ("Almaz", "1", "a@gmail.com")]
+    for username, raw_pwd, email in default_users:
         hashed = pwd_context.hash(raw_pwd)
         cursor.execute(
-            "INSERT OR IGNORE INTO users (username, password) VALUES (?, ?)",
-            (username, hashed)
+            "INSERT OR IGNORE INTO users (username, password, email) VALUES (?, ?, ?)",
+            (username, hashed, email)
         )
 
     conn.commit()
@@ -191,8 +188,8 @@ def create_message(chat_id, sender_id, content):
     receiver_id = receiver['user_id'] if receiver else None  # Null for group chats
     
     cursor.execute('''
-        INSERT INTO messages (chat_id, sender_id, receiver_id, content)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO messages (chat_id, sender_id, receiver_id, content, status)
+        VALUES (?, ?, ?, ?, 0)
     ''', (chat_id, sender_id, receiver_id, content))
     conn.commit()
     message_id = cursor.lastrowid
@@ -203,7 +200,7 @@ def get_messages(chat_id):
     conn = get_db()
     cursor = conn.cursor()
     cursor.execute('''
-        SELECT m.id, m.sender_id, m.receiver_id, m.content, m.timestamp, u.username as sender_username, u.avatar as sender_avatar
+        SELECT m.id, m.sender_id, m.receiver_id, m.content, m.timestamp, m.status, u.username as sender_username, u.avatar as sender_avatar
         FROM messages m
         JOIN users u ON m.sender_id = u.id
         WHERE m.chat_id = ?
@@ -212,6 +209,15 @@ def get_messages(chat_id):
     messages = cursor.fetchall()
     conn.close()
     return [dict(msg) for msg in messages]
+
+# Новый метод для обновления статуса сообщения
+
+def mark_message_as_read(message_id):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('UPDATE messages SET status = 1 WHERE id = ?', (message_id,))
+    conn.commit()
+    conn.close()
 
 def get_all_users():
     conn = get_db()

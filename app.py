@@ -2,7 +2,7 @@ import os
 import random
 import secrets
 import uuid
-from fastapi import FastAPI, HTTPException, Depends, WebSocket, WebSocketDisconnect, Query, File, UploadFile, Form, Response
+from fastapi import FastAPI, HTTPException, Depends, WebSocket, WebSocketDisconnect, Query, File, UploadFile, Form, Response, Body
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
@@ -15,7 +15,7 @@ import shutil
 from database import (
     add_group_members, create_group_chat, get_db, get_or_create_one_on_one_chat, init_db, create_user, verify_password, get_user,
     create_message, get_messages, get_or_create_chat, get_all_users,
-    add_contact, get_contacts, search_users
+    add_contact, get_contacts, search_users, mark_message_as_read
 )
 from security import create_access_token, decode_access_token
 from datetime import datetime, timedelta
@@ -463,13 +463,6 @@ async def websocket_endpoint(websocket: WebSocket, chat_id: int, user: dict = De
 
     await websocket.accept()
     await manager.connect(websocket, chat_id, user)
-    # await manager.broadcast({
-    #     "user_id": user["id"],
-    #     "username": user["username"],
-    #     "content": f"{user['username']} joined the chat",
-    #     "type": "system"
-    # }, chat_id)
-    
     try:
         while True:
             data = await websocket.receive_json()
@@ -510,6 +503,14 @@ async def websocket_endpoint(websocket: WebSocket, chat_id: int, user: dict = De
                         "message_id": message_id,
                         "content": content
                     })
+            # Новое: обработка события read
+            if data.get("type") == "read" and data.get("message_id"):
+                mark_message_as_read(data["message_id"])
+                await manager.broadcast({
+                    "type": "message_read",
+                    "message_id": data["message_id"],
+                    "reader_id": user["id"]
+                }, chat_id)
     except WebSocketDisconnect:
         manager.disconnect(websocket, chat_id, user)
         # Only broadcast if there are still active connections
@@ -831,3 +832,72 @@ async def remove_group_member(group_id: int, user_id: int, current_user: dict = 
     conn.close()
 
     return {"detail": "User removed from group"}
+
+@app.delete("/messages/{chat_id}/clear")
+async def clear_chat_history(chat_id: int, user: dict = Depends(get_current_user)):
+    conn = get_db()
+    cursor = conn.cursor()
+
+    # Проверяем, что пользователь состоит в этом чате
+    cursor.execute("SELECT 1 FROM chat_members WHERE chat_id = ? AND user_id = ?", (chat_id, user["id"]))
+    if not cursor.fetchone():
+        conn.close()
+        raise HTTPException(403, "User not in chat")
+
+    # Удаляем все сообщения в чате
+    cursor.execute("DELETE FROM messages WHERE chat_id = ?", (chat_id,))
+    conn.commit()
+    conn.close()
+
+    return {"detail": "Chat history cleared"}
+
+
+@app.delete("/chats/{chat_id}/leave")
+async def leave_chat(chat_id: int, user: dict = Depends(get_current_user)):
+    conn = get_db()
+    cursor = conn.cursor()
+
+    # Проверяем, что чат существует и что это личный чат (не группа)
+    cursor.execute("SELECT is_group FROM chats WHERE id = ?", (chat_id,))
+    chat = cursor.fetchone()
+    if not chat:
+        conn.close()
+        raise HTTPException(404, "Chat not found")
+    if chat["is_group"]:
+        conn.close()
+        raise HTTPException(400, "This endpoint is only for one-on-one chats")
+
+    # Проверяем, что пользователь состоит в чате
+    cursor.execute("SELECT 1 FROM chat_members WHERE chat_id = ? AND user_id = ?", (chat_id, user["id"]))
+    if not cursor.fetchone():
+        conn.close()
+        raise HTTPException(403, "User not in chat")
+
+    # Получаем ID второго участника чата
+    cursor.execute("SELECT user_id FROM chat_members WHERE chat_id = ? AND user_id != ?", (chat_id, user["id"]))
+    other_user = cursor.fetchone()
+    other_user_id = other_user["user_id"] if other_user else None
+
+    # Удаляем связь пользователя с чатом
+    cursor.execute("DELETE FROM chat_members WHERE chat_id = ? AND user_id = ?", (chat_id, user["id"]))
+
+    # Удаляем контакт между пользователями, если есть второй участник
+    if other_user_id:
+        cursor.execute("DELETE FROM contacts WHERE (user_id = ? AND contact_id = ?) OR (user_id = ? AND contact_id = ?)",
+                       (user["id"], other_user_id, other_user_id, user["id"]))
+
+    # Удаляем все сообщения в этом чате
+    cursor.execute("DELETE FROM messages WHERE chat_id = ?", (chat_id,))
+
+    conn.commit()
+
+    # Проверяем, остался ли кто-то в чате
+    cursor.execute("SELECT COUNT(*) as cnt FROM chat_members WHERE chat_id = ?", (chat_id,))
+    count = cursor.fetchone()["cnt"]
+    if count == 0:
+        # Если никого нет — удаляем чат
+        cursor.execute("DELETE FROM chats WHERE id = ?", (chat_id,))
+        conn.commit()
+
+    conn.close()
+    return {"detail": "Chat, contacts and messages deleted for user"}
