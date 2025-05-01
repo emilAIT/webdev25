@@ -5,6 +5,7 @@ import os
 from api.auth import auth_bp
 from api.user import user_bp, get_user_photo
 from api.chat import chat_bp
+from api.group import group_bp
 from io import BytesIO
 
 # Инициализация БД
@@ -18,6 +19,7 @@ app.secret_key = os.urandom(24)  # Для работы с сессиями
 app.register_blueprint(auth_bp)
 app.register_blueprint(user_bp)
 app.register_blueprint(chat_bp)
+app.register_blueprint(group_bp)  # Добавляем блюпринт для групповых чатов
 
 @app.route('/ping')
 def index():

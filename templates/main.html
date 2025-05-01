@@ -36,9 +36,14 @@
         <div class="search-container">
             <span class="search-icon material-icons">search</span>
             <input type="text" placeholder="Поиск или новый чат" id="chatSearchInput">
-            <button id="newChatBtn" class="new-chat-btn">
-                <span class="material-icons">add</span>
-            </button>
+            <div class="chat-actions">
+                <button id="newChatBtn" class="chat-action-btn" title="Новый чат">
+                    <span class="material-icons">chat</span>
+                </button>
+                <button id="newGroupBtn" class="chat-action-btn" title="Создать группу">
+                    <span class="material-icons">group_add</span>
+                </button>
+            </div>
         </div>
         <ul class="user-list" id="chatsList">
             <!-- Список чатов будет заполнен динамически -->
@@ -53,6 +58,11 @@
             <div class="user-details">
                 <div class="username" id="chatUsername">Выберите чат</div>
                 <div class="status" id="chatStatus"></div>
+            </div>
+            <div class="chat-header-actions" id="chatHeaderActions" style="display: none;">
+                <button id="chatInfoBtn" class="chat-header-btn" title="Информация о чате">
+                    <span class="material-icons">info</span>
+                </button>
             </div>
         </div>
         
@@ -90,6 +100,56 @@
         </div>
     </div>
     
+    <!-- Модальное окно для создания группы -->
+    <div class="modal" id="createGroupModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Создать группу</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="create-group-steps">
+                <div class="group-step" id="groupStep1">
+                    <h4>Шаг 1: Информация о группе</h4>
+                    <div class="group-photo-container">
+                        <div class="group-photo-preview">
+                            <img id="groupPhotoPreview" src="{{ url_for('static', filename='images/group-default.png') }}" alt="Фото группы">
+                            <div class="photo-overlay">
+                                <span class="material-icons">photo_camera</span>
+                            </div>
+                        </div>
+                        <input type="file" id="groupPhotoInput" accept="image/*" style="display: none;">
+                    </div>
+                    <div class="form-group">
+                        <label for="groupName">Название группы</label>
+                        <input type="text" id="groupName" placeholder="Введите название группы">
+                    </div>
+                    <div class="form-group">
+                        <label for="groupDescription">Описание (необязательно)</label>
+                        <textarea id="groupDescription" placeholder="Введите описание группы"></textarea>
+                    </div>
+                    <button id="goToGroupStep2" class="primary-button">Далее</button>
+                </div>
+                <div class="group-step hidden" id="groupStep2">
+                    <h4>Шаг 2: Добавить участников</h4>
+                    <div class="modal-search">
+                        <input type="text" id="groupMemberSearchInput" placeholder="Поиск пользователей">
+                        <button id="searchGroupMembersBtn">
+                            <span class="material-icons">search</span>
+                        </button>
+                    </div>
+                    <div class="selected-members" id="selectedMembers">
+                        <div class="no-members-selected">Выберите участников для добавления в группу</div>
+                    </div>
+                    <div class="search-results" id="groupMembersSearchResults"></div>
+                    <div class="group-step-actions">
+                        <button id="backToGroupStep1" class="secondary-button">Назад</button>
+                        <button id="createGroupBtn" class="primary-button">Создать группу</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <!-- Модальное окно для просмотра профиля -->
     <div class="modal" id="profileModal">
         <div class="modal-content">
@@ -103,6 +163,54 @@
                 </div>
                 <div class="profile-info">
                     <h2 id="profileName">Имя пользователя</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Модальное окно для информации о группе -->
+    <div class="modal" id="groupInfoModal">
+        <div class="modal-content wider-modal">
+            <div class="modal-header">
+                <h3>Информация о группе</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="group-info-container">
+                <div class="group-info-header">
+                    <div class="group-photo">
+                        <img id="groupInfoPhoto" src="{{ url_for('static', filename='images/group-default.png') }}" alt="Фото группы">
+                        <div class="edit-overlay" id="editGroupPhotoBtn">
+                            <span class="material-icons">edit</span>
+                        </div>
+                    </div>
+                    <div class="group-details">
+                        <div class="group-name-container">
+                            <h3 id="groupInfoName">Название группы</h3>
+                            <button id="editGroupNameBtn" class="icon-button">
+                                <span class="material-icons">edit</span>
+                            </button>
+                        </div>
+                        <div class="group-description" id="groupInfoDescription">Описание группы</div>
+                        <div class="group-stats">
+                            <span id="groupMemberCount">0</span> участников
+                        </div>
+                    </div>
+                </div>
+                <div class="group-members-container">
+                    <div class="section-header">
+                        <h4>Участники группы</h4>
+                        <button id="addMemberBtn" class="icon-button" title="Добавить участника">
+                            <span class="material-icons">person_add</span>
+                        </button>
+                    </div>
+                    <div class="group-members-list" id="groupMembersList">
+                        <!-- Список участников будет заполнен динамически -->
+                    </div>
+                </div>
+                <div class="group-actions">
+                    <button id="leaveGroupBtn" class="danger-button">
+                        <span class="material-icons">exit_to_app</span> Покинуть группу
+                    </button>
                 </div>
             </div>
         </div>
@@ -123,6 +231,16 @@
         <div class="context-menu-divider"></div>
         <div class="context-menu-item" id="deleteMessageMenuItem">
             <span class="material-icons">delete</span> Удалить
+        </div>
+    </div>
+
+    <!-- Добавляем контекстное меню для участника группы -->
+    <div class="context-menu" id="groupMemberContextMenu">
+        <div class="context-menu-item" id="makeAdminMenuItem">
+            <span class="material-icons">admin_panel_settings</span> Назначить администратором
+        </div>
+        <div class="context-menu-item" id="removeMemberMenuItem">
+            <span class="material-icons">person_remove</span> Удалить из группы
         </div>
     </div>
 

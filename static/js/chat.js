@@ -5,8 +5,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const messageInput = document.getElementById('messageInput');
     const sendMessageBtn = document.getElementById('sendMessageBtn');
     const newChatBtn = document.getElementById('newChatBtn');
+    const newGroupBtn = document.getElementById('newGroupBtn'); // Кнопка создания группы
     const searchUserModal = document.getElementById('searchUserModal');
     const profileModal = document.getElementById('profileModal');
+    const createGroupModal = document.getElementById('createGroupModal'); // Модальное окно создания группы
     const searchUsersBtn = document.getElementById('searchUsersBtn');
     const userSearchInput = document.getElementById('userSearchInput');
     const searchResults = document.getElementById('searchResults');
@@ -20,12 +22,40 @@ document.addEventListener('DOMContentLoaded', function() {
     const chatSearchInput = document.getElementById('chatSearchInput'); // Добавляем ссылку на поле поиска чатов
     const currentUserName = document.getElementById('currentUserName'); // Добавляем ссылку на элемент имени текущего пользователя
     
+    // Элементы для создания группы
+    const groupPhotoPreview = document.getElementById('groupPhotoPreview');
+    const groupPhotoInput = document.getElementById('groupPhotoInput');
+    const groupName = document.getElementById('groupName');
+    const groupDescription = document.getElementById('groupDescription');
+    const goToGroupStep2 = document.getElementById('goToGroupStep2');
+    const backToGroupStep1 = document.getElementById('backToGroupStep1');
+    const createGroupBtn = document.getElementById('createGroupBtn');
+    const groupStep1 = document.getElementById('groupStep1');
+    const groupStep2 = document.getElementById('groupStep2');
+    const groupMemberSearchInput = document.getElementById('groupMemberSearchInput');
+    const searchGroupMembersBtn = document.getElementById('searchGroupMembersBtn');
+    const selectedMembers = document.getElementById('selectedMembers');
+    const groupMembersSearchResults = document.getElementById('groupMembersSearchResults');
+    
+    // Элементы для информации о группе
+    const chatHeaderActions = document.getElementById('chatHeaderActions');
+    const chatInfoBtn = document.getElementById('chatInfoBtn');
+    const groupInfoModal = document.getElementById('groupInfoModal');
+    const groupInfoPhoto = document.getElementById('groupInfoPhoto');
+    const groupInfoName = document.getElementById('groupInfoName');
+    const groupInfoDescription = document.getElementById('groupInfoDescription');
+    const groupMemberCount = document.getElementById('groupMemberCount');
+    const groupMembersList = document.getElementById('groupMembersList');
+    
     // Контекстные меню
     const chatContextMenu = document.getElementById('chatContextMenu');
     const messageContextMenu = document.getElementById('messageContextMenu');
     const deleteChatMenuItem = document.getElementById('deleteChatMenuItem');
     const editMessageMenuItem = document.getElementById('editMessageMenuItem');
     const deleteMessageMenuItem = document.getElementById('deleteMessageMenuItem');
+    const groupMemberContextMenu = document.getElementById('groupMemberContextMenu');
+    const makeAdminMenuItem = document.getElementById('makeAdminMenuItem');
+    const removeMemberMenuItem = document.getElementById('removeMemberMenuItem');
     
     // Текущие данные
     let currentChatId = null;
@@ -35,6 +65,10 @@ document.addEventListener('DOMContentLoaded', function() {
     let filteredChats = []; // Добавляем массив для отфильтрованных чатов
     let contextMenuTargetChat = null; // Чат, на котором вызвано контекстное меню
     let contextMenuTargetMessage = null; // Сообщение, на котором вызвано контекстное меню
+    let selectedMembersForGroup = []; // Массив выбранных пользователей для группы
+    let currentChatType = null; // тип чата 'dialog' или 'group'
+    let currentGroupInfo = null; // информация о текущей группе
+    let contextMenuTargetMember = null; // Участник группы, на котором вызвано контекстное меню
     
     // Иницилизация
     init();
@@ -73,11 +107,19 @@ document.addEventListener('DOMContentLoaded', function() {
         // Обработчик для кнопки нового чата
         newChatBtn.addEventListener('click', showSearchUserModal);
         
+        // Добавляем обработчик для кнопки создания группы
+        if (newGroupBtn) {
+            newGroupBtn.addEventListener('click', showCreateGroupModal);
+        }
+        
         // Обработчики для модальных окон
         document.querySelectorAll('.close-modal').forEach(button => {
             button.addEventListener('click', function() {
                 searchUserModal.style.display = 'none';
                 profileModal.style.display = 'none';
+                createGroupModal.style.display = 'none';
+                groupInfoModal.style.display = 'none';
+                resetGroupCreationForm();
             });
         });
         
@@ -88,6 +130,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             if (event.target === profileModal) {
                 profileModal.style.display = 'none';
+            }
+            if (event.target === createGroupModal) {
+                createGroupModal.style.display = 'none';
+                resetGroupCreationForm();
+            }
+            if (event.target === groupInfoModal) {
+                groupInfoModal.style.display = 'none';
             }
         });
         
@@ -119,8 +168,76 @@ document.addEventListener('DOMContentLoaded', function() {
             deleteMessageMenuItem.addEventListener('click', deleteMessage);
         }
         
+        if (makeAdminMenuItem) {
+            makeAdminMenuItem.addEventListener('click', makeGroupAdmin);
+        }
+        
+        if (removeMemberMenuItem) {
+            removeMemberMenuItem.addEventListener('click', removeGroupMember);
+        }
+        
         // Запускаем цикл опроса сообщений (каждую секунду)
         startPolling();
+        
+        // Обработчики для создания группы
+        if (groupPhotoPreview) {
+            groupPhotoPreview.addEventListener('click', function() {
+                groupPhotoInput.click();
+            });
+        }
+        
+        if (groupPhotoInput) {
+            groupPhotoInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        groupPhotoPreview.src = e.target.result;
+                    };
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+        }
+        
+        if (goToGroupStep2) {
+            goToGroupStep2.addEventListener('click', function() {
+                if (!groupName.value.trim()) {
+                    alert('Пожалуйста, укажите название группы');
+                    return;
+                }
+                groupStep1.classList.add('hidden');
+                groupStep2.classList.remove('hidden');
+            });
+        }
+        
+        if (backToGroupStep1) {
+            backToGroupStep1.addEventListener('click', function() {
+                groupStep2.classList.add('hidden');
+                groupStep1.classList.remove('hidden');
+            });
+        }
+        
+        // Обработчики для поиска участников группы
+        if (searchGroupMembersBtn) {
+            searchGroupMembersBtn.addEventListener('click', searchGroupMembers);
+        }
+        
+        if (groupMemberSearchInput) {
+            groupMemberSearchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchGroupMembers();
+                }
+            });
+        }
+        
+        // Обработчик для создания группы
+        if (createGroupBtn) {
+            createGroupBtn.addEventListener('click', createGroup);
+        }
+        
+        // Обработчик для кнопки информации о чате
+        if (chatInfoBtn) {
+            chatInfoBtn.addEventListener('click', showGroupInfo);
+        }
     }
     
     function startPolling() {
@@ -147,11 +264,41 @@ document.addEventListener('DOMContentLoaded', function() {
         fetch('/api/chats')
             .then(response => response.json())
             .then(data => {
+                let allChats = [];
+                
                 if (data.success) {
-                    renderChats(data.chats);
-                } else {
-                    console.error('Ошибка загрузки чатов:', data.message);
+                    allChats = data.chats.map(chat => ({
+                        ...chat,
+                        chat_type: 'dialog'
+                    }));
                 }
+                
+                fetch('/api/groups')
+                    .then(response => response.json())
+                    .then(groupsData => {
+                        if (groupsData.success) {
+                            const groupChats = groupsData.groups.map(group => ({
+                                id: group.id,
+                                user_name: group.name,
+                                user_photo: group.photo_url || '/static/images/group-default.png',
+                                latest_message: group.latest_message,
+                                timestamp: group.last_activity,
+                                timestamp_raw: group.last_activity_raw,
+                                unread: group.unread_count > 0,
+                                chat_type: 'group',
+                                member_count: group.member_count,
+                                description: group.description
+                            }));
+                            
+                            allChats = [...allChats, ...groupChats];
+                        }
+                        
+                        renderChats(allChats);
+                    })
+                    .catch(error => {
+                        console.error('Ошибка при загрузке групп:', error);
+                        renderChats(allChats);
+                    });
             })
             .catch(error => {
                 console.error('Ошибка при загрузке чатов:', error);
@@ -161,13 +308,10 @@ document.addEventListener('DOMContentLoaded', function() {
     function renderChats(newChats) {
         if (!chatsList) return;
         
-        // Сохраняем ID выбранного чата
         const selectedChatId = currentChatId;
         
-        // Обновляем список чатов в памяти
         chats = newChats;
         
-        // Применяем текущий поисковый фильтр, если он есть
         const searchQuery = chatSearchInput ? chatSearchInput.value.trim().toLowerCase() : '';
         if (searchQuery) {
             filteredChats = chats.filter(chat => 
@@ -180,20 +324,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Новая функция для обновления UI списка чатов
     function updateChatsUI(chatsToRender, selectedChatId) {
         if (!chatsList) return;
         
-        // Очищаем текущий список
         chatsList.innerHTML = '';
         
-        // Сортируем чаты по времени последнего сообщения
         const sortedChats = [...chatsToRender].sort((a, b) => {
             if (!a.timestamp_raw || !b.timestamp_raw) return 0;
             return new Date(b.timestamp_raw) - new Date(a.timestamp_raw);
         });
         
-        // Если нет чатов после фильтрации, показываем сообщение
         if (sortedChats.length === 0) {
             const noChatsMessage = document.createElement('li');
             noChatsMessage.classList.add('no-chats-message');
@@ -202,7 +342,6 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Добавляем чаты в DOM
         sortedChats.forEach(chat => {
             const chatItem = document.createElement('li');
             chatItem.setAttribute('data-chat-id', chat.id);
@@ -237,7 +376,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Функция поиска чатов
     function searchChats() {
         const searchQuery = chatSearchInput.value.trim().toLowerCase();
         
@@ -253,26 +391,30 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function onChatClick(chat) {
-        // Обновляем активный класс
         document.querySelectorAll('.user-list li').forEach(item => {
             item.classList.remove('active');
         });
         event.currentTarget.classList.add('active');
         
-        // Обновляем заголовок чата
+        currentChatType = chat.chat_type || 'dialog';
+        
         chatUsername.textContent = chat.user_name;
         document.getElementById('chatProfilePhoto').querySelector('img').src = 
             chat.user_photo || '/static/images/default-profile.png';
-        chatStatus.textContent = ''; // Убираем текст статуса "В сети"
+        chatStatus.textContent = '';
         
-        // Обновляем текущий ID чата
+        if (currentChatType === 'group') {
+            chatHeaderActions.style.display = 'flex';
+            chatStatus.textContent = `${chat.member_count || 0} участников`;
+        } else {
+            chatHeaderActions.style.display = 'none';
+        }
+        
         currentChatId = chat.id;
         
-        // Скрываем сообщение пустого чата и показываем поле ввода
         emptyChatMessage.style.display = 'none';
         messageInputArea.style.display = 'flex';
         
-        // Загружаем сообщения
         loadMessages(chat.id, true);
     }
     
@@ -282,7 +424,6 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 if (data.success) {
                     renderMessages(data.messages, scrollToBottom);
-                    // Обновляем временную метку последнего сообщения
                     if (data.messages.length > 0) {
                         const lastMsg = data.messages[data.messages.length - 1];
                         lastMessageTimestamp = lastMsg.timestamp_raw;
@@ -299,7 +440,6 @@ document.addEventListener('DOMContentLoaded', function() {
     function renderMessages(messages, scrollToBottom = false) {
         if (!messagesContainer) return;
         
-        // Если это не обновление, очищаем контейнер
         if (scrollToBottom) {
             messagesContainer.innerHTML = '';
         }
@@ -309,14 +449,12 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Добавляем сообщения
         messages.forEach(msg => {
             const messageClass = msg.is_sent_by_me ? 'sent' : 'received';
             
-            // Проверяем, существует ли уже это сообщение
             const existingMessage = document.getElementById(`message-${msg.id}`);
             if (existingMessage) {
-                return; // Пропускаем добавление, если сообщение уже есть
+                return;
             }
             
             const messageElement = document.createElement('div');
@@ -324,7 +462,6 @@ document.addEventListener('DOMContentLoaded', function() {
             messageElement.id = `message-${msg.id}`;
             messageElement.setAttribute('data-message-id', msg.id);
             
-            // Добавляем класс deleted, если сообщение удалено
             if (msg.content === 'Сообщение удалено') {
                 messageElement.classList.add('deleted');
             }
@@ -348,7 +485,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>` : ''}
             `;
             
-            // Добавляем обработчики для кнопок быстрого действия
             if (msg.is_sent_by_me) {
                 messageElement.querySelector('.edit-action').addEventListener('click', function() {
                     contextMenuTargetMessage = msg.id;
@@ -361,18 +497,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
             
-            // Добавляем сообщение в конец контейнера
             messagesContainer.appendChild(messageElement);
         });
         
         if (scrollToBottom) {
             scrollToBottomMessages();
         } else if (messages.length > 0) {
-            // Если добавлено новое сообщение, прокручиваем вниз
             const currentScroll = messagesContainer.scrollTop;
             const maxScroll = messagesContainer.scrollHeight - messagesContainer.clientHeight;
             
-            // Если пользователь уже был внизу чата (с погрешностью 50px), то прокручиваем вниз
             if (maxScroll - currentScroll < 50) {
                 scrollToBottomMessages();
             }
@@ -387,10 +520,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const messageText = messageInput.value.trim();
         if (!messageText || !currentChatId) return;
         
-        // Очищаем поле ввода сразу, чтобы предотвратить повторную отправку
         messageInput.value = '';
         
-        // Отправляем сообщение
         fetch(`/api/chats/${currentChatId}/messages`, {
             method: 'POST',
             headers: {
@@ -403,11 +534,9 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Добавляем сообщение и прокручиваем вниз
                 renderMessages([data.message], false);
                 scrollToBottomMessages();
                 
-                // Обновляем список чатов
                 loadChats();
             } else {
                 console.error('Ошибка отправки сообщения:', data.message);
@@ -427,15 +556,12 @@ document.addEventListener('DOMContentLoaded', function() {
     function showProfileModal() {
         if (!currentChatId) return;
         
-        // Находим информацию о текущем чате
         const currentChat = chats.find(chat => chat.id === currentChatId);
         if (!currentChat) return;
         
-        // Заполняем модальное окно информацией о пользователе
         profilePhotoLarge.src = currentChat.user_photo || '/static/images/default-profile.png';
         profileName.textContent = currentChat.user_name;
         
-        // Отображаем модальное окно
         profileModal.style.display = 'block';
     }
     
@@ -494,13 +620,10 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Закрываем модальное окно
                 searchUserModal.style.display = 'none';
                 
-                // Обновляем список чатов
                 loadChats();
                 
-                // Автоматически выбираем новый чат
                 setTimeout(() => {
                     const newChatItem = document.querySelector(`[data-chat-id="${data.chat.id}"]`);
                     if (newChatItem) {
@@ -516,7 +639,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Функция для получения информации о текущем пользователе
     function getCurrentUserInfo() {
         fetch('/api/users/current')
             .then(response => response.json())
@@ -527,49 +649,47 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => {
                 console.error('Ошибка при получении данных пользователя:', error);
-                // Если произошла ошибка, оставляем текст по умолчанию "Пользователь"
             });
     }
     
-    // Функция для обработки вызова контекстного меню
     function handleContextMenu(event) {
-        // Скрываем стандартное контекстное меню
         event.preventDefault();
         
-        // Скрываем все активные контекстные меню
         hideContextMenus();
         
-        // Проверяем, на каком элементе было вызвано контекстное меню
         const chatItem = findParentElementByClass(event.target, '.user-list li');
         const messageItem = findParentElementByClass(event.target, '.message');
+        const memberItem = findParentElementByClass(event.target, '.group-member-item');
         
         if (chatItem) {
-            // Контекстное меню для чата
             const chatId = chatItem.getAttribute('data-chat-id');
             if (chatId) {
                 contextMenuTargetChat = chatId;
                 showChatContextMenu(event.clientX, event.clientY);
-                return; // Важно: останавливаем обработку после показа меню
+                return;
             }
         } else if (messageItem) {
-            // Проверяем, является ли это нашим сообщением (мы можем редактировать только свои сообщения)
             if (messageItem.classList.contains('sent')) {
                 const messageId = messageItem.getAttribute('data-message-id');
                 if (messageId) {
                     contextMenuTargetMessage = messageId;
                     showMessageContextMenu(event.clientX, event.clientY);
-                    return; // Важно: останавливаем обработку после показа меню
+                    return;
                 }
+            }
+        } else if (memberItem) {
+            const memberId = memberItem.getAttribute('data-user-id');
+            if (memberId) {
+                contextMenuTargetMember = memberId;
+                showGroupMemberContextMenu(event.clientX, event.clientY);
+                return;
             }
         }
     }
     
-    // Вспомогательная функция для поиска родительского элемента по классу
     function findParentElementByClass(element, selector) {
         while (element) {
-            // Используем более надежный способ проверки соответствия селектору
             try {
-                // Проверяем, соответствует ли элемент селектору
                 if (element.matches && element.matches(selector)) {
                     return element;
                 }
@@ -581,26 +701,14 @@ document.addEventListener('DOMContentLoaded', function() {
         return null;
     }
     
-    // Функция для отображения контекстного меню чата
     function showChatContextMenu(x, y) {
-        if (!chatContextMenu) {
-            console.error('Элемент контекстного меню чата не найден');
-            return;
-        }
+        if (!chatContextMenu) return;
         
-        // Позиционируем и показываем меню
         chatContextMenu.style.left = `${x}px`;
         chatContextMenu.style.top = `${y}px`;
         chatContextMenu.classList.add('active');
-        
-        // Для отладки: добавляем проверку стилей
-        console.log('Контекстное меню отображено:', 
-            {left: chatContextMenu.style.left, 
-             top: chatContextMenu.style.top, 
-             display: window.getComputedStyle(chatContextMenu).display});
     }
     
-    // Функция для отображения контекстного меню сообщения
     function showMessageContextMenu(x, y) {
         if (!messageContextMenu) return;
         
@@ -609,18 +717,23 @@ document.addEventListener('DOMContentLoaded', function() {
         messageContextMenu.classList.add('active');
     }
     
-    // Функция для скрытия всех контекстных меню
+    function showGroupMemberContextMenu(x, y) {
+        if (!groupMemberContextMenu) return;
+        
+        groupMemberContextMenu.style.left = `${x}px`;
+        groupMemberContextMenu.style.top = `${y}px`;
+        groupMemberContextMenu.classList.add('active');
+    }
+    
     function hideContextMenus() {
         document.querySelectorAll('.context-menu').forEach(menu => {
             menu.classList.remove('active');
         });
     }
     
-    // Функция для удаления чата
     function deleteChat() {
         if (!contextMenuTargetChat) return;
         
-        // Спрашиваем подтверждение
         if (confirm('Вы уверены, что хотите удалить этот чат?')) {
             fetch(`/api/chats/${contextMenuTargetChat}`, {
                 method: 'DELETE'
@@ -628,7 +741,6 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Если это был текущий открытый чат, очищаем область сообщений
                     if (currentChatId === parseInt(contextMenuTargetChat)) {
                         currentChatId = null;
                         messagesContainer.innerHTML = '';
@@ -638,10 +750,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         chatProfilePhoto.querySelector('img').src = '/static/images/default-profile.png';
                     }
                     
-                    // Удаляем чат из списка и перерисовываем
                     loadChats();
                     
-                    // Сбрасываем целевой чат
                     contextMenuTargetChat = null;
                 } else {
                     alert('Ошибка при удалении чата: ' + data.message);
@@ -653,23 +763,18 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
         
-        // Скрываем контекстное меню
         hideContextMenus();
     }
     
-    // Функция для начала редактирования сообщения
     function startEditMessage() {
         if (!contextMenuTargetMessage) return;
         
-        // Находим элемент сообщения
         const messageElement = document.querySelector(`.message[data-message-id="${contextMenuTargetMessage}"]`);
         if (!messageElement) return;
         
-        // Получаем текущий текст сообщения
         const contentElement = messageElement.querySelector('.content');
         const currentContent = contentElement.textContent;
         
-        // Создаем форму редактирования, если ее нет
         let editContainer = messageElement.querySelector('.edit-input-container');
         if (!editContainer) {
             editContainer = document.createElement('div');
@@ -702,26 +807,21 @@ document.addEventListener('DOMContentLoaded', function() {
             messageElement.appendChild(editContainer);
         }
         
-        // Активируем режим редактирования
         messageElement.classList.add('editing');
         
-        // Фокус на поле ввода
         const editInput = editContainer.querySelector('.edit-input');
         editInput.focus();
         editInput.select();
         
-        // Добавляем обработчик нажатия Enter для сохранения
         editInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 saveEditedMessage(contextMenuTargetMessage, editInput.value);
             }
         });
         
-        // Скрываем контекстное меню
         hideContextMenus();
     }
     
-    // Функция для сохранения отредактированного сообщения
     function saveEditedMessage(messageId, newContent) {
         if (!newContent.trim()) {
             alert('Сообщение не может быть пустым');
@@ -740,14 +840,11 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Находим элемент сообщения
                 const messageElement = document.querySelector(`.message[data-message-id="${messageId}"]`);
                 if (messageElement) {
-                    // Обновляем содержимое сообщения
                     const contentElement = messageElement.querySelector('.content');
                     contentElement.textContent = newContent.trim();
                     
-                    // Добавляем индикатор редактирования, если его еще нет
                     if (!messageElement.querySelector('.edited-indicator')) {
                         const editedIndicator = document.createElement('span');
                         editedIndicator.className = 'edited-indicator';
@@ -755,7 +852,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         contentElement.appendChild(editedIndicator);
                     }
                     
-                    // Выключаем режим редактирования
                     messageElement.classList.remove('editing');
                 }
             } else {
@@ -768,7 +864,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Функция для отмены редактирования сообщения
     function cancelEditMessage() {
         const messageElement = document.querySelector('.message.editing');
         if (messageElement) {
@@ -776,11 +871,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Функция для удаления сообщения
     function deleteMessage() {
         if (!contextMenuTargetMessage) return;
         
-        // Спрашиваем подтверждение
         if (confirm('Вы уверены, что хотите удалить это сообщение?')) {
             fetch(`/api/messages/${contextMenuTargetMessage}`, {
                 method: 'DELETE'
@@ -788,18 +881,14 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Находим элемент сообщения
                     const messageElement = document.querySelector(`.message[data-message-id="${contextMenuTargetMessage}"]`);
                     if (messageElement) {
-                        // Обновляем содержимое сообщения на "Сообщение удалено"
                         const contentElement = messageElement.querySelector('.content');
                         contentElement.textContent = 'Сообщение удалено';
                         
-                        // Добавляем класс для стилизации удаленного сообщения
                         messageElement.classList.add('deleted');
                     }
                     
-                    // Сбрасываем целевое сообщение
                     contextMenuTargetMessage = null;
                 } else {
                     alert('Ошибка при удалении сообщения: ' + data.message);
@@ -811,7 +900,287 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
         
-        // Скрываем контекстное меню
+        hideContextMenus();
+    }
+    
+    function showCreateGroupModal() {
+        resetGroupCreationForm();
+        createGroupModal.style.display = 'block';
+    }
+    
+    function resetGroupCreationForm() {
+        if (groupName) groupName.value = '';
+        if (groupDescription) groupDescription.value = '';
+        if (groupPhotoPreview) groupPhotoPreview.src = '/static/images/group-default.png';
+        if (groupPhotoInput) groupPhotoInput.value = '';
+        selectedMembersForGroup = [];
+        
+        if (selectedMembers) {
+            selectedMembers.innerHTML = '<div class="no-members-selected">Выберите участников для добавления в группу</div>';
+        }
+        if (groupMembersSearchResults) {
+            groupMembersSearchResults.innerHTML = '';
+        }
+        
+        if (groupStep1 && groupStep2) {
+            groupStep1.classList.remove('hidden');
+            groupStep2.classList.add('hidden');
+        }
+    }
+    
+    function searchGroupMembers() {
+        const query = groupMemberSearchInput.value.trim();
+        if (!query) return;
+        
+        fetch(`/api/users/search?q=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => {
+                renderGroupMemberSearchResults(data.users || []);
+            })
+            .catch(error => {
+                console.error('Ошибка при поиске пользователей:', error);
+                groupMembersSearchResults.innerHTML = '<p>Произошла ошибка при поиске</p>';
+            });
+    }
+    
+    function renderGroupMemberSearchResults(users) {
+        groupMembersSearchResults.innerHTML = '';
+        
+        if (users.length === 0) {
+            groupMembersSearchResults.innerHTML = '<p>Пользователи не найдены</p>';
+            return;
+        }
+        
+        users.forEach(user => {
+            if (selectedMembersForGroup.some(member => member.id === user.id)) {
+                return;
+            }
+            
+            const userItem = document.createElement('div');
+            userItem.className = 'search-result-item';
+            
+            userItem.innerHTML = `
+                <div class="avatar">
+                    <img src="${user.photo || '/static/images/default-profile.png'}" alt="Фото профиля">
+                </div>
+                <div class="username">${user.nickname}</div>
+            `;
+            
+            userItem.addEventListener('click', function() {
+                addMemberToGroup(user);
+            });
+            
+            groupMembersSearchResults.appendChild(userItem);
+        });
+    }
+    
+    function addMemberToGroup(user) {
+        selectedMembersForGroup.push(user);
+        
+        updateSelectedMembersUI();
+        
+        groupMemberSearchInput.value = '';
+        groupMembersSearchResults.innerHTML = '';
+    }
+    
+    function updateSelectedMembersUI() {
+        selectedMembers.innerHTML = '';
+        
+        if (selectedMembersForGroup.length === 0) {
+            selectedMembers.innerHTML = '<div class="no-members-selected">Выберите участников для добавления в группу</div>';
+            return;
+        }
+        
+        selectedMembersForGroup.forEach(member => {
+            const memberItem = document.createElement('div');
+            memberItem.className = 'selected-member';
+            memberItem.innerHTML = `
+                <span>${member.nickname}</span>
+                <span class="material-icons remove-btn" data-user-id="${member.id}">close</span>
+            `;
+            
+            memberItem.querySelector('.remove-btn').addEventListener('click', function() {
+                const userId = this.getAttribute('data-user-id');
+                selectedMembersForGroup = selectedMembersForGroup.filter(m => m.id != userId);
+                updateSelectedMembersUI();
+            });
+            
+            selectedMembers.appendChild(memberItem);
+        });
+    }
+    
+    function createGroup() {
+        if (selectedMembersForGroup.length === 0) {
+            alert('Выберите хотя бы одного участника для группы');
+            return;
+        }
+        
+        const groupNameValue = groupName.value.trim();
+        if (!groupNameValue) {
+            alert('Название группы не может быть пустым');
+            return;
+        }
+        
+        const formData = new FormData();
+        formData.append('group_name', groupNameValue);
+        formData.append('description', groupDescription.value.trim());
+        
+        if (groupPhotoInput.files && groupPhotoInput.files[0]) {
+            formData.append('group_photo', groupPhotoInput.files[0]);
+        }
+        
+        selectedMembersForGroup.forEach(member => {
+            formData.append('members[]', member.id);
+        });
+        
+        fetch('/api/groups', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                createGroupModal.style.display = 'none';
+                
+                loadChats();
+                
+                resetGroupCreationForm();
+                
+                setTimeout(() => {
+                    const newChatItem = document.querySelector(`[data-chat-id="${data.group.id}"]`);
+                    if (newChatItem) {
+                        newChatItem.click();
+                    }
+                }, 500);
+            } else {
+                alert('Ошибка при создании группы: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка при создании группы:', error);
+            alert('Произошла ошибка при создании группы');
+        });
+    }
+    
+    function showGroupInfo() {
+        if (!currentChatId || currentChatType !== 'group') return;
+        
+        fetch(`/api/groups/${currentChatId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    currentGroupInfo = data.group;
+                    
+                    groupInfoPhoto.src = data.group.photo_url || '/static/images/group-default.png';
+                    groupInfoName.textContent = data.group.name;
+                    groupInfoDescription.textContent = data.group.description || 'Нет описания';
+                    groupMemberCount.textContent = data.group.members.length;
+                    
+                    renderGroupMembers(data.group.members, data.group.current_user_role);
+                    
+                    groupInfoModal.style.display = 'block';
+                } else {
+                    alert('Ошибка при загрузке информации о группе: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при загрузке информации о группе:', error);
+                alert('Произошла ошибка при загрузке информации о группе');
+            });
+    }
+    
+    function renderGroupMembers(members, currentUserRole) {
+        groupMembersList.innerHTML = '';
+        
+        members.forEach(member => {
+            const memberItem = document.createElement('div');
+            memberItem.className = 'group-member-item';
+            memberItem.setAttribute('data-user-id', member.id);
+            
+            if (member.role === 'admin') {
+                memberItem.classList.add('admin');
+            }
+            
+            memberItem.innerHTML = `
+                <div class="member-avatar">
+                    <img src="${member.photo_url || '/static/images/default-profile.png'}" alt="Фото участника">
+                </div>
+                <div class="member-info">
+                    <div class="member-name">${member.nickname}</div>
+                    <div class="member-role">${member.role === 'admin' ? 'Администратор' : 'Участник'}</div>
+                </div>
+            `;
+            
+            if (currentUserRole === 'admin' && !member.is_creator) {
+                memberItem.addEventListener('contextmenu', function(e) {
+                    e.preventDefault();
+                    contextMenuTargetMember = member.id;
+                    
+                    if (member.role === 'admin') {
+                        makeAdminMenuItem.style.display = 'none';
+                    } else {
+                        makeAdminMenuItem.style.display = 'flex';
+                    }
+                    
+                    groupMemberContextMenu.style.left = `${e.clientX}px`;
+                    groupMemberContextMenu.style.top = `${e.clientY}px`;
+                    groupMemberContextMenu.classList.add('active');
+                });
+            }
+            
+            groupMembersList.appendChild(memberItem);
+        });
+    }
+    
+    function makeGroupAdmin() {
+        if (!contextMenuTargetMember || !currentChatId) return;
+        
+        fetch(`/api/groups/${currentChatId}/members/${contextMenuTargetMember}/role`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                role: 'admin'
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showGroupInfo();
+            } else {
+                alert('Ошибка: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка при изменении роли:', error);
+            alert('Произошла ошибка при изменении роли участника');
+        });
+        
+        hideContextMenus();
+    }
+    
+    function removeGroupMember() {
+        if (!contextMenuTargetMember || !currentChatId) return;
+        
+        if (confirm('Вы уверены, что хотите удалить этого участника из группы?')) {
+            fetch(`/api/groups/${currentChatId}/members/${contextMenuTargetMember}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showGroupInfo();
+                } else {
+                    alert('Ошибка: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при удалении участника:', error);
+                alert('Произошла ошибка при удалении участника');
+            });
+        }
+        
         hideContextMenus();
     }
 });
