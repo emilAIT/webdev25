@@ -36,7 +36,10 @@ class GroupUser(Base):
 class Message(Base):
     __tablename__ = "messages"
     id = Column(Integer, primary_key=True, index=True)
-    content = Column(Text)
+    content = Column(Text)  # Оригинальное сообщение
+    translated_content = Column(Text, nullable=True)  # Переведенное сообщение
+    translated_content_lang = Column(String, nullable=True)  # Язык перевода
+    show_translation = Column(Integer, default=0)  # Флаг: показывать перевод (1) или оригинал (0)
     timestamp = Column(DateTime, default=datetime.utcnow)
     edited = Column(Integer, default=0)
     
@@ -54,4 +57,3 @@ class Message(Base):
     # Для личных сообщений: id получателя
     recipient_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     recipient = relationship("User", foreign_keys=[recipient_id])
-    

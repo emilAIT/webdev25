@@ -22,6 +22,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     await loadChats();
     setupEventListeners();
     connectChatWebSocket();
+    createModalsIfNeeded();
 });
 
 async function initializeApp() {
@@ -129,24 +130,27 @@ function displayMessages(messages, append = false) {
         messageDiv.setAttribute("data-message-id", msg.id);
 
         const authorName = isSentByMe ? 'Вы' : (msg.author && msg.author.username ? msg.author.username : 'Unknown');
+        
+        // Use the correct content based on translation status
+        const displayContent = msg.show_translation && msg.translated_content ? msg.translated_content : msg.content;
+        const isTranslated = msg.show_translation && msg.translated_content;
 
         messageDiv.innerHTML = `
             <div class="message-wrapper">
                 <div class="message-author">${authorName}</div>
-                <div class="message-content">${msg.content}</div>
+                <div class="message-content">${displayContent}</div>
                 <div class="message-info">
-                    ${new Date(msg.timestamp).toLocaleTimeString()}
-                    ${msg.edited ? '(изменено)' : ''}
+                    ${new Date(msg.timestamp).toLocaleString([], {hour: '2-digit', minute: '2-digit'})} 
+                    ${msg.edited ? '(изменено)' : ''} 
+                    ${isTranslated || msg.translated ? '(переведено)' : ''}
                 </div>
             </div>
         `;
 
-        if (isSentByMe) {
-            messageDiv.addEventListener('contextmenu', (e) => {
-                e.preventDefault();
-                showContextMenu(e, msg);
-            });
-        }
+        messageDiv.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            showContextMenu(e, msg);
+        });
 
         messagesContainer.appendChild(messageDiv);
     });
@@ -156,9 +160,18 @@ function displayMessages(messages, append = false) {
 function updateMessage(msg) {
     const msgDiv = document.getElementById(`message-${msg.id}`);
     if (!msgDiv) return;
-    msgDiv.querySelector(".message-content").textContent = msg.content;
+
+    // Determine if message is translated
+    const isTranslated = msg.show_translation && msg.translated_content || msg.translated;
+    
+    // Use the correct content based on translation status
+    const displayContent = isTranslated && msg.translated_content ? msg.translated_content : msg.content;
+    
+    msgDiv.querySelector(".message-content").textContent = displayContent;
     msgDiv.querySelector(".message-info").innerHTML = `
-        ${new Date(msg.timestamp).toLocaleTimeString()} ${msg.edited ? '(изменено)' : ''}
+        ${new Date(msg.timestamp).toLocaleString([], {hour: '2-digit', minute: '2-digit'})} 
+        ${msg.edited ? '(изменено)' : ''} 
+        ${isTranslated ? '(переведено)' : ''}
     `;
 }
 
@@ -170,16 +183,19 @@ function removeMessage(messageId) {
 
 
 async function deleteMessage(messageId) {
-
-
     if (!confirm("Удалить сообщение?")) return;
-    
+
     try {
         const response = await fetch(`${API_URL}/messages/${messageId}`, {
             method: "DELETE",
             headers: { "Authorization": `Bearer ${token}` }
         });
-        if (!response.ok) throw new Error("Failed to delete message");
+
+        if (response.ok) {
+            removeMessage(messageId);
+        } else {
+            throw new Error("Failed to delete message");
+        }
     } catch (err) {
         console.error("Error deleting message:", err);
         alert("Ошибка при удалении сообщения");
@@ -514,16 +530,102 @@ function showContextMenu(e, msg) {
     contextMenu.innerHTML = `
         <div class="context-menu-item edit-message" data-id="${msg.id}">✏️ Изменить</div>
         <div class="context-menu-item delete-message" data-id="${msg.id}">🗑️ Удалить</div>
+        <div class="context-menu-item translate-message" data-id="${msg.id}">
+            🌐 Перевести
+        </div>
     `;
 
+    // Обработчик для редактирования сообщения
     contextMenu.querySelector('.edit-message').addEventListener('click', () => openEditModal(msg));
+
+    // Обработчик для удаления сообщения
     contextMenu.querySelector('.delete-message').addEventListener('click', () => deleteMessage(msg.id));
+
+    // Обработчик для перевода сообщения
+    contextMenu.querySelector('.translate-message').addEventListener('click', () => openTranslateModal(msg));
 
     contextMenu.style.left = `${e.pageX}px`;
     contextMenu.style.top = `${e.pageY}px`;
     document.body.appendChild(contextMenu);
 
     document.addEventListener('click', () => contextMenu.remove(), { once: true });
+}
+
+// Add this new function to open translation modal
+function openTranslateModal(msg) {
+    // Make sure the modal exists
+    createModalsIfNeeded();
+    
+    const modal = document.getElementById("translateMessageModal");
+    const select = document.getElementById("translateLanguageSelect");
+    
+    if (!modal || !select) {
+        console.error("Translation modal or select element not found");
+        return;
+    }
+    
+    select.dataset.messageId = msg.id;
+    
+    // Reset selection if needed
+    if (select.value) {
+        select.selectedIndex = 0;
+    }
+    
+    modal.style.display = "flex";
+}
+
+// Add this new function to perform translation
+async function submitTranslation() {
+    const select = document.getElementById("translateLanguageSelect");
+    const messageId = select.dataset.messageId;
+    const targetLang = select.value;
+    
+    if (!targetLang) {
+        alert("Пожалуйста, выберите язык перевода");
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_URL}/messages/${messageId}/translate?target_lang=${targetLang}`, {
+            method: "PUT",
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+            const updatedMessage = await response.json();
+            // Pass true to explicitly mark as translated if not already included
+            if (!updatedMessage.translated) {
+                updatedMessage.translated = true;
+            }
+            updateMessage(updatedMessage);
+            closeModal("translateMessageModal");
+        } else {
+            throw new Error("Failed to translate message");
+        }
+    } catch (err) {
+        console.error("Translation error", err);
+        alert("Ошибка при переводе сообщения");
+    }
+}
+
+// Replace the old toggleTranslation function with this one
+async function toggleTranslation(messageId, lang) {
+    try {
+        const response = await fetch(`${API_URL}/messages/${messageId}/translate?target_lang=${lang}`, {
+            method: "PUT",
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+            const updatedMessage = await response.json();
+            updateMessage(updatedMessage);
+        } else {
+            throw new Error("Failed to toggle translation");
+        }
+    } catch (err) {
+        console.error("Error toggling translation:", err);
+        alert("Ошибка при переводе сообщения");
+    }
 }
 
 function closeModal(id) {
@@ -555,10 +657,16 @@ async function submitEdit() {
             body: JSON.stringify({ content })
         });
 
-        if (!response.ok) throw new Error("Failed to edit message");
-        closeModal("editMessageModal");
+        if (response.ok) {
+            const updatedMessage = await response.json();
+            updateMessage(updatedMessage);
+            closeModal("editMessageModal");
+        } else {
+            throw new Error("Failed to edit message");
+        }
     } catch (err) {
         console.error("Edit error", err);
+        alert("Ошибка при редактировании сообщения");
     }
 }
 
@@ -583,6 +691,38 @@ function handleGroupUpdate(data) {
         // Refresh the chats list
         loadChats();
     }
+}
+
+// Add this new function to create modals if they don't exist
+function createModalsIfNeeded() {
+    // Check if translate modal exists, if not create it
+    if (!document.getElementById("translateMessageModal")) {
+        const translateModal = document.createElement("div");
+        translateModal.id = "translateMessageModal";
+        translateModal.className = "modal";
+        translateModal.innerHTML = `
+            <div class="modal-content">
+                <h3>Перевести сообщение</h3>
+                <select id="translateLanguageSelect">
+                    <option value="">Выберите язык</option>
+                    <option value="en">Английский</option>
+                    <option value="es">Испанский</option>
+                    <option value="fr">Французский</option>
+                    <option value="de">Немецкий</option>
+                    <option value="it">Итальянский</option>
+                    <option value="ru">Русский</option>
+                </select>
+                <div class="modal-buttons">
+                    <button onclick="submitTranslation()">Перевести</button>
+                    <button onclick="closeModal('translateMessageModal')">Отмена</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(translateModal);
+    }
+    
+    // Check if other required modals exist, if not create them
+    // ... Add checks for other modals if needed
 }
 
 // ==== НАЧАЛО блока настроек ====

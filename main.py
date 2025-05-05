@@ -11,10 +11,13 @@ from models import Base, User, Group, GroupUser, Message
 from schemas import PrivateChatCreate, UserCreate, UserOut, GroupCreate, GroupOut, MessageCreate, MessageOut
 from auth import create_access_token, get_current_user
 from websocket_manager import ConnectionManager
+import deepl
 
 chat_router = APIRouter()
 # Создаем таблицы
 Base.metadata.create_all(bind=engine)
+DEEPL_API_KEY = "11d6d827-c730-4dfe-8651-0fd37928fd04:fx"  # Замените на ваш ключ
+translator = deepl.Translator(DEEPL_API_KEY)
 
 app = FastAPI()
 app.include_router(chat_router)
@@ -304,6 +307,44 @@ async def edit_message(message_id: int, message_update: MessageCreate, current_u
         await manager.broadcast_to_group(message_data, msg.group_id)
     
     return msg
+
+@app.put("/messages/{message_id}/translate")
+async def translate_message(
+    message_id: int,
+    target_lang: str = "RU",  # Язык перевода по умолчанию
+    current_user=Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    msg = db.query(Message).filter(Message.id == message_id).first()
+    if not msg:
+        raise HTTPException(status_code=404, detail="Message not found")
+    
+    # Проверяем, что пользователь имеет доступ к сообщению
+    if msg.author_id != current_user.id and msg.recipient_id != current_user.id and not msg.group_id:
+        raise HTTPException(status_code=403, detail="Not authorized to translate this message")
+    
+    # Если перевода нет или язык перевода изменился, создаем новый перевод
+    if not msg.translated_content or msg.translated_content_lang != target_lang:
+        try:
+            translated = translator.translate_text(msg.content, target_lang=target_lang)
+            msg.translated_content = translated.text
+            msg.translated_content_lang = target_lang  # Сохраняем язык перевода
+        except deepl.DeepLException as e:
+            raise HTTPException(status_code=500, detail=f"Translation error: {str(e)}")
+    
+    # Переключаем флаг отображения
+    msg.show_translation = 1 if msg.show_translation == 0 else 0
+    db.commit()
+    db.refresh(msg)
+    
+    return {
+        "id": msg.id,
+        "content": msg.translated_content if msg.show_translation else msg.content,
+        "show_translation": msg.show_translation,
+        "timestamp": msg.timestamp,
+        "edited": msg.edited,
+        "translated": True  # Указываем, что сообщение переведено
+    }
 
 @app.delete("/messages/{message_id}")
 async def delete_message(message_id: int, current_user=Depends(get_current_user), db: Session = Depends(get_db)):
