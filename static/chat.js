@@ -797,15 +797,14 @@ function createModalsIfNeeded() {
                     <label for="translateLanguageSelect">Выберите язык перевода:</label>
                     <select id="translateLanguageSelect" class="form-control">
                         <option value="">Выберите язык</option>
-                        <option value="ru">Русский</option>
-                        <option value="en-US">Английский (США)</option>
-                        <option value="en-GB">Английский (Британский)</option>
-                        <option value="de">Немецкий</option>
-                        <option value="fr">Французский</option>
-                        <option value="es">Испанский</option>
-                        <option value="it">Итальянский</option>
-                        <option value="ja">Японский</option>
-                        <option value="zh">Китайский</option>
+                        <option value="RU">Русский</option>
+                        <option value="EN-US">Английский (США)</option>
+                        <option value="DE">Немецкий</option>
+                        <option value="FR">Французский</option>
+                        <option value="ES">Испанский</option>
+                        <option value="It">Итальянский</option>
+                        <option value="Ja">Японский</option>
+                        <option value="Zh">Китайский</option>
                     </select>
                 </div>
                 <button onclick="submitTranslation()">Перевести</button>

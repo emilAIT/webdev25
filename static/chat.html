@@ -628,30 +628,6 @@ body.dark-theme .modal-content {
         </div>
     </div>
 
-    <!-- NEW: Translation modal -->
-    <div class="modal" id="translateMessageModal">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeModal('translateMessageModal')">×</span>
-            <h3 class="modal-header">Перевести сообщение</h3>
-            <div class="form-group">
-                <label for="translateLanguageSelect">Выберите язык перевода:</label>
-                <select id="translateLanguageSelect" class="form-control">
-                    <option value="">Выберите язык</option>
-                    <option value="RU">Русский</option>
-                    <option value="en-US">Английский (США)</option>
-                    <option value="en-GB">Английский (Британский)</option>
-                    <option value="DE">Немецкий</option>
-                    <option value="FR">Французский</option>
-                    <option value="ES">Испанский</option>
-                    <option value="IT">Итальянский</option>
-                    <option value="JA">Японский</option>
-                    <option value="ZH">Китайский</option>
-                </select>
-            </div>
-            <button onclick="submitTranslation()">Перевести</button>
-        </div>
-    </div>
-
     <script src="/static/chat.js"></script>
 </body>
 </html>
