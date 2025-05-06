@@ -311,7 +311,7 @@ async def edit_message(message_id: int, message_update: MessageCreate, current_u
 @app.put("/messages/{message_id}/translate")
 async def translate_message(
     message_id: int,
-    target_lang: str = "RU",  # Язык перевода по умолчанию
+    data: dict,
     current_user=Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -319,33 +319,84 @@ async def translate_message(
     if not msg:
         raise HTTPException(status_code=404, detail="Message not found")
     
-    # Проверяем, что пользователь имеет доступ к сообщению
-    if msg.author_id != current_user.id and msg.recipient_id != current_user.id and not msg.group_id:
-        raise HTTPException(status_code=403, detail="Not authorized to translate this message")
+    target_lang = data.get("target_lang", "en-US")
     
-    # Если перевода нет или язык перевода изменился, создаем новый перевод
-    if not msg.translated_content or msg.translated_content_lang != target_lang:
+    # Если перевод на этот язык уже существует, просто включаем его отображение
+    if msg.translated_content and msg.translated_content_lang == target_lang:
+        msg.show_translation = True
+    else:
         try:
-            translated = translator.translate_text(msg.content, target_lang=target_lang)
-            msg.translated_content = translated.text
-            msg.translated_content_lang = target_lang  # Сохраняем язык перевода
+            # Пытаемся определить язык текста через DeepL
+            try:
+                result = translator.translate_text(msg.content, target_lang="en-US")
+                detected_source_lang = result.detected_source_lang
+            except:
+                detected_source_lang = "en"
+
+            # Не переводим, если целевой язык совпадает с исходным
+            if detected_source_lang == target_lang:
+                msg.translated_content = msg.content
+                msg.translated_content_lang = target_lang
+                msg.show_translation = True
+            else:
+                # Выполняем перевод с правильными кодами языков
+                translated = translator.translate_text(
+                    msg.content,
+                    target_lang=target_lang.split('-')[0] if '-' in target_lang else target_lang,
+                    source_lang=detected_source_lang if detected_source_lang != target_lang else None
+                )
+                msg.translated_content = translated.text
+                msg.translated_content_lang = target_lang
+                msg.show_translation = True
+                
         except deepl.DeepLException as e:
             raise HTTPException(status_code=500, detail=f"Translation error: {str(e)}")
     
-    # Переключаем флаг отображения
-    msg.show_translation = 1 if msg.show_translation == 0 else 0
     db.commit()
     db.refresh(msg)
     
     return {
         "id": msg.id,
-        "content": msg.translated_content if msg.show_translation else msg.content,
+        "content": msg.content,
+        "translated_content": msg.translated_content,
         "show_translation": msg.show_translation,
+        "translated_content_lang": msg.translated_content_lang,
+        "author_id": msg.author_id,
+        "group_id": msg.group_id,
         "timestamp": msg.timestamp,
-        "edited": msg.edited,
-        "translated": True  # Указываем, что сообщение переведено
+        "edited": msg.edited
     }
 
+@app.put("/messages/{message_id}/toggle-translation")
+async def toggle_message_translation(
+    message_id: int,
+    current_user=Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    msg = db.query(Message).filter(Message.id == message_id).first()
+    if not msg:
+        raise HTTPException(status_code=404, detail="Message not found")
+    
+    # Переключаем флаг отображения только если есть перевод
+    if msg.translated_content:
+        msg.show_translation = not msg.show_translation
+        db.commit()
+        db.refresh(msg)
+    else:
+        raise HTTPException(status_code=400, detail="Message has no translation")
+    
+    return {
+        "id": msg.id,
+        "content": msg.content,
+        "translated_content": msg.translated_content,
+        "show_translation": msg.show_translation,
+        "translated_content_lang": msg.translated_content_lang,
+        "author_id": msg.author_id,
+        "group_id": msg.group_id,
+        "timestamp": msg.timestamp,
+        "edited": msg.edited
+    }
+    
 @app.delete("/messages/{message_id}")
 async def delete_message(message_id: int, current_user=Depends(get_current_user), db: Session = Depends(get_db)):
     msg = db.query(Message).filter(Message.id == message_id).first()

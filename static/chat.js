@@ -25,6 +25,41 @@ window.addEventListener("DOMContentLoaded", async () => {
     createModalsIfNeeded();
 });
 
+document.addEventListener('DOMContentLoaded', () => {
+    initializeApp();
+    applySettings();
+    
+    // Настройки темы
+    const themeToggle = document.getElementById('themeToggle');
+    if (themeToggle) {
+        themeToggle.checked = localStorage.getItem('darkTheme') === 'true';
+        themeToggle.addEventListener('change', (e) => {
+            document.body.classList.toggle('dark-theme', e.target.checked);
+            localStorage.setItem('darkTheme', e.target.checked);
+        });
+    }
+
+    // Настройки фона
+    const bgInput = document.getElementById('bgInput');
+    if (bgInput) {
+        bgInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const chatContainer = document.querySelector('.chat-container');
+                    if (chatContainer) {
+                        chatContainer.style.backgroundImage = `url(${reader.result})`;
+                        chatContainer.style.backgroundSize = 'cover';
+                        localStorage.setItem('chatBg', reader.result);
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+});
+
 async function initializeApp() {
     await loadChats();
     setupEventListeners();
@@ -131,9 +166,8 @@ function displayMessages(messages, append = false) {
 
         const authorName = isSentByMe ? 'Вы' : (msg.author && msg.author.username ? msg.author.username : 'Unknown');
         
-        // Use the correct content based on translation status
-        const displayContent = msg.show_translation && msg.translated_content ? msg.translated_content : msg.content;
-        const isTranslated = msg.show_translation && msg.translated_content;
+        const hasTranslation = msg.translated_content && msg.translated_content_lang;
+        const displayContent = msg.show_translation && hasTranslation ? msg.translated_content : msg.content;
 
         messageDiv.innerHTML = `
             <div class="message-wrapper">
@@ -142,7 +176,11 @@ function displayMessages(messages, append = false) {
                 <div class="message-info">
                     ${new Date(msg.timestamp).toLocaleString([], {hour: '2-digit', minute: '2-digit'})} 
                     ${msg.edited ? '(изменено)' : ''} 
-                    ${isTranslated || msg.translated ? '(переведено)' : ''}
+                    ${hasTranslation ? `
+                        <span class="translation-toggle" onclick="toggleMessageView(${msg.id})">
+                            ${msg.show_translation ? '🔄 Оригинал' : '🌐 Перевод'}
+                        </span>
+                    ` : ''}
                 </div>
             </div>
         `;
@@ -157,21 +195,41 @@ function displayMessages(messages, append = false) {
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
 
+async function toggleMessageView(messageId) {
+    try {
+        const response = await fetch(`${API_URL}/messages/${messageId}/toggle-translation`, {
+            method: "PUT",
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+            const updatedMessage = await response.json();
+            updateMessage(updatedMessage);
+        } else {
+            throw new Error("Failed to toggle translation view");
+        }
+    } catch (err) {
+        console.error("Error toggling translation view:", err);
+        alert("Ошибка при переключении отображения");
+    }
+}
+
 function updateMessage(msg) {
     const msgDiv = document.getElementById(`message-${msg.id}`);
     if (!msgDiv) return;
 
-    // Determine if message is translated
-    const isTranslated = msg.show_translation && msg.translated_content || msg.translated;
-    
-    // Use the correct content based on translation status
-    const displayContent = isTranslated && msg.translated_content ? msg.translated_content : msg.content;
+    const hasTranslation = msg.translated_content && msg.translated_content_lang;
+    const displayContent = msg.show_translation && hasTranslation ? msg.translated_content : msg.content;
     
     msgDiv.querySelector(".message-content").textContent = displayContent;
     msgDiv.querySelector(".message-info").innerHTML = `
         ${new Date(msg.timestamp).toLocaleString([], {hour: '2-digit', minute: '2-digit'})} 
         ${msg.edited ? '(изменено)' : ''} 
-        ${isTranslated ? '(переведено)' : ''}
+        ${hasTranslation ? `
+            <span class="translation-toggle" onclick="toggleMessageView(${msg.id})">
+                ${msg.show_translation ? '🔄 Оригинал' : '🌐 Перевод'}
+            </span>
+        ` : ''}
     `;
 }
 
@@ -586,24 +644,25 @@ async function submitTranslation() {
     }
     
     try {
-        const response = await fetch(`${API_URL}/messages/${messageId}/translate?target_lang=${targetLang}`, {
+        // Проверяем, есть ли уже перевод на этот язык
+        const response = await fetch(`${API_URL}/messages/${messageId}/translate`, {
             method: "PUT",
-            headers: { "Authorization": `Bearer ${token}` }
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ target_lang: targetLang })
         });
 
         if (response.ok) {
             const updatedMessage = await response.json();
-            // Pass true to explicitly mark as translated if not already included
-            if (!updatedMessage.translated) {
-                updatedMessage.translated = true;
-            }
             updateMessage(updatedMessage);
             closeModal("translateMessageModal");
         } else {
             throw new Error("Failed to translate message");
         }
     } catch (err) {
-        console.error("Translation error", err);
+        console.error("Translation error:", err);
         alert("Ошибка при переводе сообщения");
     }
 }
