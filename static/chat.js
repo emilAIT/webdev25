@@ -23,6 +23,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     setupEventListeners();
     connectChatWebSocket();
     createModalsIfNeeded();
+    reinitializeSettings();
 });
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -82,6 +83,35 @@ function setupEventListeners() {
             if (contextMenu) contextMenu.remove();
         }
     });
+
+    // Добавляем обработчики для настроек
+    const settingsBtn = document.getElementById('settingsBtn');
+    if (settingsBtn) {
+        settingsBtn.addEventListener('click', () => openModal('settingsModal'));
+    }
+
+    const themeToggle = document.getElementById('themeToggle');
+    if (themeToggle) {
+        themeToggle.addEventListener('change', e => {
+            document.body.classList.toggle('dark-theme', e.target.checked);
+            localStorage.setItem('darkTheme', e.target.checked);
+        });
+    }
+
+    const bgInput = document.getElementById('bgInput');
+    if (bgInput) {
+        bgInput.addEventListener('change', e => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    localStorage.setItem('chatBg', reader.result);
+                    document.querySelector('.chat-container').style.backgroundImage = `url(${reader.result})`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
 }
 
 function connectChatWebSocket() {
@@ -761,27 +791,28 @@ function createModalsIfNeeded() {
         translateModal.className = "modal";
         translateModal.innerHTML = `
             <div class="modal-content">
-                <h3>Перевести сообщение</h3>
-                <select id="translateLanguageSelect">
-                    <option value="">Выберите язык</option>
-                    <option value="en">Английский</option>
-                    <option value="es">Испанский</option>
-                    <option value="fr">Французский</option>
-                    <option value="de">Немецкий</option>
-                    <option value="it">Итальянский</option>
-                    <option value="ru">Русский</option>
-                </select>
-                <div class="modal-buttons">
-                    <button onclick="submitTranslation()">Перевести</button>
-                    <button onclick="closeModal('translateMessageModal')">Отмена</button>
+                <span class="close-modal" onclick="closeModal('translateMessageModal')">×</span>
+                <h3 class="modal-header">Перевести сообщение</h3>
+                <div class="form-group">
+                    <label for="translateLanguageSelect">Выберите язык перевода:</label>
+                    <select id="translateLanguageSelect" class="form-control">
+                        <option value="">Выберите язык</option>
+                        <option value="ru">Русский</option>
+                        <option value="en-US">Английский (США)</option>
+                        <option value="en-GB">Английский (Британский)</option>
+                        <option value="de">Немецкий</option>
+                        <option value="fr">Французский</option>
+                        <option value="es">Испанский</option>
+                        <option value="it">Итальянский</option>
+                        <option value="ja">Японский</option>
+                        <option value="zh">Китайский</option>
+                    </select>
                 </div>
+                <button onclick="submitTranslation()">Перевести</button>
             </div>
         `;
         document.body.appendChild(translateModal);
     }
-    
-    // Check if other required modals exist, if not create them
-    // ... Add checks for other modals if needed
 }
 
 // ==== НАЧАЛО блока настроек ====
@@ -830,3 +861,23 @@ function resetSettings() {
 // При загрузке страницы
 document.addEventListener('DOMContentLoaded', applySettings);
 // ==== КОНЕЦ блока настроек ====
+
+function reinitializeSettings() {
+    // Применяем тему
+    const isDarkTheme = localStorage.getItem('darkTheme') === 'true';
+    const themeToggle = document.getElementById('themeToggle');
+    if (themeToggle) {
+        themeToggle.checked = isDarkTheme;
+    }
+    document.body.classList.toggle('dark-theme', isDarkTheme);
+    
+    // Применяем фон чата
+    const savedBg = localStorage.getItem('chatBg');
+    if (savedBg) {
+        const chatContainer = document.querySelector('.chat-container');
+        if (chatContainer) {
+            chatContainer.style.backgroundImage = `url(${savedBg})`;
+            chatContainer.style.backgroundSize = 'cover';
+        }
+    }
+}
