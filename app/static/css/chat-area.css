@@ -231,46 +231,120 @@
 
 /* Message being edited styles */
 .message.being-edited {
-    opacity: 0.7;
+    position: relative;
+    opacity: 0.95;
+    transition: all 0.2s ease;
+}
+
+.message.being-edited::before {
+    content: "";
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border-radius: 20px;
+    border: 2px solid #4e8cff;
+    animation: pulseEditBorder 1.5s infinite;
+    z-index: -1;
+}
+
+@keyframes pulseEditBorder {
+    0% { box-shadow: 0 0 0 0 rgba(78, 140, 255, 0.6); }
+    70% { box-shadow: 0 0 0 6px rgba(78, 140, 255, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(78, 140, 255, 0); }
 }
 
 .message-edit-form {
-    margin-top: 5px;
+    margin-top: 8px;
+    padding: 8px;
+    border-radius: 12px;
+    background: #252d3b;
+    border: 1px solid #364b5f;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 .message-edit-form textarea {
     width: 100%;
-    padding: 8px;
-    border-radius: 8px;
-    border: 1px solid var(--border-color, #ddd);
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid #4e8cff;
     resize: vertical;
-    min-height: 60px;
-    background: var(--input-bg, #fff);
-    color: var(--text-color, #333);
+    min-height: 70px;
+    background: #1a2233;
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 400;
+    transition: border-color 0.2s;
+}
+
+.message-edit-form textarea:focus {
+    outline: none;
+    border-color: #5294e2;
+    box-shadow: 0 0 0 2px rgba(82, 148, 226, 0.3);
 }
 
 .message-edit-form .edit-actions {
     display: flex;
     justify-content: flex-end;
-    margin-top: 5px;
+    align-items: center;
+    margin-top: 10px;
+    padding: 0 5px;
+}
+
+.message-edit-form .edit-info {
+    font-size: 0.8rem;
+    color: #b8c4d9;
+    font-style: italic;
+    font-weight: 500;
+}
+
+.message-edit-form .edit-buttons {
+    display: flex;
 }
 
 .message-edit-form button {
-    padding: 5px 10px;
-    border-radius: 4px;
+    padding: 8px 16px;
+    border-radius: 6px;
     border: none;
-    margin-left: 5px;
+    margin-left: 10px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.message-edit-form button:hover {
+    transform: translateY(-1px);
+}
+
+.message-edit-form button:active {
+    transform: translateY(1px);
 }
 
 .message-edit-form .cancel-edit {
-    background: var(--secondary-button-bg, #ddd);
+    background: #e74c3c;
+    color: #fff;
+    box-shadow: 0 2px 4px rgba(231, 76, 60, 0.4);
+}
+
+.message-edit-form .cancel-edit:hover {
+    background: #c0392b;
+    box-shadow: 0 3px 6px rgba(231, 76, 60, 0.5);
 }
 
 .message-edit-form .save-edit {
-    background: var(--primary-button-bg, #28a745);
+    background: #2980b9;
     color: #fff;
+    box-shadow: 0 2px 4px rgba(41, 128, 185, 0.4);
+}
+
+.message-edit-form .save-edit:hover {
+    background: #2471a3;
+    box-shadow: 0 3px 6px rgba(41, 128, 185, 0.5);
 }
 
 /* Message with edited indicator */

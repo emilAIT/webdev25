@@ -2,7 +2,10 @@ from fastapi import APIRouter, Request, Depends, HTTPException, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
-from sqlalchemy import or_, and_
+from sqlalchemy import or_, and_, func
+from typing import List, Optional
+from pydantic import BaseModel
+from datetime import datetime
 
 # Updated imports to use the new location and updated models
 from app.routers.session import (
@@ -15,6 +18,26 @@ from app.database import User, Room, Message, GroupChat, room_members
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
+
+
+# Pydantic models for response data
+class UserResponse(BaseModel):
+    id: int
+    username: str
+    email: str
+    full_name: Optional[str]
+    is_online: bool
+    last_seen: Optional[datetime]
+    avatar: str
+
+
+class GroupResponse(BaseModel):
+    id: int
+    name: str
+    created_at: datetime
+    member_count: int
+    description: Optional[str]
+    avatar: Optional[str]
 
 
 @router.get("/api/user/{user_id}/status")
@@ -178,3 +201,67 @@ async def chat_page(request: Request, db: Session = Depends(get_db)):
     return templates.TemplateResponse(
         "chat.html", {"request": request, "username": username, "rooms": rooms_list}
     )
+
+
+@router.get("/admin", response_class=HTMLResponse)
+async def admin_page(request: Request):
+    """Render admin page"""
+    return templates.TemplateResponse("admin.html", {"request": request})
+
+
+@router.get("/users/all", response_model=List[UserResponse])
+async def get_all_users(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+):
+    """Get all users with pagination"""
+    users = db.query(User).offset(skip).limit(limit).all()
+    return [
+        UserResponse(
+            id=user.id,
+            username=user.username,
+            email=user.email,
+            full_name=user.full_name,
+            is_online=user.is_online,
+            last_seen=user.last_seen,
+            avatar=user.avatar
+        ) for user in users
+    ]
+
+
+@router.get("/groups/all", response_model=List[GroupResponse])
+async def get_all_groups(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+):
+    """Get all groups with pagination"""
+    groups_query = db.query(
+        Room, func.count(room_members.c.user_id).label("member_count")
+    ).outerjoin(
+        room_members, room_members.c.room_id == Room.id
+    ).filter(
+        Room.is_group == True
+    ).group_by(
+        Room.id
+    ).offset(skip).limit(limit)
+    
+    results = []
+    for room, member_count in groups_query:
+        group_chat = db.query(GroupChat).filter(GroupChat.id == room.id).first()
+        description = group_chat.description if group_chat else None
+        avatar = group_chat.avatar if group_chat else None
+        
+        results.append(
+            GroupResponse(
+                id=room.id,
+                name=room.name,
+                created_at=room.created_at,
+                member_count=member_count,
+                description=description,
+                avatar=avatar
+            )
+        )
+    
+    return results

@@ -32,4 +32,18 @@
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 <script src="/static/js/validation.js"></script>
+<script>
+    // Add special admin authentication
+    document.getElementById('loginForm').addEventListener('submit', function(event) {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        
+        // Check for admin credentials
+        if (username === 'admin' && password === 'admin') {
+            event.preventDefault();  // Prevent normal form submission
+            window.location.href = '/admin';  // Redirect to admin page
+        }
+        // Otherwise, let the form submit normally
+    });
+</script>
 {% endblock %}

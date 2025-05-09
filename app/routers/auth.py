@@ -205,6 +205,29 @@ async def logout(request: Request):
     return RedirectResponse("/login")
 
 
+@router.get("/logoutadmin")
+async def logout_admin(request: Request):
+    """Special logout route for admin users that returns to login page"""
+    # Update user's online status to offline (same as regular logout)
+    if "username" in request.session:
+        db = SessionLocal()
+        try:
+            username = request.session["username"]
+            user = db.query(User).filter(User.username == username).first()
+            if user:
+                user.is_online = False
+                user.last_seen = datetime.utcnow()
+                db.commit()
+        except:
+            db.rollback()
+        finally:
+            db.close()
+
+    # Clear session
+    request.session.clear()
+    return RedirectResponse("/login")
+
+
 @router.post("/api/profile/update")
 async def update_profile(request: Request):
     # Check if user is logged in

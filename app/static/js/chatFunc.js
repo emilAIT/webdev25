@@ -19,6 +19,10 @@ document.addEventListener('DOMContentLoaded', function() {
             messageContextMenu.className = 'message-context-menu';
             
             messageContextMenu.innerHTML = `
+                <button class="menu-button translate-message" id="translateMessageOption">
+                    <img src="/static/images/g_translate.png" alt="Translate">
+                    Translate
+                </button>
                 <button class="menu-button edit-message" id="editMessageOption">
                     <img src="/static/images/edit.png" alt="Edit">
                     Edit

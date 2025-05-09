@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="../static/css/admin.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">Admin Panel</div>
+            <ul class="nav-links">
+                <li class="active"><a href="#">Dashboard</a></li>
+                <li><a href="#">Users</a></li>
+                <li><a href="#">Groups</a></li>
+            </ul>
+            <div class="logout">
+                <a href="#">Logout</a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h1>Admin Dashboard</h1>
+                <div class="user-info">Admin User</div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-container">
+                <div class="stat-card">
+                    <h2>Total Users</h2>
+                    <div class="stat-value" id="user-count">Loading...</div>
+                    
+                </div>
+                
+                <div class="stat-card">
+                    <h2>Total Groups</h2>
+                    <div class="stat-value" id="group-count">Loading...</div>
+                    <div class="stat-info" id="recent-groups-info">Loading new groups data...</div>
+                </div>
+                
+                <div class="stat-card">
+                    <h2>Active Users</h2>
+                    <div class="stat-value" id="active-user-count">Loading...</div>
+                    <div class="stat-info">Online now</div>
+                </div>
+            </div>
+
+            <!-- Dynamic Content Section -->
+            <div class="content-container">
+                <!-- Dashboard View (default) -->
+                <div id="dashboard-content" class="dynamic-content">
+                    <h2></h2>
+                    <div class="table-container">
+                        <table>    
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Users View (initially hidden) -->
+                <div id="users-content" class="dynamic-content" style="display: none;">
+                    <h2>User Management</h2>
+                    <div class="table-container">
+                        <table id="users-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Full Name</th>
+                                    <th>Status</th>
+                                    <th>Last Seen</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- User data will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Groups View (initially hidden) -->
+                <div id="groups-content" class="dynamic-content" style="display: none;">
+                    <h2>Group Management</h2>
+                    <div class="table-container">
+                        <table id="groups-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Created</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Group data will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get references to content sections
+        const dashboardContent = document.getElementById('dashboard-content');
+        const usersContent = document.getElementById('users-content');
+        const groupsContent = document.getElementById('groups-content');
+
+        // Get navigation links
+        const navLinks = document.querySelectorAll('.nav-links li a');
+
+        // Add click event listeners to navigation links
+        document.addEventListener('DOMContentLoaded', function() {
+            // Connect logout button to logoutadmin endpoint
+            const logoutButton = document.querySelector('.logout a');
+            if (logoutButton) {
+                logoutButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.location.href = '/logoutadmin';
+                });
+            }
+            
+            // Initial data loading
+            fetchGroupCount();
+            fetchUserCount();
+            fetchActiveUserCount();
+            fetchRecentGroupsCount();
+            
+            // Set up navigation
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove active class from all links
+                    navLinks.forEach(l => l.parentElement.classList.remove('active'));
+                    
+                    // Add active class to clicked link
+                    this.parentElement.classList.add('active');
+                    
+                    // Hide all content sections
+                    dashboardContent.style.display = 'none';
+                    usersContent.style.display = 'none';
+                    groupsContent.style.display = 'none';
+                    
+                    // Show the appropriate section based on the link text
+                    if (this.textContent.trim() === 'Dashboard') {
+                        dashboardContent.style.display = 'block';
+                    } else if (this.textContent.trim() === 'Users') {
+                        usersContent.style.display = 'block';
+                        loadAllUsers();
+                    } else if (this.textContent.trim() === 'Groups') {
+                        groupsContent.style.display = 'block';
+                        loadAllGroups();
+                    }
+                });
+            });
+        });
+
+        // Function to load all users
+        function loadAllUsers() {
+            fetch('/users/all')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(users => {
+                    const tbody = document.querySelector('#users-table tbody');
+                    tbody.innerHTML = ''; // Clear any existing rows
+                    
+                    users.forEach(user => {
+                        const row = document.createElement('tr');
+                        
+                        // Format date if it exists
+                        const lastSeen = user.last_seen ? 
+                            new Date(user.last_seen).toLocaleString() : 'Never';
+                        
+                        row.innerHTML = `
+                            <td>${user.id}</td>
+                            <td>${user.username}</td>
+                            <td>${user.email}</td>
+                            <td>${user.full_name || '-'}</td>
+                            <td>${user.is_online ? 'Online' : 'Offline'}</td>
+                            <td>${lastSeen}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching users:', error);
+                });
+        }
+
+        // Function to load all groups
+        function loadAllGroups() {
+            fetch('/groups/all')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(groups => {
+                    const tbody = document.querySelector('#groups-table tbody');
+                    tbody.innerHTML = ''; // Clear any existing rows
+                    
+                    groups.forEach(group => {
+                        const row = document.createElement('tr');
+                        
+                        // Format date
+                        const createdAt = new Date(group.created_at).toLocaleString();
+                        
+                        row.innerHTML = `
+                            <td>${group.id}</td>
+                            <td>${group.name}</td>
+                            <td>${createdAt}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching groups:', error);
+                });
+        }
+
+        // Fetch stats when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchGroupCount();
+            fetchUserCount();
+            fetchActiveUserCount(); // Add this line
+            fetchRecentGroupsCount(); // Add this line
+        });
+
+        // Function to fetch group count from API
+        function fetchGroupCount() {
+            fetch('/api/stats/groups')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Update the group count in the dashboard
+                    document.getElementById('group-count').textContent = data.total_groups;
+                })
+                .catch(error => {
+                    console.error('Error fetching group count:', error);
+                    document.getElementById('group-count').textContent = 'Error';
+                });
+        }
+
+        // Function to fetch user count from API
+        function fetchUserCount() {
+            fetch('/api/stats/users')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Update the user count in the dashboard
+                    document.getElementById('user-count').textContent = data.total_users;
+                })
+                .catch(error => {
+                    console.error('Error fetching user count:', error);
+                    document.getElementById('user-count').textContent = 'Error';
+                });
+        }
+
+        // Function to fetch active user count from API
+        function fetchActiveUserCount() {
+            fetch('/api/stats/active-users')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Update the active user count in the dashboard
+                    document.getElementById('active-user-count').textContent = data.active_users;
+                })
+                .catch(error => {
+                    console.error('Error fetching active user count:', error);
+                    document.getElementById('active-user-count').textContent = 'Error';
+                });
+        }
+
+        // Function to fetch recent groups count from API
+        function fetchRecentGroupsCount() {
+            fetch('/api/stats/groups/recent')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Update the recent groups info in the dashboard
+                    document.getElementById('recent-groups-info').textContent = 
+                        `+${data.recent_groups} new today`;
+                })
+                .catch(error => {
+                    console.error('Error fetching recent groups count:', error);
+                    document.getElementById('recent-groups-info').textContent = 'No data';
+                });
+        }
+    </script>
+</body>
+</html>
