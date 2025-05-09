@@ -1,0 +1,202 @@
+
+/* Translation Overlay */
+.translation-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.translation-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Translation Popup */
+.translation-popup {
+    position: fixed;
+    background-color: #fff;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    border-radius: 12px;
+    padding: 12px;
+    z-index: 1001;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    max-width: 250px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.translation-popup.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Translation Popup Title */
+.translation-popup-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 10px;
+    padding: 0 8px;
+}
+
+/* Options Container */
+.translation-options-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* Translation Option */
+.translation-option {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.translation-option:hover {
+    background-color: #f5f5f5;
+}
+
+/* Translation Icon */
+.translation-icon {
+    margin-right: 8px;
+    font-size: 20px;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Translation Loading */
+.translation-loading {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    margin-top: 8px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #666;
+}
+
+.translation-loading-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #ddd;
+    border-top: 2px solid #007bff;
+    border-radius: 50%;
+    margin-right: 8px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Translation Results */
+.translation-result {
+    margin-top: 8px;
+    background-color: #f0f7ff;
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 14px;
+    border: 1px solid #d1e6ff;
+}
+
+.translation-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 10px;
+    background-color: #e2f0ff;
+    font-size: 12px;
+    color: #0066cc;
+}
+
+.close-translation {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0;
+    line-height: 1;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.close-translation:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: #333;
+}
+
+.translated-content {
+    padding: 8px 10px;
+    line-height: 1.4;
+    color: #333;
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .translation-popup {
+        background-color: #2a2a2a;
+        color: #fff;
+    }
+    
+    .translation-popup-title {
+        color: #ddd;
+    }
+    
+    .translation-option:hover {
+        background-color: #3a3a3a;
+    }
+    
+    .translation-loading {
+        background-color: #333;
+        color: #ccc;
+    }
+    
+    .translation-result {
+        background-color: #2d3748;
+        border-color: #4a5568;
+    }
+    
+    .translation-header {
+        background-color: #2c3e50;
+        color: #a0d0ff;
+    }
+    
+    .translated-content {
+        color: #ddd;
+    }
+    
+    .close-translation {
+        color: #aaa;
+    }
+    
+    .close-translation:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: #fff;
+    }
+}

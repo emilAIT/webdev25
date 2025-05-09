@@ -163,10 +163,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Helper function: show notification
     function showToast(message) {
         alert(message);
-    }
-
-    // Initialize context menu actions
+    }    // Initialize context menu actions
     function initContextMenuActions() {
+        // Translate message action
+        // We're not adding event listener here as it's handled in translation.js
+        
         // Edit message action
         document.getElementById('editMessageOption')?.addEventListener('click', function() {
             if (!currentMessageElement || !currentMessageId || !currentRoomId) {
@@ -397,10 +398,12 @@ document.addEventListener('DOMContentLoaded', function() {
         if (chatMessages) {
             observer.observe(chatMessages, { childList: true });
         }
-        
-        // Expose functions for use in other modules
+          // Expose functions for use in other modules
         window.BlinkContextMenu = {
-            addContextMenuToMessages: addContextMenuToMessages
+            addContextMenuToMessages: addContextMenuToMessages,
+            getCurrentMessageElement: function() { return currentMessageElement; },
+            getCurrentMessageId: function() { return currentMessageId; },
+            getCurrentContent: function() { return currentContent; }
         };
     }
     

@@ -20,6 +20,7 @@ from app.routers.session import router as session_router
 from app.routers.friends import router as friends_router
 from app.routers.attachment import router as attachment_router
 from app.routers.stats import router as stats_router
+from app.routers.translation import router as translation_router
 
 app = FastAPI(title="Blink")
 
@@ -46,6 +47,7 @@ app.include_router(session_router)
 app.include_router(friends_router)
 app.include_router(attachment_router)
 app.include_router(stats_router)
+app.include_router(translation_router)
 
 
 # Root route redirects to login
