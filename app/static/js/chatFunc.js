@@ -66,15 +66,6 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentRoomId = null;
     let currentContent = null;
     
-    // Create a shared context object on the window
-    if (!window.BlinkContextMenu) {
-        window.BlinkContextMenu = {
-            getCurrentMessageElement: function() {
-                return currentMessageElement;
-            }
-        };
-    }
-    
     // Handle click outside context menu
     document.addEventListener('click', function(e) {
         const contextMenu = document.getElementById('messageContextMenu');

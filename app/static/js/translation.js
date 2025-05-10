@@ -107,28 +107,18 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-      // Listen for custom translate-message event from chatFunc.js
+    
+    // Listen for custom translate-message event from chatFunc.js
     window.addEventListener('translate-message', function(e) {
-        console.log("Received translate-message event:", e);
-        
         // Extract the message element and content from the event detail
-        if (e.detail && e.detail.messageElement) {
-            currentMessageElement = e.detail.messageElement;
-            currentContent = e.detail.content || currentMessageElement.querySelector('.message-content')?.textContent;
-            
-            // Store on the window object for potential cross-file access
-            if (window.BlinkContextMenu) {
-                window.BlinkContextMenu.currentMessageElement = currentMessageElement;
-            }
-            
-            if (currentMessageElement && currentContent) {
-                // Show translation options popup
-                showTranslationPopup();
-            } else {
-                console.error('Invalid message data in translate-message event');
-            }
+        currentMessageElement = e.detail.messageElement;
+        currentContent = e.detail.content;
+        
+        if (currentMessageElement && currentContent) {
+            // Show translation options popup
+            showTranslationPopup();
         } else {
-            console.error('Missing message element in translate-message event');
+            console.error('Invalid message data in translate-message event');
         }
     });
     
