@@ -40,6 +40,23 @@ document.addEventListener('DOMContentLoaded', function() {
             document.body.appendChild(messageContextMenu);
         }
         
+        // Create a separate context menu for incoming messages with only translate option
+        const incomingMessageContextMenu = document.getElementById('incomingMessageContextMenu');
+        if (!incomingMessageContextMenu) {
+            const menu = document.createElement('div');
+            menu.id = 'incomingMessageContextMenu';
+            menu.className = 'message-context-menu incoming-context-menu';
+            
+            menu.innerHTML = `
+                <button class="menu-button translate-message" id="incomingTranslateMessageOption">
+                    <img src="/static/images/g_translate.png" alt="Translate">
+                    Translate
+                </button>
+            `;
+            
+            document.body.appendChild(menu);
+        }
+        
         return messageContextMenu;
     }
     
@@ -49,12 +66,36 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentRoomId = null;
     let currentContent = null;
     
+    // Create a shared context object on the window
+    if (!window.BlinkContextMenu) {
+        window.BlinkContextMenu = {
+            getCurrentMessageElement: function() {
+                return currentMessageElement;
+            }
+        };
+    }
+    
     // Handle click outside context menu
     document.addEventListener('click', function(e) {
         const contextMenu = document.getElementById('messageContextMenu');
         if (contextMenu && contextMenu.style.display === 'block') {
             if (!contextMenu.contains(e.target)) {
                 contextMenu.style.display = 'none';
+                // Remove context-active class from all messages
+                document.querySelectorAll('.message.context-active').forEach(el => {
+                    el.classList.remove('context-active');
+                });
+            }
+        }
+        
+        const incomingContextMenu = document.getElementById('incomingMessageContextMenu');
+        if (incomingContextMenu && incomingContextMenu.style.display === 'block') {
+            if (!incomingContextMenu.contains(e.target)) {
+                incomingContextMenu.style.display = 'none';
+                // Remove context-active class from all messages
+                document.querySelectorAll('.message.context-active').forEach(el => {
+                    el.classList.remove('context-active');
+                });
             }
         }
     });
@@ -96,9 +137,13 @@ document.addEventListener('DOMContentLoaded', function() {
         // Find the closest message element
         const messageElement = e.target.closest('.message');
         
-        // Only proceed if this is a message element and it's an outgoing message (user's own message)
-        if (messageElement && messageElement.classList.contains('outgoing')) {
+        if (messageElement) {
             e.preventDefault(); // Prevent default context menu
+            
+            // Remove context-active class from any previously active message
+            document.querySelectorAll('.message.context-active').forEach(el => {
+                el.classList.remove('context-active');
+            });
             
             // Store message context
             currentMessageElement = messageElement;
@@ -106,19 +151,34 @@ document.addEventListener('DOMContentLoaded', function() {
             currentRoomId = document.getElementById('chatContent')?.getAttribute('data-current-room-id');
             currentContent = messageElement.querySelector('.message-content').textContent;
             
-            // Position menu on top of the message, not at the click position
-            const menu = document.getElementById('messageContextMenu');
-            const rect = messageElement.getBoundingClientRect();
+            // Mark this message as having the active context menu
+            messageElement.classList.add('context-active');
             
-            // Position the menu horizontally centered over the message and vertically above it
-            menu.style.left = `${rect.left + window.pageXOffset + (rect.width / 2) - (menu.offsetWidth / 2 || 75)}px`;
-            menu.style.top = `${rect.top + window.pageYOffset - (menu.offsetHeight || 120) - 10}px`;
-            menu.style.display = 'block';
-            
-            // Always show the edit option
-            const editOption = document.getElementById('editMessageOption');
-            if (editOption) {
-                editOption.style.display = 'flex';
+            if (messageElement.classList.contains('outgoing')) {
+                // For outgoing messages (user's own messages) - show full context menu
+                // Position menu on top of the message, not at the click position
+                const menu = document.getElementById('messageContextMenu');
+                const rect = messageElement.getBoundingClientRect();
+                
+                // Position the menu horizontally centered over the message and vertically above it
+                menu.style.left = `${rect.left + window.pageXOffset + (rect.width / 2) - (menu.offsetWidth / 2 || 75)}px`;
+                menu.style.top = `${rect.top + window.pageYOffset - (menu.offsetHeight || 120) - 10}px`;
+                menu.style.display = 'block';
+                
+                // Always show the edit option
+                const editOption = document.getElementById('editMessageOption');
+                if (editOption) {
+                    editOption.style.display = 'flex';
+                }
+            } else {
+                // For incoming messages (from other users) - show only translate option
+                const menu = document.getElementById('incomingMessageContextMenu');
+                const rect = messageElement.getBoundingClientRect();
+                
+                // Position the menu horizontally centered over the message and vertically above it
+                menu.style.left = `${rect.left + window.pageXOffset + (rect.width / 2) - (menu.offsetWidth / 2 || 75)}px`;
+                menu.style.top = `${rect.top + window.pageYOffset - (menu.offsetHeight || 60) - 10}px`;
+                menu.style.display = 'block';
             }
         }
     }
@@ -126,27 +186,46 @@ document.addEventListener('DOMContentLoaded', function() {
     // Handle touch start for long press
     function handleTouchStart(e) {
         const messageElement = e.target.closest('.message');
-        if (messageElement && messageElement.classList.contains('outgoing')) {
+        if (messageElement) {
             longPressTimer = setTimeout(() => {
+                // Remove context-active class from any previously active message
+                document.querySelectorAll('.message.context-active').forEach(el => {
+                    el.classList.remove('context-active');
+                });
+                
                 // Store message context
                 currentMessageElement = messageElement;
                 currentMessageId = messageElement.getAttribute('data-message-id');
                 currentRoomId = document.getElementById('chatContent')?.getAttribute('data-current-room-id');
                 currentContent = messageElement.querySelector('.message-content').textContent;
                 
-                // Position menu on top of the message, not at the touch position
-                const menu = document.getElementById('messageContextMenu');
-                const rect = messageElement.getBoundingClientRect();
+                // Mark this message as having the active context menu
+                messageElement.classList.add('context-active');
                 
-                // Position the menu horizontally centered over the message and vertically above it
-                menu.style.left = `${rect.left + (rect.width / 2) - (menu.offsetWidth / 2 || 75)}px`;
-                menu.style.top = `${rect.top - (menu.offsetHeight || 120) - 10}px`;
-                menu.style.display = 'block';
-                
-                // Always show the edit option
-                const editOption = document.getElementById('editMessageOption');
-                if (editOption) {
-                    editOption.style.display = 'flex';
+                if (messageElement.classList.contains('outgoing')) {
+                    // For outgoing messages (user's own messages) - show full context menu
+                    const menu = document.getElementById('messageContextMenu');
+                    const rect = messageElement.getBoundingClientRect();
+                    
+                    // Position the menu horizontally centered over the message and vertically above it
+                    menu.style.left = `${rect.left + (rect.width / 2) - (menu.offsetWidth / 2 || 75)}px`;
+                    menu.style.top = `${rect.top - (menu.offsetHeight || 120) - 10}px`;
+                    menu.style.display = 'block';
+                    
+                    // Always show the edit option
+                    const editOption = document.getElementById('editMessageOption');
+                    if (editOption) {
+                        editOption.style.display = 'flex';
+                    }
+                } else {
+                    // For incoming messages (from other users) - show only translate option
+                    const menu = document.getElementById('incomingMessageContextMenu');
+                    const rect = messageElement.getBoundingClientRect();
+                    
+                    // Position the menu horizontally centered over the message and vertically above it
+                    menu.style.left = `${rect.left + (rect.width / 2) - (menu.offsetWidth / 2 || 75)}px`;
+                    menu.style.top = `${rect.top - (menu.offsetHeight || 60) - 10}px`;
+                    menu.style.display = 'block';
                 }
             }, longPressDuration);
         }
@@ -167,6 +246,29 @@ document.addEventListener('DOMContentLoaded', function() {
     function initContextMenuActions() {
         // Translate message action
         // We're not adding event listener here as it's handled in translation.js
+        
+        // Translate option for incoming messages
+        document.getElementById('incomingTranslateMessageOption')?.addEventListener('click', function() {
+            if (!currentMessageElement || !currentContent) {
+                console.error('Cannot translate message: missing content');
+                return;
+            }
+            
+            // Hide context menu
+            document.getElementById('incomingMessageContextMenu').style.display = 'none';
+            
+            // Ensure the message element has the context-active class
+            currentMessageElement.classList.add('context-active');
+            
+            // Dispatch a custom event that will be captured by translation.js
+            const translateEvent = new CustomEvent('translate-message', {
+                detail: {
+                    messageElement: currentMessageElement,
+                    content: currentContent
+                }
+            });
+            window.dispatchEvent(translateEvent);
+        });
         
         // Edit message action
         document.getElementById('editMessageOption')?.addEventListener('click', function() {

@@ -1,42 +1,59 @@
-
 document.addEventListener('DOMContentLoaded', function() {
     console.log("Translation.js loaded - translation functionality initialized");
 
-    // Get the translate button from context menu
+    // Create a shared context object on the window
+    if (!window.BlinkContextMenu) {
+        window.BlinkContextMenu = {};
+    }
+
+    // Get the translate buttons from context menus
     let translateBtn = document.getElementById('translateMessageOption');
+    let incomingTranslateBtn = document.getElementById('incomingTranslateMessageOption');
     let translationPopup = null;
     let translationOverlay = null;
     
     // Variables to store current context
     let currentMessageElement = null;
     let currentMessageId = null;
-    let currentContent = null;
-    
-    // Access to context data from chatFunc.js
+    let currentContent = null;      // Access to context data from chatFunc.js
     function getCurrentMessageContext() {
         // Try to get the message element from any open context menu
         const contextMenu = document.getElementById('messageContextMenu');
-        if (contextMenu && contextMenu.style.display === 'block') {
+        const incomingContextMenu = document.getElementById('incomingMessageContextMenu');
+        
+        // Check if either context menu is open
+        if ((contextMenu && contextMenu.style.display === 'block') || 
+            (incomingContextMenu && incomingContextMenu.style.display === 'block')) {
             // Get message element with context menu open
-            currentMessageElement = document.querySelector('.message.context-active') || 
-                                    document.querySelector('.message.being-edited');
+            currentMessageElement = document.querySelector('.message.context-active');
             
-            // If not found via classes, try to get from the window object if chatFunc stored it there
-            if (!currentMessageElement && window.BlinkContextMenu && window.BlinkContextMenu.getCurrentMessageElement) {
-                currentMessageElement = window.BlinkContextMenu.getCurrentMessageElement();
+            // If not found via classes, try to get from the parent scope or context
+            if (!currentMessageElement) {
+                console.log("No message with context-active class found, looking for it in other ways");
+                
+                // Try to get it from chat.js if it was stored in a global variable
+                if (window.BlinkContextMenu && window.BlinkContextMenu.currentMessageElement) {
+                    currentMessageElement = window.BlinkContextMenu.currentMessageElement;
+                }
             }
             
             // Get message details if we have the element
             if (currentMessageElement) {
                 currentMessageId = currentMessageElement.getAttribute('data-message-id');
-                currentContent = currentMessageElement.querySelector('.message-content').textContent;
-                return true;
+                const contentElement = currentMessageElement.querySelector('.message-content');
+                if (contentElement) {
+                    currentContent = contentElement.textContent;
+                    return true;
+                }
             }
         }
+        
+        // If we got here, we couldn't find a valid message context
+        console.error("Failed to get message context. No active message found.");
         return false;
     }
     
-    // Setup translation button click event
+    // Setup translation button click event for outgoing messages
     if (translateBtn) {
         translateBtn.addEventListener('click', function(e) {
             e.preventDefault();
@@ -58,6 +75,62 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+      // Setup translation button click event for incoming messages
+    if (incomingTranslateBtn) {
+        incomingTranslateBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            console.log("Incoming translate button clicked");
+            
+            // Get current message context
+            if (!getCurrentMessageContext()) {
+                // Try to get it directly from chatFunc.js via the global variable
+                const activeMessage = document.querySelector('.message.context-active');
+                if (activeMessage) {
+                    currentMessageElement = activeMessage;
+                    currentMessageId = activeMessage.getAttribute('data-message-id');
+                    currentContent = activeMessage.querySelector('.message-content').textContent;
+                } else {
+                    console.error('No message selected for translation');
+                    return;
+                }
+            }
+            
+            // Create and show translation options popup
+            showTranslationPopup();
+            
+            // Hide the context menu
+            const contextMenu = document.getElementById('incomingMessageContextMenu');
+            if (contextMenu) {
+                contextMenu.style.display = 'none';
+            }
+        });
+    }
+      // Listen for custom translate-message event from chatFunc.js
+    window.addEventListener('translate-message', function(e) {
+        console.log("Received translate-message event:", e);
+        
+        // Extract the message element and content from the event detail
+        if (e.detail && e.detail.messageElement) {
+            currentMessageElement = e.detail.messageElement;
+            currentContent = e.detail.content || currentMessageElement.querySelector('.message-content')?.textContent;
+            
+            // Store on the window object for potential cross-file access
+            if (window.BlinkContextMenu) {
+                window.BlinkContextMenu.currentMessageElement = currentMessageElement;
+            }
+            
+            if (currentMessageElement && currentContent) {
+                // Show translation options popup
+                showTranslationPopup();
+            } else {
+                console.error('Invalid message data in translate-message event');
+            }
+        } else {
+            console.error('Missing message element in translate-message event');
+        }
+    });
     
     /**
      * Create and display the translation popup with language options
