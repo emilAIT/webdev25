@@ -47,8 +47,12 @@ function observeMessagesForRead() {
 
     // Disconnect previous observer to prevent leaks
     if (messageObserver) {
-        messageObserver.disconnect();
-        wsLog("Disconnected previous message observer");
+        try {
+            messageObserver.disconnect();
+            wsLog("Disconnected previous message observer");
+        } catch (error) {
+            console.error("Error disconnecting message observer:", error);
+        }
     }
 
     messageObserver = new IntersectionObserver(
@@ -76,6 +80,16 @@ function observeMessagesForRead() {
         messageObserver.observe(message);
         wsLog(`Observing message ${message.getAttribute('data-message-id')}`);
     });
+}
+
+// Disconnect chat WebSocket
+function disconnectChatWebSocket() {
+    if (chatWebSocket && chatWebSocket.readyState === WebSocket.OPEN) {
+        wsLog("Disconnecting chat WebSocket");
+        chatWebSocket.close(1000, "User navigation");
+        return true;
+    }
+    return false;
 }
 
 // Initialize WebSocket - Should be called on page load

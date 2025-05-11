@@ -348,10 +348,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const apiUrl = url.includes('http://127.0.0.1:8000') ? 
                 url.replace('http://127.0.0.1:8000', '') : url;
             return fetch(apiUrl, options);
-        };
+        };          // Fetch group details first, then fetch members separately
+        let groupDetailsData = null;
         
-        // Fetch from the correct endpoint as shown in the provided code
-        authenticatedFetch(`http://127.0.0.1:8000/groups/${roomId}`, {
+        // Fetch from the correct endpoint
+        authenticatedFetch(`http://127.0.0.1:8000/api/rooms/${roomId}`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' }
         })
@@ -363,9 +364,22 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(groupDetails => {
             console.log('Group details loaded:', groupDetails);
+            groupDetailsData = groupDetails;
             
-            // Make sure members exists, default to empty array if not
-            const members = groupDetails.members || [];
+            // Now fetch the members list
+            return authenticatedFetch(`http://127.0.0.1:8000/api/rooms/${roomId}/members`, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' }
+            });
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to fetch group members');
+            }
+            return response.json();
+        })
+        .then(members => {
+            console.log('Group members loaded:', members);
                 
             // Show the chat content
             if (chatContent.style.display !== 'flex') {
@@ -377,8 +391,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (welcomeContainer) {
                 welcomeContainer.style.display = 'none';
             }
-            
-            // Render group details in the chat content area
+              // Render group details in the chat content area
             chatContent.innerHTML = `
                 <div class="group-details-container">
                     <div class="group-details-header">
@@ -388,48 +401,48 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="menu-button-container">
                             <img src="static/images/menu.png" alt="Menu" class="group-menu-button">
                         </div>
-                        <img src="${groupDetails.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(groupDetails.name)}&background=${generateAvatarColor(groupDetails.name)}&color=fff&size=80`}"
-                             alt="${groupDetails.name}" 
+                        <img src="${groupDetailsData.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(groupDetailsData.name)}&background=${generateAvatarColor(groupDetailsData.name)}&color=fff&size=80`}"
+                             alt="${groupDetailsData.name}" 
                              class="group-details-avatar">
-                        <h2 class="group-details-name">${groupDetails.name}</h2>
+                        <h2 class="group-details-name">${groupDetailsData.name}</h2>
                         <p class="group-details-members-count">${members.length} members</p>
                     </div>
                     <ul class="group-details-members-list">
                         ${members.map(member => `
-                            <li class="group-details-member" data-member-id="${member.user_id || member.id}">
-                                <div class="member-info">
-                                    <img src="${member.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.username)}&background=${generateAvatarColor(member.username)}&color=fff&size=40`}"
+                            <li class="group-details-member" data-member-id="${member.id}">
+                                <div class="member-info">                                    <img src="${member.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.username)}&background=${generateAvatarColor(member.username)}&color=fff&size=40`}"
                                          alt="${member.username}" 
                                          class="member-avatar">
-                                    <span class="member-name">${member.username}</span>
+                                    <span class="member-name" style="color: #FFFFFF;">${member.username}</span>
                                 </div>
-                                <span class="member-role">${member.role === 'ADMIN' || member.role === 'admin' ? 'Admin' : 
-                                    member.role === 'OWNER' || member.role === 'owner' ? 'Owner' : ''}</span>
+                                <span class="member-role">${member.is_admin ? 'Admin' : ''}</span>
                             </li>
                         `).join('')}
                     </ul>
                 </div>
             `;
-            
-            // Setup back button
+              // Setup back button
             const backButton = document.querySelector('.back-button');
             if (backButton) {
                 backButton.addEventListener('click', () => {
-                    // Return to the group chat using the provided openGroupChat function
-                    const openGroupChat = (groupId, groupName) => {
-                        if (window.openChat) {
-                            fetch(`/api/rooms/${groupId}`)
-                                .then(response => response.json())
-                                .then(roomData => {
-                                    window.openChat(roomData);
-                                })
-                                .catch(error => {
-                                    console.error('Failed to fetch room data:', error);
-                                });
-                        }
-                    };
-                    
-                    openGroupChat(roomId, groupDetails.name);
+                    // Use direct API call and openChat instead of simulating click
+                    fetch(`/api/rooms/${roomId}`)
+                        .then(response => response.json())
+                        .then(roomData => {
+                            // First - reset the chat content to empty
+                            chatContent.innerHTML = '';
+                            
+                            // Set display to none so that openChat will correctly reinitialize it
+                            chatContent.style.display = 'none';
+                            
+                            // Then call openChat which will properly initialize everything
+                            if (window.openChat) {
+                                window.openChat(roomData);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Failed to fetch room data:', error);
+                        });
                 });
             }
             
@@ -507,8 +520,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                 });
             }
-            
-            // Setup member context menu functionality
+              // Setup member context menu functionality
             const groupMembers = document.querySelectorAll('.group-details-member');
             groupMembers.forEach(member => {
                 member.addEventListener('contextmenu', (e) => {
@@ -551,10 +563,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     });
                 });
-            });
-        })
+            });        })
         .catch(error => {
-            console.error('Error loading group details:', error);
+            console.error('Error loading group details or members:', error);
             
             if (chatContent) {
                 chatContent.innerHTML = '<div class="error-message">Failed to load group details. Please try again.</div>';
