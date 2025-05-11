@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Settings</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body class="settings-bg">
+    <div class="settings-modal">
+        <button class="close-btn" onclick="window.location.href='/chat?token=' + encodeURIComponent(localStorage.getItem('token'))">&times;</button>
+        <img src="/static/default-avatar.png" alt="Avatar" class="avatar" id="settings-avatar">
+        <div class="username" id="settings-username">Username</div>
+        <div class="phone" id="settings-phone">+996 705 450535</div>
+        <div class="handle" id="settings-handle">@username</div>
+        <div class="settings-list">
+            <button id="my-account-btn"><span>👤</span> My Account</button>
+            <button id="change-password-btn"><span>🔒</span> Change Password</button>
+            <button class="logout-btn" id="logout-btn"><span>⎋</span> Log out</button>
+        </div>
+    </div>
+    <div id="close-friends-modal" class="modal">
+    </div>
+    <script>
+        // Load user info
+        const token = new URLSearchParams(window.location.search).get('token') || localStorage.getItem('token');
+        fetch('/users/me', {
+            headers: { 'Authorization': 'Bearer ' + token }
+        })
+        .then(r => r.json())
+        .then(user => {
+            document.getElementById('settings-username').textContent = user.username || '';
+            document.getElementById('settings-phone').textContent = user.mobile || '';
+            document.getElementById('settings-handle').textContent = '@' + (user.username || '');
+            if (user.avatar_url) {
+                document.getElementById('settings-avatar').src = user.avatar_url;
+            }
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('my-account-btn').onclick = function() {
+                window.location.href = '/my-profile?token=' + encodeURIComponent(token);
+            };
+            document.getElementById('change-password-btn').onclick = function() {
+                window.location.href = '/forgot-password?token=' + encodeURIComponent(token);
+            };
+            document.getElementById('logout-btn').onclick = function() {
+                localStorage.removeItem('token');
+                window.location.href = '/';
+            };
+        });
+    </script>
+</body>
+</html>

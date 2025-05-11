@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div id="flash-messages"></div>
+    <div class="chat-container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="menu-container">
+                    <span class="menu-icon">☰</span>
+                    <div class="menu-drawer">
+                        <button class="menu-item" id="profile-btn">Мой профиль</button>
+                        <button class="menu-item" id="settings-btn">Настройки</button>
+                        <button class="menu-item logout-btn" id="logout-btn">Выйти</button>
+                    </div>
+                </div>
+                <div class="search-container">
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    <input type="text" id="search-input" class="search-input" placeholder="Поиск чатов и групп">
+                </div>
+            </div>
+            <div class="admin-tabs">
+                <button class="admin-tab active" data-tab="chats">Чаты</button>
+                <button class="admin-tab" data-tab="groups">Группы</button>
+            </div>
+            <div class="group-list" id="chat-list"></div>
+        </div>
+        <div class="chat-main">
+            <div class="chat-header">
+                <h2 id="chat-title">Выберите чат или группу</h2>
+                <div class="chat-actions">
+                    <span class="more-options">⋮</span>
+                    <div class="chat-options-drawer">
+                        <button class="danger" id="delete-chat-btn">Удалить чат</button>
+                    </div>
+                </div>
+            </div>
+            <div class="chat-messages" id="chat-messages"></div>
+        </div>
+    </div>
+    <script src="/static/admin.js"></script>
+</body>
+</html> 

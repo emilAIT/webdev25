@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профиль пользователя</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div id="flash-messages"></div>
+    <div class="container">
+        <div class="profile-container">
+            <button id="close-btn" class="icon-btn">❌</button>
+            <div class="profile-header">
+                <div class="avatar">
+                    <svg id="avatar-svg" width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="24" height="24" rx="12" fill="#1E90FF"/>
+                        <circle cx="12" cy="8" r="4" fill="white"/>
+                        <path d="M12 14c-4.42 0-8 2.24-8 5v2h16v-2c0-2.76-3.58-5-8-5z" fill="white"/>
+                    </svg>
+                    <img id="avatar-img" src="" alt="Avatar" style="display: none;">
+                </div>
+                <div class="status">
+                    <h2 class="username" id="profile-username">Loading...</h2>
+                    <span class="online" id="profile-username-display">Loading...</span>
+                </div>
+            </div>
+            <div class="profile-info">
+                <div class="profile-row">
+                    <span class="info-icon">📱</span>
+                    <div class="info-text">
+                        <div class="text-wrapper">
+                            <span class="label">Телефон</span>
+                            <span class="value" id="profile-mobile">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="profile-row">
+                    <span class="info-icon">🎂</span>
+                    <div class="info-text">
+                        <div class="text-wrapper">
+                            <span class="label">Дата рождения</span>
+                            <span class="value" id="profile-dob">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/static/script.js"></script>
+</body>
+</html> 
