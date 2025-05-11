@@ -238,6 +238,85 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // Set up add member popup event listeners
+    if (closeAddGroupMemberPopup) {
+        closeAddGroupMemberPopup.addEventListener('click', function() {
+            addGroupMemberPopup.classList.remove('open');
+            overlay.classList.remove('active');
+        });
+    }
+    
+    if (cancelAddMember) {
+        cancelAddMember.addEventListener('click', function() {
+            addGroupMemberPopup.classList.remove('open');
+            overlay.classList.remove('active');
+        });
+    }
+      if (confirmAddMember) {
+        confirmAddMember.addEventListener('click', function() {
+            if (selectedContactsForAdd.length === 0) {
+                alert('Please select at least one contact to add to the group.');
+                return;
+            }
+            
+            // Extract the IDs as an array of integers
+            const memberIds = selectedContactsForAdd.map(contact => parseInt(contact.id));
+            
+            // Add members to the group using API - using JSON format instead of FormData
+            fetch(`/api/rooms/${currentGroupId}/members`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ members: memberIds })
+            })            .then(response => {
+                if (!response.ok) {
+                    if (response.status === 403) {
+                        alert('Only group admins can add members to the group.');
+                    } else {
+                        throw new Error('Failed to add members');
+                    }
+                    throw new Error(response.status === 403 ? 'Permission denied' : 'Failed to add members');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Members added:', data);
+                
+                // Close popup
+                addGroupMemberPopup.classList.remove('open');
+                overlay.classList.remove('active');
+                
+                // Reset selected contacts for add
+                selectedContactsForAdd = [];
+                
+                // Refresh group details to show new members
+                loadGroupDetails(currentGroupId);
+            })
+            .catch(error => {
+                console.error('Error adding members:', error);
+                alert('Failed to add members. Please try again.');
+            });
+        });
+    }
+    
+    // Add member search functionality
+    if (addMemberSearch) {
+        addMemberSearch.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const contacts = addMemberContacts.querySelectorAll('.selectable-contact');
+            
+            contacts.forEach(function(contact) {
+                const name = contact.querySelector('.contact-name').textContent.toLowerCase();
+                if (name.includes(searchTerm)) {
+                    contact.style.display = 'flex';
+                } else {
+                    contact.style.display = 'none';
+                }
+            });
+        });
+    }
+    
     // Load contacts for selection
     function loadContactsForSelection() {
         if (selectableContacts) {
@@ -371,8 +450,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json' }
             });
-        })
-        .then(response => {
+        })        .then(response => {
             if (!response.ok) {
                 throw new Error('Failed to fetch group members');
             }
@@ -380,6 +458,11 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(members => {
             console.log('Group members loaded:', members);
+            
+            // Check if current user is an admin
+            const currentUsername = document.querySelector('.profile-username')?.textContent || '';
+            const currentUserData = members.find(member => member.username === currentUsername);
+            const isAdmin = currentUserData ? currentUserData.is_admin : false;
                 
             // Show the chat content
             if (chatContent.style.display !== 'flex') {
@@ -465,10 +548,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     const buttonRect = groupMenuButton.getBoundingClientRect();
                     groupContextMenu.style.position = 'absolute';
                     groupContextMenu.style.top = `${buttonRect.bottom + 5}px`;
-                    groupContextMenu.style.right = `${window.innerWidth - buttonRect.right}px`;
-                    
-                    // Add menu items
+                    groupContextMenu.style.right = `${window.innerWidth - buttonRect.right}px`;                    // Add menu items
                     groupContextMenu.innerHTML = `
+                        ${isAdmin ? `
                         <div class="group-menu-item group-add-user-btn">
                             <img src="static/images/profile.png" alt="Add" style="width: 20px; height: 20px; margin-right: 5px;">
                             Add User
@@ -477,6 +559,12 @@ document.addEventListener('DOMContentLoaded', function() {
                             <img src="static/images/trashbin.png" alt="Delete" style="width: 20px; height: 20px; margin-right: 5px;">
                             Delete Group
                         </div>
+                        ` : `
+                        <div class="group-menu-item group-leave-btn">
+                            <img src="static/images/back.png" alt="Leave" style="width: 20px; height: 20px; margin-right: 5px;">
+                            Leave Group
+                        </div>
+                        `}
                     `;
                     
                     // Style the menu
@@ -507,8 +595,119 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Remove border from last item
                     const lastItem = groupContextMenu.querySelector('.group-menu-item:last-child');
                     if (lastItem) lastItem.style.borderBottom = 'none';
+                      document.body.appendChild(groupContextMenu);
                     
-                    document.body.appendChild(groupContextMenu);
+                    // Add event listeners for the menu items
+                    const addUserBtn = groupContextMenu.querySelector('.group-add-user-btn');
+                    if (addUserBtn) {
+                        addUserBtn.addEventListener('click', () => {
+                            // Hide the menu
+                            groupContextMenu.remove();
+                            
+                            // Show the add member popup
+                            if (addGroupMemberPopup) {
+                                addGroupMemberPopup.classList.add('open');
+                                overlay.classList.add('active');
+                                
+                                // Load contacts for adding to the group
+                                loadContactsForAddMember();
+                                
+                                // Disable confirm button initially
+                                if (confirmAddMember) {
+                                    confirmAddMember.disabled = true;
+                                }
+                            }
+                        });
+                    }
+                      // Setup delete group button
+                    const deleteGroupBtn = groupContextMenu.querySelector('.group-delete-btn');
+                    if (deleteGroupBtn) {
+                        deleteGroupBtn.addEventListener('click', () => {
+                            // Hide the menu
+                            groupContextMenu.remove();
+                            
+                            // Confirm before deletion
+                            if (confirm('Are you sure you want to delete this group? This action cannot be undone.')) {
+                                // Delete the group using API
+                                fetch(`/api/rooms/${roomId}`, {
+                                    method: 'DELETE'
+                                })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error('Failed to delete group');
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    console.log('Group deleted:', data);
+                                    
+                                    // Return to the main chat screen or refresh the rooms list
+                                    if (window.refreshRoomsList) {
+                                        window.refreshRoomsList();
+                                    }
+                                    
+                                    // Clear the chat content
+                                    chatContent.innerHTML = '';
+                                    chatContent.style.display = 'none';
+                                    
+                                    // Show the welcome container if it exists
+                                    const welcomeContainer = document.getElementById('welcomeContainer');
+                                    if (welcomeContainer) {
+                                        welcomeContainer.style.display = 'flex';
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error deleting group:', error);
+                                    alert('Failed to delete group. Please try again.');
+                                });
+                            }
+                        });
+                    }
+                    
+                    // Setup leave group button
+                    const leaveGroupBtn = groupContextMenu.querySelector('.group-leave-btn');
+                    if (leaveGroupBtn) {
+                        leaveGroupBtn.addEventListener('click', () => {
+                            // Hide the menu
+                            groupContextMenu.remove();
+                            
+                            // Confirm before leaving
+                            if (confirm('Are you sure you want to leave this group?')) {
+                                // Leave the group using API
+                                fetch(`/api/rooms/${roomId}/leave`, {
+                                    method: 'POST'
+                                })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error('Failed to leave group');
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    console.log('Left group:', data);
+                                    
+                                    // Return to the main chat screen or refresh the rooms list
+                                    if (window.refreshRoomsList) {
+                                        window.refreshRoomsList();
+                                    }
+                                    
+                                    // Clear the chat content
+                                    chatContent.innerHTML = '';
+                                    chatContent.style.display = 'none';
+                                    
+                                    // Show the welcome container if it exists
+                                    const welcomeContainer = document.getElementById('welcomeContainer');
+                                    if (welcomeContainer) {
+                                        welcomeContainer.style.display = 'flex';
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error leaving group:', error);
+                                    alert('Failed to leave group. Please try again.');
+                                });
+                            }
+                        });
+                    }
                     
                     // Close menu when clicking elsewhere
                     document.addEventListener('click', function closeGroupContextMenu(event) {
@@ -575,4 +774,108 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Expose loadGroupDetails globally to be accessed from chat.js
     window.loadGroupDetails = loadGroupDetails;
+
+    // Function to load contacts for adding to a group
+    function loadContactsForAddMember() {
+        if (addMemberContacts) {
+            addMemberContacts.innerHTML = '<div class="loading">Loading contacts...</div>';
+            
+            // Fetch all direct chat rooms (contacts)
+            fetch('/api/rooms')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to load rooms');
+                    }
+                    return response.json();
+                })
+                .then(rooms => {
+                    addMemberContacts.innerHTML = '';
+                    
+                    // Filter to get only direct chat rooms
+                    const directRooms = rooms.filter(room => !room.is_group);
+                    
+                    if (directRooms.length === 0) {
+                        addMemberContacts.innerHTML = '<div class="no-contacts-message">No contacts found. Add friends first!</div>';
+                        return;
+                    }
+                    
+                    // Once we have a list of contacts, fetch the current group members to exclude them
+                    fetch(`/api/rooms/${currentGroupId}/members`)
+                        .then(response => response.json())
+                        .then(members => {
+                            // Get IDs of existing members
+                            const existingMemberIds = members.map(member => member.id);
+                            
+                            // Filter out contacts who are already in the group
+                            const availableContacts = directRooms.filter(room => 
+                                !existingMemberIds.includes(room.user_id)
+                            );
+                            
+                            if (availableContacts.length === 0) {
+                                addMemberContacts.innerHTML = '<div class="no-contacts-message">All your contacts are already in this group.</div>';
+                                return;
+                            }
+                            
+                            // Reset selected contacts for add
+                            selectedContactsForAdd = [];
+                            
+                            // Add each available contact to the list
+                            availableContacts.forEach(function(room) {
+                                const contactElement = document.createElement('div');
+                                contactElement.className = 'selectable-contact';
+                                contactElement.setAttribute('data-contact-id', room.user_id);
+                                
+                                // Create contact HTML with visible checkbox
+                                contactElement.innerHTML = `
+                                    <input type="checkbox" id="add_contact_${room.user_id}" class="contact-select">
+                                    <div class="contact-avatar">
+                                        <img src="${room.avatar || '/static/images/profile_photo.jpg'}" alt="${room.name}">
+                                    </div>
+                                    <div class="contact-name">${room.name}</div>
+                                `;
+                                
+                                const contactSelect = contactElement.querySelector('.contact-select');
+                                  // Handle checkbox click
+                                contactSelect.addEventListener('change', function() {
+                                    if (this.checked) {
+                                        selectedContactsForAdd.push({
+                                            id: parseInt(room.user_id),  // Ensure ID is an integer
+                                            name: room.name,
+                                            avatar: room.avatar || '/static/images/profile_photo.jpg'
+                                        });
+                                    } else {
+                                        selectedContactsForAdd = selectedContactsForAdd.filter(c => c.id !== parseInt(room.user_id));
+                                    }
+                                    
+                                    // Enable/disable confirm button based on selection
+                                    if (confirmAddMember) {
+                                        confirmAddMember.disabled = selectedContactsForAdd.length === 0;
+                                    }
+                                });
+                                
+                                // Handle clicking on the contact row
+                                contactElement.addEventListener('click', function(event) {
+                                    if (event.target !== contactSelect) {
+                                        contactSelect.checked = !contactSelect.checked;
+                                        
+                                        // Trigger the change event
+                                        const changeEvent = new Event('change');
+                                        contactSelect.dispatchEvent(changeEvent);
+                                    }
+                                });
+                                
+                                addMemberContacts.appendChild(contactElement);
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Error loading group members:', error);
+                            addMemberContacts.innerHTML = '<div class="error">Failed to load group members. Please try again.</div>';
+                        });
+                })
+                .catch(error => {
+                    console.error('Error loading rooms:', error);
+                    addMemberContacts.innerHTML = '<div class="error">Failed to load contacts. Please try again.</div>';
+                });
+        }
+    }
 });
