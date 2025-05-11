@@ -191,21 +191,46 @@ function joinGroupRoom(groupId) {
         });
 }
 
-// Отправка сообщения
+// Отправка сообщения с улучшенными логами
 function sendMessage(message, roomId, recipientType, recipientId) {
+    console.log('[ОТПРАВКА] Начало отправки сообщения:', { 
+        message: message.length > 50 ? message.substring(0, 50) + '...' : message,
+        roomId, 
+        recipientType, 
+        recipientId 
+    });
+    
     return ensureSocketReady()
         .then(() => {
+            console.log('[ОТПРАВКА] Сокет готов, формируем данные сообщения');
+            
+            // ИСПРАВЛЕНИЕ: унифицируем тип получателя
+            let actualRecipientType = recipientType;
+            if (recipientType === 'direct') {
+                actualRecipientType = 'user';
+            }
+            
             const data = {
                 message: message,
                 room: roomId,
-                recipient_type: recipientType
+                recipient_type: actualRecipientType
             };
-            if (recipientType === 'group') {
-                data.group_id = recipientId; // <--- вот так!
+            if (actualRecipientType === 'group') {
+                data.group_id = recipientId;
+                console.log('[ОТПРАВКА] Групповое сообщение в группу:', recipientId);
             } else {
-                data.recipient_id = recipientId;
+                data.recipient_id = parseInt(recipientId); // Убедитесь, что ID передается как число
+                console.log('[ОТПРАВКА] Личное сообщение пользователю:', recipientId);
             }
+            
+            console.log('[ОТПРАВКА] Отправляем сообщение через сокет');
             socket.emit('message', data);
+            console.log('[ОТПРАВКА] Сообщение отправлено');
+            return { success: true };
+        })
+        .catch(error => {
+            console.error('[ОТПРАВКА] Ошибка при отправке сообщения:', error);
+            return { success: false, error: error.message };
         });
 }
 
@@ -352,12 +377,4 @@ socket.on('message_read', (data) => {
     }
     
     updateChatReadStatus();
-});
-
-// При загрузке сообщений (loadDirectChat/loadGroupChat)
-messagesByDate[date].forEach(msg => {
-  // ...создание сообщения...
-  if (!msg.is_read && msg.sender_id != currentUserId) {
-    markMessageAsRead(msg.id); // Отправляем на сервер, что сообщение прочитано
-  }
 });

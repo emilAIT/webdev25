@@ -13,6 +13,10 @@
   <div class="app">
     <!-- Menu button and Profile picture -->
     <img src="/static/img/image 86.png" alt="Profile" class="profile-pic">
+    <!-- Заменить существующую кнопку на: -->
+    <button id="adminLoginButton" class="admin-login-circle" title="Admin Login">
+      <span class="admin-icon">A</span>
+    </button>
     <div class="menu-button" id="settingsButton" title="Open Settings">
       <div class="menu-line"></div>
       <div class="menu-line"></div>
@@ -345,6 +349,9 @@
       footer.appendChild(time);
       messageDiv.appendChild(footer);
       container.appendChild(messageDiv);
+      // Добавляем кнопку перевода
+      const translateButton = createTranslateButton();
+      footer.appendChild(translateButton);
       return container;
     }
 
@@ -470,7 +477,17 @@
       const editWidget = messageElement.querySelector('.edit-widget');
       const editBtn = messageElement.querySelector('.edit-btn');
       const deleteBtn = messageElement.querySelector('.delete-btn');
-  
+      const translateBtn = messageElement.querySelector('.translate-button');
+      
+      // Восстанавливаем обработчик для кнопки перевода
+      if (translateBtn) {
+        // Удаляем старый обработчик, чтобы избежать дублирования
+        translateBtn.removeEventListener('click', handleTranslation);
+        // Добавляем новый обработчик
+        translateBtn.addEventListener('click', handleTranslation);
+      }
+    
+      // Остальные обработчики событий...
       if (editButton && editWidget) {
         editButton.addEventListener('click', function(e) {
           e.stopPropagation();
@@ -894,7 +911,9 @@
       footer.appendChild(time);
       messageDiv.appendChild(footer);
       container.appendChild(messageDiv);
-      
+      // Добавляем кнопку перевода
+      const translateButton = createTranslateButton();
+      footer.appendChild(translateButton);
       return container;
     }
 
@@ -1264,10 +1283,14 @@ document.querySelector('.input-box input').addEventListener('keypress', function
         chatItem.setAttribute('data-chat-type', 'direct');
         chatItem.setAttribute('data-user-id', friend.id);
         
+        // Добавляем индикатор статуса к аватару
+        const isOnline = friend.is_online || false; // Должно приходить с сервера
+        
         chatItem.innerHTML = `
           <div class="chat-item-name">
             <img src="${friend.avatar ? '/static/uploads/' + normalizeAvatarPath(friend.avatar) : '/static/img/image 12.png'}" alt="avatar" />
             <div>${friend.nickname || friend.name}</div>
+            <div class="status-indicator ${isOnline ? 'status-online' : 'status-offline'}"></div>
           </div>
           <div class="chat-item-time"></div>
         `;
@@ -1411,10 +1434,13 @@ const timeElement = chatItem.querySelector('.chat-item-time');
                 chatItem.setAttribute('data-chat-type', 'direct');
                 chatItem.setAttribute('data-user-id', user.id);
                 
+                const isOnline = user.is_online || false; // Должно приходить с сервера
+
                 chatItem.innerHTML = `
                   <div class="chat-item-name">
                     <img src="${user.avatar ? '/static/uploads/' + user.avatar : '/static/img/image 12.png'}" alt="avatar" />
                     <div>${user.name}</div>
+                    <div class="status-indicator ${isOnline ? 'status-online' : 'status-offline'}"></div>
                   </div>
                   <div class="chat-item-time"></div>
                 `;
@@ -2030,7 +2056,7 @@ const timeElement = chatItem.querySelector('.chat-item-time');
         const memberStyles = document.getElementById('groupInfoMemberStyles');
         
         if (adminStyles) adminStyles.remove();
-        if (memberStyles) adminStyles.remove();
+        if (memberStyles) memberStyles.remove();
       }
 
     // Add this code to the existing <script> section - replace the existing group info functionality
@@ -2201,11 +2227,13 @@ document.addEventListener('DOMContentLoaded', function() {
         chatItem.setAttribute('data-chat-type', chat.type);
         chatItem.setAttribute(chat.type === 'group' ? 'data-group-id' : 'data-user-id', chat.id);
         
-        // Делаем содержимое chat-item видимым и кликабельным!
+        // Изменяем расположение индикатора - теперь он после имени
+        const isOnline = chat.is_online || false;
         chatItem.innerHTML = `
           <div class="chat-item-name">
             <img src="${chat.avatar ? '/static/uploads/' + chat.avatar : '/static/img/image 12.png'}" alt="avatar" />
             <div>${chat.name}</div>
+            ${chat.type === 'direct' ? `<div class="status-indicator ${isOnline ? 'status-online' : 'status-offline'}"></div>` : ''}
           </div>
           <div class="chat-item-right">
             ${chat.unread_count > 0 ? `<div class="unread-count">${chat.unread_count}</div>` : ''}
@@ -2356,33 +2384,37 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
     // ...где происходит смена аватарки пользователя...
-profilePicInput.addEventListener('change', function() {
-  const file = this.files[0];
-  if (!file) return;
-  console.log('[DEBUG] Выбран файл для аватарки:', file.name);
+const profilePicInput = document.getElementById('profilePicInput');
+const profilePic = document.querySelector('.profile-pic');
+if (profilePicInput) {
+  profilePicInput.addEventListener('change', function() {
+    const file = this.files[0];
+    if (!file) return;
+    console.log('[DEBUG] Выбран файл для аватарки:', file.name);
 
-  const formData = new FormData();
-  formData.append('profile_pic', file);
+    const formData = new FormData();
+    formData.append('profile_pic', file);
 
-  fetch('/update_profile_pic', {
-    method: 'POST',
-    body: formData
-  })
-  .then(res => res.json())
-  .then(data => {
-    console.log('[DEBUG] Ответ сервера на смену аватарки:', data);
-    if (data.success && data.new_pic_url) {
-      profilePic.src = data.new_pic_url + '?t=' + Date.now();
-      console.log('[DEBUG] Новый src для аватарки:', profilePic.src);
-    } else {
+    fetch('/update_profile_pic', {
+      method: 'POST',
+      body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+      console.log('[DEBUG] Ответ сервера на смену аватарки:', data);
+      if (data.success && data.new_pic_url) {
+        profilePic.src = data.new_pic_url + '?t=' + Date.now();
+        console.log('[DEBUG] Новый src для аватарки:', profilePic.src);
+      } else {
+        showNotification('Error updating profile picture', true);
+      }
+    })
+    .catch((err) => {
+      console.error('[DEBUG] Ошибка при смене аватарки:', err);
       showNotification('Error updating profile picture', true);
-    }
-  })
-  .catch((err) => {
-    console.error('[DEBUG] Ошибка при смене аватарки:', err);
-    showNotification('Error updating profile picture', true);
+    });
   });
-});
+}
 
 function normalizeAvatarPath(avatar) {
   if (!avatar) return null;
@@ -2440,14 +2472,84 @@ socket.on('new_message', (data) => {
   // Check if message belongs to currently active chat
   const activeChat = document.querySelector('.chat-item.active');
   if (activeChat) {
-    // ... existing chat message display logic ...
+    const chatType = activeChat.getAttribute('data-chat-type');
+    const activeChatId = chatType === 'group' ? 
+        activeChat.getAttribute('data-group-id') : 
+        activeChat.getAttribute('data-user-id');
     
-    // If this is an active chat, mark the message as read immediately
-    if (messageForActiveChat && !isSentByMe) {
-      markMessageAsRead(data.id);
+    // Получаем текущий ID пользователя
+    const currentUserId = document.body.getAttribute('data-user-id');
+    const isSentByMe = data.sender_id == currentUserId;
+    
+    // ИСПРАВЛЕНИЕ: Улучшенная логика проверки принадлежности сообщения к чату
+    const messageForActiveChat = 
+        (chatType === 'group' && data.group_id == activeChatId) || 
+        (chatType === 'direct' && (
+            // Cообщение принадлежит текущему чату если:
+(data.sender_id == activeChatId) || // Сообщение от собеседника к нам
+(data.recipient_id == activeChatId) || // Сообщение от нас собеседнику
+            (isSentByMe && data.recipient_id === null) // Сообщение от нас с пустым recipient_id (медиа)
+        ));
+    
+    console.log(`[СООБЩЕНИЕ] Проверка принадлежности сообщения: ${messageForActiveChat ? 'принадлежит активному чату' : 'другой чат'}`);
+    console.log(`[СООБЩЕНИЕ] Активный chatType: ${chatType}, activeChatId: ${activeChatId}`);
+    console.log(`[СООБЩЕНИЕ] Данные: group_id: ${data.group_id}, sender_id: ${data.sender_id}, recipient_id: ${data.recipient_id}`);
+console.log(`[СООБЩЕНИЕ] Отправлено текущим пользователем: ${isSentByMe ? 'да' : 'нет'}`);
+    
+    // Если сообщение принадлежит активному чату - отображаем его
+    if (messageForActiveChat) {
+      // Display message in the chat window
+      const messagesContainer = document.querySelector('.chat-messages');
+      
+      // Проверка наличия даты-разделителя
+      const today = new Date().toLocaleDateString();
+      if (!messagesContainer.querySelector(`.date-label[data-date="${today}"]`)) {
+        const dateLabel = document.createElement('div');
+        dateLabel.className = 'date-label';
+        dateLabel.setAttribute('data-date', today);
+        dateLabel.textContent = today;
+        messagesContainer.appendChild(dateLabel);
+      }
+      
+      // Создаем элемент сообщения
+      let messageElement;
+      if (chatType === 'group') {
+        messageElement = createGroupMessage(
+          data.content,
+          isSentByMe,
+          false, // isRead начально false
+          isSentByMe ? '' : data.sender_name,
+          isSentByMe ? '' : (data.sender_avatar ? '/static/uploads/' + data.sender_avatar : '/static/img/image 12.png'),
+          data.id,
+          data.created_at
+        );
+      } else {
+        messageElement = createMessage(
+          data.content,
+          isSentByMe,
+          false, // isRead начально false
+          data.id,
+          true, // isDelivered
+          data.created_at
+        );
+      }
+      
+      messagesContainer.appendChild(messageElement);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      
+      // Если сообщение не от текущего пользователя, отмечаем как прочитанное
+      if (!isSentByMe) {
+        markMessageAsRead(data.id);
+      }
+
+      // Вызываем функцию мониторинга медиа-элементов для проверки загрузки
+      setTimeout(monitorMediaElements, 500);
+    } else {
+      // Сообщение для другого чата, обновляем счетчик непрочитанных
+      updateUnreadCount(data);
     }
   } else {
-    // Message is for a non-active chat, update unread count
+    // Нет активного чата, просто обновляем счетчик непрочитанных
     updateUnreadCount(data);
   }
 });
@@ -2634,6 +2736,411 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 });
+
+
+document.addEventListener('DOMContentLoaded', function() {
+  const adminButton = document.getElementById('adminLoginButton');
+  console.log('[ADMIN] Проверка наличия adminLoginButton:', adminButton);
+
+  if (adminButton) {
+    adminButton.addEventListener('click', function() {
+      console.log('[ADMIN] Кнопка администратора нажата, вызываем showAdminLoginModal()');
+      showAdminLoginModal();
+    });
+    console.log('[ADMIN] Обработчик клика на adminLoginButton установлен');
+  } else {
+    console.error('[ADMIN] Кнопка администратора не найдена в DOM!');
+  }
+});
+
+function showAdminLoginModal() {
+  console.log('[ADMIN] showAdminLoginModal вызвана');
+  // Создаём модальное окно если оно не существует
+  let modal = document.getElementById('adminLoginModal');
+  console.log('[ADMIN] Существующий модальный элемент:', modal);
+  if (!modal) {
+    console.log('[ADMIN] Модальное окно не найдено, создаём новое');
+    modal = document.createElement('div');
+    modal.id = 'adminLoginModal';
+    modal.className = 'modal';
+    // Добавим полное содержимое модального окна с формой и кнопкой закрытия
+    modal.innerHTML = `
+      <div class="modal-content" style="width:611px; height:690px; background:#55A276; border-radius:20px; position:relative; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,0.2);">
+        <img class="bg-image" src="/static/img/image 12.png" alt="Background" style="width:100%; height:100%; position:absolute; top:0; left:50%; transform:translateX(-50%); opacity:0.10; border-radius:20px; z-index:0; object-fit:cover;">
+        <div class="modal-header">
+        
+          
+        </div>
+        <div class="admin-header">
+          <h2 class="admin-subtitle">ADMIN</h2>
+        </div>
+        <form id="adminLoginForm">
+          <div class="admin-input-container" style="top: 289px; height: 71px;">
+            <input type="text" name="admin_username" placeholder="Username" required>
+          </div>
+          <div class="admin-input-container" style="top: 396px; height: 64px;">
+            <input type="password" name="admin_password" placeholder="Password" required>
+          </div>
+          <button type="submit" class="admin-login-btn" style="position:absolute; width:450px; height:55px; left:81px; top:505px; background:#FDD367; border-radius:20px; border:none; color:#7E453D; font-size:36px; font-family:'Konkhmer Sleokchher',cursive;">
+            Login
+          </button>
+        </form>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    console.log('[ADMIN] Модальное окно добавлено в DOM');
+    // Проверим наличие элементов перед установкой обработчиков
+    const closeButton = modal.querySelector('.close-button');
+    const loginForm = modal.querySelector('#adminLoginForm');
+    console.log('[ADMIN] Найдена кнопка закрытия:', closeButton);
+    console.log('[ADMIN] Найдена форма логина:', loginForm);
+    // Настройка обработчиков событий
+    if (closeButton) {
+      closeButton.addEventListener('click', () => {
+        console.log('[ADMIN] Клик по кнопке закрытия');
+        modal.style.display = 'none';
+      });
+    } else {
+      console.error('[ADMIN] Кнопка закрытия не найдена!');
+    }
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) {
+        console.log('[ADMIN] Клик за пределами модального окна');
+        modal.style.display = 'none';
+      }
+    });
+    // Обработка отправки формы
+    if (loginForm) {
+      loginForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        console.log('[ADMIN] Форма отправлена');
+        
+        // Получаем данные из формы
+        const username = this.elements.admin_username.value;
+        const password = this.elements.admin_password.value;
+        
+        // В реальном приложении здесь должна быть проверка через API
+        if (username === "admin" && password === "admin") { // Для демонстрации
+          console.log('[ADMIN] Успешный вход');
+          modal.style.display = 'none';
+          // Redirect to admin panel instead of showing inline panel
+          window.location.href = '/admin_panel';
+        } else {
+          showNotification('Неверное имя пользователя или пароль', true);
+        }
+      });
+    } else {
+      console.error('[ADMIN] Форма логина не найдена!');
+    }
+  } else {
+    console.log('[ADMIN] Модальное окно уже существует, просто показываем');
+  }
+  // Используем сохранённую ссылку на элемент
+  console.log('[ADMIN] Устанавливаю display: flex для модального окна');
+  modal.style.display = 'flex';
+  console.log('[ADMIN] Модальное окно должно быть видно, display:', modal.style.display);
+}
+
+// Функция для подробного логирования медиафайлов
+function logMediaElement(element, type) {
+  console.log(`[МЕДИА_ДЕТАЛИ] Тип: ${type}, Элемент:`, element);
+  console.log(`[МЕДИА_ДЕТАЛИ] src: ${element.src}`);
+  console.log(`[МЕДИА_ДЕТАЛИ] Размеры: ${element.width || 'авто'}x${element.height || 'авто'}`);
+  
+  if (type === 'img') {
+    console.log(`[МЕДИА_ДЕТАЛИ] Изображение загружено: ${element.complete}`);
+    if (element.complete) {
+      console.log(`[МЕДИА_ДЕТАЛИ] Натуральные размеры: ${element.naturalWidth}x${element.naturalHeight}`);
+    }
+  } else if (type === 'video') {
+    console.log(`[МЕДИА_ДЕТАЛИ] Длительность: ${element.duration || 'неизвестно'} сек`);
+    console.log(`[МЕДИА_ДЕТАЛИ] readyState: ${element.readyState}`);
+    console.log(`[МЕДИА_ДЕТАЛИ] networkState: ${element.networkState}`);
+  }
+  
+  // Проверка видимости и стилей
+  const computedStyle = window.getComputedStyle(element);
+  console.log(`[МЕДИА_ДЕТАЛИ] display: ${computedStyle.display}`);
+  console.log(`[МЕДИА_ДЕТАЛИ] visibility: ${computedStyle.visibility}`);
+  console.log(`[МЕДИА_ДЕТАЛИ] opacity: ${computedStyle.opacity}`);
+  console.log(`[МЕДИА_ДЕТАЛИ] z-index: ${computedStyle.zIndex}`);
+  
+  // Проверка положения элемента в DOM
+  const rect = element.getBoundingClientRect();
+  console.log(`[МЕДИА_ДЕТАЛИ] Положение: x=${rect.left}, y=${rect.top}, width=${rect.width}, height=${rect.height}`);
+  
+  // Проверка родительских элементов
+  let parent = element.parentElement;
+  let path = [];
+  while (parent && path.length < 5) {
+    path.push(`${parent.tagName}${parent.id ? '#'+parent.id : ''}${parent.className ? '.'+parent.className.replace(/\s+/g, '.') : ''}`);
+    parent = parent.parentElement;
+  }
+  console.log(`[МЕДИА_ДЕТАЛИ] DOM-путь: ${path.join(' > ')}`);
+}
+
+// Добавьте прослушиватель для проверки всех медиа-элементов
+document.addEventListener('DOMContentLoaded', function() {
+  // Запускаем сканирование медиа-элементов каждые 3 секунды
+  setInterval(() => {
+    const images = document.querySelectorAll('img.chat-image');
+    const videos = document.querySelectorAll('video');
+    
+    console.log(`[МЕДИА_СКАН] Найдено ${images.length} изображений и ${videos.length} видео в чате`);
+    
+    // Проверяем случайный элемент для более подробной информации
+    if (images.length > 0) {
+      const randomImg = images[Math.floor(Math.random() * images.length)];
+      logMediaElement(randomImg, 'img');
+    }
+    
+    if (videos.length > 0) {
+      const randomVideo = videos[Math.floor(Math.random() * videos.length)];
+      logMediaElement(randomVideo, 'video');
+    }
+  }, 3000);
+  
+  // Обработчик для проверки ошибок загрузки
+  document.addEventListener('error', function(e) {
+    const target = e.target;
+    if ((target.tagName === 'IMG' && target.classList.contains('chat-image')) || target.tagName === 'VIDEO') {
+      console.error(`[МЕДИА_ОШИБКА] Ошибка загрузки ${target.tagName === 'IMG' ? 'изображения' : 'видео'}:`, target.src);
+      console.error('[МЕДИА_ОШИБКА] Детали элемента:', target);
+      
+      // Попытка повторной загрузки
+      const currentSrc = target.src;
+      console.log('[МЕДИА_ОШИБКА] Попытка повторной загрузки с параметром cache-buster');
+      setTimeout(() => {
+        target.src = currentSrc.includes('?') ? 
+          `${currentSrc}&reload=${Date.now()}` : 
+          `${currentSrc}?reload=${Date.now()}`;
+      }, 1000);
+    }
+  }, true); // используем capture = true для перехвата перед всплытием
+});
+
+// Улучшенный обработчик изменения файла для подробного логирования
+fileInput.addEventListener('change', function(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  console.log('=== НАЧАЛО ЗАГРУЗКИ ФАЙЛА ===');
+  console.log(`[МЕДИА_ЗАГРУЗКА] Имя файла: ${file.name}`);
+  console.log(`[МЕДИА_ЗАГРУЗКА] Тип файла: ${file.type}`);
+  console.log(`[МЕДИА_ЗАГРУЗКА] Размер: ${(file.size / 1024).toFixed(2)} КБ`);
+  console.log(`[МЕДИА_ЗАГРУЗКА] Последнее изменение: ${new Date(file.lastModified).toLocaleString()}`);
+
+  // Читаем содержимое файла для проверки
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    console.log(`[МЕДИА_ЗАГРУЗКА] Файл успешно прочитан, размер данных: ${e.target.result.length} байт`);
+    
+    // Для изображений проверяем размеры
+    if (file.type.startsWith('image/')) {
+      const img = new Image();
+      img.onload = function() {
+        console.log(`[МЕДИА_ЗАГРУЗКА] Предварительный просмотр изображения: ${img.width}x${img.height} пикселей`);
+      };
+      img.onerror = function() {
+        console.error('[МЕДИА_ЗАГРУЗКА] Ошибка предварительного просмотра изображения');
+      };
+      img.src = e.target.result;
+    }
+  };
+  reader.onerror = function() {
+    console.error('[МЕДИА_ЗАГРУЗКА] Ошибка чтения файла');
+  };
+  reader.readAsDataURL(file);
+
+  // Продолжение стандартного процесса загрузки
+  const chatMessages = document.querySelector('.chat-messages');
+  const spinnerContainer = document.createElement('div');
+  // ...existing upload code...
+});
+
+// Функция для мониторинга всех медиа-элементов сразу после загрузки сообщений
+function monitorMediaElements() {
+  console.log('[МЕДИА_МОНИТОР] Запуск мониторинга медиа-элементов');
+  
+  // Получаем все медиа-элементы
+  const allImages = document.querySelectorAll('img.chat-image');
+  const allVideos = document.querySelectorAll('video');
+  
+  console.log(`[МЕДИА_МОНИТОР] Всего найдено: ${allImages.length} изображений, ${allVideos.length} видео`);
+  
+  // Проверяем каждое изображение
+  allImages.forEach((img, index) => {
+    console.log(`[МЕДИА_МОНИТОР] Изображение #${index+1}: ${img.src}`);
+    console.log(`[МЕДИА_МОНИТОР] - loaded: ${img.complete}, display: ${window.getComputedStyle(img).display}`);
+    
+    // Добавляем обработчики для изображений, если их еще нет
+    if (!img._monitored) {
+      img._monitored = true;
+      img.addEventListener('load', () => console.log(`[МЕДИА_МОНИТОР] Изображение загружено: ${img.src}`));
+      img.addEventListener('error', () => console.error(`[МЕДИА_МОНИТОР] Ошибка загрузки изображения: ${img.src}`));
+    }
+  });
+  
+  // Проверяем каждое видео
+  allVideos.forEach((video, index) => {
+    console.log(`[МЕДИА_МОНИТОР] Видео #${index+1}: ${video.src}`);
+    console.log(`[МЕДИА_МОНИТОР] - readyState: ${video.readyState}, display: ${window.getComputedStyle(video).display}`);
+    
+    // Добавляем обработчики для видео, если их еще нет
+    if (!video._monitored) {
+      video._monitored = true;
+      video.addEventListener('loadeddata', () => console.log(`[МЕДИА_МОНИТОР] Видео загружено: ${video.src}`));
+      video.addEventListener('error', () => console.error(`[МЕДИА_МОНИТОР] Ошибка загрузки видео: ${video.src}`));
+      video.addEventListener('stalled', () => console.warn(`[МЕДИА_МОНИТОР] Загрузка видео приостановлена: ${video.src}`));
+    }
+  });
+}
+
+// Запускаем мониторинг после загрузки сообщений
+const originalLoadDirectChat = loadDirectChat;
+window.loadDirectChat = function(userId, userName) {
+  originalLoadDirectChat(userId, userName);
+  
+  // После загрузки сообщений с небольшой задержкой проверяем медиа-элементы
+  setTimeout(monitorMediaElements, 1000);
+};
+
+const originalLoadGroupChat = loadGroupChat;
+window.loadGroupChat = function(groupId) {
+  originalLoadGroupChat(groupId);
+  
+  // После загрузки сообщений с небольшой задержкой проверяем медиа-элементы
+  setTimeout(monitorMediaElements, 1000);
+};
+
+// Функция для создания кнопки перевода
+function createTranslateButton() {
+  const translateButton = document.createElement('button');
+  translateButton.className = 'translate-button';
+  translateButton.innerHTML = `
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M12.87 15.07l-2.54-2.51.03-.03A17.52 17.52 0 0014.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/>
+    </svg>
+  `;
+  translateButton.title = "Перевести сообщение";
+  
+  // Добавляем обработчик события
+  translateButton.addEventListener('click', handleTranslation);
+  
+  return translateButton;
+}
+
+// Обработчик клика по кнопке перевода
+function handleTranslation(e) {
+  e.stopPropagation();
+  
+  const messageDiv = e.currentTarget.closest('.message');
+  const translateButton = e.currentTarget;
+  
+  // Получаем текст сообщения (без вложенных элементов)
+  let textNodes = Array.from(messageDiv.childNodes).filter(node => node.nodeType === 3);
+  let messageText = textNodes.map(node => node.textContent).join('').trim();
+  
+  // Если текст отсутствует (например, это изображение или другой контент), выходим
+  if (!messageText) return;
+  
+  // Проверяем, переведено ли уже сообщение
+  if (messageDiv.hasAttribute('data-translated')) {
+    // Если переведено, возвращаем оригинальный текст
+    const originalText = messageDiv.getAttribute('data-original-text');
+    
+    // Меняем только текстовые узлы, сохраняя дочерние элементы
+    replaceTextContent(messageDiv, originalText);
+    
+    // Удаляем индикатор перевода
+    const translationIndicator = messageDiv.querySelector('.translation-indicator');
+    if (translationIndicator) translationIndicator.remove();
+    
+    // Сбрасываем атрибуты
+    messageDiv.removeAttribute('data-translated');
+    messageDiv.removeAttribute('data-original-text');
+    
+    // Меняем текст кнопки обратно
+    translateButton.title = "Перевести сообщение";
+  } else {
+    // Если не переведено, выполняем перевод
+    
+    // Сохраняем оригинальный текст
+    messageDiv.setAttribute('data-original-text', messageText);
+    
+    // Определяем язык и выполняем перевод
+    detectAndTranslate(messageText).then(result => {
+      // Меняем текст сообщения на переведенный
+      replaceTextContent(messageDiv, result.translatedText);
+      
+      // Добавляем индикатор перевода
+      const indicator = document.createElement('div');
+      indicator.className = 'translation-indicator';
+      indicator.textContent = `Перевод с ${result.sourceLanguage === 'ru' ? 'русского' : 'английского'}`;
+      messageDiv.insertBefore(indicator, messageDiv.firstChild);
+      
+      // Отмечаем, что сообщение переведено
+      messageDiv.setAttribute('data-translated', 'true');
+      
+      // Меняем текст кнопки
+      translateButton.title = "Показать оригинал";
+    });
+  }
+}
+
+// Функция для замены только текстовых узлов
+function replaceTextContent(element, newText) {
+  // Сохраняем все дочерние элементы
+  const childElements = Array.from(element.childNodes)
+    .filter(node => node.nodeType !== 3);
+  
+  // Очищаем содержимое
+  element.textContent = newText;
+  
+  // Восстанавливаем дочерние элементы
+  childElements.forEach(el => {
+    if (!el.classList || !el.classList.contains('translation-indicator')) {
+      element.appendChild(el);
+    }
+  });
+}
+
+// Функция для определения языка и перевода
+async function detectAndTranslate(text) {
+  try {
+    // Проверяем, содержит ли текст кириллицу
+    const isRussian = /[а-яА-ЯёЁ]/.test(text);
+    const targetLang = isRussian ? 'en' : 'ru';
+    const sourceLang = isRussian ? 'ru' : 'en';
+    
+    // Запрос к API для перевода
+    const response = await fetch('/translate_text', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        text: text, 
+        source_lang: sourceLang,
+        target_lang: targetLang
+      })
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      return {
+        translatedText: data.translated_text,
+        sourceLanguage: sourceLang
+      };
+    } else {
+      showNotification('Ошибка перевода: ' + (data.message || 'Неизвестная ошибка'), true);
+      return { translatedText: text, sourceLanguage: sourceLang };
+    }
+  } catch (error) {
+    console.error('Translation error:', error);
+    showNotification('Ошибка при переводе', true);
+    return { translatedText: text, sourceLanguage: 'unknown' };
+  }
+}
   </script>
 </body>
 </html>

@@ -1,13 +1,15 @@
+import math
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, emit, join_room, leave_room
-from datetime import datetime
 from functools import wraps
 import os
 import time
 from werkzeug.utils import secure_filename
 import requests
-from sqlalchemy import text  # Добавьте этот импорт в начало файла
+from sqlalchemy import text, func, or_, and_  # Добавьте этот импорт в начало файла
+from collections import Counter
+from datetime import datetime, date, timedelta
 
 
 app = Flask(__name__)
@@ -40,6 +42,7 @@ class User(db.Model):
     birthdate = db.Column(db.Date)       # добавьте это поле
     status = db.Column(db.String(100))   # добавьте это поле
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    last_active = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Добавьте метод для установки пароля
     def set_password(self, password):
@@ -134,14 +137,35 @@ def login_required(f):
         if 'user_id' not in session:
             flash('Пожалуйста, войдите в систему для доступа к этой странице', 'error')
             return redirect(url_for('login'))
+        
+        # Дополнительная проверка существования пользователя
+        user = db.session.get(User, session['user_id'])
+        if not user:
+            # Если пользователя не существует, очищаем сессию
+            session.pop('user_id', None)
+            flash('Сессия истекла. Пожалуйста, войдите заново.', 'error')
+            return redirect(url_for('login'))
+            
         return f(*args, **kwargs)
     return decorated_function
 
 # Функция для получения текущего пользователя из сессии
 def get_current_user():
     if 'user_id' in session:
-        return db.session.get(User, session['user_id'])
+        user = db.session.query(User).get(session['user_id'])
+        if user:
+            return user
+        # Если пользователь не найден, очищаем сессию
+        session.pop('user_id', None)
     return None
+
+@app.before_request
+def update_last_active():
+    if 'user_id' in session:
+        user = db.session.get(User, session['user_id'])
+        if user:
+            user.last_active = datetime.utcnow()
+            db.session.commit()
 
 @app.route('/register', methods=['POST', 'GET'])
 def register():
@@ -211,11 +235,16 @@ def logout():
     session.pop('user_id', None)
     flash('Вы успешно вышли из системы', 'success')
     return redirect(url_for('login'))
-
+@app.route('/')
 @app.route('/mainWindow')
 @login_required
 def mainWindow():
     current_user = get_current_user()
+    
+    # Добавляем проверку на случай, если current_user всё равно None
+    if not current_user:
+        flash('Вы не авторизованы. Пожалуйста, войдите в систему.', 'error')
+        return redirect(url_for('login'))
     
     # Get the friends of the current user
     friends = User.query.join(Friendship, Friendship.friend_id == User.id)\
@@ -383,12 +412,16 @@ def get_friends():
         
         friends_list = []
         for friend in friends:
+            is_online = False
+            if friend.last_active:
+                is_online = friend.last_active > datetime.utcnow() - timedelta(minutes=5)
             friends_list.append({
                 'id': friend.id,
                 'name': friend.name,
                 'nickname': friend.nickname,
                 'email': friend.email,
-                'avatar': friend.avatar if friend.avatar else None
+                'avatar': friend.avatar if friend.avatar else None,
+                'is_online': is_online
             })
         
         return jsonify({
@@ -920,6 +953,9 @@ def get_chats():
         else:
             last_time = ""
 
+        is_online = False
+        if friend.last_active:
+            is_online = friend.last_active > datetime.utcnow() - timedelta(minutes=5)
         chats.append({
             'type': 'direct',
             'id': friend.id,
@@ -927,7 +963,8 @@ def get_chats():
             'avatar': friend.avatar,
             'last_message': last_msg.content if last_msg else '',
             'last_time': last_time,
-            'unread_count': unread_count
+            'unread_count': unread_count,
+            'is_online': is_online  # <-- добавьте это поле!
         })
 
     # Группы
@@ -1199,6 +1236,285 @@ def update_group_avatar(group_id):
     db.session.commit()
     return jsonify({'success': True, 'new_avatar_url': f"/static/uploads/{filename}"})
 
+@app.route('/admin_panel')
+@login_required
+def admin_panel():
+    users_count = db.session.query(func.count(User.id)).scalar()
+    messages_count = db.session.query(func.count(Message.id)).scalar()
+    avg_messages = round(messages_count / users_count, 2) if users_count else 0
+
+    # Получаем все личные сообщения (recipient_id не None, group_id == None)
+    direct_msgs = db.session.query(Message.sender_id, Message.recipient_id).filter(
+        Message.recipient_id != None,
+        Message.group_id == None
+    ).all()
+    # Считаем уникальные пары (min, max) чтобы не было дублей
+    direct_pairs = set(tuple(sorted([m[0], m[1]])) for m in direct_msgs if m[0] and m[1])
+    direct_chats = len(direct_pairs)
+
+    # Групповые чаты
+    group_chats = db.session.query(func.count(func.distinct(Message.group_id))).filter(Message.group_id != None).scalar()
+
+    # Расчет онлайн пользователей (активных в последние 5 минут)
+    five_minutes_ago = datetime.utcnow() - timedelta(minutes=5)
+    online_users = db.session.query(func.count(User.id)).filter(
+        User.last_active >= five_minutes_ago
+    ).scalar() or 0
+    
+    # Расчет процента онлайн пользователей
+    online_percentage = round((online_users / users_count) * 100) if users_count > 0 else 0
+
+    # Примерные данные для графиков
+    user_activity = [10, 12, 15, 14, 13, 17, 20]
+    message_distribution = [70, 30]
+    registrations = [5, 8, 12, 7, 10]
+    peak_hours = [20, 15, 10, 30, 40, 50, 60, 35]
+
+    # Добавляем расчет количества сообщений за сегодня
+    today_start = datetime.combine(date.today(), datetime.min.time())
+    messages_today = db.session.query(func.count(Message.id)).filter(
+        Message.created_at >= today_start
+    ).scalar() or 0
+    
+    # Add calculation for new users registered today
+    new_users_today = db.session.query(func.count(User.id)).filter(
+        User.created_at >= today_start
+    ).scalar() or 0
+    
+    # Calculate storage used
+    uploads_path = os.path.join(app.static_folder, 'uploads')
+    storage_used_bytes = 0
+    
+    # Walk through the uploads directory and sum file sizes
+    for dirpath, dirnames, filenames in os.walk(uploads_path):
+        for filename in filenames:
+            file_path = os.path.join(dirpath, filename)
+            if os.path.isfile(file_path):
+                storage_used_bytes += os.path.getsize(file_path)
+    
+    # Convert to human-readable format
+    storage_used = convert_size(storage_used_bytes)
+    
+    # Запрос всех пользователей для таблицы
+    users = User.query.all()
+    users_data = []
+    
+    for user in users:
+        # Получаем количество друзей
+        friends_count = db.session.query(func.count(Friendship.id)).filter(
+            or_(Friendship.user_id == user.id, Friendship.friend_id == user.id)
+        ).scalar() or 0
+        
+        # Получаем количество групп
+        groups_count = db.session.query(func.count(GroupMember.id)).filter(
+            GroupMember.user_id == user.id
+        ).scalar() or 0
+        
+        # Получаем количество сообщений
+        messages_count = db.session.query(func.count(Message.id)).filter(
+            Message.sender_id == user.id
+        ).scalar() or 0
+        
+        # Подсчет сообщений с медиафайлами
+        attachments_count = db.session.query(func.count(Message.id)).filter(
+            Message.sender_id == user.id,
+            or_(
+                Message.content.like('%<img%'),   # Поиск тегов изображений
+                Message.content.like('%<video%'),  # Поиск тегов видео
+                Message.content.like('%/static/uploads/%')  # Поиск ссылок на загруженные файлы
+            )
+        ).scalar() or 0
+        
+        # Проверяем статус онлайн (активность за последние 5 минут)
+        five_minutes_ago = datetime.utcnow() - timedelta(minutes=5)
+        is_online = user.last_active >= five_minutes_ago if user.last_active else False
+        
+        # Добавляем в массив данных
+        users_data.append({
+            'id': user.id,
+            'name': user.name,
+            'email': user.email,
+            'is_online': is_online,
+            'friends_count': friends_count,
+            'groups_count': groups_count,
+            'messages_count': messages_count,
+            'attachments_count': attachments_count,  # Используем посчитанное значение
+            'blocked_count': 0  # реализуйте в зависимости от вашей модели данных
+        })
+    
+    return render_template(
+        'adminPanel.html',
+        users_count=users_count,
+        messages_count=messages_count,
+        messages_today=messages_today,
+        avg_messages=avg_messages,
+        direct_chats=direct_chats,
+        group_chats=group_chats,
+        online_users=online_users,
+        online_percentage=online_percentage,  # Теперь переменная определена
+        new_users_today=new_users_today,
+        storage_used=storage_used,
+        user_activity=user_activity,
+        message_distribution=message_distribution,
+        registrations=registrations,
+        peak_hours=peak_hours,
+        users_data=users_data  # Добавляем данные пользователей в шаблон
+    )
+
+# Helper function to convert bytes to human-readable format
+def convert_size(size_bytes):
+    """Convert bytes to human readable format (KB, MB, GB)"""
+    if size_bytes == 0:
+        return "0B"
+    size_name = ("B", "KB", "MB", "GB", "TB", "PB")
+    i = int(math.log(size_bytes, 1024))
+    p = math.pow(1024, i)
+    s = round(size_bytes / p, 2)
+    return f"{s} {size_name[i]}"
+
+@app.route('/get_user_details/<int:user_id>')
+@login_required
+def get_user_details(user_id):
+    try:
+        # Проверяем админские права (в данном примере упрощенно, вы можете добавить доп. проверки)
+        current_user = get_current_user()
+        
+        # Получаем информацию о пользователе
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({'success': False, 'message': 'User not found'}), 404
+        
+        # Получаем количество друзей
+        friends_count = db.session.query(func.count(Friendship.id)).filter(
+            or_(Friendship.user_id == user.id, Friendship.friend_id == user.id)
+        ).scalar() or 0
+        
+        # Получаем количество групп
+        groups_count = db.session.query(func.count(GroupMember.id)).filter(
+            GroupMember.user_id == user.id
+        ).scalar() or 0
+        
+        # Получаем количество сообщений
+        messages_count = db.session.query(func.count(Message.id)).filter(
+            Message.sender_id == user.id
+        ).scalar() or 0
+        
+        # Подсчет сообщений с медиафайлами
+        attachments_count = db.session.query(func.count(Message.id)).filter(
+            Message.sender_id == user.id,
+            or_(
+                Message.content.like('%<img%'),
+                Message.content.like('%<video%'),
+                Message.content.like('%/static/uploads/%')
+            )
+        ).scalar() or 0
+        
+        # Проверяем статус онлайн
+        five_minutes_ago = datetime.utcnow() - timedelta(minutes=5)
+        is_online = user.last_active >= five_minutes_ago if user.last_active else False
+        
+        # Форматирование даты для JSON
+        birthdate = user.birthdate.isoformat() if user.birthdate else None
+        last_active = user.last_active.isoformat() if user.last_active else None
+        created_at = user.created_at.isoformat() if user.created_at else None
+        
+        return jsonify({
+            'success': True,
+            'user': {
+                'id': user.id,
+                'name': user.name,
+                'email': user.email,
+                'nickname': user.nickname,
+                'birthdate': birthdate,
+                'status': user.status,
+                'avatar': user.avatar,
+                'last_active': last_active,
+                'created_at': created_at,
+                'is_online': is_online,
+                'friends_count': friends_count,
+                'groups_count': groups_count,
+                'messages_count': messages_count,
+                'attachments_count': attachments_count
+            }
+        })
+        
+    except Exception as e:
+        print(f"Error getting user details: {str(e)}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
+
+@app.route('/translate_text', methods=['POST'])
+def translate_text():
+    try:
+        data = request.get_json()
+        text = data.get('text', '')
+        source_lang = data.get('source_lang', 'auto')
+        target_lang = data.get('target_lang', 'en')
+        
+        # Если текст пустой, возвращаем ошибку
+        if not text:
+            return jsonify({
+                'success': False,
+                'message': 'Текст для перевода отсутствует'
+            })
+        
+        # Проверка длины текста (лимит MyMemory)
+        if len(text) > 500:
+            return jsonify({
+                'success': False,
+                'message': 'Текст слишком длинный для перевода (максимум 500 символов)'
+            })
+        
+        # Если source_lang = 'auto', определяем язык на основе наличия кириллицы
+        if source_lang == 'auto':
+            import re
+            has_cyrillic = bool(re.search('[а-яА-ЯёЁ]', text))
+            source_lang = 'ru' if has_cyrillic else 'en'
+        
+        # Имена языков для отображения пользователю
+        language_names = {
+            'en': 'английского',
+            'ru': 'русского',
+            'fr': 'французского',
+            'de': 'немецкого',
+            'es': 'испанского',
+            'it': 'итальянского',
+        }
+        
+        # Используем MyMemory Translation API (бесплатный)
+        url = f"https://api.mymemory.translated.net/get"
+        params = {
+            'q': text,
+            'langpair': f"{source_lang}|{target_lang}",
+        }
+        
+        response = requests.get(url, params=params)
+        data = response.json()
+        
+        if data['responseStatus'] == 200:
+            translated_text = data['responseData']['translatedText']
+            source_language_name = language_names.get(source_lang, source_lang)
+            
+            return jsonify({
+                'success': True,
+                'translated_text': translated_text,
+                'source_lang': source_lang,
+                'target_lang': target_lang,
+                'source_language_name': source_language_name
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': f"Ошибка перевода: {data.get('responseDetails', 'Неизвестная ошибка')}"
+            })
+    
+    except Exception as e:
+        print(f"Ошибка перевода: {str(e)}")
+        return jsonify({
+            'success': False,
+            'message': f"Не удалось выполнить перевод: {str(e)}"
+        })
 
 # Создаем таблицы при запуске
 with app.app_context():

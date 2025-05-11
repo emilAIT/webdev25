@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel - Capybara Messenger</title>
+  <link href="https://fonts.googleapis.com/css2?family=Konkhmer+Sleokchher&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Roboto', sans-serif;
+      background-color: #306748;
+      overflow: hidden;
+    }
+    
+    .container {
+      width: 1440px;
+      height: 1024px;
+      position: relative;
+      margin: 0 auto;
+      background: #306748;
+      overflow: hidden;
+    }
+    
+    .nav-button {
+      width: 344px;
+      height: 85px;
+      background: #E39451;
+      border-radius: 35px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    
+    .nav-button:hover {
+      background: #f0a05a;
+    }
+    
+    .nav-button-text {
+      color: white;
+      font-size: 48px;
+      font-family: 'Konkhmer Sleokchher', cursive;
+      font-weight: 400;
+      text-align: center;
+    }
+    
+    .general-button {
+      left: 38px;
+      top: 127px;
+      position: absolute;
+    }
+    
+    .users-button {
+      left: 38px;
+      top: 234px;
+      position: absolute;
+    }
+    
+    .filter-button {
+      left: 38px;
+      top: 341px;
+      position: absolute;
+    }
+    
+    .exit-button {
+      width: 228px;
+      height: 85px;
+      left: 38px;
+      top: 908px;
+      position: absolute;
+      background: #E39451;
+      border-radius: 35px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.3s;
+    }
+    
+    .exit-button:hover {
+      background: #f0a05a;
+    }
+    
+    .exit-text {
+      width: 100%;
+      height: 70px;
+      color: white;
+      font-size: 48px;
+      font-family: 'Konkhmer Sleokchher', cursive;
+      font-weight: 400;
+      text-align: center;
+      line-height: 85px;
+    }
+    
+    .content-area {
+      width: 1011px;
+      height: 700px;
+      left: 414px;
+      top: 127px;
+      position: absolute;
+      background: #F0FAEF;
+      border-radius: 70px;
+      overflow: hidden;
+    }
+    
+    .title {
+      width: 455px;
+      height: 112px;
+      left: 28px;
+      top: 12px;
+      position: absolute;
+      text-align: center;
+      color: white;
+      font-size: 48px;
+      font-family: 'Konkhmer Sleokchher', cursive;
+      font-weight: 400;
+    }
+    
+    .profile-pic {
+      width: 80px;
+      height: 80px;
+      left: 10px;
+      top: 12px;
+      position: absolute;
+      border-radius: 172px;
+      object-fit: cover;
+    }
+    
+    .tabs-container {
+      width: 100%;
+      height: 55px;
+      position: absolute;
+      top: 23px;
+      display: flex;
+      justify-content: space-around;
+    }
+    
+    .tab-divider {
+      width: 1011px;
+      height: 1px;
+      left: 0;
+      top: 95px;
+      position: absolute;
+      background: black;
+    }
+    
+    .tab {
+      color: black;
+      font-size: 16px;
+      font-family: 'Roboto', sans-serif;
+      font-weight: 400;
+      line-height: 24px;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      padding: 4px 12px;
+      transition: all 0.3s;
+    }
+    
+    .tab:hover {
+      background-color: rgba(0,0,0,0.05);
+      border-radius: 4px;
+    }
+    
+    .tab.active {
+      font-weight: 500;
+      color: #306748;
+      border-bottom: 2px solid #306748;
+    }
+    
+    .tab-content {
+      display: none;
+      padding: 20px;
+      margin-top: 100px;
+      height: calc(100% - 140px);
+      overflow-y: auto;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    /* Add these new styles for search bar */
+    .admin-search-container {
+      width: 800px;
+      /* height: 60px; */
+      position: absolute;
+      left: 500px; /* Совпадает с left у content-area */
+      top: 30px; /* Немного выше content-area */
+      display: flex;
+      align-items: center; /* Убираем justify-content: center */
+      z-index: 10;
+    }
+    
+    .admin-search-bar {
+      width: 970px; /* Увеличиваем с 400px до почти ширины контейнера */
+      height: 60px;
+      background-color: #FDD367;
+      border-radius: 25px;
+      color: #7E453D;
+      font-size: 32px;
+      font-weight: 400;
+      border: none;
+      padding: 0 20px;
+      text-align: center;
+      font-family: 'Konkhmer Sleokchher', cursive;
+      outline: none;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .admin-search-bar::placeholder {
+      color: #7E453D;
+    }
+    
+    .filter-dropdown {
+      position: relative;
+    }
+    
+    .admin-filter-button {
+      width: 200px;
+      height: 60px;
+      background-color: #FDD367;
+      border-radius: 25px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #7E453D;
+      font-size: 26px;
+      font-weight: 400;
+      border: none;
+      font-family: 'Konkhmer Sleokchher', cursive;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .filter-dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: white;
+      min-width: 200px;
+      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+      z-index: 1;
+      border-radius: 15px;
+      overflow: hidden;
+    }
+    
+    .filter-dropdown-content.show {
+      display: block;
+    }
+    
+    .filter-option {
+      color: #306748;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+      cursor: pointer;
+      font-family: 'Konkhmer Sleokchher', cursive;
+      font-size: 18px;
+      border: none;
+      background: white;
+      width: 100%;
+      text-align: left;
+    }
+    
+    .filter-option:hover {
+      background-color: #f1f1f1;
+    }
+
+    .status-indicator.online { color: green; }
+    .status-indicator.offline { color: grey; }
+
+    /* Добавьте эти стили в существующий тег <style> */
+    #advancedFilterPanel {
+      border: 1px solid #e0e0e0;
+      margin-bottom: 20px;
+    }
+    
+    .filter-select {
+      transition: border-color 0.3s;
+    }
+    
+    .filter-select:focus {
+      border-color: #306748;
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(48, 103, 72, 0.2);
+    }
+    
+    #applyAdvancedFiltersBtn, #resetAdvancedFiltersBtn {
+      transition: background-color 0.3s;
+    }
+    
+    #applyAdvancedFiltersBtn:hover {
+      background-color: #3a815a;
+    }
+    
+    #resetAdvancedFiltersBtn:hover {
+      background-color: #f0a05a;
+    }
+
+    /* Добавьте в существующий стиль */
+    #advancedFilterPanel {
+      transition: all 0.3s ease;
+    }
+    
+    #users-content {
+      transition: all 0.3s ease;
+    }
+
+    /* Добавьте эти стили в существующий тег <style> в head */
+    .highlight {
+      background-color: #FDD367;
+      color: #7E453D;
+      font-weight: bold;
+      padding: 0 2px;
+      border-radius: 2px;
+    }
+    
+    #search-stats {
+      margin-top: 5px;
+      font-size: 14px;
+      color: #666;
+      text-align: center;
+      width: 100%;
+    }
+
+    /* Добавьте стили для уведомлений */
+    #admin-notification {
+      opacity: 0;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="container">
+    <!-- Header and profile -->
+    <div class="title">Admin panel</div>
+    <img class="profile-pic" src="/static/img/image 86.png" alt="Profile" />
+    
+    <!-- Add search bar above content-area -->
+    <div class="admin-search-container">
+      <input type="text" class="admin-search-bar" placeholder="Search">
+    </div>
+    
+    <!-- Измените стиль панели фильтров, удалив абсолютное позиционирование -->
+    <div id="advancedFilterPanel" style="display: none; width: 925px; padding: 15px; background: white; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); z-index: 100;">
+      <h3 style="color: #306748; margin-top: 0;">Расширенные фильтры</h3>
+      
+      <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;">
+        <!-- Фильтр по статусу -->
+        <div style="flex: 1; min-width: 180px;">
+          <div style="margin-bottom: 5px; color: #666;">Статус пользователя</div>
+          <select id="statusFilter" class="filter-select" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ddd;">
+            <option value="all">Любой статус</option>
+            <option value="online">Онлайн</option>
+            <option value="offline">Оффлайн</option>
+          </select>
+        </div>
+        
+        <!-- Фильтр по дате регистрации -->
+        <div style="flex: 1; min-width: 180px;">
+          <div style="margin-bottom: 5px; color: #666;">Дата регистрации</div>
+          <select id="dateFilter" class="filter-select" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ddd;">
+            <option value="all">За все время</option>
+            <option value="today">Сегодня</option>
+            <option value="week">Эта неделя</option>
+            <option value="month">Этот месяц</option>
+          </select>
+        </div>
+        
+        <!-- Фильтр по активности -->
+        <div style="flex: 1; min-width: 180px;">
+          <div style="margin-bottom: 5px; color: #666;">Активность</div>
+          <select id="activityFilter" class="filter-select" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ddd;">
+            <option value="all">Любая</option>
+            <option value="high">Высокая (>100 сообщений)</option>
+            <option value="medium">Средняя (10-100 сообщений)</option>
+            <option value="low">Низкая (<10 сообщений)</option>
+          </select>
+        </div>
+      </div>
+      
+      <div style="display: flex; justify-content: flex-end;">
+        <button id="applyAdvancedFiltersBtn" style="background: #306748; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">
+          Применить фильтры
+        </button>
+        <button id="resetAdvancedFiltersBtn" style="background: #E39451; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin-left: 10px;">
+          Сбросить
+        </button>
+      </div>
+    </div>
+    
+    <!-- Navigation buttons -->
+    <div class="nav-button general-button" onclick="switchTab('general')">
+      <div class="nav-button-text">General</div>
+    </div>
+    
+    <div class="nav-button users-button" onclick="switchTab('users')">
+      <div class="nav-button-text">Users</div>
+    </div>
+    
+    <div class="nav-button filter-button" onclick="switchTab('filter')">
+      <div class="nav-button-text">Filter</div>
+    </div>
+    
+    <!-- Exit button -->
+    <button class="exit-btn" id="adminExitBtn"
+    style="width: 344px; height: 85px; left: 38px; top: 447px; position: absolute;
+    background: #E39451; border-radius: 35px; border: none; color: white; font-size: 48px;
+    font-family: 'Konkhmer Sleokchher', cursive; font-weight: 400; text-align: center;
+    padding-left: 0; cursor: pointer; z-index: 10;
+    transition: transform 0.15s cubic-bezier(.4,0,.2,1), box-shadow 0.15s;">
+  Exit
+</button>
+    
+    <!-- Main content area -->
+    <div class="content-area">
+      
+      <!-- Tab content areas -->
+      <div id="users-content" class="tab-content">
+        <h2>Users Management</h2>
+        <p>View and manage all registered users.</p>
+        <div style="overflow-x: auto;">
+          <table style="width:100%; border-collapse: collapse; min-width: 900px;">
+            <tr style="background-color: #e0e0e0;">
+              <th style="padding: 8px; text-align: left;">User ID</th>
+              <th style="padding: 8px; text-align: left;">Username</th>
+              <th style="padding: 8px; text-align: left;">Email</th>
+              <th style="padding: 8px; text-align: left;">Online Status</th>
+              <th style="padding: 8px; text-align: left;">Friends</th>
+              <th style="padding: 8px; text-align: left;">Groups</th>
+              <th style="padding: 8px; text-align: left;">Messages</th>
+              <th style="padding: 8px; text-align: left;">Attachments</th>
+              <!-- <th style="padding: 8px; text-align: left;">Blocked</th> -->
+              <th style="padding: 8px; text-align: left;">Actions</th>
+            </tr>
+            {% for user in users_data %}
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ user.id }}</td>
+              <td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ user.name }}</td>
+              <td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ user.email }}</td>
+              <td style="padding: 8px; border-bottom: 1px solid #ddd;">
+                <span class="status-indicator {{ 'online' if user.is_online else 'offline' }}">
+                  {{ 'Online' if user.is_online else 'Offline' }}
+                </span>
+              </td>
+              <td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ user.friends_count }}</td>
+              <td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ user.groups_count }}</td>
+              <td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ user.messages_count }}</td>
+              <td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ user.attachments_count }}</td>
+              <!-- <td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ user.blocked_count }}</td> -->
+              <td style="padding: 8px; border-bottom: 1px solid #ddd;">
+                <button data-userid="{{ user.id }}" style="background: #306748; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px;">More</button>
+                <button data-userid="{{ user.id }}" style="background: #E39451; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Delete</button>
+              </td>
+            </tr>
+            {% endfor %}
+            {% if not users_data %}
+            <tr>
+              <td colspan="10" style="padding: 20px; text-align: center;">Пользователей не найдено</td>
+            </tr>
+            {% endif %}
+          </table>
+        </div>
+      </div>
+      
+      <div id="online-content" class="tab-content">
+        <h2>Online Users</h2>
+        <p>Users currently connected to the platform.</p>
+        <ul style="list-style-type: none; padding: 0;">
+          <li style="padding: 8px; border-bottom: 1px solid #ddd; display: flex; align-items: center;">
+            <div style="width: 30px; height: 30px; background: #306748; border-radius: 50%; margin-right: 10px;"></div>
+            johndoe - Last active: Just now
+          </li>
+          <li style="padding: 8px; border-bottom: 1px solid #ddd; display: flex; align-items: center;">
+            <div style="width: 30px; height: 30px; background: #306748; border-radius: 50%; margin-right: 10px;"></div>
+            janedoe - Last active: 5 minutes ago
+          </li>
+        </ul>
+      </div>
+      
+      <div id="friends-content" class="tab-content">
+        <h2>Friend Connections</h2>
+        <p>Monitor friend connections between users.</p>
+      </div>
+      
+      <div id="groups-content" class="tab-content">
+        <h2>Group Management</h2>
+        <p>View and manage all group chats.</p>
+      </div>
+      
+      <div id="messages-content" class="tab-content">
+        <h2>Message Monitoring</h2>
+        <p>View message statistics and flagged content.</p>
+      </div>
+      
+      <div id="attachments-content" class="tab-content">
+        <h2>File Attachments</h2>
+        <p>Monitor and manage uploaded files.</p>
+      </div>
+<!--       
+      <div id="blocked-content" class="tab-content">
+        <h2>Blocked Users</h2>
+        <p>View and manage user blocks.</p>
+      </div>
+       -->
+      <div id="general-content" class="tab-content">
+        <h2>Dashboard Overview</h2>
+        <p>Key platform statistics and metrics</p>
+        
+        <div style="display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 30px;">
+          <div style="flex: 1; min-width: 200px; background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <h3 style="margin-top: 0;">Registered Users</h3>
+            <div style="font-size: 32px; color: #306748; font-weight: bold;">{{ users_count }}</div>
+          </div>
+          <div style="flex: 1; min-width: 200px; background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <h3 style="margin-top: 0;">Total Messages</h3>
+            <div style="font-size: 32px; color: #E39451; font-weight: bold;">{{ messages_count }}</div>
+          </div>
+          <div style="flex: 1; min-width: 200px; background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <h3 style="margin-top: 0;">Messages Today</h3>
+            <div style="font-size: 32px; color: #7E453D; font-weight: bold;">{{ messages_today }}</div>
+          </div>
+          
+          <div style="flex: 1; min-width: 200px; background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <h3 style="margin-top: 0;">Avg Messages per User</h3>
+            <div style="font-size: 32px; color: #FDD367; font-weight: bold;">{{ avg_messages }}</div>
+          </div>
+          <div style="flex: 1; min-width: 200px; background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <h3 style="margin-top: 0;">Active Direct Chats</h3>
+            <div style="font-size: 32px; color: #306748; font-weight: bold;">{{ direct_chats }}</div>
+          </div>
+          <div style="flex: 1; min-width: 200px; background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <h3 style="margin-top: 0;">Active Group Chats</h3>
+            <div style="font-size: 32px; color: #E39451; font-weight: bold;">{{ group_chats }}</div>
+          </div>
+          
+          <div style="flex: 1; min-width: 200px; background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <h3 style="margin-top: 0;">Online Users Now</h3>
+            <div style="font-size: 32px; color: #5DA399; font-weight: bold;">{{ online_users }}</div>
+            <div style="font-size: 14px; color: #666;">{{ online_percentage }}% от всех пользователей</div>
+          </div>
+          <div style="flex: 1; min-width: 200px; background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <h3 style="margin-top: 0;">Storage Used</h3>
+            <div style="font-size: 32px; color: #7E453D; font-weight: bold;">{{ storage_used }}</div>
+          </div>
+          <div style="flex: 1; min-width: 200px; background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <h3 style="margin-top: 0;">New Users Today</h3>
+            <div style="font-size: 32px; color: #306748; font-weight: bold;">{{ new_users_today }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Модальное окно для детальной информации о пользователе -->
+  <div id="userDetailsModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
+    <div class="modal-content" style="background-color: #1f1f1f; margin: 5% auto; padding: 20px; border-radius: 10px; width: 80%; max-width: 700px; color: #fff; position: relative;">
+      <span class="close-button" onclick="closeUserModal()" style="position: absolute; right: 20px; top: 10px; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
+      
+      <h2 id="modal-username" style="color: #E39451; margin-bottom: 20px;"></h2>
+      
+      <div class="user-details-container" style="display: flex; flex-wrap: wrap; gap: 20px;">
+        <!-- Левая колонка - аватар и основная информация -->
+        <div class="left-column" style="flex: 1; min-width: 250px;">
+          <div class="avatar-container" style="text-align: center; margin-bottom: 20px;">
+            <img id="user-avatar" src="" alt="User Avatar" style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 3px solid #306748;">
+          </div>
+          
+          <div class="status-indicator" style="text-align: center; margin-bottom: 20px;">
+            <span id="online-status" style="padding: 5px 10px; border-radius: 20px; font-size: 14px;"></span>
+          </div>
+        </div>
+        
+        <!-- Правая колонка - детальная информация -->
+        <div class="right-column" style="flex: 2; min-width: 300px;">
+          <div class="info-field" style="margin-bottom: 15px;">
+            <div class="field-label" style="color: #999; font-size: 14px;">Email</div>
+            <div id="user-email" class="field-value" style="font-size: 16px;"></div>
+          </div>
+          
+          <div class="info-field" style="margin-bottom: 15px;">
+            <div class="field-label" style="color: #999; font-size: 14px;">Nickname</div>
+            <div id="user-nickname" class="field-value" style="font-size: 16px;"></div>
+          </div>
+          
+          <div class="info-field" style="margin-bottom: 15px;">
+            <div class="field-label" style="color: #999; font-size: 14px;">Date of Birth</div>
+            <div id="user-birthdate" class="field-value" style="font-size: 16px;"></div>
+          </div>
+          
+          <div class="info-field" style="margin-bottom: 15px;">
+            <div class="field-label" style="color: #999; font-size: 14px;">Status</div>
+            <div id="user-status" class="field-value" style="font-size: 16px;"></div>
+          </div>
+          
+          <div class="info-field" style="margin-bottom: 15px;">
+            <div class="field-label" style="color: #999; font-size: 14px;">Last Active</div>
+            <div id="user-last-active" class="field-value" style="font-size: 16px;"></div>
+          </div>
+          
+          <div class="info-field" style="margin-bottom: 15px;">
+            <div class="field-label" style="color: #999; font-size: 14px;">Registered On</div>
+            <div id="user-created" class="field-value" style="font-size: 16px;"></div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Статистика пользователя -->
+      <div class="user-stats" style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #444;">
+        <h3 style="color: #E39451; margin-bottom: 15px;">User Statistics</h3>
+        
+        <div style="display: flex; flex-wrap: wrap; gap: 15px;">
+          <div class="stat-box" style="flex: 1; min-width: 120px; background-color: #306748; padding: 15px; border-radius: 8px; text-align: center;">
+            <div class="stat-value" id="stat-friends" style="font-size: 24px; font-weight: bold;"></div>
+            <div class="stat-label" style="font-size: 14px;">Friends</div>
+          </div>
+          
+          <div class="stat-box" style="flex: 1; min-width: 120px; background-color: #306748; padding: 15px; border-radius: 8px; text-align: center;">
+            <div class="stat-value" id="stat-groups" style="font-size: 24px; font-weight: bold;"></div>
+            <div class="stat-label" style="font-size: 14px;">Groups</div>
+          </div>
+          
+          <div class="stat-box" style="flex: 1; min-width: 120px; background-color: #306748; padding: 15px; border-radius: 8px; text-align: center;">
+            <div class="stat-value" id="stat-messages" style="font-size: 24px; font-weight: bold;"></div>
+            <div class="stat-label" style="font-size: 14px;">Messages</div>
+          </div>
+          
+          <div class="stat-box" style="flex: 1; min-width: 120px; background-color: #306748; padding: 15px; border-radius: 8px; text-align: center;">
+            <div class="stat-value" id="stat-attachments" style="font-size: 24px; font-weight: bold;"></div>
+            <div class="stat-label" style="font-size: 14px;">Attachments</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // Set default active tab
+    document.addEventListener('DOMContentLoaded', function() {
+
+      
+      // Настраиваем отступ сверху для общего контента
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.style.marginTop = '20px'; 
+      });
+      
+      // Активируем раздел General
+      activateTabContent('general');
+      document.querySelector('.general-button').classList.add('active');
+      initCharts();
+      
+      // Exit button functionality
+      document.getElementById('adminExitBtn').addEventListener('click', function() {
+        window.location.href = '/mainWindow';
+      });
+      
+      // Filter dropdown functionality
+      const adminFilterButton = document.getElementById('adminFilterButton');
+      const adminFilterDropdown = document.getElementById('adminFilterDropdown');
+      const filterOptions = document.querySelectorAll('.filter-option');
+      
+      // Toggle dropdown when filter button is clicked
+      if (adminFilterButton) {
+        adminFilterButton.addEventListener('click', function(e) {
+          e.stopPropagation();
+          adminFilterDropdown.classList.toggle('show');
+        });
+      }
+      
+      // Close dropdown when clicking elsewhere
+      document.addEventListener('click', function() {
+        if (adminFilterDropdown) {
+          adminFilterDropdown.classList.remove('show');
+        }
+      });
+      
+      // Handle filter option selection
+      filterOptions.forEach(option => {
+        option.addEventListener('click', function() {
+          const filterType = this.getAttribute('data-filter');
+          // Update button text
+          adminFilterButton.textContent = this.textContent;
+          // Close dropdown
+          adminFilterDropdown.classList.remove('show');
+          // Apply filter (implement search functionality here)
+          console.log('Filter selected:', filterType);
+        });
+      });
+    });
+    
+    // Function to switch between main sections (General, Users, Filter)
+    function switchTab(section) {
+      console.log('Switching to section:', section);
+      
+      // Remove active class from all nav buttons
+      const navButtons = document.querySelectorAll('.nav-button');
+      navButtons.forEach(button => button.classList.remove('active'));
+      
+      // Add active class to clicked button
+      document.querySelector('.' + section + '-button').classList.add('active');
+      
+      // Получаем элементы для управления
+      const advancedFilterPanel = document.getElementById('advancedFilterPanel');
+      const usersContent = document.getElementById('users-content');
+      
+      // Сначала скрываем панель фильтров во всех разделах
+      if (advancedFilterPanel) {
+        advancedFilterPanel.style.display = 'none';
+      }
+      
+      // Change content based on section
+      if (section === 'general') {
+        // Настраиваем основной блок контента
+        document.querySelectorAll('.tab-content').forEach(content => {
+          content.style.marginTop = '20px';
+        });
+        
+        activateTabContent('general');
+      } else if (section === 'users') {
+        // Настраиваем отступ сверху для контента пользователей
+        document.querySelectorAll('.tab-content').forEach(content => {
+          content.style.marginTop = '20px';
+        });
+        
+        // Перемещаем панель фильтров из начала контейнера users-content
+        if (advancedFilterPanel && advancedFilterPanel.parentNode === usersContent) {
+          usersContent.removeChild(advancedFilterPanel);
+          document.body.appendChild(advancedFilterPanel); // Временно перемещаем в body, чтобы сохранить
+        }
+        
+        activateTabContent('users');
+      } else if (section === 'filter') {
+        // Возвращаем стандартный отступ сверху для контента
+        document.querySelectorAll('.tab-content').forEach(content => {
+          content.style.marginTop = '20px';
+        });
+        
+        // Активируем вкладку Users
+        activateTabContent('users');
+        
+        // Показываем панель фильтров
+        if (advancedFilterPanel) {
+          // Перемещаем панель фильтров в начало контента users-content
+          if (usersContent) {
+            // Проверяем, если панель фильтров уже в контейнере
+            if (advancedFilterPanel.parentNode !== usersContent) {
+              // Сначала удаляем из текущего родителя
+              if (advancedFilterPanel.parentNode) {
+                advancedFilterPanel.parentNode.removeChild(advancedFilterPanel);
+              }
+              
+              // Вставляем перед первым элементом в users-content
+              usersContent.insertBefore(advancedFilterPanel, usersContent.firstChild);
+            }
+          }
+          
+          advancedFilterPanel.style.display = 'block';
+        }
+      }
+    }
+    
+    // Function to activate tab content
+    function activateTabContent(tabId) {
+      console.log('Activating tab content:', tabId);
+      
+      // Hide all tab content
+      const tabContents = document.querySelectorAll('.tab-content');
+      tabContents.forEach(content => content.classList.remove('active'));
+      
+      // Show selected tab content
+      const selectedContent = document.getElementById(tabId + '-content');
+      if (selectedContent) {
+        selectedContent.classList.add('active');
+      }
+      
+      // Update tabs UI
+      const tabs = document.querySelectorAll('.tab');
+      tabs.forEach(tab => {
+        if (tab.getAttribute('data-tab') === tabId) {
+          tab.classList.add('active');
+        } else {
+          tab.classList.remove('active');
+        }
+      });
+    }
+    
+    // Добавить новую функцию initCharts
+    function initCharts() {
+    }
+  </script>
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const exitBtn = document.getElementById('adminExitBtn');
+    if (exitBtn) {
+      exitBtn.onclick = function() {
+        window.location.href = '/mainWindow';
+      };
+    }
+    // ...остальной ваш код...
+  });
+</script>
+<script>
+  // Функция для отображения информации о пользователе
+  function showUserDetails(userId) {
+    fetch(`/get_user_details/${userId}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          const user = data.user;
+          
+          // Заполняем данные в модальном окне
+          document.getElementById('modal-username').textContent = user.name;
+          
+          // Аватар пользователя - ИСПРАВЛЕНО
+          const avatarEl = document.getElementById('user-avatar');
+          if (user.avatar) {
+            avatarEl.src = `/static/uploads/${user.avatar}`;
+          } else {
+            avatarEl.src = '/static/img/image 86.png';  // Изменено на нужное изображение по умолчанию
+          }
+          
+          // Статус онлайн
+          const statusEl = document.getElementById('online-status');
+          if (user.is_online) {
+            statusEl.textContent = 'Online';
+            statusEl.style.backgroundColor = '#4CAF50';
+          } else {
+            statusEl.textContent = 'Offline';
+            statusEl.style.backgroundColor = '#F44336';
+          }
+          
+          // Основная информация
+          document.getElementById('user-email').textContent = user.email;
+          document.getElementById('user-nickname').textContent = user.nickname || 'Not set';
+          document.getElementById('user-birthdate').textContent = user.birthdate || 'Not set';
+          document.getElementById('user-status').textContent = user.status || 'No status';
+          
+          // Форматирование дат
+          const formatDate = (dateStr) => {
+            if (!dateStr) return 'Never';
+            const date = new Date(dateStr);
+            return date.toLocaleString();
+          };
+          
+          document.getElementById('user-last-active').textContent = formatDate(user.last_active);
+          document.getElementById('user-created').textContent = formatDate(user.created_at);
+          
+          // Статистика
+          document.getElementById('stat-friends').textContent = user.friends_count;
+          document.getElementById('stat-groups').textContent = user.groups_count;
+          document.getElementById('stat-messages').textContent = user.messages_count;
+          document.getElementById('stat-attachments').textContent = user.attachments_count;
+          
+          // Показываем модальное окно
+          document.getElementById('userDetailsModal').style.display = 'block';
+        } else {
+          alert('Error loading user data: ' + data.message);
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching user details:', error);
+        alert('Error fetching user details. Please try again.');
+      });
+  }
+  
+  // Функция для закрытия модального окна
+  function closeUserModal() {
+    document.getElementById('userDetailsModal').style.display = 'none';
+  }
+  
+  // Закрытие модального окна при клике вне его содержимого
+  window.onclick = function(event) {
+    const modal = document.getElementById('userDetailsModal');
+    if (event.target == modal) {
+      modal.style.display = 'none';
+    }
+  }
+</script>
+<script>
+// Добавьте этот код в конец вашего скрипта
+document.addEventListener('DOMContentLoaded', function() {
+  // Существующий код...
+  
+  // Добавляем обработчики для кнопок фильтрации
+  const applyFiltersBtn = document.getElementById('applyAdvancedFiltersBtn');
+  const resetFiltersBtn = document.getElementById('resetAdvancedFiltersBtn');
+  
+  if (applyFiltersBtn) {
+    applyFiltersBtn.addEventListener('click', function() {
+      applyFilters();
+    });
+  }
+  
+  if (resetFiltersBtn) {
+    resetFiltersBtn.addEventListener('click', function() {
+      resetFilters();
+    });
+  }
+});
+
+// Функция для применения фильтров
+function applyFilters() {
+  const statusFilter = document.getElementById('statusFilter').value;
+  const dateFilter = document.getElementById('dateFilter').value;
+  const activityFilter = document.getElementById('activityFilter').value;
+  
+  console.log('Применяем фильтры:', statusFilter, dateFilter, activityFilter);
+  
+  // Получаем все строки таблицы пользователей (кроме заголовка)
+  const userRows = document.querySelectorAll('#users-content table tr:not(:first-child)');
+  
+  // Счетчик для отфильтрованных пользователей
+  let filteredCount = 0;
+  let totalCount = userRows.length;
+  
+  userRows.forEach(row => {
+    let showRow = true;
+    
+    // Фильтрация по статусу онлайн
+    if (statusFilter !== 'all') {
+      const statusCell = row.querySelector('td:nth-child(4) .status-indicator');
+      const isOnline = statusCell && statusCell.classList.contains('online');
+      
+      if ((statusFilter === 'online' && !isOnline) || (statusFilter === 'offline' && isOnline)) {
+        showRow = false;
+      }
+    }
+    
+    // Фильтрация по активности (количество сообщений - 7-я колонка)
+    if (showRow && activityFilter !== 'all') {
+      const messagesCell = row.querySelector('td:nth-child(7)');
+      if (messagesCell) {
+        const messageCount = parseInt(messagesCell.textContent) || 0;
+        
+        if (activityFilter === 'high' && messageCount <= 100) {
+          showRow = false;
+        } else if (activityFilter === 'medium' && (messageCount < 10 || messageCount > 100)) {
+          showRow = false;
+        } else if (activityFilter === 'low' && messageCount >= 10) {
+          showRow = false;
+        }
+      }
+    }
+    
+    // Фильтрация по дате регистрации
+    if (showRow && dateFilter !== 'all') {
+      const userIdCell = row.querySelector('td:nth-child(1)');
+      const userId = userIdCell ? userIdCell.textContent.trim() : '';
+      
+      // Получаем строку для поиска даты создания аккаунта
+      const createdAtStr = row.getAttribute('data-created');
+      
+      if (createdAtStr) {
+        // Используем реальную дату регистрации, если она есть
+        const createdDate = new Date(createdAtStr);
+        const now = new Date();
+        
+        if (dateFilter === 'today') {
+          // Проверяем, совпадает ли дата создания с сегодняшним днем
+          if (createdDate.toDateString() !== now.toDateString()) {
+            showRow = false;
+          }
+        } else if (dateFilter === 'week') {
+          // Проверяем, находится ли дата создания в пределах последней недели
+          const weekAgo = new Date();
+          weekAgo.setDate(now.getDate() - 7);
+          if (createdDate < weekAgo) {
+            showRow = false;
+          }
+        } else if (dateFilter === 'month') {
+          // Проверяем, находится ли дата создания в пределах последнего месяца
+          const monthAgo = new Date();
+          monthAgo.setMonth(now.getMonth() - 1);
+          if (createdDate < monthAgo) {
+            showRow = false;
+          }
+        }
+      } else {
+        // Если дата создания не найдена, используем временную заглушку на основе ID
+        // Но сделаем более равномерное распределение для тестирования
+        const randomSeed = parseInt(userId) * 123457; // Большое простое число для равномерности
+        const normalizedValue = randomSeed % 100; // Значение от 0 до 99
+        
+        if (dateFilter === 'today' && normalizedValue >= 90) {
+          // Показываем ~10% как "сегодня"
+          showRow = true;
+        } else if (dateFilter === 'week' && normalizedValue >= 70) {
+          // Показываем ~30% как "на этой неделе"
+          showRow = true;
+        } else if (dateFilter === 'month' && normalizedValue >= 50) {
+          // Показываем ~50% как "в этом месяце"
+          showRow = true;
+        } else {
+          showRow = false;
+        }
+      }
+    }
+    
+    // Отображаем или скрываем строку
+    row.style.display = showRow ? '' : 'none';
+    
+    if (showRow) {
+      filteredCount++;
+    }
+  });
+  
+  // Выводим статистику фильтрации (можно добавить элемент для этого)
+  console.log(`Отображено ${filteredCount} из ${totalCount} пользователей`);
+  
+  // Создаем или обновляем элемент для отображения статистики
+  let filterStatsEl = document.getElementById('filter-stats');
+  if (!filterStatsEl) {
+    filterStatsEl = document.createElement('div');
+    filterStatsEl.id = 'filter-stats';
+    filterStatsEl.style.marginTop = '10px';
+    filterStatsEl.style.fontStyle = 'italic';
+    filterStatsEl.style.color = '#666';
+    
+    const advancedFilterPanel = document.getElementById('advancedFilterPanel');
+    if (advancedFilterPanel) {
+      advancedFilterPanel.appendChild(filterStatsEl);
+    }
+  }
+  
+  filterStatsEl.textContent = `Отображено ${filteredCount} из ${totalCount} пользователей`;
+}
+
+// Функция для сброса фильтров
+function resetFilters() {
+  // Сброс выбора в селектах
+  document.getElementById('statusFilter').value = 'all';
+  document.getElementById('dateFilter').value = 'all';
+  document.getElementById('activityFilter').value = 'all';
+  
+  // Показываем все строки
+  const userRows = document.querySelectorAll('#users-content table tr:not(:first-child)');
+  userRows.forEach(row => {
+    row.style.display = '';
+  });
+  
+  // Обновляем статистику
+  const filterStatsEl = document.getElementById('filter-stats');
+  if (filterStatsEl) {
+    filterStatsEl.textContent = `Отображены все ${userRows.length} пользователей`;
+  }
+}
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Получаем элемент поиска
+    const searchInput = document.querySelector('.admin-search-bar');
+    
+    // Добавляем обработчик события ввода
+    searchInput.addEventListener('input', function() {
+      // Получаем значение поиска и приводим к нижнему регистру
+      const searchValue = this.value.toLowerCase().trim();
+      
+      // Получаем все строки пользователей (кроме заголовка)
+      const userRows = document.querySelectorAll('#users-content table tr:not(:first-child)');
+      
+      // Счетчик для найденных строк
+      let matchCount = 0;
+      
+      // Проходим по всем строкам
+      userRows.forEach(row => {
+        // Сначала удаляем все предыдущие выделения (если есть)
+        row.querySelectorAll('span.highlight').forEach(span => {
+          const parent = span.parentNode;
+          parent.replaceChild(document.createTextNode(span.textContent), span);
+          parent.normalize(); // Объединяем смежные текстовые узлы
+        });
+        
+        // Получаем все ячейки в строке
+        const cells = row.querySelectorAll('td');
+        let rowMatches = false;
+        
+        // Проверяем каждую ячейку
+        cells.forEach(cell => {
+          const cellText = cell.textContent;
+          
+          // Проверяем наличие совпадения
+          if (searchValue && cellText.toLowerCase().includes(searchValue)) {
+            // Создаем регулярное выражение для поиска с учетом регистра
+            const regex = new RegExp(`(${searchValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+            
+            // Заменяем совпадения на выделенные
+            cell.innerHTML = cellText.replace(regex, '<span class="highlight">$1</span>');
+            
+            // Отмечаем, что строка содержит совпадение
+            rowMatches = true;
+          }
+        });
+        
+        // Показываем или скрываем строку в зависимости от наличия совпадений
+        if (searchValue === '' || rowMatches) {
+          row.style.display = '';
+          if (rowMatches) {
+            matchCount++;
+          }
+        } else {
+          row.style.display = 'none';
+        }
+      });
+      
+      // Обновляем статистику поиска
+      let statsElement = document.getElementById('search-stats');
+      if (!statsElement) {
+        statsElement = document.createElement('div');
+        statsElement.id = 'search-stats';
+        statsElement.style.marginTop = '10px';
+        statsElement.style.fontStyle = 'italic';
+        statsElement.style.color = '#666';
+        
+        // Вставляем элемент после строки поиска
+        const adminSearchContainer = document.querySelector('.admin-search-container');
+        adminSearchContainer.appendChild(statsElement);
+      }
+      
+      if (searchValue) {
+        statsElement.textContent = `Найдено ${matchCount} совпадений`;
+        statsElement.style.display = 'block';
+      } else {
+        statsElement.style.display = 'none';
+      }
+    });
+  });
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Делегирование событий для кнопок в таблице
+    document.querySelector('#users-content table').addEventListener('click', function(event) {
+      // Проверяем, является ли цель клика кнопкой More
+      if (event.target.tagName === 'BUTTON' && event.target.textContent.trim() === 'More') {
+        const userId = event.target.getAttribute('data-userid');
+        if (userId) {
+          showUserDetails(userId);
+        }
+      }
+      
+      // Проверяем, является ли цель клика кнопкой Delete
+      if (event.target.tagName === 'BUTTON' && event.target.textContent.trim() === 'Delete') {
+        const userId = event.target.parentNode.querySelector('button[data-userid]').getAttribute('data-userid');
+        if (userId) {
+          deleteUser(userId);
+        }
+      }
+    });
+    
+    // Остальной код...
+  });
+  
+  // Добавьте функцию для удаления пользователя
+  function deleteUser(userId) {
+    if (confirm(`Вы уверены, что хотите удалить пользователя с ID ${userId}?`)) {
+      // Здесь будет запрос к API для удаления пользователя
+      fetch(`/admin/delete_user/${userId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Удаляем строку из таблицы
+          const userRow = document.querySelector(`button[data-userid="${userId}"]`).closest('tr');
+          if (userRow) {
+            userRow.parentNode.removeChild(userRow);
+            showNotification('Пользователь успешно удален');
+          }
+        } else {
+          showNotification('Ошибка при удалении пользователя: ' + data.message, true);
+        }
+      })
+      .catch(error => {
+        console.error('Ошибка при удалении пользователя:', error);
+        showNotification('Произошла ошибка при удалении пользователя', true);
+      });
+    }
+  }
+  
+  // Функция для отображения уведомлений
+  function showNotification(message, isError = false) {
+    // Создаем элемент уведомления, если его еще нет
+    let notification = document.getElementById('admin-notification');
+    if (!notification) {
+      notification = document.createElement('div');
+      notification.id = 'admin-notification';
+      notification.style.position = 'fixed';
+      notification.style.bottom = '20px';
+      notification.style.right = '20px';
+      notification.style.padding = '10px 20px';
+      notification.style.borderRadius = '5px';
+      notification.style.fontFamily = 'Roboto, sans-serif';
+      notification.style.fontWeight = 'bold';
+      notification.style.zIndex = '9999';
+      notification.style.transition = 'opacity 0.3s';
+      document.body.appendChild(notification);
+    }
+    
+    // Устанавливаем цвет в зависимости от типа уведомления
+    notification.style.backgroundColor = isError ? '#F44336' : '#306748';
+    notification.style.color = 'white';
+    
+    // Устанавливаем текст и показываем уведомление
+    notification.textContent = message;
+    notification.style.opacity = '1';
+    
+    // Скрываем уведомление через 3 секунды
+    setTimeout(() => {
+      notification.style.opacity = '0';
+    }, 3000);
+  }
+</script>
+</body>
+</html>
