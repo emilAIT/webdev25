@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Admin - Chats</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #222831 0%, #393e46 100%);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+            color: #eeeeee;
+        }
+
+        /* Стили для боковой панели */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(135deg, #222831 0%, #30475e 100%);
+            height: 100vh;
+            overflow-y: auto;
+            border-right: 1px solid rgba(255,255,255,0.1);
+            padding: 0 10px;
+        }
+
+        .header {
+            padding: 20px 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+
+        .header h2 {
+            font-size: 22px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #f2a365;
+        }
+
+        .nav-item {
+            padding: 16px;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            color: #eeeeee;
+            text-decoration: none;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .nav-item:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 15px;
+            background: #30475e;
+            box-shadow: inset 3px 3px 5px rgba(0,0,0,0.2),
+                        inset -3px -3px 5px rgba(255,255,255,0.1);
+            z-index: -1;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item:hover:before {
+            opacity: 1;
+        }
+
+        .nav-item i {
+            margin-right: 15px;
+            font-size: 18px;
+            color: #f2a365;
+        }
+
+        .nav-item.active {
+            color: #ffffff;
+        }
+
+        .nav-item.active:before {
+            opacity: 1;
+            background: linear-gradient(135deg, #f2a365 0%, #f96d00 100%);
+            box-shadow: 3px 3px 5px rgba(0,0,0,0.2),
+                        -3px -3px 5px rgba(255,255,255,0.05);
+        }
+
+        .nav-item.active i {
+            color: #ffffff;
+        }
+
+        /* Стили для основного содержимого */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+            color: #f2a365;
+            font-size: 28px;
+            font-weight: 700;
+            position: relative;
+            display: inline-block;
+        }
+
+        h1:after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 50%;
+            height: 3px;
+            background: linear-gradient(90deg, #f2a365, transparent);
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        /* Статистика верхние карточки */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #30475e;
+            border-radius: 20px;
+            padding: 25px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            box-shadow: 8px 8px 15px rgba(0,0,0,0.2),
+                        -8px -8px 15px rgba(255,255,255,0.05);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card .icon {
+            font-size: 28px;
+            color: #f2a365;
+            margin-bottom: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #30475e 0%, #222831 100%);
+            box-shadow: 5px 5px 10px rgba(0,0,0,0.2),
+                        -5px -5px 10px rgba(255,255,255,0.05);
+        }
+
+        .stat-card h2 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .stat-card p {
+            color: #eeeeee;
+            margin: 0;
+            font-size: 16px;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #f2a365, #f96d00);
+        }
+
+        /* Стили для списка чатов */
+        .chats-container {
+            background: #30475e;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 8px 8px 15px rgba(0,0,0,0.2),
+                        -8px -8px 15px rgba(255,255,255,0.05);
+        }
+
+        .search-container {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+        }
+
+        .search-container input {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 15px 0 0 15px;
+            background: #222831;
+            color: #eeeeee;
+            font-size: 15px;
+            outline: none;
+            box-shadow: inset 3px 3px 5px rgba(0,0,0,0.2),
+                       inset -3px -3px 5px rgba(255,255,255,0.05);
+        }
+
+        .search-container input::placeholder {
+            color: rgba(238, 238, 238, 0.5);
+        }
+
+        .chat-list {
+            padding: 0;
+        }
+        
+        .chat-item {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .chat-item:hover {
+            background: linear-gradient(90deg, rgba(242, 163, 101, 0.05) 0%, transparent 100%);
+            transform: translateX(5px);
+        }
+
+        .chat-avatar {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            margin-right: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #f2a365;
+            font-weight: bold;
+            font-size: 18px;
+            background: linear-gradient(135deg, #30475e 0%, #222831 100%);
+            box-shadow: 5px 5px 10px rgba(0,0,0,0.2),
+                        -5px -5px 10px rgba(255,255,255,0.05);
+        }
+
+        .chat-info {
+            flex-grow: 1;
+            overflow: hidden;
+        }
+
+        .chat-name {
+            font-weight: 700;
+            margin-bottom: 5px;
+            font-size: 16px;
+            color: #ffffff;
+        }
+
+        .chat-preview {
+            color: #aaaaaa;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 14px;
+        }
+
+        .chat-meta {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            min-width: 80px;
+        }
+
+        .chat-time {
+            color: #f2a365;
+            font-size: 13px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .chat-count {
+            background: linear-gradient(135deg, #f2a365 0%, #f96d00 100%);
+            color: white;
+            border-radius: 20px;
+            padding: 3px 10px;
+            font-size: 12px;
+            font-weight: 700;
+            min-width: 30px;
+            text-align: center;
+            box-shadow: 3px 3px 5px rgba(0,0,0,0.2);
+        }
+
+        .chat-group-avatar {
+            background: linear-gradient(135deg, #30475e 0%, #222831 100%);
+            color: #f2a365;
+        }
+
+        /* Табы для переключения между разными типами чатов */
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            background: #222831;
+            border-radius: 15px;
+            padding: 8px;
+            box-shadow: inset 3px 3px 5px rgba(0,0,0,0.2),
+                       inset -3px -3px 5px rgba(255,255,255,0.05);
+        }
+
+        .tab {
+            padding: 12px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-right: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .tab:hover {
+            background: rgba(242, 163, 101, 0.1);
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #f2a365 0%, #f96d00 100%);
+            color: white;
+            box-shadow: 3px 3px 5px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="header">
+            <h2>Чат Башкаруу</h2>
+        </div>
+        <a href="{{ url_for('admin') }}" class="nav-item">
+            <i class="fas fa-tachometer-alt"></i> Башкы
+        </a>
+        <a href="{{ url_for('admin_users') }}" class="nav-item">
+            <i class="fas fa-users"></i> Колдонуучулар
+        </a>
+        <a href="{{ url_for('admin_chats') }}" class="nav-item active">
+            <i class="fas fa-comments"></i> Чаттар
+        </a>
+        <a href="{{ url_for('admin_groups') }}" class="nav-item">
+            <i class="fas fa-user-friends"></i> Топтор
+        </a>
+        <a href="{{ url_for('chat') }}" class="nav-item">
+            <i class="fas fa-arrow-left"></i> Чатка кайтуу
+        </a>
+    </div>
+
+    <div class="main-content">
+        <div class="dashboard-header">
+            <h1>Чаттар башкаруу</h1>
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="icon">
+                    <i class="fas fa-comment"></i>
+                </div>
+                <h2>{{ total_direct_chats }}</h2>
+                <p>Жеке чаттар</p>
+            </div>
+            <div class="stat-card">
+                <div class="icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h2>{{ total_group_chats }}</h2>
+                <p>Топтук чаттар</p>
+            </div>
+            <div class="stat-card">
+                <div class="icon">
+                    <i class="fas fa-comment-dots"></i>
+                </div>
+                <h2>{{ total_messages }}</h2>
+                <p>Бардык билдирүүлөр</p>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" data-tab="all">Бардык чаттар</div>
+            <div class="tab" data-tab="direct">Жеке чаттар</div>
+            <div class="tab" data-tab="group">Топтук чаттар</div>
+        </div>
+
+        <div class="chats-container">
+            <div class="search-container">
+                <input type="text" id="searchChats" placeholder="Чаттарды издөө...">
+            </div>
+            <div class="chat-list" id="all-chats">
+                {% for chat in all_chats %}
+                    <a href="{{ url_for('admin_chat_view', dialog_id=chat.id) }}" class="chat-item">
+                        {% if 'group' in chat.id %}
+                            <div class="chat-avatar chat-group-avatar">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="chat-info">
+                                <div class="chat-name">{{ chat.group.name }}</div>
+                                <div class="chat-preview">
+                                    {% if chat.last_message %}
+                                        {{ chat.last_message.content[:50] + '...' if chat.last_message.content|length > 50 else chat.last_message.content }}
+                                    {% else %}
+                                        Билдирүүлөр жок
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="chat-meta">
+                                <div class="chat-time">
+                                    {{ chat.last_activity.strftime('%H:%M') if chat.last_activity.date() == now.date() else chat.last_activity.strftime('%d.%m.%Y') }}
+                                </div>
+                                <div class="chat-count">{{ chat.message_count }}</div>
+                            </div>
+                        {% else %}
+                            <div class="chat-avatar">
+                                {{ chat.users[0].username[0]|upper }}{{ chat.users[1].username[0]|upper }}
+                            </div>
+                            <div class="chat-info">
+                                <div class="chat-name">{{ chat.users[0].username }} & {{ chat.users[1].username }}</div>
+                                <div class="chat-preview">
+                                    {% if chat.last_message %}
+                                        {{ chat.last_message.content[:50] + '...' if chat.last_message.content|length > 50 else chat.last_message.content }}
+                                    {% else %}
+                                        Билдирүүлөр жок
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="chat-meta">
+                                <div class="chat-time">
+                                    {{ chat.last_activity.strftime('%H:%M') if chat.last_activity.date() == now.date() else chat.last_activity.strftime('%d.%m.%Y') }}
+                                </div>
+                                <div class="chat-count">{{ chat.message_count }}</div>
+                            </div>
+                        {% endif %}
+                    </a>
+                {% endfor %}
+            </div>
+
+            <div class="chat-list" id="direct-chats" style="display: none;">
+                {% for chat in direct_chats %}
+                    <a href="{{ url_for('admin_chat_view', dialog_id=chat.id) }}" class="chat-item">
+                        <div class="chat-avatar">
+                            {{ chat.users[0].username[0]|upper }}{{ chat.users[1].username[0]|upper }}
+                        </div>
+                        <div class="chat-info">
+                            <div class="chat-name">{{ chat.users[0].username }} & {{ chat.users[1].username }}</div>
+                            <div class="chat-preview">
+                                {% if chat.last_message %}
+                                    {{ chat.last_message.content[:50] + '...' if chat.last_message.content|length > 50 else chat.last_message.content }}
+                                {% else %}
+                                    Билдирүүлөр жок
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="chat-meta">
+                            <div class="chat-time">
+                                {{ chat.last_activity.strftime('%H:%M') if chat.last_activity.date() == now.date() else chat.last_activity.strftime('%d.%m.%Y') }}
+                            </div>
+                            <div class="chat-count">{{ chat.message_count }}</div>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+
+            <div class="chat-list" id="group-chats" style="display: none;">
+                {% for chat in group_chats %}
+                    <a href="{{ url_for('admin_chat_view', dialog_id=chat.id) }}" class="chat-item">
+                        <div class="chat-avatar chat-group-avatar">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="chat-info">
+                            <div class="chat-name">{{ chat.group.name }}</div>
+                            <div class="chat-preview">
+                                {% if chat.last_message %}
+                                    {{ chat.last_message.content[:50] + '...' if chat.last_message.content|length > 50 else chat.last_message.content }}
+                                {% else %}
+                                    Билдирүүлөр жок
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="chat-meta">
+                            <div class="chat-time">
+                                {{ chat.last_activity.strftime('%H:%M') if chat.last_activity.date() == now.date() else chat.last_activity.strftime('%d.%m.%Y') }}
+                            </div>
+                            <div class="chat-count">{{ chat.message_count }}</div>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Переключение между вкладками
+            const tabs = document.querySelectorAll('.tab');
+            const chatLists = {
+                'all': document.getElementById('all-chats'),
+                'direct': document.getElementById('direct-chats'),
+                'group': document.getElementById('group-chats')
+            };
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabType = this.getAttribute('data-tab');
+                    
+                    // Активируем выбранную вкладку
+                    tabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Показываем соответствующий список чатов
+                    Object.keys(chatLists).forEach(key => {
+                        chatLists[key].style.display = key === tabType ? 'block' : 'none';
+                    });
+                });
+            });
+            
+            // Поиск чатов
+            const searchInput = document.getElementById('searchChats');
+            const chatItems = document.querySelectorAll('.chat-item');
+            
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                
+                chatItems.forEach(item => {
+                    const chatName = item.querySelector('.chat-name').textContent.toLowerCase();
+                    const chatPreview = item.querySelector('.chat-preview').textContent.toLowerCase();
+                    
+                    if (chatName.includes(searchTerm) || chatPreview.includes(searchTerm)) {
+                        item.style.display = '';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

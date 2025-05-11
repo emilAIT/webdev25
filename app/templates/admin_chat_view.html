@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Admin - View Chat</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #222831 0%, #393e46 100%);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+            color: #eeeeee;
+        }
+
+        /* Стили для боковой панели */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(135deg, #222831 0%, #30475e 100%);
+            height: 100vh;
+            overflow-y: auto;
+            border-right: 1px solid rgba(255,255,255,0.1);
+            padding: 0 10px;
+        }
+
+        .header {
+            padding: 20px 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+
+        .header h2 {
+            font-size: 22px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #f2a365;
+        }
+
+        .nav-item {
+            padding: 16px;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            color: #eeeeee;
+            text-decoration: none;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .nav-item:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 15px;
+            background: #30475e;
+            box-shadow: inset 3px 3px 5px rgba(0,0,0,0.2),
+                        inset -3px -3px 5px rgba(255,255,255,0.1);
+            z-index: -1;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item:hover:before {
+            opacity: 1;
+        }
+
+        .nav-item i {
+            margin-right: 15px;
+            font-size: 18px;
+            color: #f2a365;
+        }
+
+        .nav-item.active {
+            color: #ffffff;
+        }
+
+        .nav-item.active:before {
+            opacity: 1;
+            background: linear-gradient(135deg, #f2a365 0%, #f96d00 100%);
+            box-shadow: 3px 3px 5px rgba(0,0,0,0.2),
+                        -3px -3px 5px rgba(255,255,255,0.05);
+        }
+
+        .nav-item.active i {
+            color: #ffffff;
+        }
+
+        /* Стили для основного содержимого */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Заголовок чата */
+        .chat-header {
+            padding: 20px;
+            background: #30475e;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .chat-title {
+            display: flex;
+            align-items: center;
+        }
+
+        .chat-title h2 {
+            font-size: 20px;
+            margin-left: 15px;
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        .chat-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #f2a365;
+            font-weight: 700;
+            font-size: 18px;
+            background: linear-gradient(135deg, #30475e 0%, #222831 100%);
+            box-shadow: 5px 5px 10px rgba(0,0,0,0.2),
+                        -5px -5px 10px rgba(255,255,255,0.05);
+        }
+
+        .chat-group-avatar {
+            background: linear-gradient(135deg, #30475e 0%, #222831 100%);
+            color: #f2a365;
+        }
+
+        .back-btn {
+            padding: 10px 18px;
+            background: #222831;
+            color: #f2a365;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 3px 3px 5px rgba(0,0,0,0.2),
+                        -3px -3px 5px rgba(255,255,255,0.05);
+        }
+
+        .back-btn:hover {
+            background: linear-gradient(135deg, #f2a365 0%, #f96d00 100%);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .back-btn i {
+            margin-right: 8px;
+        }
+
+        /* Область сообщений */
+        .messages-container {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #222831;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .message-info {
+            display: flex;
+            flex-direction: column;
+            background: #30475e;
+            border-radius: 15px;
+            padding: 15px;
+            max-width: 70%;
+            box-shadow: 5px 5px 10px rgba(0,0,0,0.2),
+                        -5px -5px 10px rgba(255,255,255,0.05);
+        }
+
+        .message-sender {
+            font-size: 14px;
+            font-weight: 700;
+            color: #f2a365;
+            margin-bottom: 5px;
+        }
+
+        .message-content {
+            font-size: 15px;
+            line-height: 1.5;
+            color: #eeeeee;
+            word-wrap: break-word;
+        }
+
+        .message-time {
+            font-size: 12px;
+            color: rgba(238, 238, 238, 0.6);
+            align-self: flex-end;
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        .sender-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #f2a365;
+            font-weight: 700;
+            font-size: 16px;
+            background: linear-gradient(135deg, #30475e 0%, #222831 100%);
+            box-shadow: 3px 3px 5px rgba(0,0,0,0.2),
+                        -3px -3px 5px rgba(255,255,255,0.05);
+        }
+
+        /* Информация о чате */
+        .chat-info-panel {
+            width: 320px;
+            background: #30475e;
+            border-left: 1px solid rgba(255,255,255,0.1);
+            padding: 25px;
+            overflow-y: auto;
+        }
+
+        .chat-info-header {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            color: #f2a365;
+            position: relative;
+        }
+
+        .chat-info-header::after {
+            content: "";
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 50px;
+            height: 2px;
+            background: #f2a365;
+        }
+
+        .chat-info-section {
+            margin-bottom: 25px;
+        }
+
+        .chat-info-section h3 {
+            font-size: 16px;
+            color: #f2a365;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .chat-members {
+            list-style: none;
+        }
+
+        .chat-member {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .member-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #f2a365;
+            font-weight: 600;
+            background: linear-gradient(135deg, #30475e 0%, #222831 100%);
+            box-shadow: 3px 3px 5px rgba(0,0,0,0.2),
+                        -3px -3px 5px rgba(255,255,255,0.05);
+        }
+
+        .chat-member-name {
+            font-size: 15px;
+            font-weight: 500;
+            color: #eeeeee;
+        }
+
+        .chat-stats {
+            margin-bottom: 20px;
+            background: #222831;
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: inset 3px 3px 5px rgba(0,0,0,0.2),
+                       inset -3px -3px 5px rgba(255,255,255,0.05);
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .stat-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .stat-label {
+            color: #aaaaaa;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            color: #f2a365;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #aaaaaa;
+            padding: 50px 0;
+            background: #222831;
+            border-radius: 15px;
+            margin: 20px 0;
+            font-weight: 500;
+            box-shadow: inset 3px 3px 5px rgba(0,0,0,0.2),
+                       inset -3px -3px 5px rgba(255,255,255,0.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="header">
+            <h2>Чат Башкаруу</h2>
+        </div>
+        <a href="{{ url_for('admin') }}" class="nav-item">
+            <i class="fas fa-tachometer-alt"></i> Башкы
+        </a>
+        <a href="{{ url_for('admin_users') }}" class="nav-item">
+            <i class="fas fa-users"></i> Колдонуучулар
+        </a>
+        <a href="{{ url_for('admin_chats') }}" class="nav-item active">
+            <i class="fas fa-comments"></i> Чаттар
+        </a>
+        <a href="{{ url_for('admin_groups') }}" class="nav-item">
+            <i class="fas fa-user-friends"></i> Топтор
+        </a>
+        <a href="{{ url_for('chat') }}" class="nav-item">
+            <i class="fas fa-arrow-left"></i> Чатка кайтуу
+        </a>
+    </div>
+
+    <div class="main-content">
+        <div class="chat-header">
+            <div class="chat-title">
+                {% if chat_type == 'direct' %}
+                    <div class="chat-avatar">
+                        {{ user1.username[0]|upper }}{{ user2.username[0]|upper }}
+                    </div>
+                    <h2>{{ user1.username }} & {{ user2.username }}</h2>
+                {% else %}
+                    <div class="chat-avatar chat-group-avatar">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h2>{{ group.name }}</h2>
+                {% endif %}
+            </div>
+            <a href="{{ url_for('admin_chats') }}" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Чаттарга кайтуу
+            </a>
+        </div>
+
+        <div class="messages-container">
+            {% for message in messages %}
+                <div class="message">
+                    <div class="sender-avatar">
+                        {{ message.sender.username[0]|upper }}
+                    </div>
+                    <div class="message-info">
+                        <div class="message-sender">{{ message.sender.username }}</div>
+                        <div class="message-content">{{ message.content }}</div>
+                        <div class="message-time">{{ message.created_at.strftime('%d.%m.%Y %H:%M') }}</div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="empty-message">
+                    Бул чатта билдирүүлөр жок.
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="chat-info-panel">
+            <div class="chat-info-header">
+                Чат маалыматы
+            </div>
+            
+            {% if chat_type == 'direct' %}
+                <div class="chat-info-section">
+                    <h3>Катышуучулар</h3>
+                    <ul class="chat-members">
+                        <li class="chat-member">
+                            <div class="member-avatar">{{ user1.username[0]|upper }}</div>
+                            <div class="chat-member-name">{{ user1.username }}</div>
+                        </li>
+                        <li class="chat-member">
+                            <div class="member-avatar">{{ user2.username[0]|upper }}</div>
+                            <div class="chat-member-name">{{ user2.username }}</div>
+                        </li>
+                    </ul>
+                </div>
+            {% else %}
+                <div class="chat-info-section">
+                    <h3>Топ мүчөлөрү</h3>
+                    <ul class="chat-members">
+                        {% for member in group.members %}
+                            <li class="chat-member">
+                                <div class="member-avatar">{{ member.username[0]|upper }}</div>
+                                <div class="chat-member-name">{{ member.username }}</div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+            
+            <div class="chat-stats">
+                <div class="stat-item">
+                    <span class="stat-label">Бардык билдирүүлөр:</span>
+                    <span class="stat-value">{{ messages|length }}</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Түзүлгөн:</span>
+                    <span class="stat-value">
+                        {% if chat_type == 'group' %}
+                            {{ group.created_at.strftime('%d.%m.%Y') }}
+                        {% else %}
+                            {{ messages[0].created_at.strftime('%d.%m.%Y') if messages else 'Жок' }}
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Акыркы активдүүлүк:</span>
+                    <span class="stat-value">
+                        {{ messages[-1].created_at.strftime('%d.%m.%Y %H:%M') if messages else 'Жок' }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

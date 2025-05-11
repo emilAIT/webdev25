@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Admin - Groups</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #222831 0%, #393e46 100%);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+            color: #eeeeee;
+        }
+
+        /* Стили для боковой панели */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(135deg, #222831 0%, #30475e 100%);
+            height: 100vh;
+            overflow-y: auto;
+            border-right: 1px solid rgba(255,255,255,0.1);
+            padding: 0 10px;
+        }
+
+        .header {
+            padding: 20px 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+
+        .header h2 {
+            font-size: 22px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #f2a365;
+        }
+
+        .nav-item {
+            padding: 16px;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            color: #eeeeee;
+            text-decoration: none;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .nav-item:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 15px;
+            background: #30475e;
+            box-shadow: inset 3px 3px 5px rgba(0,0,0,0.2),
+                        inset -3px -3px 5px rgba(255,255,255,0.1);
+            z-index: -1;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item:hover:before {
+            opacity: 1;
+        }
+
+        .nav-item i {
+            margin-right: 15px;
+            font-size: 18px;
+            color: #f2a365;
+        }
+
+        .nav-item.active {
+            color: #ffffff;
+        }
+
+        .nav-item.active:before {
+            opacity: 1;
+            background: linear-gradient(135deg, #f2a365 0%, #f96d00 100%);
+            box-shadow: 3px 3px 5px rgba(0,0,0,0.2),
+                        -3px -3px 5px rgba(255,255,255,0.05);
+        }
+
+        .nav-item.active i {
+            color: #ffffff;
+        }
+
+        /* Стили для основного содержимого */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+            color: #f2a365;
+            font-size: 28px;
+            font-weight: 700;
+            position: relative;
+            display: inline-block;
+        }
+
+        h1:after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 50%;
+            height: 3px;
+            background: linear-gradient(90deg, #f2a365, transparent);
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        /* Статистика верхние карточки */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #30475e;
+            border-radius: 20px;
+            padding: 25px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            box-shadow: 8px 8px 15px rgba(0,0,0,0.2),
+                        -8px -8px 15px rgba(255,255,255,0.05);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card .icon {
+            font-size: 28px;
+            color: #f2a365;
+            margin-bottom: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #30475e 0%, #222831 100%);
+            box-shadow: 5px 5px 10px rgba(0,0,0,0.2),
+                        -5px -5px 10px rgba(255,255,255,0.05);
+        }
+
+        .stat-card h2 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .stat-card p {
+            color: #eeeeee;
+            margin: 0;
+            font-size: 16px;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #f2a365, #f96d00);
+        }
+
+        /* Стили для таблицы групп */
+        .groups-container {
+            background: #30475e;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 8px 8px 15px rgba(0,0,0,0.2),
+                        -8px -8px 15px rgba(255,255,255,0.05);
+        }
+
+        .groups-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .groups-header h2 {
+            font-size: 20px;
+            color: #ffffff;
+            font-weight: 600;
+            position: relative;
+            display: inline-block;
+        }
+
+        .groups-header h2::after {
+            content: "";
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 30%;
+            height: 2px;
+            background: #f2a365;
+        }
+
+        .search-container {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .search-container input {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 15px 0 0 15px;
+            background: #222831;
+            color: #eeeeee;
+            font-size: 15px;
+            outline: none;
+            box-shadow: inset 3px 3px 5px rgba(0,0,0,0.2),
+                       inset -3px -3px 5px rgba(255,255,255,0.05);
+        }
+
+        .search-container input::placeholder {
+            color: rgba(238, 238, 238, 0.5);
+        }
+
+        .search-container button {
+            padding: 0 20px;
+            background: linear-gradient(135deg, #f2a365 0%, #f96d00 100%);
+            color: white;
+            border: none;
+            border-radius: 0 15px 15px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .search-container button:hover {
+            opacity: 0.9;
+        }
+
+        .groups-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+        }
+
+        .groups-table th {
+            text-align: left;
+            padding: 15px;
+            background: rgba(34, 40, 49, 0.5);
+            color: #f2a365;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 14px;
+        }
+
+        .groups-table th:first-child {
+            border-radius: 10px 0 0 10px;
+        }
+
+        .groups-table th:last-child {
+            border-radius: 0 10px 10px 0;
+            text-align: center;
+        }
+
+        .groups-table td {
+            padding: 15px;
+            background: #222831;
+            vertical-align: middle;
+            color: #eeeeee;
+        }
+
+        .groups-table tr td:first-child {
+            border-radius: 10px 0 0 10px;
+        }
+
+        .groups-table tr td:last-child {
+            border-radius: 0 10px 10px 0;
+            text-align: center;
+        }
+
+        .groups-table tr {
+            transition: transform 0.3s ease;
+        }
+
+        .groups-table tr:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .group-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #30475e 0%, #222831 100%);
+            color: #f2a365;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 20px;
+            box-shadow: 3px 3px 5px rgba(0,0,0,0.2),
+                        -3px -3px 5px rgba(255,255,255,0.05);
+        }
+
+        .group-name-cell {
+            display: flex;
+            align-items: center;
+        }
+
+        .view-button {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #f2a365 0%, #f96d00 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 3px 3px 5px rgba(0,0,0,0.2),
+                        -3px -3px 5px rgba(255,255,255,0.05);
+        }
+
+        .view-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 5px 5px 10px rgba(0,0,0,0.3),
+                        -5px -5px 10px rgba(255,255,255,0.08);
+        }
+
+        .creator-cell {
+            display: flex;
+            align-items: center;
+        }
+
+        .creator-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            color: #f2a365;
+            font-weight: 600;
+            font-size: 14px;
+            background: linear-gradient(135deg, #30475e 0%, #222831 100%);
+            box-shadow: 3px 3px 5px rgba(0,0,0,0.2),
+                        -3px -3px 5px rgba(255,255,255,0.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="header">
+            <h2>Чат Башкаруу</h2>
+        </div>
+        <a href="{{ url_for('admin') }}" class="nav-item">
+            <i class="fas fa-tachometer-alt"></i> Башкы
+        </a>
+        <a href="{{ url_for('admin_users') }}" class="nav-item">
+            <i class="fas fa-users"></i> Колдонуучулар
+        </a>
+        <a href="{{ url_for('admin_chats') }}" class="nav-item">
+            <i class="fas fa-comments"></i> Чаттар
+        </a>
+        <a href="{{ url_for('admin_groups') }}" class="nav-item active">
+            <i class="fas fa-user-friends"></i> Топтор
+        </a>
+        <a href="{{ url_for('chat') }}" class="nav-item">
+            <i class="fas fa-arrow-left"></i> Чатка кайтуу
+        </a>
+    </div>
+
+    <div class="main-content">
+        <div class="dashboard-header">
+            <h1>Топторду башкаруу</h1>
+        </div>
+
+        <!-- Статистика по группам -->
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="icon">
+                    <i class="fas fa-user-friends"></i>
+                </div>
+                <h2>{{ total_groups }}</h2>
+                <p>Бардык топтор</p>
+            </div>
+            <div class="stat-card">
+                <div class="icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h2>{{ total_members }}</h2>
+                <p>Бардык мүчөлөр</p>
+            </div>
+            <div class="stat-card">
+                <div class="icon">
+                    <i class="fas fa-comment-alt"></i>
+                </div>
+                <h2>{{ total_messages }}</h2>
+                <p>Топтордогу билдирүүлөр</p>
+            </div>
+        </div>
+
+        <div class="groups-container">
+            <div class="groups-header">
+                <h2>Бардык топтор</h2>
+            </div>
+            
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Топторду издөө...">
+                <button><i class="fas fa-search"></i></button>
+            </div>
+            
+            <table class="groups-table">
+                <thead>
+                    <tr>
+                        <th>Топ</th>
+                        <th>Түзүүчү</th>
+                        <th>Мүчөлөр</th>
+                        <th>Билдирүүлөр</th>
+                        <th>Түзүлгөн</th>
+                        <th>Аракеттер</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in group_data %}
+                    <tr>
+                        <td class="group-name-cell">
+                            <div class="group-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            {{ data.group.name }}
+                        </td>
+                        <td class="creator-cell">
+                            {% if data.creator %}
+                                <div class="creator-avatar">
+                                    {{ data.creator.username[0]|upper }}
+                                </div>
+                                {{ data.creator.username }}
+                            {% else %}
+                                Unknown
+                            {% endif %}
+                        </td>
+                        <td>{{ data.members_count }}</td>
+                        <td>{{ data.message_count }}</td>
+                        <td>{{ data.group.created_at.strftime('%d.%m.%Y') }}</td>
+                        <td>
+                            <a href="{{ url_for('admin_group_view', group_id=data.group.id) }}" class="view-button">
+                                Маалыматты көрүү
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Логика для поиска групп
+            const searchInput = document.getElementById('searchInput');
+            const groupsTable = document.querySelector('.groups-table tbody');
+            const groupRows = Array.from(groupsTable.querySelectorAll('tr'));
+            
+            searchInput.addEventListener('keyup', function() {
+                const searchTerm = this.value.toLowerCase();
+                
+                groupRows.forEach(row => {
+                    const groupName = row.querySelector('.group-name-cell').textContent.toLowerCase();
+                    const creatorName = row.querySelector('.creator-cell').textContent.toLowerCase();
+                    
+                    if (groupName.includes(searchTerm) || creatorName.includes(searchTerm)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

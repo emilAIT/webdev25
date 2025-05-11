@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Кирүү</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -97,6 +98,17 @@
             color: #4285f4;
             text-decoration: none;
         }
+        
+        .admin-link {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        
+        .admin-link a {
+            color: #666;
+            text-decoration: none;
+        }
     </style>
 </head>
 <body>
@@ -127,6 +139,10 @@
         
         <div class="form-footer">
             <p>Аккаунтуңуз жокпу? <a href="{{ url_for('register') }}">Катталуу</a></p>
+        </div>
+        
+        <div class="admin-link">
+            <a href="{{ url_for('admin') }}">Администратор панели</a>
         </div>
     </div>
 </body>

@@ -412,21 +412,21 @@
         
         <div class="group-actions">
             <button class="action-btn leave-btn" onclick="showConfirmation('leave')">
-                <i class="fas fa-sign-out-alt"></i> Группадан чыгуу
+                <i class="fas fa-sign-out-alt"></i> Leave the group
             </button>
             
             <button class="action-btn delete-btn" onclick="showConfirmation('delete')">
-                <i class="fas fa-trash-alt"></i> Группаны жоюу
+                <i class="fas fa-trash-alt"></i> Delete a group
             </button>
             
             <button class="add-members-btn" onclick="addMembers('{{ group.id }}')">
-                <i class="fas fa-user-plus"></i> Контакттарды кошуу
+                <i class="fas fa-user-plus"></i> Add members
             </button>
         </div>
         
         <div class="members-section">
             <div class="members-title">
-                Контакттар <span class="members-count">{{ members|length }}</span>
+                Members <span class="members-count">{{ members|length }}</span>
             </div>
             
             <ul class="members-list">
@@ -439,7 +439,7 @@
                             <div class="member-name">{{ member.username }}</div>
                         </div>
                         {% if member.id == group.creator_id %}
-                            <div class="member-admin">Админ</div>
+                            <div class="member-admin">Admin</div>
                         {% endif %}
                     </li>
                 {% endfor %}

@@ -350,7 +350,7 @@
             </div>
             
             <form method="POST" class="contact-name-form">
-                <label for="contact_name" class="contact-info-label">Контакттын аты:</label>
+                <label for="contact_name" class="contact-info-label">Contact name:</label>
                 <input type="text" id="contact_name" name="contact_name" class="contact-name-input" 
                        value="{{ contact.username }}" placeholder="Контакттын аты">
                 <button type="submit" class="save-btn">Сактоо</button>
@@ -385,8 +385,8 @@
             <h3 class="modal-title">Delete Contact</h3>
             <p class="modal-text">Are you sure you want to delete this contact? This action cannot be undone.</p>
             <div class="modal-buttons">
-                <button class="modal-btn cancel-btn" onclick="hideConfirmation()">Жокко чыгаруу</button>
-                <button class="modal-btn confirm-btn" onclick="deleteContact('{{ contact.id }}')">Очуруу</button>
+                <button class="modal-btn cancel-btn" onclick="hideConfirmation()">Cancel</button>
+                <button class="modal-btn confirm-btn" onclick="deleteContact('{{ contact.id }}')">Delete</button>
             </div>
         </div>
     </div>

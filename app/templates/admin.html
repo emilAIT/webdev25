@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #222831 0%, #393e46 100%);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+            color: #eeeeee;
+        }
+
+        /* Стили для боковой панели */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(135deg, #222831 0%, #30475e 100%);
+            height: 100vh;
+            overflow-y: auto;
+            border-right: 1px solid rgba(255,255,255,0.1);
+            padding: 0 10px;
+        }
+
+        .header {
+            padding: 20px 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+
+        .header h2 {
+            font-size: 22px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #f2a365;
+        }
+
+        .nav-item {
+            padding: 16px;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            color: #eeeeee;
+            text-decoration: none;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .nav-item:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 15px;
+            background: #30475e;
+            box-shadow: inset 3px 3px 5px rgba(0,0,0,0.2),
+                        inset -3px -3px 5px rgba(255,255,255,0.1);
+            z-index: -1;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item:hover:before {
+            opacity: 1;
+        }
+
+        .nav-item i {
+            margin-right: 15px;
+            font-size: 18px;
+            color: #f2a365;
+        }
+
+        .nav-item.active {
+            color: #ffffff;
+        }
+
+        .nav-item.active:before {
+            opacity: 1;
+            background: linear-gradient(135deg, #f2a365 0%, #f96d00 100%);
+            box-shadow: 3px 3px 5px rgba(0,0,0,0.2),
+                        -3px -3px 5px rgba(255,255,255,0.05);
+        }
+
+        .nav-item.active i {
+            color: #ffffff;
+        }
+
+        /* Стили для основного содержимого */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+            color: #f2a365;
+            font-size: 28px;
+            font-weight: 700;
+            position: relative;
+            display: inline-block;
+        }
+
+        h1:after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 50%;
+            height: 3px;
+            background: linear-gradient(90deg, #f2a365, transparent);
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #30475e;
+            border-radius: 20px;
+            padding: 25px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            box-shadow: 8px 8px 15px rgba(0,0,0,0.2),
+                        -8px -8px 15px rgba(255,255,255,0.05);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card .icon {
+            font-size: 28px;
+            color: #f2a365;
+            margin-bottom: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #30475e 0%, #222831 100%);
+            box-shadow: 5px 5px 10px rgba(0,0,0,0.2),
+                        -5px -5px 10px rgba(255,255,255,0.05);
+        }
+
+        .stat-card h2 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .stat-card p {
+            color: #eeeeee;
+            margin: 0;
+            font-size: 16px;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #f2a365, #f96d00);
+        }
+
+        .activity-container {
+            background: #30475e;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 8px 8px 15px rgba(0,0,0,0.2),
+                        -8px -8px 15px rgba(255,255,255,0.05);
+        }
+
+        .activity-header {
+            margin-bottom: 25px;
+            font-size: 20px;
+            color: #ffffff;
+            font-weight: 600;
+            position: relative;
+            display: inline-block;
+        }
+
+        .activity-header::after {
+            content: "";
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 30%;
+            height: 2px;
+            background: #f2a365;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .activity-item:hover {
+            transform: translateX(5px);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+            background: linear-gradient(135deg, #30475e 0%, #222831 100%);
+            box-shadow: 5px 5px 10px rgba(0,0,0,0.2),
+                        -5px -5px 10px rgba(255,255,255,0.05);
+        }
+
+        .activity-icon i {
+            color: #f2a365;
+            font-size: 20px;
+        }
+
+        .activity-details {
+            flex: 1;
+            color: #eeeeee;
+            font-size: 15px;
+        }
+
+        .activity-time {
+            color: #f2a365;
+            font-size: 14px;
+            text-align: right;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="header">
+            <h2>Чат Башкаруу</h2>
+        </div>
+        <a href="{{ url_for('admin') }}" class="nav-item active">
+            <i class="fas fa-tachometer-alt"></i> Башкы
+        </a>
+        <a href="{{ url_for('admin_users') }}" class="nav-item">
+            <i class="fas fa-users"></i> Колдонуучулар
+        </a>
+        <a href="{{ url_for('admin_chats') }}" class="nav-item">
+            <i class="fas fa-comments"></i> Чаттар
+        </a>
+        <a href="{{ url_for('admin_groups') }}" class="nav-item">
+            <i class="fas fa-user-friends"></i> Топтор
+        </a>
+        <a href="{{ url_for('chat') }}" class="nav-item">
+            <i class="fas fa-arrow-left"></i> Чатка кайтуу
+        </a>
+    </div>
+
+    <div class="main-content">
+        <div class="dashboard-header">
+            <h1>Башкаруу панели</h1>
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h2>{{ total_users }}</h2>
+                <p>Бардык колдонуучулар</p>
+            </div>
+            <div class="stat-card">
+                <div class="icon">
+                    <i class="fas fa-comment-alt"></i>
+                </div>
+                <h2>{{ total_messages }}</h2>
+                <p>Бардык билдирүүлөр</p>
+            </div>
+            <div class="stat-card">
+                <div class="icon">
+                    <i class="fas fa-comment"></i>
+                </div>
+                <h2>{{ messages_today }}</h2>
+                <p>Бүгүнкү билдирүүлөр</p>
+            </div>
+        </div>
+
+        <div class="activity-container">
+            <div class="activity-header">Акыркы активдүүлүк</div>
+            {% for activity in recent_activity %}
+                <div class="activity-item">
+                    <div class="activity-icon">
+                        {% if activity.type == 'new_chat' %}
+                            <i class="fas fa-comment-dots"></i>
+                        {% elif activity.type == 'new_user' %}
+                            <i class="fas fa-user-plus"></i>
+                        {% endif %}
+                    </div>
+                    <div class="activity-details">
+                        {{ activity.details }}
+                    </div>
+                    <div class="activity-time">
+                        1 күн мурун
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

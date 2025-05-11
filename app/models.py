@@ -28,6 +28,7 @@ class User(db.Model, UserMixin):
     last_name = db.Column(db.String(64))
     password_hash = db.Column(db.String(128), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    is_admin = db.Column(db.Boolean, default=False)
     
     # Катнаштар
     sent_messages = db.relationship('Message', backref='sender', foreign_keys='Message.sender_id')

@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Admin - Group Details</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #222831 0%, #393e46 100%);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+            color: #eeeeee;
+        }
+
+        /* Стили для боковой панели */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(135deg, #222831 0%, #30475e 100%);
+            height: 100vh;
+            overflow-y: auto;
+            border-right: 1px solid rgba(255,255,255,0.1);
+            padding: 0 10px;
+        }
+
+        .header {
+            padding: 20px 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+
+        .header h2 {
+            font-size: 22px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #f2a365;
+        }
+
+        .nav-item {
+            padding: 16px;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            color: #eeeeee;
+            text-decoration: none;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .nav-item:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 15px;
+            background: #30475e;
+            box-shadow: inset 3px 3px 5px rgba(0,0,0,0.2),
+                        inset -3px -3px 5px rgba(255,255,255,0.1);
+            z-index: -1;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item:hover:before {
+            opacity: 1;
+        }
+
+        .nav-item i {
+            margin-right: 15px;
+            font-size: 18px;
+            color: #f2a365;
+        }
+
+        .nav-item.active {
+            color: #ffffff;
+        }
+
+        .nav-item.active:before {
+            opacity: 1;
+            background: linear-gradient(135deg, #f2a365 0%, #f96d00 100%);
+            box-shadow: 3px 3px 5px rgba(0,0,0,0.2),
+                        -3px -3px 5px rgba(255,255,255,0.05);
+        }
+
+        .nav-item.active i {
+            color: #ffffff;
+        }
+
+        /* Стили для основного содержимого */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Заголовок группы */
+        .group-header {
+            padding: 20px;
+            background: #30475e;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .group-title {
+            display: flex;
+            align-items: center;
+        }
+
+        .group-title h2 {
+            font-size: 20px;
+            margin-left: 15px;
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        .group-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #f2a365;
+            font-weight: 700;
+            font-size: 20px;
+            background: linear-gradient(135deg, #30475e 0%, #222831 100%);
+            box-shadow: 5px 5px 10px rgba(0,0,0,0.2),
+                        -5px -5px 10px rgba(255,255,255,0.05);
+        }
+
+        .back-btn {
+            padding: 10px 18px;
+            background: #222831;
+            color: #f2a365;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 3px 3px 5px rgba(0,0,0,0.2),
+                        -3px -3px 5px rgba(255,255,255,0.05);
+        }
+
+        .back-btn:hover {
+            background: linear-gradient(135deg, #f2a365 0%, #f96d00 100%);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .back-btn i {
+            margin-right: 8px;
+        }
+
+        /* Основной контент группы */
+        .group-content {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Левая колонка - информация о группе и участники */
+        .group-info {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .info-section {
+            background: #30475e;
+            border-radius: 20px;
+            box-shadow: 8px 8px 15px rgba(0,0,0,0.2),
+                        -8px -8px 15px rgba(255,255,255,0.05);
+            margin-bottom: 25px;
+            padding: 25px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #f2a365;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 50%;
+            height: 2px;
+            background: #f2a365;
+        }
+
+        .info-item {
+            display: flex;
+            margin-bottom: 15px;
+        }
+
+        .info-label {
+            width: 120px;
+            color: #aaaaaa;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .info-value {
+            flex: 1;
+            font-size: 15px;
+            color: #eeeeee;
+            font-weight: 600;
+        }
+
+        /* Список участников */
+        .members-list {
+            list-style: none;
+        }
+
+        .member-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .member-item:hover {
+            transform: translateX(5px);
+        }
+
+        .member-item:last-child {
+            border-bottom: none;
+        }
+
+        .member-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #f2a365;
+            font-weight: 700;
+            font-size: 16px;
+            background: linear-gradient(135deg, #30475e 0%, #222831 100%);
+            box-shadow: 3px 3px 5px rgba(0,0,0,0.2),
+                        -3px -3px 5px rgba(255,255,255,0.05);
+        }
+
+        .member-details {
+            flex: 1;
+        }
+
+        .member-name {
+            font-weight: 700;
+            margin-bottom: 3px;
+            font-size: 16px;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+        }
+
+        .member-email {
+            color: #aaaaaa;
+            font-size: 14px;
+        }
+
+        .admin-badge {
+            background: linear-gradient(135deg, rgba(242, 163, 101, 0.2) 0%, rgba(249, 109, 0, 0.1) 100%);
+            color: #f2a365;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-left: 10px;
+            font-weight: 600;
+        }
+
+        /* Статистика сообщений */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-box {
+            background: #222831;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: inset 3px 3px 5px rgba(0,0,0,0.2),
+                       inset -3px -3px 5px rgba(255,255,255,0.05);
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #f2a365;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            color: #aaaaaa;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Правая колонка - сообщения */
+        .messages-panel {
+            flex: 1.5;
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid rgba(255,255,255,0.1);
+            background: #222831;
+        }
+
+        .messages-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-weight: 700;
+            color: #f2a365;
+            font-size: 18px;
+        }
+
+        .messages-list {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .message {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #f2a365;
+            font-weight: 700;
+            background: linear-gradient(135deg, #30475e 0%, #222831 100%);
+            box-shadow: 3px 3px 5px rgba(0,0,0,0.2),
+                        -3px -3px 5px rgba(255,255,255,0.05);
+            font-size: 14px;
+        }
+
+        .message-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .message-sender {
+            font-weight: 700;
+            margin-right: 10px;
+            color: #f2a365;
+        }
+
+        .message-time {
+            color: #aaaaaa;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .message-text {
+            background: #30475e;
+            padding: 15px;
+            border-radius: 15px;
+            color: #eeeeee;
+            font-size: 15px;
+            line-height: 1.5;
+            box-shadow: 3px 3px 5px rgba(0,0,0,0.2),
+                        -3px -3px 5px rgba(255,255,255,0.05);
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #aaaaaa;
+            padding: 50px 0;
+            background: #222831;
+            border-radius: 15px;
+            margin: 20px 0;
+            font-weight: 500;
+            box-shadow: inset 3px 3px 5px rgba(0,0,0,0.2),
+                       inset -3px -3px 5px rgba(255,255,255,0.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="header">
+            <h2>Чат Башкаруу</h2>
+        </div>
+        <a href="{{ url_for('admin') }}" class="nav-item">
+            <i class="fas fa-tachometer-alt"></i> Башкы
+        </a>
+        <a href="{{ url_for('admin_users') }}" class="nav-item">
+            <i class="fas fa-users"></i> Колдонуучулар
+        </a>
+        <a href="{{ url_for('admin_chats') }}" class="nav-item">
+            <i class="fas fa-comments"></i> Чаттар
+        </a>
+        <a href="{{ url_for('admin_groups') }}" class="nav-item active">
+            <i class="fas fa-user-friends"></i> Топтор
+        </a>
+        <a href="{{ url_for('chat') }}" class="nav-item">
+            <i class="fas fa-arrow-left"></i> Чатка кайтуу
+        </a>
+    </div>
+
+    <div class="main-content">
+        <div class="group-header">
+            <div class="group-title">
+                <div class="group-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h2>{{ group.name }}</h2>
+            </div>
+            <a href="{{ url_for('admin_groups') }}" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Топторго кайтуу
+            </a>
+        </div>
+
+        <div class="group-content">
+            <div class="group-info">
+                <!-- Основная информация о группе -->
+                <div class="info-section">
+                    <div class="section-title">Топ маалыматы</div>
+                    <div class="info-item">
+                        <div class="info-label">Аты:</div>
+                        <div class="info-value">{{ group.name }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Түзүлгөн:</div>
+                        <div class="info-value">{{ group.created_at.strftime('%d.%m.%Y %H:%M') }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Түзүүчү:</div>
+                        <div class="info-value">{{ creator.username }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Мүчөлөр:</div>
+                        <div class="info-value">{{ members|length }}</div>
+                    </div>
+                </div>
+
+                <!-- Статистика группы -->
+                <div class="info-section">
+                    <div class="section-title">Топ статистикасы</div>
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-value">{{ messages_count }}</div>
+                            <div class="stat-label">Бардык билдирүүлөр</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">{{ members|length }}</div>
+                            <div class="stat-label">Мүчөлөр</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">{{ messages_count // (members|length) if members|length > 0 else 0 }}</div>
+                            <div class="stat-label">Орт. билдирүү/мүчө</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Список наиболее активных участников -->
+                <div class="info-section">
+                    <div class="section-title">Эң активдүү мүчөлөр</div>
+                    {% for member_data in top_members %}
+                        <div class="member-item">
+                            <div class="member-avatar">{{ member_data.user.username[0]|upper }}</div>
+                            <div class="member-details">
+                                <div class="member-name">{{ member_data.user.username }}</div>
+                                <div class="member-email">{{ member_data.user.email }}</div>
+                            </div>
+                            <div style="color: #f2a365; font-weight: 600;">{{ member_data.message_count }} билдирүү</div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Список всех участников группы -->
+                <div class="info-section">
+                    <div class="section-title">Бардык мүчөлөр</div>
+                    <ul class="members-list">
+                        {% for member in members %}
+                            <li class="member-item">
+                                <div class="member-avatar">{{ member.username[0]|upper }}</div>
+                                <div class="member-details">
+                                    <div class="member-name">
+                                        {{ member.username }}
+                                        {% if member.id == creator.id %}
+                                            <span class="admin-badge">Админ</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="member-email">{{ member.email }}</div>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <div class="messages-panel">
+                <div class="messages-header">
+                    Топ билдирүүлөрү ({{ messages|length }})
+                </div>
+                <div class="messages-list">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="message">
+                                <div class="message-avatar">
+                                    {{ message.sender.username[0]|upper }}
+                                </div>
+                                <div class="message-content">
+                                    <div class="message-header">
+                                        <div class="message-sender">{{ message.sender.username }}</div>
+                                        <div class="message-time">{{ message.created_at.strftime('%d.%m.%Y %H:%M') }}</div>
+                                    </div>
+                                    <div class="message-text">{{ message.content }}</div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-message">
+                            Бул топто билдирүүлөр жок.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
