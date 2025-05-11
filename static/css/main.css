@@ -1101,3 +1101,108 @@ body {
 .user-list .chat-item.group-chat .avatar {
     border-radius: 15px; /* Квадратная аватарка для групповых чатов */
 }
+
+/* Добавьте эти стили в конец вашего main.css файла */
+
+/* Стили для переведенных сообщений */
+.message.translated {
+    border-left: 3px solid #4285f4;
+}
+
+.translation-loading {
+    font-style: italic;
+    color: #888;
+}
+
+.translation-indicator {
+    font-size: 0.8em;
+    color: #67a0e5; /* Более заметный цвет */
+    font-style: italic;
+    opacity: 0.9;
+    display: inline-block;
+    margin-left: 5px;
+    padding: 1px 5px;
+    border-radius: 3px;
+    background-color: rgba(66, 133, 244, 0.2);
+}
+
+.message.translated .content {
+    cursor: pointer;
+    position: relative;
+}
+
+.message.translated .content:hover:after {
+    content: "Нажмите для переключения перевода";
+    position: absolute;
+    bottom: -20px;
+    left: 0;
+    background: rgba(74, 144, 226, 0.7);
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+/* Стили для кнопки перевода прямо на сообщении */
+.message .translate-action {
+    background-color: rgba(66, 133, 244, 0.3);
+}
+
+.message .translate-action:hover {
+    background-color: rgba(66, 133, 244, 0.6);
+}
+
+/* Устраняем возможные конфликты стилей */
+.message.translated.translation-active .content {
+    cursor: pointer;
+    border-left: 3px solid #4285f4;
+    padding-left: 5px;
+    color: #e0e0e0; /* Делаем переведенный текст немного светлее */
+}
+
+/* Улучшаем отображение индикатора перевода */
+.translation-indicator {
+    font-size: 0.8em;
+    color: #67a0e5;
+    font-style: italic;
+    opacity: 0.9;
+    display: inline-block;
+    margin-left: 5px;
+    padding: 1px 5px;
+    border-radius: 3px;
+    background-color: rgba(66, 133, 244, 0.2);
+}
+
+/* Стили для контекстного меню перевода */
+#translateOnlyMenu {
+    position: fixed;
+    background-color: #2a334d; /* Меняем на темный фон */
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+    display: none;
+    z-index: 1000;
+    min-width: 150px;
+    padding: 5px 0;
+}
+
+#translateOnlyMenu.active {
+    display: block;
+}
+
+#translateOnlyMenu .context-menu-item {
+    padding: 8px 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    color: white; /* Текст белым цветом */
+}
+
+#translateOnlyMenu .context-menu-item:hover {
+    background-color: #37416a; /* Меняем на темный цвет при наведении */
+}
+
+#translateOnlyMenu .material-icons {
+    margin-right: 8px;
+    font-size: 18px;
+    color: #8a9cc0; /* Светлее для иконок */
+}

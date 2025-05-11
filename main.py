@@ -6,7 +6,11 @@ from api.auth import auth_bp
 from api.user import user_bp, get_user_photo
 from api.chat import chat_bp
 from api.group import group_bp
+from api.admin import admin_bp, is_admin
 from io import BytesIO
+
+# Зарегистрируйте blueprint в приложении:
+
 
 # Инициализация БД
 init_db()
@@ -16,6 +20,7 @@ app = Flask(__name__)
 app.secret_key = os.urandom(24)  # Для работы с сессиями
 
 # Регистрируем блюпринты
+app.register_blueprint(admin_bp)
 app.register_blueprint(auth_bp)
 app.register_blueprint(user_bp)
 app.register_blueprint(chat_bp)
@@ -48,6 +53,12 @@ def chat():
     # Передаем имя пользователя в шаблон
     username = session.get('nickname', 'Пользователь')
     return render_template('main.html', username=username)
+
+@app.route('/admin')
+def admin_panel():
+    # Отключаем проверки для тестирования
+    # ВНИМАНИЕ: В рабочем приложении стоит вернуть проверки безопасности
+    return render_template('admin.html')
 
 @app.route('/main')
 def main_route():

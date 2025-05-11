@@ -225,6 +225,12 @@
     
     <!-- Добавляем контекстное меню для сообщений -->
     <div class="context-menu" id="messageContextMenu">
+        <div class="context-menu-item" id="translateMessageMenuItem">
+            <span class="material-icons">translate</span> Перевести
+        </div>
+        <div class="context-menu-item" id="restoreOriginalMenuItem" style="display: none;">
+            <span class="material-icons">undo</span> Оригинальный текст
+        </div>
         <div class="context-menu-item" id="editMessageMenuItem">
             <span class="material-icons">edit</span> Редактировать
         </div>
@@ -271,6 +277,23 @@
             // Если текущее имя доступно и элемент существует, обновляем его
             if (currentUsername && document.getElementById('currentUserName')) {
                 document.getElementById('currentUserName').textContent = currentUsername;
+            }
+
+            // Добавляем обработчики для кнопок перевода
+            if (document.getElementById('translateMessageMenuItem')) {
+                document.getElementById('translateMessageMenuItem').addEventListener('click', function() {
+                    if (typeof translateMessage === 'function') {
+                        translateMessage();
+                    }
+                });
+            }
+            
+            if (document.getElementById('restoreOriginalMenuItem')) {
+                document.getElementById('restoreOriginalMenuItem').addEventListener('click', function() {
+                    if (typeof restoreOriginalMessage === 'function') {
+                        restoreOriginalMessage();
+                    }
+                });
             }
         });
     </script>

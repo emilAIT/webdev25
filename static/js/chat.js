@@ -482,6 +482,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="message-action delete-action" title="Удалить">
                             <span class="material-icons">delete</span>
                         </div>
+                        <div class="message-action translate-action" title="Перевести">
+                            <span class="material-icons">translate</span>
+                        </div>
                     </div>` : ''}
             `;
             
@@ -494,6 +497,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 messageElement.querySelector('.delete-action').addEventListener('click', function() {
                     contextMenuTargetMessage = msg.id;
                     deleteMessage();
+                });
+                
+                // Добавляем кнопку перевода прямо на сообщение
+                messageElement.querySelector('.translate-action').addEventListener('click', function() {
+                    contextMenuTargetMessage = msg.id;
+                    translateMessage();
                 });
             }
             
@@ -669,13 +678,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
         } else if (messageItem) {
-            if (messageItem.classList.contains('sent')) {
-                const messageId = messageItem.getAttribute('data-message-id');
-                if (messageId) {
-                    contextMenuTargetMessage = messageId;
+            const messageId = messageItem.getAttribute('data-message-id');
+            if (messageId) {
+                contextMenuTargetMessage = messageId;
+                // Показываем полное меню для своих сообщений (включая перевод)
+                if (messageItem.classList.contains('sent')) {
                     showMessageContextMenu(event.clientX, event.clientY);
-                    return;
+                } else {
+                    // Для чужих сообщений показываем упрощенное меню с переводом
+                    showTranslateContextMenu(event.clientX, event.clientY);
                 }
+                return;
             }
         } else if (memberItem) {
             const memberId = memberItem.getAttribute('data-user-id');
@@ -704,6 +717,14 @@ document.addEventListener('DOMContentLoaded', function() {
     function showChatContextMenu(x, y) {
         if (!chatContextMenu) return;
         
+        // Проверяем, чтобы меню не выходило за пределы окна справа
+        const menuWidth = chatContextMenu.offsetWidth || 150;
+        const windowWidth = window.innerWidth;
+        
+        if (x + menuWidth > windowWidth) {
+            x = windowWidth - menuWidth - 10;
+        }
+        
         chatContextMenu.style.left = `${x}px`;
         chatContextMenu.style.top = `${y}px`;
         chatContextMenu.classList.add('active');
@@ -712,17 +733,205 @@ document.addEventListener('DOMContentLoaded', function() {
     function showMessageContextMenu(x, y) {
         if (!messageContextMenu) return;
         
+        // Проверяем, переведено ли сообщение
+        const messageElement = document.querySelector(`.message[data-message-id="${contextMenuTargetMessage}"]`);
+        const translateItem = document.getElementById('translateMessageMenuItem');
+        const restoreItem = document.getElementById('restoreOriginalMenuItem');
+        
+        // Всегда показываем пункт перевода для всех сообщений, включая собственные
+        if (messageElement && messageElement.classList.contains('translation-active')) {
+            // Если перевод активен, показываем опцию возврата к оригиналу
+            translateItem.style.display = 'none';
+            restoreItem.style.display = 'flex';
+        } else {
+            // Если перевод не активен, показываем опцию перевода
+            translateItem.style.display = 'flex';
+            restoreItem.style.display = 'none';
+        }
+        
+        // Проверяем, чтобы меню не выходило за пределы окна справа
+        const menuWidth = messageContextMenu.offsetWidth || 180; // Примерная ширина если ещё не отрисовано
+        const windowWidth = window.innerWidth;
+        
+        // Если меню выходит за правый край - отображаем левее
+        if (x + menuWidth > windowWidth) {
+            x = windowWidth - menuWidth - 10; // 10px отступ от края окна
+        }
+        
         messageContextMenu.style.left = `${x}px`;
         messageContextMenu.style.top = `${y}px`;
         messageContextMenu.classList.add('active');
     }
     
+    function showTranslateContextMenu(x, y) {
+        // Создаем упрощенное контекстное меню только для перевода
+        let translateMenu = document.getElementById('translateOnlyMenu');
+        
+        if (!translateMenu) {
+            translateMenu = document.createElement('div');
+            translateMenu.id = 'translateOnlyMenu';
+            translateMenu.className = 'context-menu';
+            
+            const translateItem = document.createElement('div');
+            translateItem.className = 'context-menu-item';
+            translateItem.id = 'translateOnlyMenuItem';
+            translateItem.innerHTML = '<span class="material-icons">translate</span> Перевести';
+            translateItem.addEventListener('click', translateMessage);
+            
+            const restoreItem = document.createElement('div');
+            restoreItem.className = 'context-menu-item';
+            restoreItem.id = 'restoreOnlyMenuItem';
+            restoreItem.innerHTML = '<span class="material-icons">undo</span> Оригинальный текст';
+            restoreItem.addEventListener('click', restoreOriginalMessage);
+            restoreItem.style.display = 'none';
+            
+            translateMenu.appendChild(translateItem);
+            translateMenu.appendChild(restoreItem);
+            document.body.appendChild(translateMenu);
+        }
+        
+        // Проверяем, переведено ли сообщение
+        const messageElement = document.querySelector(`.message[data-message-id="${contextMenuTargetMessage}"]`);
+        const translateItem = document.getElementById('translateOnlyMenuItem');
+        const restoreItem = document.getElementById('restoreOnlyMenuItem');
+        
+        if (messageElement && messageElement.classList.contains('translation-active')) {
+            translateItem.style.display = 'none';
+            restoreItem.style.display = 'flex';
+        } else {
+            translateItem.style.display = 'flex';
+            restoreItem.style.display = 'none';
+        }
+        
+        // Проверяем, чтобы меню не выходило за пределы окна справа
+        const menuWidth = translateMenu.offsetWidth || 160; // Примерная ширина
+        const windowWidth = window.innerWidth;
+        
+        // Если меню выходит за правый край - отображаем левее
+        if (x + menuWidth > windowWidth) {
+            x = windowWidth - menuWidth - 10; // 10px отступ от края окна
+        }
+        
+        translateMenu.style.left = `${x}px`;
+        translateMenu.style.top = `${y}px`;
+        translateMenu.classList.add('active');
+    }
+    
     function showGroupMemberContextMenu(x, y) {
         if (!groupMemberContextMenu) return;
+        
+        // Проверяем, чтобы меню не выходило за пределы окна справа
+        const menuWidth = groupMemberContextMenu.offsetWidth || 200;
+        const windowWidth = window.innerWidth;
+        
+        if (x + menuWidth > windowWidth) {
+            x = windowWidth - menuWidth - 10;
+        }
         
         groupMemberContextMenu.style.left = `${x}px`;
         groupMemberContextMenu.style.top = `${y}px`;
         groupMemberContextMenu.classList.add('active');
+    }
+    
+    function translateMessage() {
+        if (!contextMenuTargetMessage) return;
+        
+        const messageElement = document.querySelector(`.message[data-message-id="${contextMenuTargetMessage}"]`);
+        if (!messageElement) return;
+        
+        const contentElement = messageElement.querySelector('.content');
+        // Получаем текст без индикаторов
+        let originalText = contentElement.textContent
+            .replace(/ \(ред\.\)/g, '')
+            .replace(/ \(переведено\)/g, '');
+        
+        // Сохраняем оригинальное содержимое при первом переводе
+        if (!messageElement.hasAttribute('data-original-text')) {
+            messageElement.setAttribute('data-original-text', contentElement.innerHTML);
+        }
+        
+        // Показываем индикатор загрузки
+        contentElement.innerHTML = '<span class="translation-loading">Перевод...</span>';
+        
+        // Вызываем API перевода
+        fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=ru&dt=t&q=${encodeURIComponent(originalText)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data && data[0] && data[0][0] && data[0][0][0]) {
+                    const translatedText = data[0][0][0];
+                    
+                    // Сохраняем перевод для будущего использования
+                    const translationHTML = translatedText + 
+                        '<span class="translation-indicator"> (переведено)</span>';
+                    messageElement.setAttribute('data-last-translation', translationHTML);
+                    
+                    // Обновляем контент с переведенным текстом
+                    contentElement.innerHTML = translationHTML;
+                    
+                    // Добавляем классы переведенному сообщению
+                    messageElement.classList.add('translated');
+                    messageElement.classList.add('translation-active');
+                    
+                    // Добавляем обработчик для возвращения к оригиналу по клику
+                    contentElement.removeEventListener('click', onTranslatedMessageClick);
+                    contentElement.addEventListener('click', onTranslatedMessageClick);
+                } else {
+                    // В случае ошибки возвращаем оригинальный контент
+                    contentElement.innerHTML = messageElement.getAttribute('data-original-text') || originalText;
+                    alert('Не удалось перевести сообщение.');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при переводе сообщения:', error);
+                contentElement.innerHTML = messageElement.getAttribute('data-original-text') || originalText;
+                alert('Произошла ошибка при переводе сообщения');
+            });
+            
+        hideContextMenus();
+    }
+    
+    // Отдельная функция для обработки клика по переведенному сообщению
+    function onTranslatedMessageClick(e) {
+        const messageElement = findParentElementByClass(e.target, '.message');
+        if (messageElement && messageElement.hasAttribute('data-original-text')) {
+            e.stopPropagation(); // Предотвращаем другие действия по клику
+            toggleTranslation(messageElement);
+        }
+    }
+    
+    function restoreOriginalMessage() {
+        if (!contextMenuTargetMessage) return;
+        
+        const messageElement = document.querySelector(`.message[data-message-id="${contextMenuTargetMessage}"]`);
+        if (!messageElement || !messageElement.hasAttribute('data-original-text')) return;
+        
+        toggleTranslation(messageElement);
+        hideContextMenus();
+    }
+    
+    function toggleTranslation(messageElement) {
+        if (!messageElement) return;
+        
+        const contentElement = messageElement.querySelector('.content');
+        
+        if (messageElement.classList.contains('translation-active')) {
+            // Если перевод активен, вернуть оригинал
+            contentElement.innerHTML = messageElement.getAttribute('data-original-text');
+            messageElement.classList.remove('translation-active');
+        } else {
+            // Если показан оригинал, показать перевод
+            const lastTranslation = messageElement.getAttribute('data-last-translation');
+            
+            if (lastTranslation) {
+                // Если уже есть перевод, используем его
+                contentElement.innerHTML = lastTranslation;
+                messageElement.classList.add('translation-active');
+            } else {
+                // Иначе делаем новый перевод
+                contextMenuTargetMessage = messageElement.getAttribute('data-message-id');
+                translateMessage();
+            }
+        }
     }
     
     function hideContextMenus() {
@@ -1182,5 +1391,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         hideContextMenus();
+    }
+    
+    // Добавляем эту функцию для перевода сообщения из любого места в коде
+    function translateMessageById(messageId) {
+        contextMenuTargetMessage = messageId;
+        translateMessage();
     }
 });

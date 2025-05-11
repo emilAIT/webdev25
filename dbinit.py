@@ -31,6 +31,14 @@ def init_db():
     )
     ''')
     
+    # Add is_admin column if it doesn't exist
+    if not column_exists(conn, 'users', 'is_admin'):
+        try:
+            cursor.execute('ALTER TABLE users ADD COLUMN is_admin BOOLEAN DEFAULT 0')
+            print("Added is_admin column to users table")
+        except sqlite3.Error as e:
+            print(f"Error adding is_admin column: {e}")
+    
     # Create chats table (основная таблица для всех типов чатов)
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS chats (
