@@ -455,14 +455,64 @@ document.addEventListener('DOMContentLoaded', function() {
                 throw new Error('Failed to fetch group members');
             }
             return response.json();
-        })
-        .then(members => {
-            console.log('Group members loaded:', members);
+        })        .then(members => {
+            console.log('Group members loaded:', members);            // Get the current user ID from API response with multiple fallback strategies
+            let isAdmin = false;
             
-            // Check if current user is an admin
-            const currentUsername = document.querySelector('.profile-username')?.textContent || '';
-            const currentUserData = members.find(member => member.username === currentUsername);
-            const isAdmin = currentUserData ? currentUserData.is_admin : false;
+            // Method 1: Try to get current user ID from groupDetailsData (most reliable)
+            const currentUserId = groupDetailsData.current_user_id;
+            console.log('Method 1 - Current user ID from API:', currentUserId);
+            
+            if (currentUserId) {
+                // Use the current user ID to find yourself in the members list
+                const currentUserData = members.find(member => member.id === currentUserId);
+                isAdmin = currentUserData ? currentUserData.is_admin : false;
+                console.log('Method 1 - Current user data:', currentUserData);
+                console.log('Method 1 - Admin check result:', isAdmin);
+            }
+            
+            // Method 2: Try getting username from editProfileMenuItem which contains the real username
+            if (!isAdmin) {
+                const editProfileMenuItem = document.getElementById('editProfileMenuItem');
+                const realUsername = editProfileMenuItem ? editProfileMenuItem.textContent.trim() : '';
+                console.log('Method 2 - Username from editProfileMenuItem:', realUsername);
+                
+                if (realUsername) {
+                    const currentUserData = members.find(member => member.username === realUsername);
+                    if (currentUserData) {
+                        isAdmin = currentUserData.is_admin;
+                        console.log('Method 2 - Current user data:', currentUserData);
+                        console.log('Method 2 - Admin check result:', isAdmin);
+                    }
+                }
+            }
+            
+            // Method 3: Last resort - try getting username from profile-name element
+            if (!isAdmin) {
+                const currentUsername = document.querySelector('.profile-name')?.textContent.trim() || '';
+                console.log('Method 3 - Username from profile-name:', currentUsername);
+                
+                if (currentUsername && currentUsername !== 'Chat') {
+                    const currentUserData = members.find(member => member.username === currentUsername);
+                    if (currentUserData) {
+                        isAdmin = currentUserData.is_admin;
+                        console.log('Method 3 - Current user data:', currentUserData);
+                        console.log('Method 3 - Admin check result:', isAdmin);
+                    }
+                }
+            }
+            
+            // Method 4: If all else fails and we're in debug mode, look for any admin in the list
+            if (!isAdmin && members.some(m => m.is_admin)) {
+                // Find and log all admins to help with debugging
+                const admins = members.filter(m => m.is_admin);
+                console.log('Method 4 - All admins in group:', admins);
+                
+                // Don't automatically set isAdmin to true, just log the information
+                console.log('Note: Found admin users but could not confirm if current user is one of them');
+            }
+            
+            console.log('Final admin status determination:', isAdmin);
                 
             // Show the chat content
             if (chatContent.style.display !== 'flex') {
