@@ -767,12 +767,22 @@ document.addEventListener('DOMContentLoaded', function() {
                             document.removeEventListener('click', closeGroupContextMenu);
                         }
                     });
-                });
-            }
-              // Setup member context menu functionality
-            const groupMembers = document.querySelectorAll('.group-details-member');
-            groupMembers.forEach(member => {
-                member.addEventListener('contextmenu', (e) => {
+                });            }              // Setup member context menu functionality using event delegation
+            // Instead of attaching events to each member individually, use event delegation
+            const membersList = document.querySelector('.group-details-members-list');
+            if (membersList) {
+                // Remove any previous listener to avoid duplicates
+                membersList.removeEventListener('contextmenu', handleMemberContextMenu);
+                
+                // Add a single event listener to the parent container
+                membersList.addEventListener('contextmenu', handleMemberContextMenu);
+                
+                // Context menu handler function
+                function handleMemberContextMenu(e) {
+                    // Find if a member was clicked
+                    const member = e.target.closest('.group-details-member');
+                    if (!member) return; // Not a member element
+                    
                     e.preventDefault();
                     
                     const memberId = member.getAttribute('data-member-id');
@@ -780,6 +790,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     if (!memberId) {
                         console.error('Member ID not found');
+                        return;
+                    }
+                    
+                    // Check if current user is admin - only show admin options if true
+                    if (!isAdmin) {
+                        console.log('User is not an admin, not showing member management menu');
                         return;
                     }
                     
@@ -792,7 +808,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     menu.style.position = 'absolute';
                     menu.style.left = `${e.pageX}px`;
                     menu.style.top = `${e.pageY}px`;
-                    
+                    menu.style.zIndex = '1000'; // Ensure menu is above other elements                    
                     menu.innerHTML = `
                         <button class="menu-button delete-member">
                             Delete
@@ -802,7 +818,96 @@ document.addEventListener('DOMContentLoaded', function() {
                         </button>
                     `;
                     
+                    // Apply some basic styling to make sure menu is visible
+                    Object.assign(menu.style, {
+                        background: '#353C46',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.2)',
+                        overflow: 'hidden',
+                        minWidth: '150px',
+                        color: '#FFFFFF',
+                        padding: '5px 0'
+                    });
+                    
+                    // Style the buttons
+                    menu.querySelectorAll('.menu-button').forEach(button => {
+                        Object.assign(button.style, {
+                            background: 'transparent',
+                            border: 'none',
+                            color: '#FFFFFF',
+                            padding: '8px 12px',
+                            width: '100%',
+                            textAlign: 'left',
+                            cursor: 'pointer',
+                            display: 'block'
+                        });
+                        
+                        // Hover effect
+                        button.addEventListener('mouseover', () => {
+                            button.style.background = '#4A515D';
+                        });
+                        
+                        button.addEventListener('mouseout', () => {
+                            button.style.background = 'transparent';
+                        });
+                    });
+                    
                     document.body.appendChild(menu);
+                    
+                    // Add event listener for delete member button
+                    const deleteButton = menu.querySelector('.delete-member');
+                    if (deleteButton) {
+                        deleteButton.addEventListener('click', () => {
+                            // Hide the menu
+                            menu.remove();
+                            
+                            // Confirm before deletion
+                            if (confirm(`Are you sure you want to remove ${memberName} from this group?`)) {
+                                // Delete the member using API
+                                fetch(`/api/rooms/${roomId}/members/${memberId}`, {
+                                    method: 'DELETE'
+                                })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        if (response.status === 403) {
+                                            throw new Error('Only group admins can remove members');
+                                        } else {
+                                            throw new Error('Failed to remove member');
+                                        }
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    console.log('Member removed:', data);
+                                    
+                                    // Remove the member from the UI
+                                    member.remove();
+                                    
+                                    // Update the member count
+                                    const memberCountElement = document.querySelector('.group-details-members-count');
+                                    if (memberCountElement) {
+                                        const currentCount = parseInt(memberCountElement.textContent);
+                                        if (!isNaN(currentCount)) {
+                                            memberCountElement.textContent = `${currentCount - 1} members`;
+                                        }
+                                    }
+                                    
+                                    // Show success message
+                                    alert(`${memberName} has been removed from the group.`);
+                                })
+                                .catch(error => {
+                                    console.error('Error removing member:', error);
+                                    alert(error.message || 'Failed to remove member. Please try again.');
+                                });
+                            }
+                        });
+                    }
+                    
+                    // Add event listener for make admin button
+                    const makeAdminButton = menu.querySelector('.make-admin');
+                    if (makeAdminButton) {
+                        // To be implemented later
+                    }
                     
                     // Close menu when clicking outside
                     document.addEventListener('click', function closeMenu(event) {
@@ -811,8 +916,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             document.removeEventListener('click', closeMenu);
                         }
                     });
-                });
-            });        })
+                }
+            }})
         .catch(error => {
             console.error('Error loading group details or members:', error);
             
