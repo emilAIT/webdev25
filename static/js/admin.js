@@ -266,20 +266,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${user.nickname}</td>
                 <td>${user.email}</td>
                 <td>${user.created_at}</td>
-                <td>${user.last_login_at || 'Никогда'}</td>
-                <td>${statusIndicator}</td>
                 <td>${user.message_count}</td>
                 <td>
-                    <button class="action-btn edit-user-btn" data-id="${user.id}" title="Редактировать">
-                        <span class="material-icons">edit</span>
-                    </button>
+
                 </td>
             `;
             
             // Добавляем обработчики для кнопок
-            row.querySelector('.edit-user-btn').addEventListener('click', () => {
-                openEditUserModal(user);
-            });
+        
             
             usersTable.appendChild(row);
         });
