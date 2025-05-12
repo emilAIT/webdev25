@@ -328,19 +328,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${chatInfo}</td>
                 <td>${message.created_at}</td>
                 <td>
-                    <button class="action-btn delete-message-btn" data-id="${message.id}" title="Удалить">
-                        <span class="material-icons">delete</span>
-                    </button>
+
                 </td>
             `;
             
             // Добавляем обработчики для кнопок
-            row.querySelector('.delete-message-btn').addEventListener('click', () => {
-                showDeleteConfirmation(
-                    `Вы уверены, что хотите удалить сообщение от ${message.sender.nickname}?`,
-                    () => deleteMessage(message.id)
-                );
-            });
             
             messagesTable.appendChild(row);
         });
@@ -390,19 +382,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${group.message_count}</td>
                 <td>${group.created_at}</td>
                 <td>
-                    <button class="action-btn delete-group-btn" data-id="${group.id}" title="Удалить группу">
-                        <span class="material-icons">delete</span>
-                    </button>
                 </td>
             `;
             
-            // Добавляем обработчики для кнопок
-            row.querySelector('.delete-group-btn').addEventListener('click', () => {
-                showDeleteConfirmation(
-                    `Вы уверены, что хотите удалить группу "${group.name}"?`,
-                    () => deleteGroup(group.id)
-                );
-            });
+     
             
             groupsTable.appendChild(row);
         });
