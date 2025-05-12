@@ -4,14 +4,16 @@ from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session, joinedload
 from typing import Dict, List
-import datetime
 from uuid import uuid4  # если это отдельный модуль
 from database import SessionLocal, engine
-from models import Base, User, Group, GroupUser, Message
+from models import Base, User, Group, GroupUser, Message, Admin
 from schemas import PrivateChatCreate, UserCreate, UserOut, GroupCreate, GroupOut, MessageCreate, MessageOut
 from auth import create_access_token, get_current_user
 from websocket_manager import ConnectionManager
 import deepl
+from datetime import datetime, timedelta
+from sqlalchemy import distinct, func
+
 
 chat_router = APIRouter()
 # Создаем таблицы
@@ -319,7 +321,7 @@ async def translate_message(
     if not msg:
         raise HTTPException(status_code=404, detail="Message not found")
     
-    target_lang = data.get("target_lang", "en-US")
+    target_lang = data.get("target_lang", "EN-US")
     
     # Если перевод на этот язык уже существует, просто включаем его отображение
     if msg.translated_content and msg.translated_content_lang == target_lang:
@@ -328,7 +330,7 @@ async def translate_message(
         try:
             # Пытаемся определить язык текста через DeepL
             try:
-                result = translator.translate_text(msg.content, target_lang="en-US")
+                result = translator.translate_text(msg.content, target_lang="EN-US")
                 detected_source_lang = result.detected_source_lang
             except:
                 detected_source_lang = "en"
@@ -342,7 +344,7 @@ async def translate_message(
                 # Выполняем перевод с правильными кодами языков
                 translated = translator.translate_text(
                     msg.content,
-                    target_lang=target_lang.split('-')[0] if '-' in target_lang else target_lang,
+                    target_lang=target_lang,
                     source_lang=detected_source_lang if detected_source_lang != target_lang else None
                 )
                 msg.translated_content = translated.text
@@ -502,3 +504,116 @@ async def notify_users_in_group_update(group_id: int, db: Session, action: str):
                     "action": action
                 }
             })
+            
+# Добавьте новые роуты для админ-панели
+@app.get("/admin", response_class=FileResponse)
+async def get_admin_panel():
+    return FileResponse("static/admin.html")
+
+@app.get("/admin/stats/users")
+async def get_users_count(db: Session = Depends(get_db)):
+    count = db.query(User).count()
+    return {"count": count}
+
+@app.get("/admin/stats/messages")
+async def get_messages_count(db: Session = Depends(get_db)):
+    count = db.query(Message).count()
+    return {"count": count}
+
+@app.get("/admin/stats/groups")
+async def get_groups_count(db: Session = Depends(get_db)):
+    count = db.query(Group).count()
+    return {"count": count}
+
+@app.get("/admin/list")
+async def get_admins(db: Session = Depends(get_db)):
+    admins = db.query(Admin).all()
+    return [{"id": admin.id, "username": admin.username, "created_at": admin.created_at} for admin in admins]
+
+@app.post("/admin/add")
+async def add_admin(admin_data: dict, db: Session = Depends(get_db)):
+    new_admin = Admin(username=admin_data["username"], password=admin_data["password"])
+    db.add(new_admin)
+    db.commit()
+    return {"message": "Admin added successfully"}
+
+
+@app.get("/admin/stats/user-activity")
+async def get_user_activity(db: Session = Depends(get_db)):
+    # Получаем активность за последние 30 дней
+    thirty_days_ago = datetime.utcnow() - timedelta(days=30)
+    
+    # Группируем сообщения по дням и считаем уникальных пользователей
+    activity = db.query(
+        func.date(Message.timestamp).label('date'),
+        func.count(distinct(Message.author_id)).label('user_count')
+    ).filter(
+        Message.timestamp >= thirty_days_ago
+    ).group_by(
+        func.date(Message.timestamp)
+    ).all()
+    
+    # Создаем словарь для хранения данных по датам
+    activity_dict = {str(date): count for date, count in activity}
+    
+    # Генерируем список дат за последние 30 дней
+    dates = []
+    counts = []
+    
+    for i in range(31):
+        current_date = (thirty_days_ago + timedelta(days=i)).date()
+        current_date_str = current_date.strftime('%Y-%m-%d')
+        dates.append(current_date_str)
+        counts.append(activity_dict.get(current_date_str, 0))
+    
+    return {
+        "dates": dates,
+        "counts": counts
+    }
+
+@app.get("/admin/stats/translations")
+async def get_translation_stats(db: Session = Depends(get_db)):
+    total_messages = db.query(Message).count()
+    translated_messages = db.query(Message).filter(
+        Message.translated_content.isnot(None)
+    ).count()
+    
+    return {
+        "translated": translated_messages,
+        "not_translated": total_messages - translated_messages
+    }
+
+@app.get("/admin/users")
+async def get_users_admin(db: Session = Depends(get_db)):
+    users = db.query(
+        User,
+        func.count(Message.id).label('message_count'),
+        func.max(Message.timestamp).label('last_activity')
+    ).outerjoin(
+        Message, User.id == Message.author_id
+    ).group_by(User.id).all()
+    
+    return [{
+        "id": user.User.id,
+        "username": user.User.username,
+        "message_count": user.message_count,
+        "last_activity": user.last_activity
+    } for user in users]
+
+@app.delete("/admin/users/{user_id}")
+async def delete_user(user_id: int, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Удаляем все сообщения пользователя
+    db.query(Message).filter(Message.author_id == user_id).delete()
+    
+    # Удаляем пользователя из всех групп
+    db.query(GroupUser).filter(GroupUser.user_id == user_id).delete()
+    
+    # Удаляем самого пользователя
+    db.delete(user)
+    db.commit()
+    
+    return {"message": "User deleted successfully"}

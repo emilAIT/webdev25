@@ -3,6 +3,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
+from typing import Optional
 
 Base = declarative_base()
 
@@ -57,3 +58,10 @@ class Message(Base):
     # Для личных сообщений: id получателя
     recipient_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     recipient = relationship("User", foreign_keys=[recipient_id])
+    
+class Admin(Base):
+    __tablename__ = "admins"
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True)
+    password = Column(String)
+    created_at = Column(DateTime, default=datetime.utcnow)
